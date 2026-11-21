@@ -51,14 +51,41 @@ QUEST_KEY = _key("q")
 MINIMAP_KEY = _key("v")   # the minimap in the side panel, on or off (user, v0.53.1; was n)
 MAP_KEY = _key("m")       # the whole map, big, over the map view (user, v0.53.1; was v)
 HELP_KEYS = {_key("SLASH"), _key("F1")}   # ? (shift + /) or F1
+MUTE_KEY = _key("F2")     # sound on or off (v0.63.0)
+
+
+def _window_sound(event, engine) -> None:
+    """The soft clicks of moving through, choosing in and leaving a window (v0.63.0)."""
+    from game import sound
+    sym = event.sym
+    if sym == KeySym.ESCAPE:
+        sound.on_key(engine.screen, "cancel")
+    elif sym in (KeySym.RETURN, KeySym.KP_ENTER) or _is_number(sym):
+        sound.on_key(engine.screen, "confirm")
+    elif sym in MOVE_KEYS or sym == KeySym.TAB:
+        sound.on_key(engine.screen, "move")
+
+
+def _is_number(sym) -> bool:
+    return any(sym == getattr(KeySym, f"N{i}", None) for i in range(1, 10))
 
 
 def action_for_event(event: tcod.event.Event, engine: "Engine") -> Action | None:
     if isinstance(event, tcod.event.Quit):
         return QuitAction()
 
+    if isinstance(event, tcod.event.KeyDown) and event.sym == MUTE_KEY:
+        from game import sound
+        sound.settings["muted"] = not sound.settings.get("muted")
+        sound.refresh_volumes()
+        sound.save_settings()
+        engine.log("Sound off. (F2 turns it back on.)" if sound.settings["muted"] else "Sound on.")
+        return None
+
     # An open screen (like the inventory) gets the keys instead of the map.
     if engine.screen is not None:
+        if isinstance(event, tcod.event.KeyDown):
+            _window_sound(event, engine)
         return engine.screen.handle(event, engine)
 
     if isinstance(event, tcod.event.KeyDown):

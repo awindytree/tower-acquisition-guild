@@ -5,6 +5,14 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.63.0: Sound (2026-11-20)
+The user's direction: the assistant makes the sounds, moody and ambient; the user makes the music (none yet); soundscapes everywhere, music only at key places.
+- **Sound effects** for the interface (moving through, choosing in and leaving windows, a window opening, a popup), footsteps (stone, wood, grass, dirt), combat (your blow, a telling blow, a miss, a kill, being hit, a creature's miss, a creature noticing you, the bow, an arrow striking, techniques, a lantern tick bursting, being dazed), fainting and death, levelling, talents, rank, and the world (picking things up, shards, butchering, drinking, eating, bandaging, a torch, an artifact, rope, the stash, shards changing hands), and moments (stepping into the Wayfinder, a hunt complete or not, a bounty done, a new record on the trophy wall). All made from code by `tools/sound/make_sounds.py` (placeholders, for the user's ears).
+- **Ambience** loops by place: Bytorsskug's streets, inside a building, the guild hall, the Brisering (and the title screen), and out in the miasma by land (caves, forest, ruins, mountains, plains; forest and plains have night versions), each over the miasma's low, uneasy drone. **The Wayfinder hums** when you're near it in the plaza, louder the closer you are.
+- **Music:** places can name music in `data/sounds.json` (WAV files in `data/music/`); none yet.
+- **The Sound window** (title menu and Esc menu): volumes 0–10 for everything, effects, ambience and music; mute; a test sound; and whether sound is working. **F2** mutes. Settings are kept in `saves/settings.json`, apart from any save.
+- Sound uses python-tcod's own audio: nothing new to install. If it can't start, the game plays on silently and the Sound window says why.
+
 ## 0.62.2: More creatures at danger 4 and 5; title screen (2026-11-20)
 - **One more creature in every area at danger 4 and 5** too (user), so each step up the danger ladder still adds creatures. Not balance-tested (user).
 - **The title screen no longer says "Bytorsskug"** under the game's name (user).

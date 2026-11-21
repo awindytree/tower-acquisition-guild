@@ -97,6 +97,8 @@ def sit(engine) -> str:
         new = keywords.learn(engine, kw.rank_words.get(p.rank, []), say=False)
         if new:
             extra += " The Guild teaches you " + " ".join(kw.word(w).shown for w in new) + "."
+    from game import sound
+    sound.play("rank_up")
     return f"You sit for {nxt['name']} and pass. ({nxt['fee']} shards){extra}"
 
 

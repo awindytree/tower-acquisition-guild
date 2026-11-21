@@ -54,6 +54,7 @@ python main.py
 | `v` | Side panel: the minimap or the message log (big maps show the stretch around you) |
 | `l` | Message log (↑↓, `[` `]` or PgUp/PgDn, Home/End) |
 | `?` or F1 | Key reference |
+| F2 | Sound on or off (volumes: Sound, in the title menu or Esc menu) |
 | Walk into the stash chest | Guild stash (guild hall, back right room): `←→` side, Enter moves across |
 | Walk into a service window (`▬`) | Talk to whoever works behind it (the guild clerk) |
 
@@ -248,6 +249,25 @@ rank). From rank 2, a bandage also mends a minor injury outright. Practice
 gets you to rank 2; the healer trains you beyond that.
 
 The injuries are in `data/injuries.json`.
+
+## Sound
+
+Sound effects and ambience (v0.63.0): soft interface sounds, footsteps by
+ground, combat, the world, and moments like stepping into the Wayfinder or a
+hunt coming home. Every place has its own soundscape (the city's streets,
+indoors, the guild hall, the Brisering, each kind of land out in the miasma,
+by day or night), and the Wayfinder hums when you're near it.
+
+- **Sound** in the title menu or the Esc menu: volumes for everything, effects,
+  ambience and music; mute; a test sound; and a line saying whether sound is
+  working. **F2** mutes. Settings live in `saves/settings.json`.
+- It uses python-tcod's own audio, so there's nothing extra to install. If it
+  can't start, the game plays on silently and the Sound window says why.
+- **To change a sound,** put a WAV file in `data/sounds/` and point the event at
+  it in `data/sounds.json`. The placeholders are made from code by
+  `tools/sound/make_sounds.py` (run it from the project root to remake them).
+- **Music** (none yet): put WAV files in `data/music/` and name them under
+  `"music"` in `data/sounds.json`, by place (`city`, `hall`, `brisering`…).
 
 ## Corpses, trophies, the trophymaster and the butcher
 
@@ -628,6 +648,7 @@ game/
   work.py             bounties, scouting and requests
   crafting.py         materials, the smith, commissions
   trophies.py         corpses, trophies, butchering, the trophymaster's records
+  sound.py            sound effects, ambience, the Wayfinder's hum, music hooks
   injuries.py         lasting injuries, bleeding and poison, the healer
   medicine.py         the Medicine skill: bandages and poultices
   library.py          writings, Scholarship, the Academy library
@@ -664,6 +685,9 @@ data/
   townsfolk.json      the people of Bytorsskug
   recipes.json        what the smith makes, and from what
   trophies.json       creatures' weights and sizes, quirks, record pay, the trophymaster's lines
+  sounds.json         which sound plays for what, footsteps, ambience and music by place
+  sounds/             the sound effects and ambience loops (WAV; tools/sound/make_sounds.py)
+  music/              the user's music (none yet)
   injuries.json       lasting injuries (what they do, how they heal)
   writings.json       writings found on hunts (texts are placeholders)
   aging.json          ages, rest between hunts, aging, old age
@@ -677,6 +701,7 @@ tools/
   make_tileset.py     rebuilds the font images (CP437 + extra letters like þ) from a font file
   city_plan/          the city plan, and build_city.py, which lays out city.txt from it
   balance/            sim.py (a bot plays hunts with the real rules) and report.py (sums it up)
+  sound/              make_sounds.py: builds the sound effects and ambience from code (numpy)
 ```
 
 The flow each turn: **key → Action → `perform()` → turn passes (or not) → redraw.**

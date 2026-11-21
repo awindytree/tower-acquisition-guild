@@ -56,6 +56,8 @@ def buy(player, item_type: ItemType, price: int, count: int = 1) -> tuple[bool, 
         return False, f"You have no room to carry the {what}."
     player.inventory.add(Item(item_type, count))
     player.shards -= price
+    from game import sound
+    sound.play("pay")
     bought = what if count > 1 else _a(item_type.name)
     return True, f"You buy {bought} for {price} shard{'s' if price != 1 else ''}."
 
@@ -75,6 +77,8 @@ def sell(player, shop: Shop, index: int, stock=None) -> tuple[bool, str]:
         return False, f"Take off the {item.type.name} before selling it."
     player.inventory.remove(index, 1)
     player.earn(price)
+    from game import sound
+    sound.play("pay")
     if stock is not None:
         stock.add(item.type.id, item.type.value)
     return True, f"You sell {_a(item.type.name)} for {price} shard{'s' if price != 1 else ''}."

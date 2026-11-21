@@ -68,6 +68,8 @@ class MoveAction(Action):
             engine.screen = ScrollScreen.of_lines("The trophy wall", trophies.wall_lines(engine))
             return False
         if tile.symbol == "C":
+            from game import sound
+            sound.play("stash")
             from game.screens import StashScreen
             engine.screen = StashScreen()
             return False  # rummaging in the stash takes no time
@@ -89,6 +91,8 @@ class MoveAction(Action):
             return False  # choosing takes no time
 
         if not tile.walkable:
+            from game import sound
+            sound.play("bump", gap=0.4)
             place = engine.game_map.landmarks.get((nx, ny))
             if place:      # a village on the Brisering (lore, user): not open yet
                 engine.log(f"{place}. You can't go in yet.")
@@ -98,6 +102,8 @@ class MoveAction(Action):
 
         from_x, from_y = player.x, player.y
         player.move(self.dx, self.dy)
+        from game import sound
+        sound.step(tile.symbol)
         here = engine.game_map.items_at(nx, ny)
         if len(here) == 1:
             engine.log(f"You see {article(here[0].item.floor_label)} here.")
@@ -128,6 +134,8 @@ class PickUpAction(Action):
             item = floor_item.item
             if item.trophy is not None:
                 if player.inventory.add(item):
+                    from game import sound
+                    sound.play("pickup")
                     big = " onto your back" if item.slots >= 4 else ""
                     engine.log(f"You heave the {item.floor_label}{big}. In your pack: {article(item.label)}, "
                                f"{item.slots} slot{'s' if item.slots > 1 else ''}.")
@@ -140,9 +148,13 @@ class PickUpAction(Action):
             if item.type.id == "shard":
                 from game import talents        # (Lucky: shards found are worth more)
                 player.earn(round(item.count * (1 + talents.total(player, "shards_found") / 100)))
+                from game import sound
+                sound.play("shards")
                 engine.log(f"You pocket {article(item.label)}.")
             elif player.inventory.add(item):
                 engine.log(f"You pick up {article(item.label)}.")
+                from game import sound
+                sound.play("pickup", gap=0.1)
                 if engine.hunt and item.type.id == engine.hunt.contract.artifact_id:
                     engine.log(f"This is what you came for. Now get the {item.type.name} home.")
                 from game import rivals, story
@@ -229,6 +241,13 @@ class AttackAction(Action):
                 engine.log(f"The {name} never saw you coming.")
             target.awake, target.turns_unseen = True, 0
         how = f"Your {tech} " if tech else ""
+        from game import sound
+        if tech:
+            sound.play("technique")
+        if not result.hit:
+            sound.play("miss")
+        elif not result.killed:
+            sound.play("crit" if result.crit else "hit")     # (a kill has its own sound: Engine.slay)
         if result.crit:
             engine.log("A telling blow!")
         if not result.hit:
@@ -320,7 +339,11 @@ class UseAction(Action):
                 engine.log(message)
             return took_time
         if item.type.working:
-            return artifacts.use(engine, item)
+            used = artifacts.use(engine, item)
+            if used:
+                from game import sound
+                sound.play("artifact")
+            return used
         if item.trophy is not None:              # butcher a trophy from the pack, here (v0.61.0)
             from game import trophies
             player.inventory.remove(self.index)
@@ -339,7 +362,11 @@ class UseAction(Action):
         props = item.type.properties
         if "treats" in props:
             from game import medicine
-            return medicine.use(engine, self.index)
+            used = medicine.use(engine, self.index)
+            if used:
+                from game import sound
+                sound.play("bandage")
+            return used
         if "burn_turns" in props:
             return self.light_torch(engine, item)
         if "heal_per_turn" in props:
@@ -357,6 +384,8 @@ class UseAction(Action):
         from game import talents                     # (Field Medic)
         gained = player.stats.heal(heal + talents.total(player, "draught"))
         engine.log(f"You drink the {item.type.name}. (+{gained} HP)")
+        from game import sound
+        sound.play("drink")
         return True
 
     def light_torch(self, engine: "Engine", item) -> bool:
@@ -373,6 +402,8 @@ class UseAction(Action):
         fieldskills.practise(engine, "survival")
         player.torch_light = item.type.properties.get("light", 0)
         engine.log(f"You light a {item.type.name}. The dark pulls back a little.")
+        from game import sound
+        sound.play("torch")
         return True
 
     def eat(self, engine: "Engine", item) -> bool:
@@ -391,6 +422,8 @@ class UseAction(Action):
         fieldskills.practise(engine, "survival")
         player.meal_heal = item.type.properties["heal_per_turn"]
         engine.log(f"You eat a {item.type.name}. You'll mend a little over the next {player.meal_turns} turns.")
+        from game import sound
+        sound.play("eat")
         return True
 
     def escape(self, engine: "Engine", item) -> bool:
@@ -402,6 +435,8 @@ class UseAction(Action):
         player.inventory.remove(self.index, 1)
         engine.screen = None
         engine.log(f"You use the {item.type.name} and make your way back to the trail home.")
+        from game import sound
+        sound.play("rope")
         engine.travel(0, arrive_at="entry")
         engine.reach_trail_home()
         return False  # the journey happens between turns

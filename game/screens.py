@@ -745,6 +745,7 @@ class TitleScreen(MenuScreen):
             ("New Hunter", can_continue, self.new_hunter),
             ("Continue", can_continue, self.continue_game),
             ("Load game", True, lambda e: self.open(e, SlotScreen("load", back=self))),
+            ("Sound", True, lambda e: setattr(e, "screen", SoundScreen(back=self))),
             ("Quit", True, lambda e: QuitAction()),
         ]
 
@@ -842,6 +843,7 @@ class GameMenuScreen(MenuScreen):
             ("Resume", True, lambda e: setattr(e, "screen", None)),
             ("Save game", engine.can_save_here, lambda e: setattr(e, "screen", SlotScreen("save", back=self))),
             ("Load game", True, lambda e: setattr(e, "screen", SlotScreen("load", back=self))),
+            ("Sound", True, lambda e: setattr(e, "screen", SoundScreen(back=self))),
             ("Save and quit", True, lambda e: QuitAction()),
         ]
 
@@ -1777,6 +1779,7 @@ KEY_REFERENCE = [
         ("v", "panel: minimap or messages"),
         ("l", "message log"),
         ("? or F1", "this key reference"),
+        ("F2", "sound on or off"),
         ("Esc", "menu: save, load, quit"),
     ]),
     ("Aiming (after f)", [
@@ -3119,3 +3122,71 @@ class TrophyScreen:
             row += 1
         keys = ("↑↓ choose  Enter hand it in  Esc" if self.mode == "trophymaster" else "↑↓ choose  Enter break it down  Esc")
         console.print(x + 2, y + h - 2, keys[: w - 4], fg=DIM, bg=BG)
+
+
+# ---- Sound (v0.63.0) ------------------------------------------------------------------------------
+class SoundScreen:
+    """Volumes (0-10) for everything, effects, ambience and music; mute; a test sound. From the
+    title menu and the game menu. ↑↓ a row, ←→ change it, Enter on Mute or Test; Esc goes back.
+    Settings are saved at once (saves/settings.json), apart from any save."""
+
+    ROWS = [("master", "Everything"), ("effects", "Sound effects"), ("ambience", "Ambience"),
+            ("music", "Music"), ("muted", "Mute (F2)"), ("test", "Play a test sound"), ("back", "Back")]
+
+    def __init__(self, back=None) -> None:
+        self.back = back
+        self.selected = 0
+        self.notice = ""
+
+    def handle(self, event, engine: "Engine") -> Action | None:
+        from game import sound
+        if not isinstance(event, tcod.event.KeyDown):
+            return None
+        key, _ = self.ROWS[self.selected]
+        step = {KeySym.LEFT: -1, KeySym.KP_4: -1, _key("a"): -1, KeySym.RIGHT: 1, KeySym.KP_6: 1, _key("d"): 1}.get(event.sym)
+        if event.sym == KeySym.ESCAPE or (event.sym in CONFIRM_KEYS and key == "back"):
+            engine.screen = self.back
+        elif event.sym in UP_KEYS:
+            self.selected = (self.selected - 1) % len(self.ROWS)
+        elif event.sym in DOWN_KEYS:
+            self.selected = (self.selected + 1) % len(self.ROWS)
+        elif step and key in ("master", "effects", "ambience", "music"):
+            sound.settings[key] = max(0, min(10, sound.settings[key] + step))
+            sound.refresh_volumes()
+            sound.save_settings()
+            if key in ("master", "effects"):
+                sound.play("ui_move")
+        elif (event.sym in CONFIRM_KEYS or step) and key == "muted":
+            sound.settings["muted"] = not sound.settings.get("muted")
+            sound.refresh_volumes()
+            sound.save_settings()
+        elif event.sym in CONFIRM_KEYS and key == "test":
+            sound.play("shards")
+            self.notice = ("Playing a test sound. If you heard nothing, check the volumes above and "
+                           "your computer's sound." if sound.active() else sound.status())
+        return None
+
+    def render(self, console, engine: "Engine", area_w: int) -> None:
+        from game import sound
+        w = min(area_w - 2, 52)
+        status = wrapped(sound.status(), w - 4, DIM if sound.active() else (230, 110, 90))
+        notice = wrapped(self.notice, w - 4, ACCENT) if self.notice else []
+        h = len(self.ROWS) + 5 + len(status) + (len(notice) + 1 if notice else 0)
+        x, y = (area_w - w) // 2, max(0, (console.height - h) // 2)
+        draw_box(console, x, y, w, h, "Sound")
+        for i, (key, label) in enumerate(self.ROWS):
+            row = y + 2 + i
+            bg = HIGHLIGHT if i == self.selected else BG
+            console.rgb["bg"][x + 1 : x + w - 1, row] = bg
+            console.print(x + 2, row, label, fg=TEXT, bg=bg)
+            if key in ("master", "effects", "ambience", "music"):
+                v = sound.settings[key]
+                bar = "■" * v + "·" * (10 - v)
+                console.print(x + w - 17, row, f"{bar} {v:>2}", fg=ACCENT if not sound.settings.get("muted") else DIM, bg=bg)
+            elif key == "muted":
+                console.print(x + w - 6, row, "on" if sound.settings.get("muted") else "off", fg=ACCENT, bg=bg)
+        row = y + 2 + len(self.ROWS) + 1
+        for text, color in status + ([("", TEXT)] if notice else []) + notice:
+            console.print(x + 2, row, text, fg=color, bg=BG)
+            row += 1
+        console.print(x + 2, y + h - 2, "↑↓ choose  ←→ change  Enter  Esc back"[: w - 4], fg=DIM, bg=BG)

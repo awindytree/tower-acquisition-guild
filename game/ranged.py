@@ -134,6 +134,8 @@ def fire(engine, tx: int, ty: int, rng: random.Random = random) -> bool:
     p.note_weapon_use()   # every shot counts towards the Hunter's calling
     path, creature = flight(engine, tx, ty)
     landed = path[-1] if path else (p.x, p.y)
+    from game import sound
+    sound.play("bow")
     if creature is None:
         engine.log("Your arrow flies wide and clatters away." if path else "Your arrow strikes the rock at once.")
     else:
@@ -153,6 +155,7 @@ def fire(engine, tx: int, ty: int, rng: random.Random = random) -> bool:
                          + talents.total(p, "ranged_damage") + mastery.prey_bonus(p, creature)[1]
                          - creature.armor)          # (Broadheads; knowing your prey)
             creature.take_damage(damage)
+            sound.play("arrow_hit")
             if creature.is_dead:
                 engine.log(f"{what} kills the {creature.name}.")
                 engine.slay(creature)

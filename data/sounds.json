@@ -1,0 +1,126 @@
+{
+ "_comment": "Sounds (v0.63.0; game/sound.py). events: a game event -> a sound file in data/sounds/ (no .wav), or several (one is picked at random each time), with an optional volume (0-1, on top of the player's settings). steps: map symbol -> footstep kind (step_<kind> in events). ambience: where the Hunter is -> a looping sound (title: the title screen; city: Bytorsskug's streets; interior: inside any other building; hall: the guild hall; brisering; and each land out in the miasma, with _night variants for torch-lit places). music: where -> a WAV file in data/music/ (no .wav), the user's; none yet. Keys for music are the same as ambience. To swap a sound, put a WAV in data/sounds/ and point the event at it. The sounds themselves are made by tools/sound/make_sounds.py (placeholders).",
+ "events": {
+  "ui_move": {
+   "files": "ui_move",
+   "volume": 0.6
+  },
+  "ui_confirm": "ui_confirm",
+  "ui_cancel": "ui_cancel",
+  "ui_open": {
+   "files": "ui_open",
+   "volume": 0.8
+  },
+  "ui_popup": "ui_popup",
+  "bump": {
+   "files": "ui_error",
+   "volume": 0.6
+  },
+  "step_stone": {
+   "files": [
+    "step_stone_1",
+    "step_stone_2",
+    "step_stone_3"
+   ],
+   "volume": 0.7
+  },
+  "step_grass": {
+   "files": [
+    "step_grass_1",
+    "step_grass_2",
+    "step_grass_3"
+   ],
+   "volume": 0.7
+  },
+  "step_wood": {
+   "files": [
+    "step_wood_1",
+    "step_wood_2",
+    "step_wood_3"
+   ],
+   "volume": 0.7
+  },
+  "step_dirt": {
+   "files": [
+    "step_dirt_1",
+    "step_dirt_2",
+    "step_dirt_3"
+   ],
+   "volume": 0.7
+  },
+  "hit": "hit",
+  "crit": "crit",
+  "miss": "miss",
+  "hurt": "hurt",
+  "creature_miss": {
+   "files": "miss",
+   "volume": 0.6
+  },
+  "kill": "kill",
+  "creature_alert": "creature_alert",
+  "bow": "bow",
+  "arrow_hit": "arrow_hit",
+  "technique": "technique",
+  "burst": "burst",
+  "daze": "daze",
+  "faint": "faint",
+  "death": "death",
+  "level_up": "level_up",
+  "talent": "talent",
+  "rank_up": "rank_up",
+  "pickup": "pickup",
+  "shards": "shards",
+  "butcher": "butcher",
+  "drink": "drink",
+  "eat": "eat",
+  "bandage": "bandage",
+  "torch": "torch",
+  "artifact": "artifact",
+  "rope": "rope",
+  "stash": "stash",
+  "wayfinder": "wayfinder",
+  "hunt_complete": "hunt_complete",
+  "hunt_return": "hunt_return",
+  "bounty_done": "bounty_done",
+  "record": "record",
+  "pay": "pay"
+ },
+ "steps": {
+  ".": "stone",
+  ":": "stone",
+  "c": "stone",
+  "k": "stone",
+  "+": "wood",
+  "w": "wood",
+  "m": "wood",
+  "=": "wood",
+  "I": "wood",
+  ",": "grass",
+  "f": "grass",
+  "^": "dirt",
+  "-": "dirt",
+  "R": "dirt",
+  "u": "stone",
+  "Q": "dirt",
+  "G": "stone",
+  "H": "dirt",
+  "<": "stone",
+  ">": "stone",
+  "@": "stone"
+ },
+ "ambience": {
+  "title": "amb_brisering",
+  "city": "amb_city",
+  "interior": "amb_interior",
+  "hall": "amb_hall",
+  "brisering": "amb_brisering",
+  "caves": "amb_caves",
+  "forest": "amb_forest",
+  "forest_night": "amb_forest_night",
+  "ruins": "amb_ruins",
+  "mountains": "amb_mountains",
+  "plains": "amb_plains",
+  "plains_night": "amb_plains_night"
+ },
+ "music": {}
+}

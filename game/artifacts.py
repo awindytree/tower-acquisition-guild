@@ -90,6 +90,8 @@ def repair(player, index: int, catalogue) -> tuple[bool, str]:
         return False, f"Repairing it costs {fee} shards. You don't have enough."
     was_known = t.identified
     player.shards -= fee
+    from game import sound
+    sound.play("pay")
     working = catalogue[t.repairs_to]
     player.inventory.items[index] = Item(working)
     learn(player, t)
@@ -102,6 +104,8 @@ def sell_broken(player, index: int) -> tuple[bool, str]:
     price = broken_price(t, player)
     player.inventory.remove(index, 1)
     player.earn(price)
+    from game import sound
+    sound.play("pay")
     return True, f"The artificer buys the {t.name} as it is, for {price} shards."
 
 
@@ -123,6 +127,8 @@ def sell_working(player, index: int, stock=None) -> tuple[bool, str]:
     price = working_price(t, player)
     player.inventory.remove(index, 1)
     player.earn(price)
+    from game import sound
+    sound.play("pay")
     if stock is not None:
         stock.add(t.id, t.value)
     return True, f"The artificer buys the {t.name} for {price} shards."
@@ -135,6 +141,8 @@ def consign(player, index: int, stock=None, catalogue=None) -> tuple[bool, str]:
     pay = consign_payout(t, player)
     player.inventory.remove(index, 1)
     player.earn(pay)
+    from game import sound
+    sound.play("pay")
     learn(player, t)
     if stock is not None and catalogue is not None:
         working = catalogue[t.repairs_to]

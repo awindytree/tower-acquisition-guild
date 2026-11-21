@@ -4,3 +4,5 @@
 *.bat text eol=crlf
 # Images are binary: never touch their bytes.
 *.png binary
+# Sounds are binary too.
+*.wav binary

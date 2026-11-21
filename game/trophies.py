@@ -168,6 +168,8 @@ def butcher(engine, item, rng=random) -> str:
     mtype = engine.monster_types[item.type.properties["monster"]]
     got = materials(engine, mtype, rng)
     fieldskills.practise(engine, "harvesting")
+    from game import sound
+    sound.play("butcher")
     if not got:
         return f"You butcher the {_creature(item)}, but there's nothing on it worth keeping."
     return f"You butcher the {_creature(item)}: {_say_got(_hand_over(engine, got))}."
@@ -178,6 +180,8 @@ def butcher_at_shop(engine, index: int) -> str:
     item = engine.player.inventory.remove(index)
     mtype = engine.monster_types[item.type.properties["monster"]]
     got = materials(engine, mtype, sure=True)
+    from game import sound
+    sound.play("butcher")
     if not got:
         return f"The butcher turns the {_creature(item)} over. \"Nothing on this worth the knife.\" He keeps it anyway."
     return f"The butcher breaks down the {_creature(item)}: {_say_got(_hand_over(engine, got))}."
@@ -252,6 +256,8 @@ def assess(engine, index: int, rng=random) -> tuple[bool, str]:
                             holder=rec["who"], old=weight_text(rec["kg"]))
     p.inventory.remove(index)
     p.earn(pay)
+    from game import sound
+    sound.play("record")
     return True, " ".join(said) + f" He pays you {pay} shards."
 
 

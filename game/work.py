@@ -365,6 +365,8 @@ def collect(engine) -> str:
     total = round(sum(j.reward for j in done) * (1 + talents.total(p, "bounty_pay") / 100))
     p.jobs = [j for j in p.jobs if not j.done]
     p.guild_pay(total)
+    from game import sound
+    sound.play("pay")
     from game import story
     for j in done:
         if j.story:

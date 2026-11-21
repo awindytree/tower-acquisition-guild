@@ -51,7 +51,7 @@ from game.saves import SaveSystem
 from game.shops import load_shops
 from game.artifacts import load_workshops
 from game.skills import load_skills
-from game import font
+from game import font, sound
 from game.version import VERSION
 from game.screens import TitleScreen
 
@@ -102,10 +102,14 @@ def main() -> None:
         vsync=True,
         sdl_window_flags=tcod.context.SDL_WINDOW_RESIZABLE | tcod.context.SDL_WINDOW_MAXIMIZED,
     ) as context:
+        # Sound (v0.63.0): after the window opens (SDL is up). If it can't start, the game is silent;
+        # the Sound window (title menu or Esc) says why. Volumes live in saves/settings.json.
+        sound.init(SAVES / "settings.json")
         last = time.monotonic()
         while True:
             # Rebuilt every time, so resizing the window just works.
             console = make_console(context)
+            sound.update(engine)          # the ambience for where you are, the Wayfinder's hum
             engine.render(console)
             context.present(console, integer_scaling=True)
 

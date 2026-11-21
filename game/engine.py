@@ -242,6 +242,8 @@ class Engine:
             from game import combat
             dmg = combat.roll(monster.type.burst)
             self.log(f"The {monster.name} bursts in a gout of flame!")
+            from game import sound
+            sound.play("burst")
             for other in list(self.game_map.monsters):
                 if max(abs(other.x - monster.x), abs(other.y - monster.y)) <= 1 and not other.type.ghost:
                     other.take_damage(dmg)
@@ -295,6 +297,9 @@ class Engine:
         p = self.player
         paid = min(p.shards, p.dues_owed)
         p.shards -= paid
+        if paid:
+            from game import sound
+            sound.play("pay")
         p.dues_owed -= paid
         from game import works
         works.dues_paid(self, paid)                # dues fund the Guild's works (v0.60.0)
@@ -435,6 +440,8 @@ class Engine:
                     m.awake = True
                     if m.type.behaviour == "hunt":
                         self.log(f"A {m.name} notices you.")
+                        from game import sound
+                        sound.play("creature_alert", gap=4.0)
                 m.turns_unseen = 0
             elif m.awake:
                 m.turns_unseen += 1
@@ -449,6 +456,8 @@ class Engine:
                 turns = max(3, DAZE_TURNS - max(0, ten - 10)) - talents.total(self.player, "daze_resist")
                 self.player.dazed = max(self.player.dazed, max(1, turns))
                 self.log(f"The {m.name} lets out a booming bellow. You're dazed!")
+                from game import sound
+                sound.play("daze")
             if getattr(m, "bleeding", 0):           # Rend (game/weaponskills.py)
                 m.bleeding -= 1
                 m.hp -= weaponskills.REND_DAMAGE
@@ -547,13 +556,18 @@ class Engine:
         if talents.total(p, "heal_on_kill") and p.stats.hp < p.stats.max_hp:   # Bloodthirst
             p.stats.heal(talents.total(p, "heal_on_kill"))
         xp = round(m.type.xp * (1 + talents.total(p, "xp") / 100))
+        from game import sound
+        sound.play("kill")
         if p.stats.gain_xp(xp):
             self.log(f"You feel stronger. You are now level {p.stats.level}.")
+            sound.play("level_up")
             talents.check(self)
 
     def monster_attacks(self, m) -> None:
         from game import combat
         result = combat.resolve(m, self.player, self.rng)
+        from game import sound
+        sound.play("hurt" if result.hit else "creature_miss")
         if not result.hit:
             self.log(f"The {m.name} misses you.")
             if weaponskills.has_passive(self.player, "blades") and not m.type.ghost and not m.burrowed:
@@ -866,6 +880,19 @@ class Engine:
             game_map.npcs.append(NPC(x, y, folk.glyph, folk.color, folk.full_name,
                                      folk_id=role, home=(x, y), wander=folk.wander))
         game_map.npc_spawns = []
+
+    # The window open over the map. A property (v0.63.0) so opening one can make its sound.
+    @property
+    def screen(self):
+        return self.__dict__.get("_screen")
+
+    @screen.setter
+    def screen(self, value) -> None:
+        old = self.__dict__.get("_screen")
+        self.__dict__["_screen"] = value
+        if value is not None and value is not old:
+            from game import sound
+            sound.on_screen(value)
 
     def talk_to(self, npc) -> None:
         """Start a conversation (no time passes)."""
