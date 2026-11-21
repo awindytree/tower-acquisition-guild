@@ -152,7 +152,8 @@ def tier_cap(danger: int, area_index: int) -> int:
 
 
 def spawn_count(danger: int, area_index: int) -> int:
-    return min(10, 2 + danger + area_index // 2)
+    # (balance pass 3, user, v0.62.1: one more creature per area at danger 3)
+    return min(10, 2 + danger + area_index // 2 + (1 if danger == 3 else 0))
 
 
 def choose_spawns(types: dict[str, MonsterType], habitat: str, danger: int, area_index: int,

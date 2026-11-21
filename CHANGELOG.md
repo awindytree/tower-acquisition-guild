@@ -5,6 +5,9 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.62.1: More creatures at danger 3 (2026-11-20)
+- **One more creature in every area at danger 3** (user; danger 3 was still about 81% success for the balance bot).
+
 ## 0.62.0: Balance pass 3 (2026-11-20)
 Progression, stage 7 (`claude/balance-report.md`, pass 3). The user's choices after the bot's measurements:
 - **Tougher tier 3–4 creatures:** +25% HP (rounded up) and +1 accuracy: deep horror 38, stone sentinel 35, woodland stalker 33, crawler 53, thistlehound 23 (tier 3); hollow brute 57, gravel wyrm 57 (tier 4). (Not the ashmantle, which can't fight.)
