@@ -642,6 +642,18 @@ for who, (ox, oy) in (("porter", (-6, -3)), ("washer", (2, 1)), ("carter", (7, 4
     taken.add(spot)
     npc_lines.append(f";npc={spot[0]},{spot[1]} {who}")
 
+# ---- Whisper Poet's statue (v0.68.0, user's lore): in the plaza, near the Wayfinder ----
+# Placed after everything else, on an open plaza cell with open ground all round that no one
+# stands on, as near the Wayfinder's west end as fits, so nothing else in the city moves.
+art_cells = {(x, y) for x in range(ART[0], ART[0] + ART_W) for y in range(ART[1], ART[1] + ART_H)}
+near_art = {(x + dx, y + dy) for x, y in art_cells for dx in (-1, 0, 1) for dy in (-1, 0, 1)}
+STATUE = min((c for c in plaza if c not in taken and c not in near_art and c != WELL and c != BOARD
+              and all(g[c[1] + dy][c[0] + dx] == ":" and (c[0] + dx, c[1] + dy) not in taken
+                      for dx in (-1, 0, 1) for dy in (-1, 0, 1))),
+             key=lambda c: abs(c[0] - (ART[0] - 4)) + 2 * abs(c[1] - (ART[1] + 1)))
+g[STATUE[1]][STATUE[0]] = "S"
+monument_lines = [f";monument={STATUE[0]},{STATUE[1]} whisper_poet"]
+
 items = []   # (v0.54.0, user: the example items that littered the guild hall are gone)
 header = [
     "; Bytorsskug. Laid out after the city plan (tools/city_plan/), then free to edit by hand.",
@@ -655,6 +667,8 @@ header = [
     f";hall={GX},{GY}",   # the guild hall's corner: the Guild's works build relative to it (v0.60.0)
     "; Service windows: walking into one talks to the person behind it.",
     *window_lines,
+    "; Monuments (data/monuments.json): walking into one reads it.",
+    *monument_lines,
     *[f";item={x},{y} {item} {n}" for (x, y), item, n in items],
 ]
 with open(OUT, "w", encoding="utf-8") as f:

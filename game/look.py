@@ -119,6 +119,11 @@ def describe(engine: "Engine", x: int, y: int) -> tuple[str, list[tuple[str, tup
         who = next((n for n in gm.npcs if n.folk_id == gm.windows[(x, y)]), None)
         heading = f"{who.name}'s window" if who else "A service window"
         lines.insert(0, ((f"Walk into it to talk to {who.name}." if who else "No one's behind it just now."), TEXT))
+    from game import monuments
+    mon = monuments.at(gm, x, y)
+    if mon:                               # a statue and its story (v0.68.0)
+        heading = mon["name"]
+        lines.insert(0, (mon.get("look", "") + " Walk into it to read the inscription.", TEXT))
     if (x, y) in gm.landmarks:            # a named place on the Brisering
         heading = gm.landmarks[(x, y)]
         lines.insert(0, (f"A {gm.tile_at(x, y).name}.", TEXT))

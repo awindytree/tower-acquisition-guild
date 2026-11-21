@@ -113,6 +113,10 @@ TILE_TYPES: list[TileType] = [
     # The Guild's works (v0.60.0): what each improvement adds to the hall.
     TileType("plaque", "L", walkable=False, transparent=False,
              glyphs="■", colors=((214, 176, 96),), bg=(52, 44, 30)),
+    # Monuments (v0.68.0): statues and the like, with their stories (data/monuments.json;
+    # ";monument=x,y id" in the map file). Walk into one to read it.
+    TileType("statue", "S", walkable=False, transparent=True,
+             glyphs="♀", colors=((176, 150, 104),), bg=(40, 36, 30)),
     TileType("training dummy", "U", walkable=False, transparent=True,
              glyphs="τ", colors=((190, 160, 110),)),
     TileType("cot", "Z", walkable=False, transparent=True,

@@ -215,6 +215,13 @@ her empty windcatcher, and teaches field skills in a corner of the guild hall at
 20% off, up to rank 4. Her artifact goes to the stash, and no one can identify,
 repair or sell it. The clerk puts 500 shards toward the Wayfinder study. All of
 it is `data/story/chapter1.json`.
+
+**Monuments** (v0.68.0): **Whisper Poet's statue** stands in the plaza by the
+Wayfinder (bronze `♀`). Walk into it to read its inscription; the look command and
+travel-to know it too. Its text is in `data/monuments.json` (the facts are the
+user's lore, the wording a draft), and more monuments can be added there and placed
+with a `;monument=x,y id` line in a map.
+
 Quests, scenes,
 story lines in conversations, counters, story items and **key hunts** (story
 contracts posted on the Guild's contracts board, for a given rank) are all written in

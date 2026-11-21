@@ -62,6 +62,10 @@ class MoveAction(Action):
             from game.screens import ScrollScreen
             engine.screen = ScrollScreen.of_lines("The plaque", works.plaque_lines(engine))
             return False
+        if tile.symbol == "S":                      # a monument (v0.68.0): its story
+            from game import monuments
+            if monuments.read(engine, nx, ny):
+                return False
         if tile.symbol == "D":                      # the trophy wall (v0.61.0): the records
             from game import trophies
             from game.screens import ScrollScreen

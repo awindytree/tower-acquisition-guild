@@ -54,6 +54,7 @@ class GameMap:
         self.gates: dict[tuple[int, int], str] = {}  # city gates: position -> region id
         self.arrivals: dict[str, tuple[int, int]] = {}  # gate id -> where you come out (the Brisering)
         self.trails: dict[tuple[int, int], int] = {}
+        self.monuments: dict[tuple[int, int], str] = {}  # statues and the like: cell -> id (data/monuments.json)
         self.landmarks: dict[tuple[int, int], str] = {}  # named places (the Brisering): cell -> name
         self.windows: dict[tuple[int, int], str] = {}    # service windows: cell -> folk id behind it
         self.tracks: dict[tuple[int, int], int] = {}     # creature tracks: cell -> turn left (Tracking)
@@ -90,6 +91,7 @@ class GameMap:
         arrivals: dict[str, tuple[int, int]] = {}
         landmarks: dict[tuple[int, int], str] = {}
         windows: dict[tuple[int, int], str] = {}
+        monuments: dict[tuple[int, int], str] = {}
         hall = None
         npcs: list[tuple[int, int, str]] = []
         rows: list[str] = []
@@ -113,6 +115,9 @@ class GameMap:
                 elif key == "window":    # ;window=x,y folk_id: a service window (v0.54.0)
                     pos, folk = value.split()
                     windows[tuple(int(n) for n in pos.split(","))] = folk
+                elif key == "monument":  # ;monument=x,y id: a statue and its story (data/monuments.json, v0.68.0)
+                    pos, mid = value.split()
+                    monuments[tuple(int(n) for n in pos.split(","))] = mid
                 elif key == "landmark":  # ;landmark=x,y Name of the place
                     pos, _, lname = value.partition(" ")
                     landmarks[tuple(int(n) for n in pos.split(","))] = lname
@@ -129,6 +134,7 @@ class GameMap:
         game_map.arrivals = arrivals
         game_map.landmarks = landmarks
         game_map.windows = windows
+        game_map.monuments = monuments
         game_map.hall = hall
         game_map.npc_spawns = npcs
         if "title" in settings:

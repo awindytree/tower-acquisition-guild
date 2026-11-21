@@ -5,6 +5,10 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.68.0: Whisper Poet's statue (2026-11-21)
+- **Whisper Poet's statue** stands in the plaza, between the notice board and the Wayfinder (user's lore): the Dzuth matriarch who heard Myligast's Jodebris from the western deserts and walked alone through the miasma to Bytorsskug in Turn 134. Her road is the Towerway. Walk into the statue to read its inscription. The look command describes it, and travel-to can take you there. The facts are the user's; the wording is a draft.
+- **Monuments**, for more lore in the world: `data/monuments.json` holds each one's name, look line and text, and a map places it with `;monument=x,y id`. The city builder places the statue; nothing else in the city moved.
+
 ## 0.67.3: Selda back to 20% off (2026-11-21)
 - **Reverted 0.67.2**, which misread the user: Selda teaches at **20% off** the trainer's price, as the outline says. The retired-Hunter mentor stays at 25% off, up to their own ranks.
 - A creature test failed now and then (since 0.64.0 a creature can fail to notice you); it now pins noticing.

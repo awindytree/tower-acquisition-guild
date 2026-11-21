@@ -19,7 +19,8 @@ class Attribute:
 
 
 ATTRIBUTES: list[Attribute] = [
-    # Roles rewritten in v0.57.0 (design-progression stage 3): there are no spells, so Acumen and
+    # Roles rewritten in v0.57.0 (design-progression stage 3): Hunters cast no spells (Chorus magic exists in the world,
+    # but needs Jodebris sensitivity; user, 2026-11-21), so Acumen and
     # Tenacity lost "spell power" and "mana". Each attribute also speeds practice in its skills.
     Attribute("physicality", "PHY", "Physicality", "Melee damage and how much you can carry. Speeds Axes, Hafted, Brawling, Harvesting."),
     Attribute("celerity",    "CEL", "Celerity",    "Accuracy and dodging. Speeds Blades, Marksmanship, Stealth."),

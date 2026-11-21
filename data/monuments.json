@@ -1,0 +1,21 @@
+{
+  "_comment": "Monuments (game/monuments.py, v0.68.0): statues and the like, each with its story. name: the heading (look command, travel-to). look: what the look command says. title: the reading window's title. text: its lines (each wrapped to the window; \"\" for a blank line) (walk into the monument to read them). A map places one with ';monument=x,y id' (tools/city_plan/build_city.py writes Bytorsskug's). The facts are the user's lore; THE WORDING IS A DRAFT by the assistant, for the user to rewrite.",
+  "whisper_poet": {
+    "name": "Whisper Poet's statue",
+    "look": "A bronze statue of a tall Bermann woman, her head turned a little to the east, as if she were listening for something.",
+    "title": "Whisper Poet",
+    "text": [
+      "The bronze is old and green at the edges, and polished smooth where the plaza's children have climbed it. She stands with her head turned a little to the east, towards Myligast, as if listening.",
+      "",
+      "The plaque at her feet reads:",
+      "",
+      "    WHISPER POET",
+      "    Matriarch of the Dzuth",
+      "    who heard the Tower's wind from the western deserts",
+      "    and walked alone through the miasma to find it.",
+      "    She came to Bytorsskug in Turn 134.",
+      "",
+      "The road she walked is the Towerway. Before her, nobody in the west knew there was a city here."
+    ]
+  }
+}

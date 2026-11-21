@@ -48,6 +48,11 @@ def destinations(engine) -> list[tuple[str, tuple[int, int], bool]]:
         art = [(x, y) for x in range(gm.width) for y in range(gm.height) if gm.tile_at(x, y).symbol == "Y"]
         if art:
             out.append(("the Wayfinder", max(art, key=lambda c: (c[1], -abs(c[0] - sum(a[0] for a in art) / len(art)))), True))
+        from game import monuments
+        for (x, y) in sorted(getattr(gm, "monuments", {})):           # statues (v0.68.0; stop beside them)
+            m = monuments.at(gm, x, y)
+            if m:
+                out.append((m["name"], (x, y), True))
         for (x, y), gate_id in sorted(gm.gates.items(), key=lambda g: g[1]):
             out.append((f"the {engine.gate_info.get(gate_id, {}).get('name', gate_id)}", (x, y), False))
     else:
