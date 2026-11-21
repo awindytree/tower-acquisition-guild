@@ -255,5 +255,55 @@
     "description": "The butcher by the plaza. Breaks down whatever Hunters drag in, and keeps the meat. (Placeholder.)",
     "dialogue": "butcher",
     "wander": 0
+  },
+  "selda_hunt": {
+    "name": [
+      "Selda",
+      "Fencer",
+      "Hunters"
+    ],
+    "glyph": "@",
+    "color": [
+      235,
+      200,
+      150
+    ],
+    "description": "An old Hunter, wedged into a cleft in the rock with her sword across her knees. Hurt, and out of light.",
+    "dialogue": "selda_found",
+    "wander": 0
+  },
+  "selda": {
+    "name": [
+      "Selda",
+      "Fencer",
+      "Hunters"
+    ],
+    "glyph": "@",
+    "color": [
+      235,
+      200,
+      150
+    ],
+    "description": "Retired now, and not pleased about it. She teaches what the miasma taught her. (Chapter 1.)",
+    "dialogue": "selda",
+    "wander": 0,
+    "hall_spot": [
+      1,
+      4
+    ],
+    "teaches": {
+      "tracking": 4,
+      "stealth": 4,
+      "harvesting": 4,
+      "survival": 4
+    },
+    "hall": {
+      "age_turns": 3,
+      "age_judgments": 2,
+      "level": 9,
+      "hunts": 61,
+      "served_judgments": 18
+    },
+    "off": 0.2
   }
 }

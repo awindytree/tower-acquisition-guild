@@ -138,6 +138,16 @@
       "difficulty": 5,
       "title": "An untranslated fragment",
       "text": "Only a few words can be made out with any confidence: the Tower, the Winds, and one more that no two scholars at the Academy read the same way. The rest waits for a better scholar."
+    },
+    "selda_writing": {
+      "look": "letter",
+      "difficulty": 1,
+      "story": true,
+      "teaches": [
+        "broken_promise"
+      ],
+      "title": "A cartographer's complaint",
+      "text": "A letter never sent, folded small. Its writer mapped the caves north of Bytorsskug for the Academy, and spends most of a page complaining: the damp, the dark, the Academy's slowness to pay. Lower down the hand grows unsteady. One stretch of the caves, they write, felt wrong: the air too still, the dark too thick, light that wouldn't carry. \"Our guide had a name for it from the Wayfinder's words: Broken Promise. I asked her why. She said: because it looks like a way through, and it isn't.\" The letter breaks off there. Handed in to the library by Selda Fencer Hunters. (Chapter 1; the assistant's draft.)"
     }
   }
 }

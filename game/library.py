@@ -89,7 +89,7 @@ def plan_hunt(engine, contract) -> list:
     taken = owned(engine)
     r = contract.region
     where = {r.id, r.style, *r.place}     # a writing's "regions" can name a place, a land style or a word
-    pool = sorted(t.id for t in writings(engine.catalogue) if t.id not in taken
+    pool = sorted(t.id for t in writings(engine.catalogue) if t.id not in taken and not t.properties.get("story")
                   and (not t.properties.get("regions") or where & set(t.properties["regions"])))
     chance = min(0.9, s["find_chance"] * getattr(r, "writings", 1.0))   # (the Letters feature: more)
     plan = []

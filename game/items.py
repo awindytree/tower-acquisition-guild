@@ -171,7 +171,7 @@ def load_writings(path: Path) -> dict[str, ItemType]:
             color=tuple(look.get("color", (220, 210, 180))), kind="writing",
             real_description=f"{seen} You've read it. The Academy library would take it (talk to the librarian).",
             value=0, appearance=(look["name"], f"{seen} Read it (u), or take it to the Academy library."),
-            properties={"regions": d.get("regions", [])},
+            properties={"regions": d.get("regions", []), "story": bool(d.get("story"))},
             writing={"difficulty": d["difficulty"], "title": d["title"], "text": d["text"],
                      "teaches": list(d.get("teaches", []))})
     return types

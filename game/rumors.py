@@ -23,7 +23,7 @@ def tell(engine, folk_id: str, rng) -> str:
     if folk_id in told and told[folk_id][0] == engine.day:
         return told[folk_id][1]
     kw = engine.regions.keywords
-    unknown = [w for w in kw.all_ids() if w not in engine.words]
+    unknown = [w for w in kw.all_ids(ordinary=True) if w not in engine.words]
     if unknown and rng.random() < s["chance"]:
         word = kw.word(rng.choice(sorted(unknown)))
         line = rng.choice(s["word_lines"]).format(word=word.shown)

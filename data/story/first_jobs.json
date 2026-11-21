@@ -1,9 +1,10 @@
 {
-  "_comment": "The new player's first steps (user's outline, 2026-11-20): the clerk's first jobs teach the game, a mechanic at a time, as each comes up. A contract first, then a bounty, then the clerk's welcome (100 shards). Choosing not to take the clerk's job skips to the story (a placeholder scene until the user writes it). ALL WORDING IS A DRAFT by the assistant, for the user to rewrite; the structure is the user's. The word 'tutorial' never appears in game text (user).",
+  "_comment": "The new player's first steps (user's outline, 2026-11-20): the clerk's first jobs teach the game, a mechanic at a time, as each comes up. A contract first, then a bounty, then the clerk's welcome (100 shards). Choosing not to take the clerk's job goes straight on to Chapter 1 (chapter1.json). ALL WORDING IS A DRAFT by the assistant, for the user to rewrite; the structure is the user's. The word 'tutorial' never appears in game text (user).",
 
   "quests": {
     "first_jobs": {
       "title": "The clerk's first jobs",
+      "on_done": ["start:ch1_three_words"],
       "stages": [
         {"id": "contract", "log": "The guild clerk has pinned a contract for you on the contracts board.",
          "goal": "Take the contract marked for you on the contracts board: the left-hand board at the front of the guild hall.",
@@ -81,7 +82,7 @@
       ],
       "choices": [
         {"text": "Sure, what have you got?", "do": ["start:first_jobs", "scene:clerk_thanks"]},
-        {"text": "If it's all the same to you, I'll figure it out as I go.", "do": ["set:world:skipped_first_jobs", "scene:story_next"]}
+        {"text": "If it's all the same to you, I'll figure it out as I go.", "do": ["set:world:skipped_first_jobs", "start:ch1_three_words"]}
       ]
     },
 
@@ -91,11 +92,6 @@
         {"speaker": "The guild clerk", "text": "Thank you! Truly. It's good to have someone keen."},
         {"speaker": "The guild clerk", "text": "First, a contract. That's a Hunter's bread and butter: we hear where something worth having lies, and you go and fetch it.\n\nI've pinned one up for you on the contracts board, the left-hand board at the front of the hall. It's marked for you."}
       ]
-    },
-
-    "story_next": {
-      "on": "manual", "title": "The story",
-      "pages": ["[STORY GOES HERE]"]
     },
 
     "pop_contract_taken": {

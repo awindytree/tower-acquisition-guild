@@ -1,0 +1,49 @@
+{
+  "start": [
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "hello": {
+      "text": {
+        "variants": [
+          "Still on my feet. Lifa says that's more than I deserve.",
+          "Sit down, Hunter. No? Then let's make you better at not needing rescuing.",
+          "If you're going back out, take more torches than you think. Take more than that."
+        ]
+      },
+      "choices": [
+        {
+          "text": "Teach me what you know of the field.",
+          "do": [
+            "teach:selda"
+          ]
+        },
+        {
+          "text": "Why were you still hunting?",
+          "goto": "why"
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "why": {
+      "text": "Dues, mostly. And because it's the only thing I've ever been good at. Ask me again some other time.",
+      "choices": [
+        {
+          "text": "Teach me what you know of the field.",
+          "do": [
+            "teach:selda"
+          ]
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    }
+  }
+}

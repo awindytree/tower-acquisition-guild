@@ -273,14 +273,15 @@ def fire(engine, event: str, **ctx) -> None:
 
 
 def play(engine, sid: str) -> None:
-    """A scene: its effects now; its pages (if any) on screen as soon as nothing else is."""
+    """A scene: its effects now; its pages (if any) on screen as soon as nothing else is. Its pages are queued
+    before its effects run, so whatever those bring (a chapter's card, a tip) comes after them (v0.67.0)."""
     from game.dialogue import apply
     sc = engine.story_data.scenes[sid]
     if sid not in engine.story["seen"]:
         engine.story["seen"].append(sid)
-    apply(engine, sc.get("do"))
     if sc.get("pages"):
         engine.scene_queue.append(sid)
+    apply(engine, sc.get("do"))
 
 
 def show_next_scene(engine) -> None:
@@ -480,6 +481,28 @@ def apply(engine, kind: str, rest: str) -> bool:
     elif kind == "learn":          # learn:WORD[,WORD...]: words for the Wayfinder (game/keywords.py)
         from game import keywords
         keywords.learn(engine, [w.strip() for w in rest.split(",") if w.strip()])
+    # ---- v0.67.0 (Chapter 1) ----
+    elif kind == "card":           # card:HEADING|LINE|LINE...: a title card (an act's name, say)
+        head, *lines = rest.split("|")
+        card(engine, head, [(fill(engine, l), "accent" if i == 0 else "text") for i, l in enumerate(lines)])
+    elif kind == "appear":         # appear:FOLK: a story person takes their place in the guild hall, for good
+        s.setdefault("folk", [])
+        if rest not in s["folk"]:
+            s["folk"].append(rest)
+        place_folk(engine)
+    elif kind == "remember":       # remember:FOLK[:CAUSE]: a story person goes into the Hall of Hunters ("hall" opens it)
+        _remember(engine, *rest.split(":", 1))
+    elif kind == "to_stash":       # to_stash:ITEM: from the Hunter's pack into the guild stash
+        _to_stash(engine, rest)
+    elif kind == "fund":           # fund:PROJECT:N: N shards toward one of the Guild's works ("works" opens them)
+        from game import works
+        pid, _, n = rest.partition(":")
+        for line in works.give(engine, pid, int(n), works.DUES):
+            engine.log(line)
+    elif kind == "shelve":         # shelve:WRITING: the Academy library has it (to be read there)
+        if rest not in engine.library:
+            engine.catalogue[rest]
+            engine.library.append(rest)
     else:
         return False
     return True
@@ -569,7 +592,8 @@ def posted_contracts(engine) -> list:
         danger = place.danger[0]
         out.append(Contract(place, c["prize"], danger, c.get("depth", depth_of(place, danger)),
                             zlib.crc32(f"{cid}:{engine.day}".encode()), "", cid, fill(engine, c["title"]),
-                            c.get("guardian", ""), rank_index(c)))
+                            c.get("guardian", ""), rank_index(c), False, c.get("prize_folk", ""),
+                            int(c.get("guardians", 1))))
     return out
 
 
@@ -690,3 +714,73 @@ def story_so_far(engine) -> None:
         for line in lines:
             body += [(line, "text"), ("", "text")]
         card(engine, "The Story So Far", body[:-1])
+
+
+
+# ---- Key hunts whose words must be found (v0.67.0, Chapter 1) --------------------------------------------------
+def hidden_words(engine, c) -> bool:
+    """A story contract posted with "hidden_words": its words aren't given; they have to be learned."""
+    return bool(getattr(c, "story", "")) and bool(engine.story_data.contracts.get(c.story, {}).get("hidden_words"))
+
+
+def words_shown(engine, c) -> str:
+    """The contract's words as the Hunter knows them: [?] for any not yet learned (hidden-word key hunts)."""
+    if not hidden_words(engine, c):
+        return c.region.name
+    kw = engine.regions.keywords
+    return "".join(kw.word(w).shown if w in engine.words else "[?]" for w in c.region.place)
+
+
+
+# ---- Story people, the Hall, the stash (v0.67.0) ---------------------------------------------------------------
+def place_folk(engine) -> None:
+    """Put the story's people in the guild hall (townsfolk.json "hall_spot": [dx, dy] from the hall's
+    corner, or the nearest free floor to it). Called after any change and whenever the hall is rebuilt."""
+    from game import works
+    city = engine.city
+    if city is None or city.hall is None or not engine.townsfolk:
+        return
+    hx, hy = city.hall
+    for fid in engine.story.get("folk", []):
+        folk = engine.townsfolk.get(fid)
+        if folk is None or any(n.folk_id == fid for n in city.npcs):
+            continue
+        dx, dy = (folk.extra or {}).get("hall_spot", [9, 5])
+        want = (hx + dx, hy + dy)
+        free = [(x, y) for x in range(hx, hx + 20) for y in range(hy, hy + 11)
+                if city.in_bounds(x, y) and city.is_walkable(x, y) and not city.npc_at(x, y)
+                and city.tile_at(x, y).symbol not in "HG<>"]
+        if not free:
+            continue
+        x, y = min(free, key=lambda c: (abs(c[0] - want[0]) + abs(c[1] - want[1]), c))
+        works.place_person(engine, fid, x, y)
+
+
+def _remember(engine, fid: str, cause: str = "retired") -> None:
+    """A story person into the Hall of Hunters, from townsfolk.json "hall"."""
+    from game import aging
+    folk = engine.townsfolk.get(fid)
+    if folk is None or any(e.get("name") == folk.full_name for e in engine.hall):
+        return
+    h = (folk.extra or {}).get("hall", {})
+    c = aging.calendar()
+    age = h.get("age_turns", 2) * c.per_turn + h.get("age_judgments", 0) * c.per_judgment
+    from game import ranks
+    engine.hall.append({"name": folk.full_name, "rank": h.get("rank", ranks.name(min(3, len(ranks.table()) - 1))),
+                        "age": age, "level": h.get("level", 1), "hunts": h.get("hunts", 0),
+                        "joined": engine.day - h.get("served_judgments", 0) * c.per_judgment, "ended": engine.day, "cause": cause})
+
+
+def _to_stash(engine, item_id: str) -> None:
+    p = engine.player
+    for i in reversed(range(len(p.inventory.items))):
+        it = p.inventory.items[i]
+        if it.type.id == item_id:
+            if p.is_equipped(it):
+                continue
+            item = p.inventory.remove(i, it.count)
+            if engine.stash.add(item):
+                engine.log(f"The {item.type.name} goes into the guild stash.")
+            else:
+                p.inventory.add(item)
+            return

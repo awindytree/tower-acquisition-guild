@@ -243,6 +243,34 @@ The user's frame (design in `claude/design-story-presentation.md`): the world is
 
 A worked example of every part: `data/story/examples/frame/frame.json`.
 
+## Added in v0.67.0 (for Chapter 1: Three Words)
+
+**Scene order.** A scene's pages are queued before its effects run, so a card or tip its effects bring comes after its pages. To show a card first (an act's name, say), put it in a scene of its own, with no pages, listed just before, on the same event.
+
+**Key hunts:**
+- `"hidden_words": true`: the board shows `[?]` for each word the Hunter doesn't know yet. Taking the hunt doesn't teach the words. Whoever goes to the place with all three words is on it, whether they took it or not.
+- A story danger word is allowed at the Wayfinder for any rank while a posted story hunt open to that Hunter uses it.
+- `"prize_folk": "FOLK"`: the prize is a person. FOLK (a townsfolk id) waits at the far end, and its conversation carries them off with `carry:ITEM:FOLK`. ITEM is the person as a pack item: kind `key`, `"slots": N` for how much room they take, `"no_drop": true` so they can't be left behind. Bringing them home completes the hunt, like any prize.
+- `"guardians": N`: N guardians at the prize, not 1.
+
+**Story words:** a word with `"story": true` in `data/keywords.json` is never posted on a board, heard in a rumour, taught by the scholar, or picked for a random place. The story teaches it (`learn:`, a writing's `teaches`).
+
+**Story writings:** `"story": true` in `data/writings.json` keeps a writing out of hunts, and out of the library's count until the story shelves it.
+
+**Story-locked artifacts:** `"properties": {"locked": true}` on an artifact means it is never found by chance or asked for, and the artificer won't study, repair, buy or consign it.
+
+**New effects:**
+- `card:HEADING|LINE|LINE...` shows a title card.
+- `appear:FOLK` puts a story person in the guild hall for good, at their townsfolk `"hall_spot": [dx, dy]` (from the hall's corner) or the nearest free floor.
+- `remember:FOLK[:CAUSE]` adds them to the Hall of Hunters, from their townsfolk `"hall"` entry: `age_turns`, `age_judgments`, `level`, `hunts`, `served_judgments`, `rank`.
+- `to_stash:ITEM` moves an item from the pack to the guild stash.
+- `fund:PROJECT:N` puts N shards toward one of the Guild's works.
+- `shelve:WRITING` puts a writing in the Academy library.
+- In conversations, `carry:ITEM:FOLK` picks someone up (above).
+- In conversations, `teach:FOLK` opens training with a story mentor: their townsfolk `"teaches": {"skill": cap}` and `"off"` (0.2 = 20% off the trainer).
+
+(`hall` and `works` open those screens, so the effects that add to them are `remember` and `fund`.)
+
 ## Testing without the story
 
 Set the environment variable `TAG_NO_STORY=1` and the game loads no story files

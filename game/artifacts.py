@@ -34,6 +34,9 @@ def study(player, item_type: ItemType, skills: dict) -> tuple[bool, list[str]]:
     tier = max(1, tier - talents.total(player, "identify"))     # (Good Eye: a rarity beyond your rank)
     if item_type.identified:
         return False, [f"You already know this is {_a(item_type.name)}. It needs an Artificer's repair."]
+    if item_type.properties.get("locked"):        # story-locked (Chapter 1's Unique, v0.67.0)
+        return False, [f"You turn the {item_type.name} over and over. Its marks mean nothing to you, and nothing "
+                       "you know of Identification gets a grip on it. Not yet."]
     studied = player.studied.get(item_type.id, 0)
     if studied >= state.rank:
         return False, [f"You've studied the {item_type.name} as far as your skill allows. "
@@ -90,9 +93,20 @@ def consign_payout(t: ItemType, player=None) -> int:
     return bargaining.paid(player, int(t.value / 2 * ARTIFICER_PAY))
 
 
+LOCKED = ("The artificer turns it over for a long time, then hands it back. \"I can't tell you what this is. "
+          "I don't think anyone in this city can.\"")
+
+
+def locked(t: ItemType) -> bool:
+    """A story artifact: kept, not repaired, sold or studied (v0.67.0, user: story-locked)."""
+    return bool(t.properties.get("locked"))
+
+
 def repair(player, index: int, catalogue) -> tuple[bool, str]:
     item = player.inventory.items[index]
     t = item.type
+    if locked(t):
+        return False, LOCKED
     fee = repair_fee(t, player)
     if player.shards < fee:
         return False, f"Repairing it costs {fee} shards. You don't have enough."
@@ -109,6 +123,8 @@ def repair(player, index: int, catalogue) -> tuple[bool, str]:
 
 def sell_broken(player, index: int) -> tuple[bool, str]:
     t = player.inventory.items[index].type
+    if locked(t):
+        return False, LOCKED
     price = broken_price(t, player)
     player.inventory.remove(index, 1)
     player.earn(price)
@@ -145,6 +161,8 @@ def sell_working(player, index: int, stock=None) -> tuple[bool, str]:
 def consign(player, index: int, stock=None, catalogue=None) -> tuple[bool, str]:
     """Paid at once. If the workshop's stock is given, the repaired artifact goes up for sale there."""
     t = player.inventory.items[index].type
+    if locked(t):
+        return False, LOCKED
     was_known = t.identified
     share = consign_share(t, player)
     if player.shards < share:

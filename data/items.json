@@ -306,5 +306,18 @@
     "name": "shard", "glyph": "♦", "color": [150, 220, 210], "kind": "treasure",
     "description": "The coin of the realm. The first shards were true pieces of Windcatcher glass.",
     "value": 1, "stackable": true
-  }
+  },
+  "selda": {"name": "Selda Fencer Hunters", "glyph": "@", "color": [235, 200, 150], "kind": "key", "value": 0,
+    "description": "Selda, hurt and too weak to walk far, an arm over your shoulders. She takes room you'd otherwise fill. Get her to the trail home (or use rope).",
+    "properties": {"slots": 4, "no_drop": true}},
+  "spent_torch": {"name": "spent torch", "plural": "spent torches", "glyph": "/", "color": [120, 100, 80], "kind": "misc", "value": 0, "stackable": true,
+    "description": "Burned down to the grip. Someone out here was relying on torches: whatever lit their way before had stopped."},
+  "butchered_remains": {"name": "butchered remains", "glyph": "%", "color": [150, 110, 100], "kind": "misc", "value": 0,
+    "description": "A pale lurker, opened with a practised hand where it fell: the hide and sinew taken, the rest left. Whoever did this knew how, and needed what they took."},
+  "selda_notes": {"name": "Selda's field notes", "glyph": "µ", "color": [220, 200, 160], "kind": "key", "value": 0,
+    "description": "A Hunter's notebook in a careful hand: creatures seen, turnings taken, how much light was left. The last entries get shorter. The guild clerk would want these."},
+  "selda_relic": {"name": "nameless thing", "kind": "artifact", "rarity": "unique", "appearance": "stone", "value": 0,
+    "description": "Nobody can say what this is.", "repairs_to": "selda_relic_working", "properties": {"locked": true}},
+  "selda_relic_working": {"name": "nameless thing (restored)", "kind": "artifact", "rarity": "unique", "working": true, "value": 0,
+    "description": "Not yet: a later chapter.", "properties": {}}
 }

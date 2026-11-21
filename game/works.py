@@ -199,6 +199,10 @@ def apply(engine) -> None:
                 city.set_tile(hx + dx, hy + dy, sym)
             for dx, dy, folk_id in tier.get("people", []):
                 place_person(engine, folk_id, hx + dx, hy + dy)
+    from game import story                  # the story's people in the hall (v0.67.0)
+    city.npcs = [n for n in city.npcs if not ((engine.townsfolk.get(n.folk_id) and
+                 (engine.townsfolk[n.folk_id].extra or {}).get("hall_spot")))]
+    story.place_folk(engine)
 
 
 def place_person(engine, folk_id: str, x: int, y: int) -> None:
@@ -224,7 +228,7 @@ def word_lesson(engine) -> str:
     if p.shards < LESSON_FEE:
         return f"\"{LESSON_FEE} shards, and I'll give you a word.\" You don't have that."
     kw = engine.regions.keywords
-    unknown = [w for w in kw.all_ids() if w not in engine.words and keywords.allowed(engine, kw.word(w))]
+    unknown = [w for w in kw.all_ids(ordinary=True) if w not in engine.words and keywords.allowed(engine, kw.word(w))]
     if not unknown:
         return "\"You know every word I could teach you. Come back after your next rank.\""
     word = random.Random(f"lesson/{engine.day}").choice(sorted(unknown))

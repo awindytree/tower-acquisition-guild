@@ -1,5 +1,5 @@
 {
-  "_comment": "The Wayfinder's keywords (game/keywords.py; design: claude/design-brisering-keywords.md). A trip is three words, one per slot, like .hack's Chaos Gates (user, 2026-11-19): danger, then land, then feature. The same three words always lead to the same place (layout fixed by the words); what's in it is rolled each trip. EVERY WORD HERE IS A PLACEHOLDER until the user writes the real vocabulary. GRAMMAR (user, 2026-11-19): danger and land words are each an adjective or a verb (pos: adjective or verb; verbs are written as -ing words, like Dancing); a place can't have a verb for both its danger and its land word (both adjectives is fine); feature words are nouns (pos: noun; a noun phrase is fine, like Victory Lap). Valid: [Hungry][Tangled][Victory Lap], [Dancing][Green][Ropeway]. Invalid: [Singing][Listing][Ideas]. Ids are lowercase; 'word' is how it's shown, in brackets. danger words: danger 1-5 (creature tiers, how rare the find is) and depth (number of areas, 1-5). land words: style (caves, ruins, forest, mountains, plains), light (day or torch: dark, torchlight only), area_size [width, height]. feature words (every key optional): light (overrides the land's), creatures (a multiplier on how many), favour (a creature id that turns up far more often, wherever it lives, if the danger allows its tier), rarity_up (the find is rolled as if the danger were this much higher), writings (a multiplier on the chance of a writing in each area). start: the words known at a new game. rank_words: words the Guild teaches a Hunter who rises to that rank (index into data/ranks.json).",
+  "_comment": "The Wayfinder's keywords (game/keywords.py; design: claude/design-brisering-keywords.md). A trip is three words, one per slot, like .hack's Chaos Gates (user, 2026-11-19): danger, then land, then feature. The same three words always lead to the same place (layout fixed by the words); what's in it is rolled each trip. EVERY WORD HERE IS A PLACEHOLDER until the user writes the real vocabulary. GRAMMAR (user, 2026-11-19): danger and land words are each an adjective or a verb (pos: adjective or verb; verbs are written as -ing words, like Dancing); a place can't have a verb for both its danger and its land word (both adjectives is fine); feature words are nouns (pos: noun; a noun phrase is fine, like Victory Lap). Valid: [Hungry][Tangled][Victory Lap], [Dancing][Green][Ropeway]. Invalid: [Singing][Listing][Ideas]. Ids are lowercase; 'word' is how it's shown, in brackets. danger words: danger 1-5 (creature tiers, how rare the find is) and depth (number of areas, 1-5). land words: style (caves, ruins, forest, mountains, plains), light (day or torch: dark, torchlight only), area_size [width, height]. feature words (every key optional): light (overrides the land's), creatures (a multiplier on how many), favour (a creature id that turns up far more often, wherever it lives, if the danger allows its tier), rarity_up (the find is rolled as if the danger were this much higher), writings (a multiplier on the chance of a writing in each area). start: the words known at a new game. rank_words: words the Guild teaches a Hunter who rises to that rank (index into data/ranks.json). v0.67.0 (user, Chapter 1): Murmuring (danger 3), Specter's (caves, dark), Broken Promise (creatures halved, sight: light reaches 20% less far). Taught only by the chapter.",
   "danger": {
     "quiet": {
       "word": "Quiet",
@@ -60,6 +60,14 @@
       "pos": "adjective",
       "danger": 5,
       "depth": 5
+    },
+    "murmuring": {
+      "word": "Murmuring",
+      "pos": "verb",
+      "danger": 3,
+      "depth": 3,
+      "description": "Chapter 1 (user): one of Selda's three words.",
+      "story": true
     }
   },
   "land": {
@@ -162,6 +170,18 @@
         72,
         40
       ]
+    },
+    "specters": {
+      "word": "Specter's",
+      "pos": "adjective",
+      "style": "caves",
+      "light": "torch",
+      "area_size": [
+        72,
+        40
+      ],
+      "description": "Chapter 1 (user): one of Selda's three words. Dark caves.",
+      "story": true
     }
   },
   "feature": {
@@ -204,6 +224,14 @@
       "word": "Lurker",
       "pos": "noun",
       "favour": "pale_lurker"
+    },
+    "broken_promise": {
+      "word": "Broken Promise",
+      "creatures": 0.5,
+      "sight": 0.8,
+      "description": "Chapter 1 (user): one of Selda's three words. Half the creatures, and 20% less light.",
+      "pos": "noun",
+      "story": true
     }
   },
   "start": [

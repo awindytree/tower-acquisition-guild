@@ -198,8 +198,23 @@ window opens), the hunt (popups on the miasma, creatures, what they leave, the
 deepest area, the find, getting home), then a bounty marked for you on the
 bounty board, and finally the clerk pays you, tells you about the plaza's
 notice board, hands you 100 shards and welcomes you properly. Decline, and you
-go straight on to the story (a placeholder for now). All of it is
-`data/story/first_jobs.json`.
+go straight on to the story. All of it is `data/story/first_jobs.json`.
+
+**Chapter 1: Three Words** (v0.67.0, the user's outline; wording is a draft)
+follows the first jobs. Selda Fencer Hunters, an aging Hunter, went out through
+the Wayfinder and hasn't come back. The clerk posts a key hunt open to every
+rank, but nobody knows her words: the board shows `[?][?][?]`. You learn one on
+an errand (Jokro the washer), one from a writing in the Academy library, and one
+from a rumour (Klubo the porter). Her place, [Murmuring][Specter's][Broken
+Promise], is dark caves at danger 3, with half the creatures and 20% less light.
+It holds spent torches, a butchered body, her field notes (the clerk pays for
+them), a Unique artifact, and Selda herself, hurt and out of light, with two
+guardians. You carry her home (she takes 4 pack slots, and she gives you rope if
+you have none). Lifa treats her. She retires into the Hall of Hunters, gives you
+her empty windcatcher, and teaches field skills in a corner of the guild hall at
+20% off, up to rank 4. Her artifact goes to the stash, and no one can identify,
+repair or sell it. The clerk puts 500 shards toward the Wayfinder study. All of
+it is `data/story/chapter1.json`.
 Quests, scenes,
 story lines in conversations, counters, story items and **key hunts** (story
 contracts posted on the Guild's contracts board, for a given rank) are all written in
@@ -219,7 +234,7 @@ starts to decline, and very old Hunters can die of old age.
 
 You can **retire** at any time by asking the guild clerk. What you carry goes
 to the stash, your shards to the next Hunter, and you stay on in the guild
-hall to teach your skills cheaply. The **Hall of Hunters** (ask the clerk)
+hall to teach your skills at 25% off the trainer's price, up to your own ranks. The **Hall of Hunters** (ask the clerk)
 remembers everyone who retired or died. Numbers are in `data/aging.json`.
 
 ## Balance testing

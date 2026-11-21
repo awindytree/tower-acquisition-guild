@@ -358,7 +358,8 @@ def city_phase(e, rec) -> None:
             trophies.butcher_at_shop(e, i)
     # Artifacts: consign every broken one (selling it broken when it can't pay its half of the repair).
     while True:
-        i = next((i for i, it in enumerate(p.inventory.items) if it.type.is_broken_artifact), None)
+        i = next((i for i, it in enumerate(p.inventory.items) if it.type.is_broken_artifact
+                  and not it.type.properties.get("locked")), None)
         if i is None:
             break
         t = p.inventory.items[i].type

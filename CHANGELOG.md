@@ -5,6 +5,17 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.67.0: Chapter 1, Three Words (2026-11-21)
+The user's outline, built. The story's structure, beats, people and words are the user's; the wording is a draft.
+- **Act I: Well Past Due.** The chapter follows the clerk's first jobs, or begins at once if you decline them. Selda Fencer Hunters is a Cycle and three Pulses overdue, and the clerk posts a key hunt open to every rank. Its words show as **[?][?][?]** until you learn them: one on an errand (Jokro the washer), one from a writing (the Academy library, read with Scholarship), and one from a rumour (Klubo the porter).
+- **New words**, only ever taught by the story (user): **Murmuring** (danger 3), **Specter's** (dark caves), **Broken Promise** (half the creatures, 20% less light).
+- **Act II: Uniquely Stranded.** Spent torches (worth nothing), a butchered body, her field notes (the clerk pays for them), a Unique artifact, and Selda, hurt and out of light, with two guardians. You carry her like a big trophy (4 pack slots; she can't be put down). If you have no rope, she gives you hers.
+- **Act III: Safe Is Relative.** Lifa treats her. She retires into the Hall of Hunters and gives you her empty windcatcher. She takes a corner of the guild hall and teaches Tracking, Stealth, Harvesting and Survival at 20% off the trainer's price, up to rank 4. Her artifact goes to the stash, **story-locked**: it is never found by chance, and the artificer won't study, repair, buy or consign it. The clerk is shaken ("We should know where our Hunters go") and puts 500 shards toward the Wayfinder study.
+- **The retired Hunter mentor** now teaches at 25% off the trainer's price (was half price), up to their own ranks (user).
+- **Fixed:** a story effect named `hall` or `works` opened those screens instead. The new effects are named `remember` and `fund`.
+- **Fixed:** "You return to the city with the Selda Fencer Hunters": a person comes home without "the".
+- A scene's pages now come before any card or tip its effects bring. Writer's guide additions cover hidden words, people as prizes, story words, writings and locked artifacts, and the new effects.
+
 ## 0.66.0: The story frame (2026-11-21)
 The frame the story goes in, built to the user's decisions (`claude/design-story-presentation.md`); no new plot.
 - **Kinds of story**, each with its own heading: **Chapter 1: Well Past Due** (the main story), **Paralogue 4: Passing Wind** (storylets), **Character Log 7: But Why Tinkerforge?** (a person's story), and two that belong to one Hunter: **Hewer Calling: The First Axe** (callings) and **Hunter Log 1: ...**.

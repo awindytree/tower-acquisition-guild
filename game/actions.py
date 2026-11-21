@@ -178,6 +178,9 @@ class DropAction(Action):
         from game.items import FloorItem
 
         player = engine.player
+        if player.inventory.items[self.index].type.properties.get("no_drop"):   # (Selda, v0.67.0)
+            engine.log(f"You won't leave {player.inventory.items[self.index].type.name} behind.")
+            return False
         player.unequip(player.inventory.items[self.index])
         item = player.inventory.remove(self.index)
         engine.game_map.items.append(FloorItem(player.x, player.y, item))

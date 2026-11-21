@@ -1,0 +1,320 @@
+{
+  "_comment": "Chapter 1: Three Words (the user's outline, 2026-11-21). The user's structure, beats, people and words; every line of text is the assistant's draft for the user to rewrite. Starts when the clerk's first jobs end (or are declined). Act I: Well Past Due (the hook; finding Selda's three words: an errand, a writing, a rumour). Act II: Uniquely Stranded (the place: spent torches, a butchered corpse, her field notes, a Unique artifact, Selda herself). Act III: Safe Is Relative (the healer, retirement, the gift, a mentor, the Guild's response).",
+  "quests": {
+    "ch1_three_words": {
+      "kind": "chapter",
+      "number": 1,
+      "title": "Three Words",
+      "intro": "Act I: Well Past Due",
+      "outro": "Selda is home. Safe is relative.",
+      "done_log": "Selda Fencer Hunters is home, and retired. She teaches in the guild hall now.",
+      "recap": "Selda Fencer Hunters, an old Hunter, went out through the Wayfinder and didn't come back. Her three words were pieced together, and she was found at [Murmuring][Specter's][Broken Promise] and carried home. She has retired, and teaches in the guild hall. She brought back an artifact nobody can name.",
+      "stages": [
+        {
+          "id": "hook",
+          "goal": "Talk to the guild clerk.",
+          "log": "The clerk had something on his mind.",
+          "recap": "The guild clerk was worried about someone.",
+          "do": [
+            "scene:ch1_tip_clerk"
+          ],
+          "until": [
+            "seen:ch1_hook"
+          ]
+        },
+        {
+          "id": "words",
+          "goal": "Find Selda's three words. Ask around: Jokro the washer, the Academy's librarian, Klubo the porter.",
+          "log": "Selda Fencer Hunters went out through the Wayfinder and hasn't come back. Nobody wrote down her words.",
+          "recap": "Selda Fencer Hunters went out through the Wayfinder and hasn't come back. Nobody knows her words; they have to be pieced together.",
+          "do": [
+            "scene:ch1_tip_words"
+          ],
+          "until": [
+            "knows:murmuring",
+            "knows:specters",
+            "knows:broken_promise"
+          ]
+        },
+        {
+          "id": "follow",
+          "goal": "Step into the Wayfinder with [Murmuring][Specter's][Broken Promise], and find Selda.",
+          "log": "Her words: [Murmuring][Specter's][Broken Promise]. The same words always lead to the same place.",
+          "recap": "Selda's three words were found: [Murmuring][Specter's][Broken Promise]. Someone has to go after her.",
+          "do": [
+            "scene:ch1_act2_ready"
+          ],
+          "until": [
+            "completed:ch1_search"
+          ]
+        },
+        {
+          "id": "home",
+          "goal": "Tell the guild clerk Selda is home.",
+          "log": "Selda is home. Lifa has her.",
+          "recap": "Selda was found and carried home.",
+          "until": [
+            "seen:ch1_clerk_end"
+          ]
+        }
+      ]
+    }
+  },
+  "contracts": {
+    "ch1_search": {
+      "words": [
+        "murmuring",
+        "specters",
+        "broken_promise"
+      ],
+      "hidden_words": true,
+      "title": "Find Selda Fencer Hunters",
+      "heading": "☼ A key hunt: the search",
+      "posted_line": "The clerk pins a key hunt to the contracts board, open to every rank",
+      "description": "Selda Fencer Hunters went out through the Wayfinder and is a Cycle and three Pulses overdue. The Guild never wrote down her words. Find them, find her, and bring her home.",
+      "prize": "selda",
+      "story_item": false,
+      "prize_folk": "selda_hunt",
+      "guardian": "pale_lurker",
+      "guardians": 2,
+      "rank": 0,
+      "depth": 3,
+      "card_heading": "Selda found",
+      "done_text": [
+        "You carry Selda home."
+      ]
+    }
+  },
+  "scenes": {
+    "ch1_tip_clerk": {
+      "on": "manual",
+      "style": "tip",
+      "pages": [
+        "The clerk wants a word. Walk into his window to talk to him."
+      ]
+    },
+    "ch1_hook": {
+      "on": "talk",
+      "if": [
+        "event:folk=clerk",
+        "quest:ch1_three_words:hook"
+      ],
+      "pages": [
+        {
+          "speaker": "The guild clerk",
+          "text": "Ah. You haven't seen Selda Fencer Hunters out there, have you? No, of course not. She's a little overdue, that's all. She often is."
+        },
+        {
+          "speaker": "The guild clerk",
+          "text": "...She's never been this late. A Cycle and three Pulses. With dues coming at the next Judgment, she took one more hunt, somewhere harder than she should have, and she's not as young as she was."
+        },
+        {
+          "speaker": "The guild clerk",
+          "text": "And I can't tell you where. The Guild doesn't keep anyone's words unless they bring back a scouting report. Nobody asks. Nobody ever needed to."
+        },
+        {
+          "speaker": "The guild clerk",
+          "text": "I'm posting a key hunt, open to every rank. But before anyone can follow her, someone has to work out her three words. She talked to people. Ask around: the washer by the well, the librarian at the Academy, the porter in the plaza."
+        }
+      ],
+      "do": [
+        "post:ch1_search",
+        "hide:spent_torch:murmuring/specters/broken_promise:1",
+        "hide:butchered_remains:murmuring/specters/broken_promise:2",
+        "hide:selda_notes:murmuring/specters/broken_promise:2",
+        "hide:selda_relic:murmuring/specters/broken_promise:3"
+      ]
+    },
+    "ch1_tip_words": {
+      "on": "manual",
+      "style": "tip",
+      "pages": [
+        "The Wayfinder's words are learned: from people who send you on errands, from writings you can read, and from talk in the plaza. A word, once learned, is known to every Hunter after you.\n\nYour quest log (q) keeps track of what you're after."
+      ]
+    },
+    "ch1_tip_library": {
+      "on": "manual",
+      "style": "tip",
+      "pages": [
+        "Ask the librarian to let you read in the library. Reading a writing needs Scholarship as high as the writing's difficulty: this one is simple enough for anyone.\n\nMost writings are only lore. Some name one of the Wayfinder's words, and reading it teaches you the word."
+      ]
+    },
+    "ch1_act2_ready": {
+      "on": "manual",
+      "style": "tip",
+      "pages": [
+        "You have all three words. The same words always lead to the same place: step into the Wayfinder with them, and you'll arrive exactly where Selda did.\n\nThe place is dark. Bring torches, and rope."
+      ]
+    },
+    "ch1_act2": {
+      "on": "set_out",
+      "if": [
+        "region:murmuring/specters/broken_promise",
+        "quest:ch1_three_words:follow"
+      ],
+      "do": [
+        "card:Act II|Uniquely Stranded"
+      ]
+    },
+    "ch1_torch_tip": {
+      "on": "pickup",
+      "if": [
+        "event:item=spent_torch"
+      ],
+      "style": "tip",
+      "pages": [
+        "Spent torches. A Hunter falls back on torches when their windcatcher runs dry: without Jodebris, artifacts that give light stop working out here, and so does everything else they carried.\n\nWatch your own windcatcher's bar."
+      ]
+    },
+    "ch1_remains_tip": {
+      "on": "pickup",
+      "if": [
+        "event:item=butchered_remains"
+      ],
+      "style": "tip",
+      "pages": [
+        "Someone butchered this where it fell. Standing on a creature's body, b butchers it for materials; g hauls it home whole as a trophy instead, if you have the room."
+      ]
+    },
+    "ch1_notes_tip": {
+      "on": "pickup",
+      "if": [
+        "event:item=selda_notes"
+      ],
+      "style": "tip",
+      "pages": [
+        "Selda's field notes. The guild clerk would want them. Your own field notes, what you've seen and how far you've gone, you can report to the clerk too, for a small fee."
+      ]
+    },
+    "ch1_relic_tip": {
+      "on": "pickup",
+      "if": [
+        "event:item=selda_relic"
+      ],
+      "style": "tip",
+      "pages": [
+        "A broken artifact, its rarity plain to see: Unique. What it is and what it does stay hidden until it's identified, and this one is beyond anything you know."
+      ]
+    },
+    "ch1_found_tip": {
+      "on": "manual",
+      "style": "tip",
+      "pages": [
+        "Carrying someone takes room in your pack, like a big trophy: Selda needs 4 slots. Drop what you can't spare (d in your pack).\n\nRope (u) takes you both straight back to the trail home; or walk her out."
+      ]
+    },
+    "ch1_act3": {
+      "on": "contract_done",
+      "if": [
+        "event:contract=ch1_search"
+      ],
+      "do": [
+        "card:Act III|Safe Is Relative"
+      ]
+    },
+    "ch1_home": {
+      "on": "contract_done",
+      "if": [
+        "event:contract=ch1_search"
+      ],
+      "pages": [
+        {
+          "speaker": "Lifa Healer",
+          "text": "Put her down here. Gently. No, I've got her. Out. Both of you, out. You too, Selda."
+        },
+        {
+          "speaker": "Lifa Healer",
+          "text": "She'll live. She'll walk, given time. She won't hunt again, and she knows it."
+        },
+        {
+          "speaker": "Selda Fencer Hunters",
+          "text": "Eighteen Judgments of it. I suppose that's enough. I'll go and tell the clerk to put my name in the Hall before he does it himself."
+        },
+        {
+          "speaker": "Selda Fencer Hunters",
+          "text": "Here. My windcatcher. It ran dry out there, but it'll fill again in the Brisering. I've no more use for it. Another Hunter will rise up to carry the mantle, or so they say in the songs.\n\nAnd that thing I went for: put it in the stash. Nobody will be able to tell you what it is. I couldn't."
+        },
+        {
+          "speaker": "Selda Fencer Hunters",
+          "text": "That place hummed. Like the Wayfinder does, when you stand close. Remember that.\n\nCome and find me in the guild hall. I'll teach you to read the ground, and keep out of sight, and not need rescuing."
+        }
+      ],
+      "do": [
+        "take:selda",
+        "remember:selda",
+        "give:lesser_windcatcher",
+        "appear:selda",
+        "to_stash:selda_relic",
+        "fund:wayfinder_study:500"
+      ]
+    },
+    "ch1_clerk_end": {
+      "on": "talk",
+      "if": [
+        "event:folk=clerk",
+        "quest:ch1_three_words:home"
+      ],
+      "pages": [
+        {
+          "speaker": "The guild clerk",
+          "text": "She's home. Lifa sent word. I... thank you, Hunter."
+        },
+        {
+          "speaker": "The guild clerk",
+          "text": "We should know where our Hunters go. We should have known where she went. I've put five hundred shards of the Guild's money toward a proper study of the Wayfinder's words: someone who keeps them, and knows them. It's overdue."
+        }
+      ]
+    }
+  },
+  "talk": [
+    {
+      "folk": "washer",
+      "if": [
+        "quest:ch1_three_words:words",
+        "!knows:murmuring"
+      ],
+      "text": "Have you seen Selda Fencer Hunters lately?",
+      "reply": "Selda? She was doing me a kindness. I'd asked about a place my mother used to talk about, where the caves murmur at you if you stand still. She said she knew the word for it: Murmuring. That's the first word, if it helps. I hope it helps.",
+      "do": [
+        "learn:murmuring"
+      ]
+    },
+    {
+      "folk": "librarian",
+      "if": [
+        "quest:ch1_three_words:words",
+        "!knows:broken_promise"
+      ],
+      "text": "Did Selda Fencer Hunters hand anything in before she left?",
+      "reply": "She did. A letter, an old cartographer's. She was asking me about it, now I think of it: where it was written. It's on the shelf. You may read it here, if you can.",
+      "do": [
+        "shelve:selda_writing",
+        "scene:ch1_tip_library"
+      ]
+    },
+    {
+      "folk": "porter",
+      "if": [
+        "quest:ch1_three_words:words",
+        "!knows:specters"
+      ],
+      "text": "Heard anything about Selda Fencer Hunters?",
+      "reply": "Saw her at the well the morning she went. Talking to herself, the way old Hunters do. 'Specter's,' she said, twice, like she was trying the word out. Then she went off towards the Wayfinder.",
+      "do": [
+        "learn:specters"
+      ]
+    },
+    {
+      "folk": "clerk",
+      "if": [
+        "item:selda_notes"
+      ],
+      "text": "I found Selda's field notes.",
+      "reply": "Her notes. Every turning, every creature, how much light was left. She always kept them properly. I'll see the archive gets them. Here: the Guild pays for scouting, even this.",
+      "do": [
+        "take:selda_notes",
+        "shards:+15"
+      ]
+    }
+  ]
+}

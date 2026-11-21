@@ -1,0 +1,74 @@
+{
+  "start": [
+    {
+      "node": "found"
+    }
+  ],
+  "nodes": {
+    "found": {
+      "text": {
+        "variants": [
+          "Light. Oh, that's... that's good. I'd stopped believing in it. Who sent you? No, don't tell me. The clerk. He always worries.",
+          "So someone worked out my words. Good. I didn't leave any. Stupid of me. Help me up, if you would."
+        ]
+      },
+      "choices": [
+        {
+          "text": "What happened to you?",
+          "goto": "what"
+        },
+        {
+          "text": "I have no rope.",
+          "if": [
+            "!item:rope"
+          ],
+          "goto": "rope"
+        },
+        {
+          "text": "Let's get you home.",
+          "do": [
+            "carry:selda:selda_hunt"
+          ],
+          "end": true
+        }
+      ],
+      "do": [
+        "scene:ch1_found_tip"
+      ]
+    },
+    "what": {
+      "text": "My windcatcher ran dry two areas back, and everything I carry went dark with it. Torches after that, then none. Then those things found me. And this place... it hums. Like the Wayfinder does, when you stand close. I didn't want to leave without what I came for.",
+      "choices": [
+        {
+          "text": "I have no rope.",
+          "if": [
+            "!item:rope"
+          ],
+          "goto": "rope"
+        },
+        {
+          "text": "Let's get you home.",
+          "do": [
+            "carry:selda:selda_hunt"
+          ],
+          "end": true
+        }
+      ]
+    },
+    "rope": {
+      "text": "Here. Mine. I was saving it to use when I'd got what I came for. Use it when you're ready, or walk us out: I'm not going anywhere on my own.",
+      "do": [
+        "give:rope"
+      ],
+      "choices": [
+        {
+          "text": "Let's get you home.",
+          "do": [
+            "carry:selda:selda_hunt"
+          ],
+          "end": true
+        }
+      ]
+    }
+  }
+}

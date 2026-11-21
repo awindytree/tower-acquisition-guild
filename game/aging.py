@@ -141,7 +141,8 @@ def rest_pulses(player) -> int:
 
 
 # ---- Retirement and the Hall of Hunters -------------------------------------------------------------
-MENTOR_DISCOUNT = 0.5   # a retired Hunter teaches for half the trainer's price, up to their own rank
+MENTOR_DISCOUNT = 0.75  # the share of the trainer's price a retired Hunter charges, up to their own rank
+                        # (user, v0.67.0: 25% off; was half price)
 
 
 def record(engine, player, cause: str) -> dict:

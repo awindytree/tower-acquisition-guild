@@ -67,8 +67,13 @@ class Keywords:
         """A place can't have a verb for both its danger and its land word (user)."""
         return not (self.words["danger"][d].data["pos"] == "verb" and self.words["land"][l].data["pos"] == "verb")
 
-    def all_ids(self) -> list[str]:
-        return [wid for slot in SLOTS for wid in self.words[slot]]
+    def all_ids(self, ordinary: bool = False) -> list[str]:
+        return [wid for slot in SLOTS for wid in self.words[slot] if not (ordinary and self.words[slot][wid].data.get("story"))]
+
+    def ordinary(self, slot: str) -> list[str]:
+        """The slot's words, less story words ("story": true, v0.67.0): those are only ever learned
+        through the story, so the boards, rumours and the Guild scholar never hand them out."""
+        return sorted(wid for wid, w in self.words[slot].items() if not w.data.get("story"))
 
 
 def place_id(danger: str, land: str, feature: str) -> str:
@@ -94,7 +99,8 @@ def make_place(kw: Keywords, d: str, l: str, f: str):
         danger=(danger, danger), area_size=tuple(lw.data.get("area_size", (72, 40))), artifacts=(),
         place=(d, l, f), depth=int(dw.data.get("depth", min(5, 2 + danger))),
         creatures=float(fw.data.get("creatures", 1.0)), favour=fw.data.get("favour", ""),
-        rarity_up=int(fw.data.get("rarity_up", 0)), writings=float(fw.data.get("writings", 1.0)))
+        rarity_up=int(fw.data.get("rarity_up", 0)), writings=float(fw.data.get("writings", 1.0)),
+        sight=float(fw.data.get("sight", 1.0)))
 
 
 class PlaceBook(Mapping):
@@ -165,7 +171,12 @@ def allowed(engine, word: Word) -> bool:
     if word.slot != "danger":
         return True
     from game import ranks
-    return int(word.data["danger"]) <= ranks.max_danger(engine.player.rank)
+    if int(word.data["danger"]) <= ranks.max_danger(engine.player.rank):
+        return True
+    # (v0.67.0) a key hunt open to the Hunter's rank opens its own danger word, whatever the rank
+    from game import story
+    return any(c.region.place and c.region.place[0] == word.id and not ranks.contract_closed(engine.player, c)
+               for c in story.posted_contracts(engine))
 
 
 def resolve(engine, choice: tuple[str, str, str], rng: random.Random) -> tuple[str, str, str]:
@@ -189,7 +200,7 @@ def resolve(engine, choice: tuple[str, str, str], rng: random.Random) -> tuple[s
 def random_place(engine, danger: int, rng: random.Random):
     """A place of the given danger, from all the words (for the Guild's boards): grammatical."""
     kw = engine.regions.keywords
-    dwords = sorted(w for w, x in kw.words["danger"].items() if int(x.data["danger"]) == danger) or sorted(kw.words["danger"])
+    dwords = [w for w in kw.ordinary("danger") if int(kw.words["danger"][w].data["danger"]) == danger] or kw.ordinary("danger")
     d = rng.choice(dwords)
-    land = sorted(w for w in kw.words["land"] if kw.valid(d, w))
-    return engine.regions.place(d, rng.choice(land), rng.choice(sorted(kw.words["feature"])))
+    land = [w for w in kw.ordinary("land") if kw.valid(d, w)]
+    return engine.regions.place(d, rng.choice(land), rng.choice(kw.ordinary("feature")))

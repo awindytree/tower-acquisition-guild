@@ -27,6 +27,7 @@ class Townsperson:
     description: str
     dialogue: str
     wander: int = 0
+    extra: dict = None    # anything else in townsfolk.json (story people: hall_spot, teaches, off, hall; v0.67.0)
 
     @property
     def full_name(self) -> str:
@@ -42,7 +43,7 @@ def load_townsfolk(path: str | Path) -> dict[str, Townsperson]:
         given, middle, surname = (list(d["name"]) + ["", "", ""])[:3]
         folk[tid] = Townsperson(tid, given, middle, surname, d.get("glyph", "@"),
                                 tuple(d.get("color", (240, 200, 120))), d.get("description", ""),
-                                d.get("dialogue", tid), d.get("wander", 0))
+                                d.get("dialogue", tid), d.get("wander", 0), dict(d))
     return folk
 
 
@@ -198,6 +199,19 @@ def apply(engine, effects) -> str | None:
             engine.log(crafting.collect(engine))
         elif kind == "train":
             opens = effect   # "train:marksmanship" (several: "train:a,b")
+        elif kind == "teach":
+            opens = effect   # "teach:FOLK": a mentor from townsfolk.json ("teaches", "discount"; v0.67.0)
+        elif kind == "carry":  # "carry:ITEM:FOLK": pick someone up (they become ITEM in the pack; v0.67.0)
+            item_id, _, folk = rest.partition(":")
+            item = Item(engine.catalogue[item_id])
+            if p.inventory.add(item):
+                gm = engine.game_map
+                gm.npcs = [n for n in gm.npcs if n.folk_id != folk]
+                engine.log(f"You get {item.type.name} up, an arm over your shoulders. ({item.slots} slots of your pack.)")
+            else:
+                free = max(0, p.inventory.capacity - p.inventory.used)
+                engine.log(f"You'd need {item.slots} slots of room in your pack to carry {item.type.name}; you have "
+                           f"{free}. Leave something behind (d in your pack) and try again.")
         else:
             from game import story
             if not story.apply(engine, kind, rest):

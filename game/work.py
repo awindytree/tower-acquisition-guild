@@ -126,7 +126,8 @@ class Request:
             return t.id == self.want
         if self.kind in ("item", "material"):
             return t.id == self.want and t.identified  # you have to know what it is
-        return t.is_broken_artifact and t.rarity is not None and t.rarity.id == self.want
+        return (t.is_broken_artifact and t.rarity is not None and t.rarity.id == self.want
+                and not t.properties.get("locked"))     # (Chapter 1's Unique isn't anyone's to have)
 
 
 def load_settings(path) -> dict:
@@ -235,7 +236,8 @@ def make_requests(engine, rng: random.Random, count: int) -> list[Request]:
             out.append(Request(engine.next_work_id, folk, "material", want, reward, expires, n))
             continue
         rarity = rng.choices(list(s["request_rarities"]), weights=list(s["request_rarities"].values()))[0]
-        kinds = sorted(t.id for t in cat.artifacts() if t.rarity.id == rarity and ("item", t.id) not in wanted)
+        kinds = sorted(t.id for t in cat.artifacts() if t.rarity.id == rarity and ("item", t.id) not in wanted
+                       and not t.properties.get("locked"))
         if kinds and (rng.random() < s["specific_chance"] or ("rarity", rarity) in wanted):
             want = rng.choice(kinds)
             wanted.add(("item", want))

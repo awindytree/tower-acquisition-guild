@@ -320,6 +320,8 @@ class Engine:
         base = self.light_radius if gm.light == "torch" else FOV_RADIUS.get(gm.light, FOV_RADIUS["day"])
         from game import injuries
         from game import talents
+        if self.hunt is not None and gm is not self.city:      # a place where light reaches less far (v0.67.0)
+            base *= getattr(self.hunt.contract.region, "sight", 1.0)
         return max(2.0, base + injuries.total(self.player, "sight") + talents.total(self.player, "sight"))
 
     def in_vision(self, x: int, y: int) -> bool:
@@ -945,6 +947,12 @@ class Engine:
             self.screen = TrainingScreen(vid.split(","))
         elif kind == "mentor":
             self.screen = TrainingScreen(sorted(self.mentor["skills"]) if self.mentor else [], mentor=self.mentor)
+        elif kind == "teach":                 # a story mentor (Selda, v0.67.0): townsfolk.json "teaches", "discount"
+            folk = self.townsfolk.get(vid)
+            raw = (folk.extra or {}) if folk else {}
+            teaches = raw.get("teaches", {})
+            self.screen = TrainingScreen(list(teaches), mentor={"given": folk.given if folk else vid,
+                                                                "skills": teaches, "pay": 1 - raw.get("off", 0.2)})
         elif kind in ("trophies", "butcher"):  # the trophymaster and the butcher (v0.61.0)
             from game.screens import TrophyScreen
             self.screen = TrophyScreen("butcher" if kind == "butcher" else "trophymaster")
@@ -1162,6 +1170,11 @@ class Engine:
     def travel(self, index: int, arrive_at: str) -> None:
         hunt = self.hunt
         area = hunt.area(index, self.catalogue)
+        if area.npc_spawns:          # someone waiting out here (a key hunt's person, v0.67.0)
+            if self.player.inventory.count_of(hunt.contract.artifact_id):
+                area.npc_spawns = []                      # (already being carried home)
+            else:
+                self.place_npcs(area)
         hunt.current = index
         self.next_day()  # a Pulse for every move from one area to another
         from game import archive, work
@@ -1224,8 +1237,9 @@ class Engine:
         self.autosave()
         done_jobs = [(f"Done: {j.text(self)}", TEXT) for j in self.player.jobs if j.done]
         if success:
-            self.log(f"You return to the city with the {artifact.name}.")
-            lines = [(f"Recovered: {artifact.name}", TEXT), ("", TEXT)]
+            the = "" if getattr(c, "prize_folk", "") else "the "      # (a person, v0.67.0)
+            self.log(f"You return to the city with {the}{artifact.name}.")
+            lines = [(f"{'Brought home' if the == '' else 'Recovered'}: {artifact.name}", TEXT), ("", TEXT)]
             if not c.free and self.player.contract is not None and self.player.contract.seed == c.seed:
                 self.player.contract = None      # the contract is done
             told = story.contract_over(self, c, True) if c.story else []

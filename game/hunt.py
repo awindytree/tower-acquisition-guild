@@ -37,6 +37,7 @@ class Region:
     favour: str = ""              # a creature that turns up far more often
     rarity_up: int = 0            # finds rolled as if the danger were this much higher
     writings: float = 1.0         # multiplier on the chance of a writing
+    sight: float = 1.0            # how far light reaches here (v0.67.0: Broken Promise, 0.8)
 
 
 def load_regions(path: str | Path):
@@ -59,7 +60,8 @@ RARITY_WEIGHTS = {
 def pick_artifact(region: "Region", danger: int, catalogue: Catalogue, rng: random.Random) -> str:
     """A broken artifact for a contract: rarity by danger, then any artifact of
     that rarity (limited to the region's list, if it has one)."""
-    pool = [t for t in catalogue.artifacts() if not region.artifacts or t.id in region.artifacts]
+    pool = [t for t in catalogue.artifacts() if (not region.artifacts or t.id in region.artifacts)
+            and not t.properties.get("locked")]          # (story-locked ones are never found by chance)
     by_rarity: dict[str, list[str]] = {}
     for t in sorted(pool, key=lambda t: t.id):
         by_rarity.setdefault(t.rarity.id, []).append(t.id)
@@ -84,6 +86,8 @@ class Contract:
     guardian: str = ""     # a creature waiting by the prize (story contracts)
     min_rank: int = 0      # the Guild rank a story contract is posted for (index into data/ranks.json)
     free: bool = False     # no contract: a trip of your own through the Wayfinder (v0.44.0)
+    prize_folk: str = ""   # a person waiting at the far end instead of the prize lying there (v0.67.0)
+    guardians: int = 1     # how many of the guardian
 
     def title(self, catalogue: Catalogue) -> str:
         if self.story_title:
@@ -177,7 +181,9 @@ class Hunt:
         rows[ey][ex] = "H" if index == 0 else "<"          # the way you came in
         fx, fy = plan.far_end
         if last:
-            if c.artifact_id:
+            if c.prize_folk:      # someone waiting at the far end (v0.67.0): placed by the engine (place_npcs)
+                pass
+            elif c.artifact_id:
                 plan.items.append((fx, fy, c.artifact_id, 1))   # the prize, at the far end
         else:
             rows[fy][fx] = ">"                              # the way on
@@ -188,6 +194,8 @@ class Hunt:
         game_map.fog = True
         game_map.item_spawns = plan.items
         game_map.place_items(catalogue)
+        if last and c.prize_folk:
+            game_map.npc_spawns = [(fx, fy, c.prize_folk)]
 
         # Creatures: anywhere open, but not close to where you come in.
         dist = procgen._distances(plan.rows, plan.entry)
@@ -202,9 +210,13 @@ class Hunt:
                            and 1 <= max(abs(p[0] - fx), abs(p[1] - fy)) <= 3), key=lambda p: (p[1], p[0]))
             if near:
                 from game.monsters import Monster
-                gx, gy = rng.choice(near)
-                game_map.monsters = [m for m in game_map.monsters if (m.x, m.y) != (gx, gy)]
-                game_map.monsters.append(Monster.spawn(self.monster_types[c.guardian], gx, gy))
+                for _ in range(max(1, c.guardians)):
+                    if not near:
+                        break
+                    gx, gy = rng.choice(near)
+                    near.remove((gx, gy))
+                    game_map.monsters = [m for m in game_map.monsters if (m.x, m.y) != (gx, gy)]
+                    game_map.monsters.append(Monster.spawn(self.monster_types[c.guardian], gx, gy))
         if last and self.bounties:      # bounties: a marked creature, or the artifact, deepest in
             from game.monsters import Monster
             open_spots = sorted(p for p, d in dist.items() if d > 12 and p not in (plan.entry, plan.far_end)
@@ -230,10 +242,13 @@ class Hunt:
             wx, wy = rng.choice(sorted(far))
             game_map.item_spawns = [(wx, wy, self.writings[index], 1)]
             game_map.place_items(catalogue)
+        used_spots = set()
         for item_id, area in self.story_items:          # story items: at the far end, or near it
             if area == index:
-                spots = [p for p, d in dist.items() if p not in (plan.entry, plan.far_end)] or list(dist)
+                spots = [p for p, d in dist.items() if p not in (plan.entry, plan.far_end)
+                         and all(abs(p[0] - u[0]) + abs(p[1] - u[1]) > 6 for u in used_spots)] or list(dist)
                 sx, sy = max(sorted(spots), key=lambda p: dist[p])   # as deep in as the area goes
+                used_spots.add((sx, sy))      # (a second one in the same area lies elsewhere, v0.67.0)
                 game_map.item_spawns = [(sx, sy, item_id, 1)]
                 game_map.place_items(catalogue)
         self.entries[index] = plan.entry

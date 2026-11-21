@@ -24,7 +24,7 @@ def generated(engine, day: int) -> list[Contract]:
     picked from all the words, known or not."""
     kw = engine.regions.keywords
     rng = random.Random(zlib.crc32(f"guild/{day}".encode()))
-    words = {slot: sorted(kw.words[slot]) for slot in ("danger", "land", "feature")}
+    words = {slot: kw.ordinary(slot) for slot in ("danger", "land", "feature")}   # (not story words, v0.67.0)
     by_danger: dict[int, list[str]] = {}
     for wid in words["danger"]:
         by_danger.setdefault(int(kw.words["danger"][wid].data["danger"]), []).append(wid)
@@ -62,9 +62,15 @@ def describe(engine, c: Contract) -> str:
 def take(engine, c: Contract) -> str:
     """The posting becomes the Hunter's contract (replacing any other). Its words are learned."""
     from game import keywords
+    from game import story
     p = engine.player
     old = p.contract
     p.contract = c
+    if story.hidden_words(engine, c):        # its words have to be found (v0.67.0)
+        words = story.words_shown(engine, c)
+        swap = f" (in place of {old.title(engine.catalogue)})" if old and old.seed != c.seed else ""
+        return (f"You take the contract{swap}: {c.title(engine.catalogue)}. Nobody knows the words yet: "
+                f"{words}. Find them, then step into the Wayfinder.")
     keywords.learn(engine, list(c.region.place))
     words = c.region.name
     swap = f" (in place of {old.title(engine.catalogue)})" if old and old.seed != c.seed else ""
@@ -74,4 +80,11 @@ def take(engine, c: Contract) -> str:
 def matches(engine, region) -> Contract | None:
     """The Hunter's contract, if it's for this place."""
     c = engine.player.contract
-    return c if c is not None and c.region.id == region.id else None
+    if c is not None and c.region.id == region.id:
+        return c
+    from game import story          # (v0.67.0) a key hunt there whose words were found: it's yours
+    for sc in story.posted_contracts(engine):
+        if sc.region.id == region.id and story.hidden_words(engine, sc):
+            engine.player.contract = sc
+            return sc
+    return None

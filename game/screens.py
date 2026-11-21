@@ -294,7 +294,8 @@ class ContractBoardScreen:
         else:
             head = [(cat[c.artifact_id].name.capitalize(), TEXT)]
         desc = wrapped(self.blurb(cat, c, engine), w - 4, DIM)
-        tail = [(f"{c.region.name}  {danger_pips(c.danger)}  {c.depth} areas", TEXT)]
+        from game import story as _story
+        tail = [(f"{_story.words_shown(engine, c)}  {danger_pips(c.danger)}  {c.depth} areas", TEXT)]
         closed = None if c.job else ranks.contract_closed(engine.player, c)
         from game import story
         held = story.only(engine, "contracts") if self.region is None else None
@@ -619,7 +620,8 @@ class ArtifactScreen:
         c = engine.player.contract
         here = "/".join(ids) if keywords.ANY not in ids else None
         if c is not None and not (here in engine.regions and postings.matches(engine, engine.regions[here])):
-            info += wrapped(f"Your contract: {c.region.name} (c to choose those words).", w - 4, DIM)
+            from game import story as _story
+            info += wrapped(f"Your contract: {_story.words_shown(engine, c)} (c to choose those words).", w - 4, DIM)
         if self.notice:
             info += wrapped(self.notice, w - 4, WARN)
         h = min(console.height - 2, rows + 7 + len(info))
@@ -1133,6 +1135,9 @@ class LookScreen:
 
 
 # ---- The Artificer's workshop -------------------------------------------------------------
+from game.artifacts import LOCKED as LOCKED_LINE   # (v0.67.0: one line, in game/artifacts.py)
+
+
 class WorkshopScreen:
     """Repair, sell or consign broken Tower Artifacts; train skills.
     ←/→ or Tab switches between Artifacts and Training."""
@@ -1194,6 +1199,8 @@ class WorkshopScreen:
                     else:
                         self.confirm(engine, f"Sell the {t.name} for {artifacts.working_price(t, engine.player)} shards?",
                                      lambda: artifacts.sell_working(engine.player, index, engine.stock(self.workshop.id)))
+            elif t.properties.get("locked") and event.sym in (_key("r"), _key("b"), _key("c")):
+                self.report(engine, False, LOCKED_LINE)   # (Chapter 1's Unique: nobody can place it)
             elif event.sym == _key("r"):
                 ok, msg = artifacts.repair(engine.player, index, engine.catalogue)
                 if ok:
@@ -1253,6 +1260,8 @@ class WorkshopScreen:
                 extra = wrapped(artifacts.effect_text(t), w - 4, DIM) + [
                     (f"b  Sell it         +{artifacts.working_price(t, p)} ♦" + ("  (take it off first)" if worn else ""),
                      CANT if worn else TEXT)]
+            elif rows and p.inventory.items[rows[self.selected]].type.properties.get("locked"):
+                extra = wrapped(LOCKED_LINE, w - 4, DIM)
             elif rows:
                 t = p.inventory.items[rows[self.selected]].type
                 fee = artifacts.repair_fee(t, p)
@@ -1609,7 +1618,7 @@ class TrainingScreen:
         if self.mentor is None:
             return {}
         from game.aging import MENTOR_DISCOUNT
-        return {"discount": MENTOR_DISCOUNT, "cap": self.mentor["skills"].get(sid, 1)}
+        return {"discount": self.mentor.get("pay", MENTOR_DISCOUNT), "cap": self.mentor["skills"].get(sid, 1)}
 
     def handle(self, event, engine: "Engine") -> Action | None:
         from game import skills
@@ -1651,7 +1660,9 @@ class TrainingScreen:
         title = "Training"
         if self.mentor is not None:
             cap = self.mentor["skills"].get(self.skill_ids[self.selected], 1)
-            extra = wrapped(f"{self.mentor['given']} teaches at half the trainer's price, up to rank {cap}.", w - 4, ACCENT) + extra
+            from game.aging import MENTOR_DISCOUNT
+            off = round((1 - self.mentor.get("pay", MENTOR_DISCOUNT)) * 100)
+            extra = wrapped(f"{self.mentor['given']} teaches at {off}% off the trainer's price, up to rank {cap}.", w - 4, ACCENT) + extra
             title = f"Training with {self.mentor['given']}"
         if self.notice:
             extra += wrapped(self.notice, w - 4, ACCENT)
@@ -2584,7 +2595,7 @@ class LibraryScreen:
         w = min(area_w - 2, 58)
         rows = engine.library
         self.selected = max(0, min(self.selected, len(rows) - 1))
-        total = len(library.writings(cat))
+        total = len([t for t in library.writings(cat) if not t.properties.get("story") or t.id in rows])   # (story writings count once shelved)
         extra = []
         if rows:
             t = cat[rows[self.selected]]
