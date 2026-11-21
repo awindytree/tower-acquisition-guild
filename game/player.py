@@ -60,6 +60,9 @@ def roll_kit(rng: random.Random, kit: dict) -> dict:
     return {"inventory": inventory, "equipped": equipped, "shards": rng.randint(low, high)}
 
 
+JODEBRIS_SENSITIVE_CHANCE = 0.001   # (v0.64.1, user)
+
+
 @dataclass
 class Player(Entity):
     stats: Stats = field(default_factory=Stats)
@@ -313,7 +316,14 @@ class Player(Entity):
             data["attributes"] = roll_attributes(rng, **ra)
         if "random_kit" in data:
             data.update(roll_kit(rng, data["random_kit"]))
-        return cls.from_dict(data, catalogue, x, y)
+        player = cls.from_dict(data, catalogue, x, y)
+        # About 19 in 1.3 million people can hear or feel Jodebris (user, lore); a new Hunter is one of
+        # them 0.1% of the time (user, v0.64.1: far likelier than in life, so it can happen in play).
+        # Hunter flag "jodebris_sensitive". It does nothing yet: what it means, mechanically and in the
+        # story, is to be decided (user). Rolled only for random Hunters (not fixed test profiles).
+        if "random_attributes" in data and rng.random() < JODEBRIS_SENSITIVE_CHANCE:
+            player.flags.add("jodebris_sensitive")
+        return player
 
     @property
     def full_name(self) -> str:
@@ -388,8 +398,9 @@ class Player(Entity):
         player.weapon_use = dict(data.get("weapon_use", {}))
         player.readied, player.tech_rest = data.get("technique", [None, 0])
         from game import talents as _t
-        player.talents = [t for t in data.get("talents", []) if t in _t.pool()]
-        player.talent_offers = [list(o) for o in data.get("talent_offers", [])]
+        renamed = {"jodebris_sense": "windcatcher_efficient"}    # (v0.64.1, user: few can sense Jodebris)
+        player.talents = [renamed.get(t, t) for t in data.get("talents", []) if renamed.get(t, t) in _t.pool()]
+        player.talent_offers = [[renamed.get(t, t) for t in o] for o in data.get("talent_offers", [])]
         player.prey = dict(data.get("prey", {}))
         player.quests = data.get("quests", {})
         player.rank = data.get("rank", 0)

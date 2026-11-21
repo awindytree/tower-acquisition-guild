@@ -5,6 +5,11 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.64.1: The wind stops; Jodebris sensitivity (2026-11-21)
+- **Fixed: the title screen's wind went on playing under everything** (user: still there on a hunt). tcod loops a sound by re-queuing it when it ends, and fading a channel out didn't stop that, so a faded loop came straight back at full volume, and every place you'd been piled up. Loops are now stopped for good when they fade (and silenced outright once the fade is over).
+- **The talent "Jodebris Sense" is now "Windcatcher-Efficient"** (user: almost no one can sense Jodebris). Same effect; saves carry it over.
+- **Jodebris sensitivity:** a new Hunter has a 0.1% chance of being one of the few who can hear or feel Jodebris (user). It does nothing yet; what it means is for later.
+
 ## 0.64.0: From the user's second playtest (2026-11-21)
 - **Travel-to:** every place is numbered (they stopped at 9). Type a number to go; with ten or more places, a number that could start a longer one waits for the next digit or Enter.
 - **Sound:** the wind is quieter, and the miasma is still: no wind in any hunt's soundscape (forest, ruins, mountains, plains), only the miasma's drone and small sounds (a strange bird, a creak, grit falling, insects at night).

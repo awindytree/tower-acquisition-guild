@@ -46,6 +46,7 @@ _settings_path: Path | None = None
 _loops: dict = {}               # "ambience" / "emitter" / "music" -> [name, channel, base volume]
 _rng = random.Random()
 _last: dict = {}                # event -> time it last played (some are rate-limited)
+_retired: list = []             # [channel, time] of loops fading out (made sure of later)
 
 
 # ---- Data -----------------------------------------------------------------------------------
@@ -193,10 +194,7 @@ def _set_loop(slot: str, name: str | None, kind: str, base: float = 1.0, folder:
         _apply_volume(slot, kind)
         return
     if cur:
-        try:
-            cur[1].fadeout(FADE)
-        except Exception:
-            pass
+        _retire(cur[1])
         _loops.pop(slot, None)
     if name is None or _mixer is None:
         return
@@ -207,6 +205,36 @@ def _set_loop(slot: str, name: str | None, kind: str, base: float = 1.0, folder:
         pass
     except Exception as exc:
         _fail(exc)
+
+
+def _retire(ch) -> None:
+    """Fade a looping channel out, for good. (v0.64.1, user: the title screen's wind went on playing
+    under every hunt.) tcod loops a sound by re-queuing it from the channel's end-of-sound callback,
+    and fadeout() doesn't clear that callback, so a faded loop started itself again. Clear it first;
+    `_sweep` makes sure once the fade is over."""
+    import time
+    try:
+        ch.on_end_callback = None
+        ch.fadeout(FADE)
+    except Exception:
+        pass
+    _retired.append([ch, time.monotonic()])
+
+
+def _sweep() -> None:
+    """Loops that should have faded by now: silence them outright."""
+    import time
+    now = time.monotonic()
+    for item in list(_retired):
+        ch, since = item
+        if now - since > FADE + 0.5:
+            try:
+                ch.on_end_callback = None
+                if hasattr(ch, "sound_queue"):
+                    ch.sound_queue.clear()
+            except Exception:
+                pass
+            _retired.remove(item)
 
 
 def _apply_volume(slot: str, kind: str) -> None:
@@ -274,6 +302,7 @@ def update(engine) -> None:
     """Each frame: the right ambience, the Wayfinder's hum, the place's music."""
     if _mixer is None:
         return
+    _sweep()
     key = place_key(engine)
     amb = table()["ambience"].get(key)
     _set_loop("ambience", amb, "ambience")

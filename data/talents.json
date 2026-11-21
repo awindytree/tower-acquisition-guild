@@ -281,13 +281,6 @@
         "brisering_steps": 25
       }
     },
-    "jodebris_sense": {
-      "name": "Jodebris Sense",
-      "description": "Your windcatcher drains 15% slower.",
-      "effects": {
-        "drain": 15
-      }
-    },
     "tinkerer": {
       "name": "Tinkerer",
       "description": "Artifacts with limited uses get one more each hunt.",
@@ -363,6 +356,13 @@
       "description": "Your techniques rest 10 turns less after use.",
       "effects": {
         "tech_rest": 10
+      }
+    },
+    "windcatcher_efficient": {
+      "name": "Windcatcher-Efficient",
+      "description": "Your windcatcher drains 15% slower.",
+      "effects": {
+        "drain": 15
       }
     }
   }
