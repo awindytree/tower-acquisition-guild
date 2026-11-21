@@ -5,6 +5,9 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.65.1: Sound crash fixed (2026-11-21)
+- **Fixed a crash in the sound** (user: "IndexError: pop from empty list" from tcod's audio thread). 0.64.1's fix for looping sounds also emptied a faded loop's queue from the game's thread while the audio thread was mixing it. It no longer touches the queue at all: stopping a loop only clears its "play again" callback, under the channel's own lock, and lets tcod's fade do the rest.
+
 ## 0.65.0: Watch the Hunter walk (2026-11-21)
 - **Auto-explore and travel-to now walk a step at a time** that you can watch (about 16 steps a second), instead of jumping to where they stop (user: disorienting, and every footstep sounded at once). Any key stops the walk where you are. Each step is still a full turn.
 - Footsteps while walking like this play every other step, a little softer, so they don't patter.
