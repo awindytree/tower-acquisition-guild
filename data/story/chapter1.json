@@ -1,5 +1,5 @@
 {
-  "_comment": "Chapter 1: Three Words (the user's outline, 2026-11-21). The user's structure, beats, people and words; every line of text is the assistant's draft for the user to rewrite. Starts when the clerk's first jobs end (or are declined). Act I: Well Past Due (the hook; finding Selda's three words: an errand, a writing, a rumour). Act II: Uniquely Stranded (the place: spent torches, a butchered corpse, her field notes, a Unique artifact, Selda herself). Act III: Safe Is Relative (the healer, retirement, the gift, a mentor, the Guild's response).",
+  "_comment": "Chapter 1: Three Words (the user's outline, 2026-11-21). The user's structure, beats, people and words; every line of text is the assistant's draft for the user to rewrite. Starts when the clerk's first jobs end (or are declined). Act I: Well Past Due (the hook; finding Selda's three words: an errand, a writing, a rumour). Act II: Uniquely Stranded (the place: spent torches, a butchered corpse, her field notes, a Unique artifact, Selda herself). Act III: Safe Is Relative (the healer, retirement, the gift, a mentor, the Guild's response). A save from before v0.67.0 whose first jobs were already done (or declined) starts the chapter when it's loaded (ch1_catch_up).",
   "quests": {
     "ch1_three_words": {
       "kind": "chapter",
@@ -86,6 +86,28 @@
     }
   },
   "scenes": {
+    "ch1_catch_up": {
+      "on": "load",
+      "once": false,
+      "if": [
+        "done:first_jobs",
+        "!started:ch1_three_words"
+      ],
+      "do": [
+        "start:ch1_three_words"
+      ]
+    },
+    "ch1_catch_up_skipped": {
+      "on": "load",
+      "once": false,
+      "if": [
+        "flag:world:skipped_first_jobs",
+        "!started:ch1_three_words"
+      ],
+      "do": [
+        "start:ch1_three_words"
+      ]
+    },
     "ch1_tip_clerk": {
       "on": "manual",
       "style": "tip",

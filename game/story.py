@@ -32,7 +32,7 @@ from pathlib import Path
 DATA = Path(__file__).resolve().parent.parent / "data" / "story"
 EVENTS = ("new_game", "new_hunter", "set_out", "area", "kill", "pickup", "home", "day", "retire", "death",
           "contract_done", "contract_failed",
-          "talk", "wayfinder", "see", "bounty_paid",
+          "talk", "wayfinder", "see", "bounty_paid", "load",   # v0.67.0: load (a save was loaded)
           "manual")   # "manual": never fired; played only by a scene:ID effect   # v0.54.0: talk (folk=ID), see (monster=ID, marked)
 
 

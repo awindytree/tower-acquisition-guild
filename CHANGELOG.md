@@ -5,6 +5,10 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.67.1: Older saves start Chapter 1 (2026-11-21)
+- **A save from before 0.67.0 now starts Chapter 1 when it's loaded** (user: their save had finished the clerk's first jobs, and the chapter only began as they ended). If the first jobs are done or were declined and the chapter hasn't begun, loading the save shows the Chapter 1 card, and the clerk has the hook.
+- The story has a new event, `load`, fired whenever a save is loaded, so later chapters can catch up the same way.
+
 ## 0.67.0: Chapter 1, Three Words (2026-11-21)
 The user's outline, built. The story's structure, beats, people and words are the user's; the wording is a draft.
 - **Act I: Well Past Due.** The chapter follows the clerk's first jobs, or begins at once if you decline them. Selda Fencer Hunters is a Cycle and three Pulses overdue, and the clerk posts a key hunt open to every rank. Its words show as **[?][?][?]** until you learn them: one on an errand (Jokro the washer), one from a writing (the Academy library, read with Scholarship), and one from a rumour (Klubo the porter).

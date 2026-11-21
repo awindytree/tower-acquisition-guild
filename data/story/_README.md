@@ -245,6 +245,8 @@ A worked example of every part: `data/story/examples/frame/frame.json`.
 
 ## Added in v0.67.0 (for Chapter 1: Three Words)
 
+**Catching up old saves.** Scenes `"on": "load"` run whenever a save is loaded. Chapter 1 uses two (with `"once": false`) to start itself in saves whose first jobs ended before it existed. Do the same when a new chapter hangs off something an existing save may already have done.
+
 **Scene order.** A scene's pages are queued before its effects run, so a card or tip its effects bring comes after its pages. To show a card first (an act's name, say), put it in a scene of its own, with no pages, listed just before, on the same event.
 
 **Key hunts:**
