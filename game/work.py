@@ -152,17 +152,17 @@ def make_jobs(engine, rng: random.Random) -> list[Job]:
         if roll < s["kill_chance"]:
             mtype = bounty_creature(engine, region, rng)
             if mtype is not None:
-                reward = s["kill_base"] + s["kill_per_tier"] * mtype.tier + s["per_danger"] * danger
+                reward = round((s["kill_base"] + s["kill_per_tier"] * mtype.tier + s["per_danger"] * danger) * s.get("bounty_pay", 1.0))   # (balance pass 3: × 0.6)
                 jobs.append(Job(engine.next_work_id, "kill", region.id, 1, mtype.tier, reward, 0, mtype.id))
                 continue
         if roll < s["kill_chance"] + s["find_chance"]:
             from game.hunt import pick_artifact
             art = engine.catalogue[pick_artifact(region, danger, engine.catalogue, rng)]
-            reward = int(art.rarity.broken_price * s["find_reward"]) + s["per_danger"] * danger
+            reward = round((int(art.rarity.broken_price * s["find_reward"]) + s["per_danger"] * danger) * s.get("bounty_pay", 1.0))   # (balance pass 3: × 0.6)
             jobs.append(Job(engine.next_work_id, "find", region.id, 1, 1, reward, 0, art.id))
             continue
         area = rng.randint(2, max(2, region.depth or 5))
-        reward = s["scout_base"] + area * s["scout_per_area"] + s["per_danger"] * danger
+        reward = round((s["scout_base"] + area * s["scout_per_area"] + s["per_danger"] * danger) * s.get("bounty_pay", 1.0))   # (balance pass 3: × 0.6)
         jobs.append(Job(engine.next_work_id, "scout", region.id, area, 1, reward))
     return jobs
 

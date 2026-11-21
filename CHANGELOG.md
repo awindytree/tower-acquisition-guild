@@ -5,6 +5,15 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.62.0: Balance pass 3 (2026-11-20)
+Progression, stage 7 (`claude/balance-report.md`, pass 3). The user's choices after the bot's measurements:
+- **Tougher tier 3–4 creatures:** +25% HP (rounded up) and +1 accuracy: deep horror 38, stone sentinel 35, woodland stalker 33, crawler 53, thistlehound 23 (tier 3); hollow brute 57, gravel wyrm 57 (tier 4). (Not the ashmantle, which can't fight.)
+- **Bounty and scouting pay cut by 40%** (`bounty_pay` 0.6 in `data/work.json`).
+- **The artificer pays 20% more:** selling broken, consigning and selling repaired artifacts (`artifacts.ARTIFICER_PAY`).
+- **Harvesting** gives its extra material at rank 5 only (was ranks 3 and 5).
+- **Injuries a little likelier:** any hit injures with chance 3% (was 2%).
+- The balance bot takes contracts and bounties, hauls trophies and trains skills (`--plain` for the old bot).
+
 ## 0.61.1: Rations are ¥ (2026-11-20)
 - **Rations are drawn as `¥`** (user), so `%` means a corpse. The panel's "Mending" line uses it too.
 

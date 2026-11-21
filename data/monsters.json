@@ -1,5 +1,5 @@
 {
- "_comment": "Creatures found on hunts. ALL PLACEHOLDERS for the real lore. description is shown by the look command (x). habitats: which area styles they appear in (caves, ruins, forest). tier 1-4: how dangerous; deeper and more dangerous hunts allow higher tiers. accuracy and evasion are on the same scale as the Hunter's Celerity (10 = average). damage is dice like 1d6+1. armor is subtracted from each hit taken. sight: how far away they notice you (columns; rows count double). behaviour: hunt (notices and chases you) or still (never moves; attacks anything next to it). drops: [[item id, chance, least, most], ...] left where it dies (materials; PLACEHOLDERS). injures: extra lasting injuries its big hits can cause (data/injuries.json; PLACEHOLDERS). New in v0.49.0 (the user's creatures): habitats can be a list (any time) or {style: \"day\"|\"night\"|\"any\"} (night = a dark place, torchlight only); styles also include mountains and plains. Optional: speed (slow: acts every other turn; quick: twice a turn), flies (can cross water), swims (lives in water; spawns there), spawn_weight (how often it's picked, x), opens (daze: dazes you when it first notices you; leap: jumps up to 3 cells to your side when you come near), burst (dice: on death, hurts everything beside it), ghost (can't hit or be hit; keeps its distance), trail (dice: the ash it leaves hurts you when you walk on it), thorns (HP you lose when your blow lands), flees (runs when its HP falls to this share), burrows (moves underground, surfaces to fight, burrows again).",
+ "_comment": "Creatures found on hunts. ALL PLACEHOLDERS for the real lore. description is shown by the look command (x). habitats: which area styles they appear in (caves, ruins, forest). tier 1-4: how dangerous; deeper and more dangerous hunts allow higher tiers. accuracy and evasion are on the same scale as the Hunter's Celerity (10 = average). damage is dice like 1d6+1. armor is subtracted from each hit taken. sight: how far away they notice you (columns; rows count double). behaviour: hunt (notices and chases you) or still (never moves; attacks anything next to it). drops: [[item id, chance, least, most], ...] left where it dies (materials; PLACEHOLDERS). injures: extra lasting injuries its big hits can cause (data/injuries.json; PLACEHOLDERS). New in v0.49.0 (the user's creatures): habitats can be a list (any time) or {style: \"day\"|\"night\"|\"any\"} (night = a dark place, torchlight only); styles also include mountains and plains. Optional: speed (slow: acts every other turn; quick: twice a turn), flies (can cross water), swims (lives in water; spawns there), spawn_weight (how often it's picked, x), opens (daze: dazes you when it first notices you; leap: jumps up to 3 cells to your side when you come near), burst (dice: on death, hurts everything beside it), ghost (can't hit or be hit; keeps its distance), trail (dice: the ash it leaves hurts you when you walk on it), thorns (HP you lose when your blow lands), flees (runs when its HP falls to this share), burrows (moves underground, surfaces to fight, burrows again). Balance pass 3 (user, v0.62.0): every tier 3-4 creature (not the ashmantle, which can't fight) got +25% HP (rounded up) and +1 accuracy.",
  "cave_bat": {
   "description": "A leathery flutter in the dark. Quick and hard to hit, but frail.",
   "name": "cave bat",
@@ -75,8 +75,8 @@
    "caves"
   ],
   "tier": 3,
-  "hp": 30,
-  "accuracy": 13,
+  "hp": 38,
+  "accuracy": 14,
   "evasion": 9,
   "damage": "1d8+2",
   "armor": 2,
@@ -107,8 +107,8 @@
    "plains"
   ],
   "tier": 4,
-  "hp": 45,
-  "accuracy": 12,
+  "hp": 57,
+  "accuracy": 13,
   "evasion": 7,
   "damage": "2d6+2",
   "armor": 3,
@@ -234,8 +234,8 @@
    "mountains"
   ],
   "tier": 3,
-  "hp": 28,
-  "accuracy": 11,
+  "hp": 35,
+  "accuracy": 12,
   "evasion": 6,
   "damage": "1d8+1",
   "armor": 4,
@@ -357,8 +357,8 @@
    "forest"
   ],
   "tier": 3,
-  "hp": 26,
-  "accuracy": 13,
+  "hp": 33,
+  "accuracy": 14,
   "evasion": 12,
   "damage": "1d8",
   "armor": 1,
@@ -506,8 +506,8 @@
    110
   ],
   "tier": 3,
-  "hp": 42,
-  "accuracy": 10,
+  "hp": 53,
+  "accuracy": 11,
   "evasion": 6,
   "damage": "1d6+1",
   "armor": 3,
@@ -565,8 +565,8 @@
    90
   ],
   "tier": 3,
-  "hp": 18,
-  "accuracy": 13,
+  "hp": 23,
+  "accuracy": 14,
   "evasion": 13,
   "damage": "1d6+1",
   "armor": 1,
@@ -627,8 +627,8 @@
    140
   ],
   "tier": 4,
-  "hp": 45,
-  "accuracy": 13,
+  "hp": 57,
+  "accuracy": 14,
   "evasion": 8,
   "damage": "2d6",
   "armor": 2,

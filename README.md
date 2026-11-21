@@ -557,7 +557,7 @@ Tenacity lost "spell power" and "mana"): each also speeds practice in its skills
   you; each rank after, less often. A blow at a creature that hasn't noticed
   you gets +2 accuracy and +1 damage per two ranks.
 - **Harvesting** (Physicality; the smith): creatures leave materials 5% more
-  often a rank, and one more of each at ranks 3 and 5.
+  often a rank, and one more of each at rank 5.
 - **Survival** (Fortitude; the healer): a shorter rest after hunts (10% a rank),
   rations that mend for longer, torches that burn longer, and from rank 4
   bleeding and poison that last half as long.

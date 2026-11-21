@@ -9,7 +9,7 @@ at hunting rather than just fighting. All numbers are placeholders.
   each rank); a blow at a creature that hasn't noticed you gets +2 accuracy and +1 damage per two
   ranks. Practice: a creature failing to notice you (once each), a blow struck unnoticed.
 - Harvesting (Physicality): creatures leave materials more often (+5% a rank above 1), and one more
-  of each at ranks 3 and 5. Practice: each material a kill leaves.
+  of each at rank 5 (balance pass 3; was ranks 3 and 5). Practice: each material a kill leaves.
 - Survival (Fortitude): a shorter rest after hunts (-10% a rank above 1), rations mend for longer,
   torches burn longer, and from rank 4 bleeding and poison last half as long. Practice: coming
   home from a hunt, eating a ration, lighting a torch.
@@ -135,7 +135,7 @@ def drop_chance_bonus(engine) -> float:
 
 def extra_count(engine) -> int:
     r = rank(engine, "harvesting")
-    return (r >= 3) + (r >= 5) + _tal(engine, "material_extra")
+    return (r >= 5) + _tal(engine, "material_extra")   # (balance pass 3, user: rank 5 only; was 3 and 5)
 
 
 # ---- Survival ----------------------------------------------------------------------------------------

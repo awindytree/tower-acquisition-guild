@@ -66,16 +66,20 @@ def repair_fee(t: ItemType, player=None) -> int:
     return bargaining.pay(player, t.rarity.repair_fee)
 
 
+ARTIFICER_PAY = 1.2   # balance pass 3 (user, v0.62.0): what the artificer pays Hunters, +20%
+
+
 def broken_price(t: ItemType, player=None) -> int:
     from game import bargaining
-    return bargaining.paid(player, t.rarity.broken_price)
+    return bargaining.paid(player, int(t.rarity.broken_price * ARTIFICER_PAY))
 
 
 def consign_payout(t: ItemType, player=None) -> int:
-    """(working sale price - repair fee) / 2, rounded down; never below the broken price."""
+    """(working sale price - repair fee) / 2, rounded down; never below the broken price; then
+    the artificer's +20% (ARTIFICER_PAY)."""
     from game import bargaining
     base = max(t.rarity.broken_price, (t.value - t.rarity.repair_fee) // 2)
-    return bargaining.paid(player, base)
+    return bargaining.paid(player, int(base * ARTIFICER_PAY))
 
 
 def repair(player, index: int, catalogue) -> tuple[bool, str]:
@@ -107,7 +111,7 @@ WORKING_SELL_RATE = 0.5   # v0.52.0 (user): the artificer buys repaired artifact
 def working_price(t: ItemType, player=None) -> int:
     """What the artificer pays for a working artifact: half its sale price (like the supplier)."""
     from game import bargaining
-    return bargaining.paid(player, max(1, int(t.value * WORKING_SELL_RATE)))
+    return bargaining.paid(player, max(1, int(t.value * WORKING_SELL_RATE * ARTIFICER_PAY)))
 
 
 def sell_working(player, index: int, stock=None) -> tuple[bool, str]:

@@ -4,7 +4,7 @@
   "big_hit_cap": 6,
   "chance": 0.2,
   "per_tier": 0.05,
-  "small_hit": 0.02,
+  "small_hit": 0.03,
   "injuries": {
     "bruised_ribs": {
       "name": "bruised ribs",
