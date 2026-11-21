@@ -5,6 +5,10 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.62.2: More creatures at danger 4 and 5; title screen (2026-11-20)
+- **One more creature in every area at danger 4 and 5** too (user), so each step up the danger ladder still adds creatures. Not balance-tested (user).
+- **The title screen no longer says "Bytorsskug"** under the game's name (user).
+
 ## 0.62.1: More creatures at danger 3 (2026-11-20)
 - **One more creature in every area at danger 3** (user; danger 3 was still about 81% success for the balance bot).
 

@@ -810,12 +810,11 @@ class TitleScreen(MenuScreen):
         top = max(1, console.height // 2 - 8)
         for i, (text, color) in enumerate([
             ("─── ♦ ───", FRAME), ("", TEXT), (spaced("Tower Acquisition Guild"), ACCENT),
-            ("", TEXT), ("Bytorsskug", DIM),
-        ]):
+        ]):   # (v0.62.2, user: no city name on the title screen)
             text = text[: console.width - 2]
             console.print(cx - len(text) // 2, top + i, text, fg=color, bg=(10, 9, 8))
         w = min(console.width - 2, 60)
-        x, y = cx - w // 2, top + 7
+        x, y = cx - w // 2, top + 5
         opts = self.options(engine)
         for i, (label, enabled, _) in enumerate(opts):
             bg = HIGHLIGHT if i == self.selected else (10, 9, 8)
