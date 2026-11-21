@@ -5,6 +5,9 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.68.2: The title menu's Continue line (2026-11-21)
+- **Continue** now shows the Hunter, their level and where they are ("Ylfa Fencer, Lv 3, Bytorsskug"), without the date. The date was cut short to just the Duel and the Pulse's name, which told you nothing (user). The full date is still shown when you load from a save slot.
+
 ## 0.68.1: Whisper Poet faces north (2026-11-21)
 - The statue looks **north**, towards Myligast (user: from the plaza, the Tower is north, not east).
 

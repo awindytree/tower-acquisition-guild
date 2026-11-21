@@ -830,7 +830,8 @@ class TitleScreen(MenuScreen):
             console.print(x + 2, y + i, label, fg=TEXT if enabled else DIM, bg=bg)
         auto = engine.saves.summary("autosave") if engine.saves else None
         if auto and not auto.get("damaged"):
-            console.print(x + 14, y + 2, describe(auto)[: w - 16], fg=DIM,
+            # (v0.68.2, user: the date, cut to "Light Duel: Erku", told you nothing; who and where instead)
+            console.print(x + 14, y + 2, describe_short(auto)[: w - 16], fg=DIM,
                           bg=HIGHLIGHT if self.selected == 2 else (10, 9, 8))
         if self.notice:
             console.print(cx - len(self.notice[: w]) // 2, y + len(opts) + 1, self.notice[:w],
