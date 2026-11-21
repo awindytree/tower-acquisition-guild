@@ -212,7 +212,7 @@ them), a Unique artifact, and Selda herself, hurt and out of light, with two
 guardians. You carry her home (she takes 4 pack slots, and she gives you rope if
 you have none). Lifa treats her. She retires into the Hall of Hunters, gives you
 her empty windcatcher, and teaches field skills in a corner of the guild hall at
-25% off, up to her own rank 4. Her artifact goes to the stash, and no one can identify,
+20% off, up to rank 4. Her artifact goes to the stash, and no one can identify,
 repair or sell it. The clerk puts 500 shards toward the Wayfinder study. All of
 it is `data/story/chapter1.json`.
 Quests, scenes,
