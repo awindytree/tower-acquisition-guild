@@ -5,6 +5,18 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.64.0: From the user's second playtest (2026-11-21)
+- **Travel-to:** every place is numbered (they stopped at 9). Type a number to go; with ten or more places, a number that could start a longer one waits for the next digit or Enter.
+- **Sound:** the wind is quieter, and the miasma is still: no wind in any hunt's soundscape (forest, ruins, mountains, plains), only the miasma's drone and small sounds (a strange bird, a creak, grit falling, insects at night).
+- **Strangler vines** are a dusky blue, not green, so they stand out in the forest.
+- **The workshop** shows what you pay with a minus and what you're paid with a plus. **Consigning** now means paying your half of the repair first, then being paid half the working price (`-13, +36`); if you can't pay your half, selling broken is the way out.
+- **The side panel:** no blank lines between messages (the newest is bright, older ones alternate two greys), and no date on a hunt, so an injury or a Jodebris bar no longer squeezes the messages down to one.
+- **Training window:** the skill list scrolls with the selection, and a notice shows in full (the description gives way first). "…" is no longer used where windows cut text (the font can't draw it).
+- **A new rank** gets a card with what it brings, and the clerk congratulates you the next time you talk.
+- **Skill pace:** weapon skills and Marksmanship need 30 practice a rank (was 12); Tracking 16 (was 8) and kills no longer practise it; Stealth 6 (was 8), and a creature that sees you notices you 85% of the time at rank 1 (was always), 10% less a rank after.
+- **Injuries:** bleeding is the likeliest kind, then poison, then the rest (weights 3 : 2 : 1). New minor, tier-1 injury: **infected scratch** (poisoned; Fortitude −1).
+- **Rivals bring trophies:** a rival home from a successful hunt sometimes brings the trophymaster a body; a record goes on the wall with their name.
+
 ## 0.63.0: Sound (2026-11-20)
 The user's direction: the assistant makes the sounds, moody and ambient; the user makes the music (none yet); soundscapes everywhere, music only at key places.
 - **Sound effects** for the interface (moving through, choosing in and leaving windows, a window opening, a popup), footsteps (stone, wood, grass, dirt), combat (your blow, a telling blow, a miss, a kill, being hit, a creature's miss, a creature noticing you, the bow, an arrow striking, techniques, a lantern tick bursting, being dazed), fainting and death, levelling, talents, rank, and the world (picking things up, shards, butchering, drinking, eating, bandaging, a torch, an artifact, rope, the stash, shards changing hands), and moments (stepping into the Wayfinder, a hunt complete or not, a bounty done, a new record on the trophy wall). All made from code by `tools/sound/make_sounds.py` (placeholders, for the user's ears).

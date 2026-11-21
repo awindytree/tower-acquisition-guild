@@ -356,7 +356,7 @@ def city_phase(e, rec) -> None:
                 rec["records"] = rec.get("records", 0) + 1
         for i in reversed(trophies.pack_trophies(e)):
             trophies.butcher_at_shop(e, i)
-    # Artifacts: consign every broken one.
+    # Artifacts: consign every broken one (selling it broken when it can't pay its half of the repair).
     while True:
         i = next((i for i, it in enumerate(p.inventory.items) if it.type.is_broken_artifact), None)
         if i is None:
@@ -364,7 +364,9 @@ def city_phase(e, rec) -> None:
         t = p.inventory.items[i].type
         rec["artifacts"].append(t.rarity.id)
         s0 = p.shards
-        artifacts.consign(p, i, e.stock(workshop), cat)
+        ok, _ = artifacts.consign(p, i, e.stock(workshop), cat)
+        if not ok:
+            artifacts.sell_broken(p, i)
         inc["artifacts"] += p.shards - s0
     # Materials (and spare weapons, armour) to the supplier.
     for i in reversed(range(len(p.inventory.items))):

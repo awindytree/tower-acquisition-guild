@@ -171,12 +171,15 @@ def slow_lfo(n: int, rng, rate: float = 0.15, depth: float = 0.5) -> np.ndarray:
 
 
 AMBIENCE_RMS = 0.09   # ambience loops are matched by loudness, not by peak
+# (v0.64.0, user: the wind was loud next to everything else) some are quieter than the rest
+AMBIENCE_LEVEL = {"amb_brisering": 0.045, "amb_caves": 0.06, "amb_forest": 0.055, "amb_forest_night": 0.055,
+                  "amb_ruins": 0.055, "amb_mountains": 0.055, "amb_plains": 0.05, "amb_plains_night": 0.05}
 
 
 def write(name: str, x: np.ndarray, peak: float = 0.8) -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     if name.startswith("amb_"):
-        x = x * (AMBIENCE_RMS / (np.sqrt(np.mean(x ** 2)) + 1e-12))
+        x = x * (AMBIENCE_LEVEL.get(name, AMBIENCE_RMS) / (np.sqrt(np.mean(x ** 2)) + 1e-12))
         x = np.tanh(x / 0.7) * 0.7            # (a gentle limit on the odd loud moment)
     else:
         x = norm(x, peak)
@@ -537,12 +540,13 @@ def _():
 
 # ---- Ambience: 16-second seamless loops -------------------------------------------------------
 def miasma(n: int, seed: str) -> np.ndarray:
-    """The miasma under every hunt: a low, uneasy, slowly beating drone and a breathing hiss."""
+    """The miasma under every hunt: a low, uneasy, slowly beating drone, and stillness. No wind
+    (v0.64.0, user: places in the miasma should be still). A faint, close hush, not a gust."""
     r = rng_for("miasma" + seed)
     d = n / RATE
     drone = (sine(41.25, d) + 0.8 * sine(41.5, d) + 0.35 * sine(61.875, d) + 0.2 * sine(62.25, d))
-    breath = low(noise(d, r), 400) * slow_lfo(n, r, 0.12, 0.8)
-    return drone * 0.12 + breath * 0.35
+    hush = band(noise(d, r), 60, 160) * 0.08
+    return drone * 0.12 + hush
 
 
 def wind(n, r, lo=200, hi=1200, gust=0.15, depth=0.7):
@@ -648,8 +652,10 @@ def _caves():
 def _forest():
     r = rng_for("forest")
     n = int((LOOP + 1.5) * RATE)
-    leaves = wind(n, r, 1200, 5000, 0.25, 0.8) * 0.35
-    return seamless(mix(miasma(n, "forest"), leaves, wind(n, r, 150, 600, 0.1, 0.6) * 0.4, sparse(n, r, 3.5, chirp) * 0.5))
+    # still air: no wind in the leaves; a strange bird now and then, a creak, a twig
+    twig = lambda r: band(r.standard_normal(int(0.04 * RATE)), 800, 4000) * env(int(0.04 * RATE), 0.001, 0.03, 5) * 0.3
+    return seamless(mix(miasma(n, "forest"), sparse(n, r, 5, chirp) * 0.4, sparse(n, r, 7, creak) * 0.3,
+                        sparse(n, r, 6, twig)))
 
 
 def _insects(n, r):
@@ -664,40 +670,38 @@ def _insects(n, r):
 def _forest_night():
     r = rng_for("forest_night")
     n = int((LOOP + 1.5) * RATE)
-    return seamless(mix(miasma(n, "forest_night"), _insects(n, r), wind(n, r, 300, 2500, 0.15, 0.8) * 0.2,
-                        sparse(n, r, 6, creak) * 0.4))
+    return seamless(mix(miasma(n, "forest_night"), _insects(n, r), sparse(n, r, 6, creak) * 0.4))
 
 
 def _ruins():
     r = rng_for("ruins")
     n = int((LOOP + 1.5) * RATE)
-    whistle = np.zeros(n)
-    for f in (340, 520):
-        whistle += band(r.standard_normal(n), f, f * 1.15, 0.05) * slow_lfo(n, r, 0.2, 0.9) * 2
-    return seamless(mix(miasma(n, "ruins"), wind(n, r, 200, 1000, 0.15, 0.7) * 0.4, whistle * 0.3,
-                        sparse(n, r, 5, creak) * 0.5, sparse(n, r, 8, pebbles) * 0.4))
+    # still, hollow stone: settling creaks, a trickle of grit, a drip in some dark corner
+    return seamless(mix(miasma(n, "ruins"), sparse(n, r, 5, creak) * 0.5, sparse(n, r, 6, pebbles) * 0.4,
+                        sparse(n, r, 5, drip) * 0.25))
 
 
 def _mountains():
     r = rng_for("mountains")
     n = int((LOOP + 1.5) * RATE)
-    howl = np.zeros(n)
-    for f in (260, 410, 650):
-        howl += band(r.standard_normal(n), f, f * 1.12, 0.05) * slow_lfo(n, r, 0.25, 0.95) * 2
-    return seamless(mix(miasma(n, "mountains"), wind(n, r, 150, 2500, 0.2, 0.8) * 0.8, howl * 0.3))
+    # no howling wind: a deep rumble far off in the rock, scree trickling, a stone falling
+    rumble = low(r.standard_normal(n), 70) * slow_lfo(n, r, 0.08, 0.7)
+    fall = lambda r: reverb(low(r.standard_normal(int(0.2 * RATE)), 900) * env(int(0.2 * RATE), 0.002, 0.15, 3) * 0.4,
+                            2.0, 0.5, bright=1500, seed="mountain")
+    return seamless(mix(miasma(n, "mountains"), rumble * 0.8, sparse(n, r, 4, pebbles) * 0.5, sparse(n, r, 9, fall)))
 
 
 def _plains():
     r = rng_for("plains")
     n = int((LOOP + 1.5) * RATE)
-    return seamless(mix(miasma(n, "plains"), wind(n, r, 150, 700, 0.1, 0.5) * 0.5, wind(n, r, 2500, 7000, 0.2, 0.7) * 0.18,
-                        sparse(n, r, 7, chirp) * 0.3))
+    # open and still: a far bird, a faint buzz of insects in the grass
+    return seamless(mix(miasma(n, "plains"), sparse(n, r, 6, chirp) * 0.35, _insects(n, r) * 0.25))
 
 
 def _plains_night():
     r = rng_for("plains_night")
     n = int((LOOP + 1.5) * RATE)
-    return seamless(mix(miasma(n, "plains_night"), _insects(n, r) * 0.8, wind(n, r, 150, 700, 0.1, 0.5) * 0.4))
+    return seamless(mix(miasma(n, "plains_night"), _insects(n, r) * 0.8))
 
 
 def _wayfinder_hum():

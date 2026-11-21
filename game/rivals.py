@@ -214,6 +214,10 @@ def come_home(engine, r: dict, won: bool | None = None) -> None:
         what = f"{'an' if rarity[:1] in 'aeiou' else 'a'} {rarity} artifact" if rarity else "what they went for"
         news(engine, r, f"came back from {region} with {what}." + (" They're stronger for it." if r["level"] > before else ""),
              tell=bool(trip.get("race")))
+        from game import trophies                   # now and then a body for the trophy wall (v0.64.0, user)
+        said = trophies.rival_trophy(engine, full_name(r), trip, engine.rng)
+        if said:
+            news(engine, r, said)
     else:
         news(engine, r, f"came back from {region} empty-handed.", tell=bool(trip.get("race")))
 

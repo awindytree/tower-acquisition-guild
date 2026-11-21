@@ -1,152 +1,174 @@
 {
-  "_comment": "Lasting injuries (game/injuries.py). ALL PLACEHOLDERS. A creature's hit can injure: any hit with chance small_hit (v0.48.0, user: injuries more likely across the board), or, when it takes at least big_hit (a share of max HP, but never more than big_hit_cap damage) in one blow: the chance is chance + per_tier x (the creature's tier - 1). The injury is picked from those whose min_tier is at most the creature's tier, plus any the creature lists under 'injures' in monsters.json (creature_only injuries come only that way). Effects: attributes (added to the Hunter's attributes; a lower Fortitude also lowers max HP), max_hp, accuracy (melee), ranged (bows), evasion, damage (melee), dot (damage over time: 'damage' HP every 'every' turns for 'turns' turns; natural healing stops meanwhile; it doesn't tick in the city). minor injuries mend on their own after 'mends' Pulses; serious ones (mends null) need the healer. fee: what the healer charges to treat it. sight (optional): change to how far you can see, in cells (e.g. -3); it also limits the look cursor. No injury uses it yet.",
-  "big_hit": 0.15,
-  "big_hit_cap": 6,
-  "chance": 0.2,
-  "per_tier": 0.05,
-  "small_hit": 0.03,
-  "injuries": {
-    "bruised_ribs": {
-      "name": "bruised ribs",
-      "severity": "minor",
-      "min_tier": 1,
-      "mends": 9,
-      "fee": 6,
-      "description": "Every breath reminds you.",
-      "max_hp": -3
-    },
-    "twisted_ankle": {
-      "name": "twisted ankle",
-      "severity": "minor",
-      "min_tier": 1,
-      "mends": 9,
-      "fee": 6,
-      "description": "You can walk on it, but not quickly.",
-      "evasion": -2
-    },
-    "split_brow": {
-      "name": "split brow",
-      "severity": "minor",
-      "min_tier": 1,
-      "mends": 9,
-      "fee": 6,
-      "description": "Blood keeps running into your eye.",
-      "accuracy": -1,
-      "ranged": -2,
-      "dot": {
-        "kind": "bleeding",
-        "damage": 1,
-        "every": 15,
-        "turns": 45
-      }
-    },
-    "deep_gash": {
-      "name": "deep gash",
-      "severity": "serious",
-      "min_tier": 2,
-      "mends": null,
-      "fee": 25,
-      "description": "A long, deep cut that won't close on its own.",
-      "max_hp": -3,
-      "dot": {
-        "kind": "bleeding",
-        "damage": 1,
-        "every": 8,
-        "turns": 64
-      }
-    },
-    "cracked_ribs": {
-      "name": "cracked ribs",
-      "severity": "serious",
-      "min_tier": 2,
-      "mends": null,
-      "fee": 30,
-      "description": "Something gave way in your side.",
-      "attributes": {
-        "fortitude": -2
-      }
-    },
-    "wrenched_shoulder": {
-      "name": "wrenched shoulder",
-      "severity": "serious",
-      "min_tier": 2,
-      "mends": null,
-      "fee": 30,
-      "description": "Your arm won't lift above your chest.",
-      "attributes": {
-        "physicality": -2
-      },
-      "ranged": -3
-    },
-    "broken_fingers": {
-      "name": "broken fingers",
-      "severity": "serious",
-      "min_tier": 2,
-      "mends": null,
-      "fee": 25,
-      "description": "Two of them, splinted badly.",
-      "accuracy": -2,
-      "ranged": -2
-    },
-    "concussion": {
-      "name": "concussion",
-      "severity": "serious",
-      "min_tier": 3,
-      "mends": null,
-      "fee": 35,
-      "description": "The world swims when you turn your head.",
-      "attributes": {
-        "acumen": -2,
-        "tenacity": -2
-      },
-      "accuracy": -1
-    },
-    "torn_knee": {
-      "name": "torn knee",
-      "severity": "serious",
-      "min_tier": 3,
-      "mends": null,
-      "fee": 40,
-      "description": "It buckles when you least want it to.",
-      "attributes": {
-        "celerity": -2
-      },
-      "evasion": -1
-    },
-    "festering_bite": {
-      "name": "festering bite",
-      "severity": "serious",
-      "min_tier": 1,
-      "mends": null,
-      "fee": 30,
-      "creature_only": true,
-      "description": "Hot, swollen, and spreading.",
-      "attributes": {
-        "fortitude": -1
-      },
-      "dot": {
-        "kind": "poisoned",
-        "damage": 1,
-        "every": 12,
-        "turns": 120
-      }
-    },
-    "gored_thigh": {
-      "name": "gored thigh",
-      "severity": "serious",
-      "min_tier": 1,
-      "mends": null,
-      "fee": 35,
-      "creature_only": true,
-      "description": "Torn open by a tusk.",
-      "evasion": -2,
-      "damage": -1,
-      "dot": {
-        "kind": "bleeding",
-        "damage": 1,
-        "every": 10,
-        "turns": 60
-      }
-    }
+ "_comment": "Lasting injuries (game/injuries.py). ALL PLACEHOLDERS. A creature's hit can injure: any hit with chance small_hit (v0.48.0, user: injuries more likely across the board), or, when it takes at least big_hit (a share of max HP, but never more than big_hit_cap damage) in one blow: the chance is chance + per_tier x (the creature's tier - 1). The injury is picked from those whose min_tier is at most the creature's tier, plus any the creature lists under 'injures' in monsters.json (creature_only injuries come only that way). Effects: attributes (added to the Hunter's attributes; a lower Fortitude also lowers max HP), max_hp, accuracy (melee), ranged (bows), evasion, damage (melee), dot (damage over time: 'damage' HP every 'every' turns for 'turns' turns; natural healing stops meanwhile; it doesn't tick in the city). minor injuries mend on their own after 'mends' Pulses; serious ones (mends null) need the healer. fee: what the healer charges to treat it. sight (optional): change to how far you can see, in cells (e.g. -3); it also limits the look cursor. No injury uses it yet. weights (v0.64.0, user: bleeding and poison should be particularly common, bleeding most, so a new Hunter has a use for bandages): an injury is picked with these weights: bleeding, poisoned (by its dot), other.",
+ "big_hit": 0.15,
+ "big_hit_cap": 6,
+ "chance": 0.2,
+ "per_tier": 0.05,
+ "small_hit": 0.03,
+ "weights": {
+  "bleeding": 3,
+  "poisoned": 2,
+  "other": 1
+ },
+ "injuries": {
+  "bruised_ribs": {
+   "name": "bruised ribs",
+   "severity": "minor",
+   "min_tier": 1,
+   "mends": 9,
+   "fee": 6,
+   "description": "Every breath reminds you.",
+   "max_hp": -3
+  },
+  "twisted_ankle": {
+   "name": "twisted ankle",
+   "severity": "minor",
+   "min_tier": 1,
+   "mends": 9,
+   "fee": 6,
+   "description": "You can walk on it, but not quickly.",
+   "evasion": -2
+  },
+  "split_brow": {
+   "name": "split brow",
+   "severity": "minor",
+   "min_tier": 1,
+   "mends": 9,
+   "fee": 6,
+   "description": "Blood keeps running into your eye.",
+   "accuracy": -1,
+   "ranged": -2,
+   "dot": {
+    "kind": "bleeding",
+    "damage": 1,
+    "every": 15,
+    "turns": 45
+   }
+  },
+  "infected_scratch": {
+   "name": "infected scratch",
+   "severity": "minor",
+   "min_tier": 1,
+   "mends": 9,
+   "fee": 6,
+   "description": "A shallow scratch, gone hot and angry. Something got into it.",
+   "attributes": {
+    "fortitude": -1
+   },
+   "dot": {
+    "kind": "poisoned",
+    "damage": 1,
+    "every": 15,
+    "turns": 45
+   }
+  },
+  "deep_gash": {
+   "name": "deep gash",
+   "severity": "serious",
+   "min_tier": 2,
+   "mends": null,
+   "fee": 25,
+   "description": "A long, deep cut that won't close on its own.",
+   "max_hp": -3,
+   "dot": {
+    "kind": "bleeding",
+    "damage": 1,
+    "every": 8,
+    "turns": 64
+   }
+  },
+  "cracked_ribs": {
+   "name": "cracked ribs",
+   "severity": "serious",
+   "min_tier": 2,
+   "mends": null,
+   "fee": 30,
+   "description": "Something gave way in your side.",
+   "attributes": {
+    "fortitude": -2
+   }
+  },
+  "wrenched_shoulder": {
+   "name": "wrenched shoulder",
+   "severity": "serious",
+   "min_tier": 2,
+   "mends": null,
+   "fee": 30,
+   "description": "Your arm won't lift above your chest.",
+   "attributes": {
+    "physicality": -2
+   },
+   "ranged": -3
+  },
+  "broken_fingers": {
+   "name": "broken fingers",
+   "severity": "serious",
+   "min_tier": 2,
+   "mends": null,
+   "fee": 25,
+   "description": "Two of them, splinted badly.",
+   "accuracy": -2,
+   "ranged": -2
+  },
+  "concussion": {
+   "name": "concussion",
+   "severity": "serious",
+   "min_tier": 3,
+   "mends": null,
+   "fee": 35,
+   "description": "The world swims when you turn your head.",
+   "attributes": {
+    "acumen": -2,
+    "tenacity": -2
+   },
+   "accuracy": -1
+  },
+  "torn_knee": {
+   "name": "torn knee",
+   "severity": "serious",
+   "min_tier": 3,
+   "mends": null,
+   "fee": 40,
+   "description": "It buckles when you least want it to.",
+   "attributes": {
+    "celerity": -2
+   },
+   "evasion": -1
+  },
+  "festering_bite": {
+   "name": "festering bite",
+   "severity": "serious",
+   "min_tier": 1,
+   "mends": null,
+   "fee": 30,
+   "creature_only": true,
+   "description": "Hot, swollen, and spreading.",
+   "attributes": {
+    "fortitude": -1
+   },
+   "dot": {
+    "kind": "poisoned",
+    "damage": 1,
+    "every": 12,
+    "turns": 120
+   }
+  },
+  "gored_thigh": {
+   "name": "gored thigh",
+   "severity": "serious",
+   "min_tier": 1,
+   "mends": null,
+   "fee": 35,
+   "creature_only": true,
+   "description": "Torn open by a tusk.",
+   "evasion": -2,
+   "damage": -1,
+   "dot": {
+    "kind": "bleeding",
+    "damage": 1,
+    "every": 10,
+    "turns": 60
+   }
   }
+ }
 }

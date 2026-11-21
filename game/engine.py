@@ -236,8 +236,7 @@ class Engine:
     def on_kill(self, monster) -> None:
         from game import mastery
         mastery.note_kill(self.player, monster.type.id)     # knowing your prey (v0.59.0)
-        if self.hunt is not None:
-            fieldskills.practise(self, "tracking")   # (you learn the signs of what you kill)
+        # (kills practised Tracking until v0.64.0; user: it rose much too fast. Entering areas does.)
         if monster.type.burst:            # it bursts (lantern tick): everything beside it is burned
             from game import combat
             dmg = combat.roll(monster.type.burst)
@@ -933,7 +932,11 @@ class Engine:
             self.screen = HallScreen()
         elif kind == "sit_rank":
             from game import ranks
+            rank0 = self.player.rank
             self.log(ranks.sit(self))
+            if self.player.rank > rank0:      # (v0.64.0, user: more fanfare) a card, and the clerk's word later
+                self.screen = ranks.rank_card(self, rank0)
+                self.player.flags.add("rank_congrats")
         elif kind == "labour":
             from game import ranks
             from game.screens import ConfirmScreen
@@ -1371,10 +1374,12 @@ class Engine:
         for i, line in enumerate(rows_):
             console.print(left, 11 + o + i, line[:width], fg=DIM, bg=PANEL_BG)
         y = 11 + o + len(rows_)
-        # When: the date on the calendar (see game/calendar.py).
-        for i, line in enumerate(self.date.lines):
-            console.print(left, y, line[:width], fg=DATE if i == 0 else DIM, bg=PANEL_BG)
-            y += 1
+        # When: the date on the calendar (see game/calendar.py). Not on a hunt (v0.64.0, user): the
+        # panel needs the room for messages there, and time only moves between areas.
+        if not self.hunt:
+            for i, line in enumerate(self.date.lines):
+                console.print(left, y, line[:width], fg=DATE if i == 0 else DIM, bg=PANEL_BG)
+                y += 1
         if self.hunt:
             left_faints = p.faint_limit - self.hunt.faints_used
             text = f"Faints left: {left_faints}" if left_faints else "No faints left"
@@ -1426,9 +1431,11 @@ class Engine:
             console.print(x0, y, "├" + "─" * (SIDEBAR_WIDTH - 1), fg=RULE, bg=PANEL_BG)
             y += 1
 
-        # Message log: newest at the top, older messages dimmer, long ones wrapped.
+        # Message log: newest at the top, long ones wrapped. No blank lines between them (v0.64.0, user:
+        # with an injury showing only one message fitted): the newest is bright, older ones grey,
+        # in two alternating greys so where one ends and the next begins still shows.
         for age, message in enumerate(reversed(self.messages)):
-            fade = max(0.4, 1.0 - age * 0.15)
+            fade = 1.0 if age == 0 else (0.62 if age % 2 else 0.46)
             color = tuple(int(c * fade) for c in TEXT)
             lines = textwrap.wrap(message, width)
             if y + len(lines) > log_bottom:
@@ -1436,4 +1443,3 @@ class Engine:
             for line in lines:
                 console.print(left, y, line, fg=color, bg=PANEL_BG)
                 y += 1
-            y += 1  # a blank line between messages

@@ -57,7 +57,7 @@ def fit_window(console, list_len: int, extra: list, top: int = 3) -> tuple[int, 
     """Size a list window: `top` rows above the list (border, tabs, gap), the list,
     a gap, the `extra` lines (details, notices) in full, a gap, the help line, the border.
     Returns (height, visible list rows, extra lines). The list gives way first (down
-    to 3 rows); only if that's not enough are the extra lines cut, ending in "…"."""
+    to 3 rows); only if that's not enough are the extra lines cut, ending in "..."."""
     max_h = console.height - 2
     room = max_h - top - len(extra) - 4
     list_len = max(list_len, 1)
@@ -66,7 +66,7 @@ def fit_window(console, list_len: int, extra: list, top: int = 3) -> tuple[int, 
         keep = max(1, max_h - top - visible - 4)
         extra = extra[:keep]
         text, color = extra[-1]
-        extra[-1] = (text[:-1] + "…" if text else "…", color)
+        extra[-1] = (text[:-3] + "..." if text else "...", color)   # (… isn't in the font: v0.64.0)
     return top + visible + len(extra) + 4, visible, extra
 
 
@@ -215,6 +215,7 @@ def item_worth(item, engine: "Engine") -> str:
 
 CONFIRM_KEYS = {KeySym.RETURN, KeySym.KP_ENTER}
 NUMBER_KEYS = {getattr(KeySym, f"N{i}"): i - 1 for i in range(1, 10)}  # 1-9 pick a choice
+DIGIT_KEYS = {getattr(KeySym, f"N{i}"): i for i in range(0, 10) if hasattr(KeySym, f"N{i}")}   # 0-9 (travel-to)
 ACCENT = (240, 160, 80)
 
 
@@ -312,7 +313,7 @@ class ContractBoardScreen:
             keep = max(0, room - len(head) - len(tail))
             desc = desc[:keep]
             if desc:
-                desc[-1] = (desc[-1][0][: w - 6] + "…", desc[-1][1])
+                desc[-1] = (desc[-1][0][: w - 7] + "...", desc[-1][1])
         detail = (head + desc + tail)[: max(0, room)]
         h = min(console.height - 2, len(self.contracts) + 6 + len(detail))
         x, y = (area_w - w) // 2, max(0, (console.height - h) // 2)
@@ -1200,8 +1201,13 @@ class WorkshopScreen:
                              lambda: artifacts.sell_broken(engine.player, index))
             elif event.sym == _key("c"):
                 pay = f"{artifacts.consign_payout(t, engine.player)} shards" if t.identified else "an unknown sum"
-                self.confirm(engine, f"Consign the {t.name} to the workshop? You'll be paid {pay} now, "
-                                     "and the artifact is gone for good.",
+                share = artifacts.consign_share(t, engine.player)
+                if engine.player.shards < share:
+                    self.report(engine, False, f"Consigning it means paying your half of the repair first: "
+                                               f"{share} shards. You don't have enough.")
+                    return None
+                self.confirm(engine, f"Consign the {t.name} to the workshop? You pay your half of the repair "
+                                     f"({share} shards) and are paid {pay} now. The artifact is gone for good.",
                              lambda: artifacts.consign(engine.player, index, engine.stock(self.workshop.id),
                                                        engine.catalogue))
         return None
@@ -1241,18 +1247,21 @@ class WorkshopScreen:
                 t = item.type
                 worn = p.is_equipped(item)
                 extra = wrapped(artifacts.effect_text(t), w - 4, DIM) + [
-                    (f"b  Sell it         {artifacts.working_price(t, p)} ♦" + ("  (take it off first)" if worn else ""),
+                    (f"b  Sell it         +{artifacts.working_price(t, p)} ♦" + ("  (take it off first)" if worn else ""),
                      CANT if worn else TEXT)]
             elif rows:
                 t = p.inventory.items[rows[self.selected]].type
                 fee = artifacts.repair_fee(t, p)
-                pay = f"{artifacts.consign_payout(t, p)} ♦" if t.identified else "? ♦  (unidentified)"
+                share = artifacts.consign_share(t, p)
+                # (v0.64.0, user) what you pay shows as −, what you're paid as +
+                pay = (f"-{share}, +{artifacts.consign_payout(t, p)} ♦" if t.identified
+                       else f"-{share}, +? ♦  (unidentified)")
                 known = (f"Repaired, it will be: {artifacts.effect_text(engine.catalogue[t.repairs_to])}"
                          if t.identified else "You don't know what it is. The artificer won't say until it's repaired.")
                 extra = wrapped(known, w - 4, DIM) + [
-                    (f"r  Repair it       {fee} ♦", TEXT if p.shards >= fee else CANT),
-                    (f"b  Sell it broken  {artifacts.broken_price(t, p)} ♦", TEXT),
-                    (f"c  Consign it      {pay}", TEXT)]
+                    (f"r  Repair it       -{fee} ♦", TEXT if p.shards >= fee else CANT),
+                    (f"b  Sell it broken  +{artifacts.broken_price(t, p)} ♦", TEXT),
+                    (f"c  Consign it      {pay}", TEXT if p.shards >= share else CANT)]
             help_text = "↑↓ choose  r repair  b sell  c consign  ←→ Esc"
         elif self.tab == "buy":
             if rows:
@@ -1607,8 +1616,10 @@ class TrainingScreen:
             engine.screen = None
         elif event.sym in UP_KEYS:
             self.selected = (self.selected - 1) % n
+            self.notice = ""
         elif event.sym in DOWN_KEYS:
             self.selected = (self.selected + 1) % n
+            self.notice = ""
         elif event.sym in CONFIRM_KEYS:
             sid = self.skill_ids[self.selected]
             ok, msg = skills.train(engine.player, engine.skills[sid], **self.terms(sid))
@@ -1630,22 +1641,27 @@ class TrainingScreen:
             status = "Ready to train."
         else:
             status = f"Practice {state.practice}/{skill.needed(state.rank)} before training."
-        extra = wrapped(status, w - 4, TEXT) + wrapped(skill.description, w - 4, DIM)
+        # (v0.64.0, user: the notice was cut off and the list didn't scroll) the notice comes right
+        # after the status, so if anything has to be cut it's the end of the skill's description
+        extra = wrapped(status, w - 4, TEXT)
         title = "Training"
         if self.mentor is not None:
             cap = self.mentor["skills"].get(self.skill_ids[self.selected], 1)
             extra = wrapped(f"{self.mentor['given']} teaches at half the trainer's price, up to rank {cap}.", w - 4, ACCENT) + extra
             title = f"Training with {self.mentor['given']}"
         if self.notice:
-            extra += [("", DIM)] + wrapped(self.notice, w - 4, ACCENT)
+            extra += wrapped(self.notice, w - 4, ACCENT)
+        extra += wrapped(skill.description, w - 4, DIM)
         h, visible, extra = fit_window(console, len(self.skill_ids), extra)
         x, y = (area_w - w) // 2, (console.height - h) // 2
         draw_box(console, x, y, w, h, title)
         purse = f"♦ {p.shards} shards"
         console.print(x + w - 2 - len(purse), y + 1, purse, fg=TEXT, bg=BG)
-        for r, sid in enumerate(self.skill_ids[:visible]):
+        n = len(self.skill_ids)
+        first = max(0, min(self.selected - visible // 2, n - visible))
+        for r, sid in enumerate(self.skill_ids[first:first + visible]):
             sk, st = engine.skills[sid], p.skill(sid)
-            row, bg = y + 3 + r, HIGHLIGHT if r == self.selected else BG
+            row, bg = y + 3 + r, HIGHLIGHT if first + r == self.selected else BG
             console.rgb["bg"][x + 1 : x + w - 1, row] = bg
             console.print(x + 2, row, f"{sk.name}  rank {st.rank}", fg=TEXT, bg=bg)
             cost = skills.cost_for(p, sk, **self.terms(sid))
@@ -1833,27 +1849,46 @@ class HelpScreen(ScrollScreen):
 # ---- Travel-to ----------------------------------------------------------------------------
 class TravelScreen:
     """Pick a known place; the Hunter walks there step by step (game/travel.py).
-    ↑↓ or 1-9 and Enter; Esc cancels."""
+    ↑↓ or a number and Enter; Esc cancels. Every place is numbered (v0.64.0, user: the numbers
+    stopped at 9). Typing a number goes there as soon as no longer number could be meant (with
+    14 places, 3 goes at once; 1 waits for a second digit or Enter, so 1 then 2 is 12)."""
 
     def __init__(self, places: list) -> None:
         self.places = places
         self.selected = 0
+        self.typed = ""
+
+    def _go(self, engine):
+        label, spot, beside = self.places[self.selected]
+        engine.screen = None
+        return TravelAction(label, spot, beside)
 
     def handle(self, event, engine: "Engine") -> Action | None:
         if not isinstance(event, tcod.event.KeyDown):
             return None
         n = len(self.places)
-        number = NUMBER_KEYS.get(event.sym)
+        digit = DIGIT_KEYS.get(event.sym)
+        if digit is not None:
+            typed = self.typed + str(digit)
+            if not (0 < int(typed) <= n):
+                typed = str(digit)
+            if not (0 < int(typed) <= n):
+                self.typed = ""
+                return None
+            self.typed, self.selected = typed, int(typed) - 1
+            if int(typed) * 10 > n:          # nothing longer could be meant
+                self.typed = ""
+                return self._go(engine)
+            return None
+        self.typed = ""
         if event.sym == KeySym.ESCAPE:
             engine.screen = None
         elif event.sym in UP_KEYS:
             self.selected = (self.selected - 1) % n
         elif event.sym in DOWN_KEYS:
             self.selected = (self.selected + 1) % n
-        elif event.sym in CONFIRM_KEYS or (number is not None and number < n):
-            label, spot, beside = self.places[number if number is not None else self.selected]
-            engine.screen = None
-            return TravelAction(label, spot, beside)
+        elif event.sym in CONFIRM_KEYS:
+            return self._go(engine)
         return None
 
     def render(self, console, engine: "Engine", area_w: int) -> None:
@@ -1867,11 +1902,13 @@ class TravelScreen:
             i = first + r
             row, bg = y + 2 + r, HIGHLIGHT if i == self.selected else BG
             console.rgb["bg"][x + 1 : x + w - 1, row] = bg
-            prefix = f"{i + 1}. " if i < 9 else "   "
+            width = len(str(len(self.places)))
+            prefix = f"{i + 1:>{width}}. "
             console.print(x + 2, row, (prefix + label[0].upper() + label[1:])[: w - 4], fg=TEXT, bg=bg)
         for i, (text, color) in enumerate(extra):
             console.print(x + 2, y + 3 + visible + i, text, fg=color, bg=BG)
-        console.print(x + 2, y + h - 2, "↑↓ or 1-9 choose  Enter go  Esc"[: w - 4], fg=DIM, bg=BG)
+        keys = "↑↓ or a number  Enter go  Esc" if len(self.places) > 9 else "↑↓ or 1-9 choose  Enter go  Esc"
+        console.print(x + 2, y + h - 2, keys[: w - 4], fg=DIM, bg=BG)
 
 class CharacterScreen(ScrollScreen):
     """The character sheet (reworked v0.52.0, user: colour and layout): who you are, bars, attributes,

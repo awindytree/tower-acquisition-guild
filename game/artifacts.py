@@ -74,12 +74,20 @@ def broken_price(t: ItemType, player=None) -> int:
     return bargaining.paid(player, int(t.rarity.broken_price * ARTIFICER_PAY))
 
 
-def consign_payout(t: ItemType, player=None) -> int:
-    """(working sale price - repair fee) / 2, rounded down; never below the broken price; then
-    the artificer's +20% (ARTIFICER_PAY)."""
+def consign_share(t: ItemType, player=None) -> int:
+    """Consigning (v0.64.0, user): the Hunter first pays their half of the repair fee (rounded up)."""
     from game import bargaining
-    base = max(t.rarity.broken_price, (t.value - t.rarity.repair_fee) // 2)
-    return bargaining.paid(player, int(base * ARTIFICER_PAY))
+    return bargaining.pay(player, -(-t.rarity.repair_fee // 2))
+
+
+def consign_payout(t: ItemType, player=None) -> int:
+    """...then is paid half the working sale price, with the artificer's +20% (ARTIFICER_PAY).
+    Hunter and artificer split the prize and share the repair (the user's design, 2026-11-18);
+    since v0.64.0 the Hunter's half of the fee is paid up front, so consigning needs shards in
+    hand, and selling broken is the way out when they're short. (Before: one payment of
+    (working price - repair fee) / 2, never below the broken price.)"""
+    from game import bargaining
+    return bargaining.paid(player, int(t.value / 2 * ARTIFICER_PAY))
 
 
 def repair(player, index: int, catalogue) -> tuple[bool, str]:
@@ -138,7 +146,11 @@ def consign(player, index: int, stock=None, catalogue=None) -> tuple[bool, str]:
     """Paid at once. If the workshop's stock is given, the repaired artifact goes up for sale there."""
     t = player.inventory.items[index].type
     was_known = t.identified
+    share = consign_share(t, player)
+    if player.shards < share:
+        return False, f"Consigning it means paying your half of the repair first: {share} shards. You don't have enough."
     pay = consign_payout(t, player)
+    player.shards -= share
     player.inventory.remove(index, 1)
     player.earn(pay)
     from game import sound
@@ -148,7 +160,8 @@ def consign(player, index: int, stock=None, catalogue=None) -> tuple[bool, str]:
         working = catalogue[t.repairs_to]
         stock.add(working.id, working.value)
     found = "" if was_known else f" It turns out to have been {_a(t.real_name)}."
-    return True, f"You consign it to the workshop and are paid {pay} shards.{found}"
+    return True, (f"You pay your half of the repair ({share} shards) and consign it to the workshop; "
+                  f"you're paid {pay} shards.{found}")
 
 
 # ---- Jodebris and windcatchers ------------------------------------------------------------------

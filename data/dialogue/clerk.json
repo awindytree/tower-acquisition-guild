@@ -8,6 +8,12 @@
     },
     {
       "if": [
+        "flag:hunter:rank_congrats"
+      ],
+      "node": "rank_congrats"
+    },
+    {
+      "if": [
         "!flag:hunter:met_clerk"
       ],
       "node": "first"
@@ -322,6 +328,21 @@
         {
           "text": "Thanks.",
           "end": true
+        }
+      ]
+    },
+    "rank_congrats": {
+      "text": [
+        "Well! {rank} {given}. It's on the rolls; I wrote it in myself. Congratulations. The Guild doesn't say it often enough.",
+        "There's the new {rank}. Congratulations, {given}. Don't let it go to your head out there: the miasma doesn't read the rolls."
+      ],
+      "do": [
+        "clear:hunter:rank_congrats"
+      ],
+      "choices": [
+        {
+          "text": "Thank you.",
+          "goto": "hello"
         }
       ]
     }

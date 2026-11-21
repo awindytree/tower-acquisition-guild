@@ -284,3 +284,37 @@ def wall_lines(engine) -> list[str]:
 
 def pack_trophies(engine) -> list[int]:
     return [i for i, it in enumerate(engine.player.inventory.items) if it.trophy is not None]
+
+
+
+# ---- Other Hunters bring trophies too (v0.64.0, user) -----------------------------------------------
+RIVAL_CHANCE = 0.35        # a successful rival hauls a body home this often (placeholder)
+
+
+def rival_trophy(engine, who: str, trip: dict, rng=random) -> str:
+    """A rival home from a hunt may bring the trophymaster a body: a creature of the place they went
+    (one that lives there and is no tougher than its deepest area allows). If it makes a record it
+    goes on the wall with their name. Returns what to say about it ("" if nothing came of it)."""
+    from game import monsters
+    if rng.random() >= RIVAL_CHANCE or trip.get("region") not in engine.regions:
+        return ""
+    place = engine.regions[trip["region"]]
+    cap = monsters.tier_cap(trip.get("danger", 1), max(0, trip.get("depth", 2) - 1))
+    kinds = sorted((m for m in engine.monster_types.values()
+                    if leaves_corpse(m) and m.tier <= cap and m.lives(place.style, place.light)
+                    and type_id(m.id) in engine.catalogue.types), key=lambda m: m.id)
+    if not kinds:
+        return ""
+    mtype = rng.choice(kinds)
+    item = make(engine, mtype, rng)
+    kg, quirk = item.trophy["kg"], item.trophy["quirk"]
+    st = state(engine)
+    rec = st["records"].get(mtype.id)
+    said = []
+    if rec is None or kg > rec["kg"]:
+        st["records"][mtype.id] = {"kg": kg, "who": who, "day": engine.day, "quirk": quirk}
+        said.append(f"set the trophy wall's record for a {mtype.name} ({weight_text(kg)})")
+    if quirk and quirk not in st["curios"].get(mtype.id, {}):
+        st["curios"].setdefault(mtype.id, {})[quirk] = who
+        said.append(f"brought the trophymaster the first {quirk_name(quirk)} {mtype.name}")
+    return " and ".join(said) + "." if said else ""

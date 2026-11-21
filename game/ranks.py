@@ -76,6 +76,26 @@ def ready(player) -> bool:
     return next_rank(player) is not None and not needs(player)
 
 
+def rank_card(engine, before: int):
+    """The card for a new rank (v0.64.0, user: passing should have more fanfare than a log line)."""
+    from game.screens import TitleCardScreen
+    p = engine.player
+    new, old = table()[p.rank], table()[before]
+    TEXT, DIM = (220, 210, 190), (140, 130, 115)
+    lines = [(f"{p.full_name} sits for {new['name']} and passes.", TEXT), ("", TEXT)]
+    gains = []
+    if max_danger(p.rank) > max_danger(before):
+        gains.append(f"The Wayfinder will take you to danger {max_danger(p.rank)}.")
+    if new.get("training_discount", 0) > old.get("training_discount", 0):
+        gains.append(f"Training costs {round(new['training_discount'] * 100)}% less.")
+    if new.get("request_bonus", 0) > old.get("request_bonus", 0):
+        gains.append(f"Requests pay {round(new['request_bonus'] * 100)}% more.")
+    if new.get("first_pick") and not old.get("first_pick"):
+        gains.append("You may take a contract another Hunter has already taken.")
+    lines += [(g, DIM) for g in gains]
+    return TitleCardScreen(new["name"], lines)
+
+
 def sit(engine) -> str:
     """Sit for the next rank (at the clerk): the fee, then the new rank."""
     p = engine.player

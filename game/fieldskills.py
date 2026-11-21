@@ -20,7 +20,10 @@ FIELD_SKILLS = ("tracking", "stealth", "harvesting", "survival")
 TRACK_TURNS = 10            # how long tracks last at rank 1; +10 a rank
 SENSE_RANK, SENSE_EXACT_RANK, BOUNTY_RANK, NEAR_RANK = 2, 4, 3, 4
 NEAR_RADIUS = 6             # at rank 4; +2 a rank after
-NOTICE_STEP, NOTICE_FLOOR = 0.12, 0.25
+# A creature that sees you notices you with this chance each turn (v0.64.0, user: Stealth never rose,
+# since at rank 1 every creature noticed at once, so there was nothing to practise): 85% at rank 1,
+# 10% less a rank, at least 30%. (Was 100% at rank 1, 12% less a rank, at least 25%.)
+NOTICE_BASE, NOTICE_STEP, NOTICE_FLOOR = 0.85, 0.10, 0.30
 SNEAK_ACCURACY = 2
 
 
@@ -107,13 +110,13 @@ def minimap_creatures(engine, gm) -> list:
 
 # ---- Stealth -----------------------------------------------------------------------------------------
 def notice_chance(engine) -> float:
-    return max(NOTICE_FLOOR, 1.0 - NOTICE_STEP * (rank(engine, "stealth") - 1) - _tal(engine, "notice") / 100)
+    return max(NOTICE_FLOOR, NOTICE_BASE - NOTICE_STEP * (rank(engine, "stealth") - 1) - _tal(engine, "notice") / 100)
 
 
 def notices(engine, m) -> bool:
     """A creature that sees you: does it notice you this turn?"""
     chance = notice_chance(engine)
-    if chance >= 1.0 or engine.rng.random() < chance:     # (no roll at rank 1: it always notices)
+    if chance >= 1.0 or engine.rng.random() < chance:
         return True
     if not getattr(m, "slipped", False):          # practice: once for each creature you slip past
         m.slipped = True

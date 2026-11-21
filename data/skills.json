@@ -1,5 +1,5 @@
 {
-  "_comment": "Skills. A skill has ranks 1..max_rank. Practice fills a bar; the bar for rank r -> r+1 needs practice_per_rank * r points. Up to self_taught_to, a full bar raises the rank by itself; beyond that, a full bar means you're ready to train, and a trainer (see data/workshops.json) charges training_cost for the next rank. Numbers are PLACEHOLDERS. attribute: the attribute whose points over 10 add to each bit of practice (+1 per 2 points); practice_base: practice per session before that.",
+  "_comment": "Skills. A skill has ranks 1..max_rank. Practice fills a bar; the bar for rank r -> r+1 needs practice_per_rank * r points. Up to self_taught_to, a full bar raises the rank by itself; beyond that, a full bar means you're ready to train, and a trainer (see data/workshops.json) charges training_cost for the next rank. Numbers are PLACEHOLDERS. attribute: the attribute whose points over 10 add to each bit of practice (+1 per 2 points); practice_base: practice per session before that. v0.64.0 (user: weapon skills and Tracking rose much too fast, Stealth not at all): weapon skills and Marksmanship 12 -> 30 practice a rank, Tracking 8 -> 16 (and kills no longer practise it), Stealth 8 -> 6 (and a creature can fail to notice you even at rank 1).",
   "identification": {
     "name": "Identification",
     "description": "Telling what a broken Tower Artifact was. Your rank is the highest rarity you can identify (1 Common ... 6 Unique). Studying an artifact one rarity beyond you can't identify it, but still teaches you. Acumen makes practice count for more.",
@@ -20,7 +20,7 @@
     "description": "Shooting straight. Each rank above 1 adds 2 to your accuracy with a bow. Every shot at a creature is practice (a hit counts double). Celerity makes practice count for more. Rank 3: Steady hand (no accuracy lost to distance); rank 5: Aimed shot (ready with z).",
     "max_rank": 6,
     "self_taught_to": 2,
-    "practice_per_rank": 12,
+    "practice_per_rank": 30,
     "training_cost": {
       "3": 100,
       "4": 300,
@@ -65,7 +65,7 @@
     "description": "Fighting with swords and knives. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Rank 3 brings a passive technique, rank 5 one you ready with z. Every blow is practice (a hit counts double). Placeholders (v0.55.0). The trainer in the guild hall's training corner trains it.",
     "max_rank": 6,
     "self_taught_to": 2,
-    "practice_per_rank": 12,
+    "practice_per_rank": 30,
     "training_cost": {
       "3": 100,
       "4": 300,
@@ -80,7 +80,7 @@
     "description": "Fighting with axes. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Rank 3 brings a passive technique, rank 5 one you ready with z. Every blow is practice (a hit counts double). Placeholders (v0.55.0). The trainer trains it.",
     "max_rank": 6,
     "self_taught_to": 2,
-    "practice_per_rank": 12,
+    "practice_per_rank": 30,
     "training_cost": {
       "3": 100,
       "4": 300,
@@ -95,7 +95,7 @@
     "description": "Fighting with picks, mauls and the like. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Rank 3 brings a passive technique, rank 5 one you ready with z. Every blow is practice (a hit counts double). Placeholders (v0.55.0). The trainer trains it.",
     "max_rank": 6,
     "self_taught_to": 2,
-    "practice_per_rank": 12,
+    "practice_per_rank": 30,
     "training_cost": {
       "3": 100,
       "4": 300,
@@ -110,7 +110,7 @@
     "description": "Fighting bare-handed. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Rank 3 brings a passive technique, rank 5 one you ready with z. Every blow is practice (a hit counts double). Placeholders (v0.55.0). The trainer trains it.",
     "max_rank": 6,
     "self_taught_to": 2,
-    "practice_per_rank": 12,
+    "practice_per_rank": 30,
     "training_cost": {
       "3": 100,
       "4": 300,
@@ -122,10 +122,10 @@
   },
   "tracking": {
     "name": "Tracking",
-    "description": "Reading the ground. Creatures leave tracks you can see, longer with rank; at rank 2 you sense what an area holds as you enter it; at 3 a marked bounty shows on your minimap; at 4 and up, creatures near you do. Practice: new areas, kills. Trained by the trainer. Placeholders (v0.56.0).",
+    "description": "Reading the ground. Creatures leave tracks you can see, longer with rank; at rank 2 you sense what an area holds as you enter it; at 3 a marked bounty shows on your minimap; at 4 and up, creatures near you do. Practice: new areas. Trained by the trainer. Placeholders (v0.56.0).",
     "max_rank": 6,
     "self_taught_to": 2,
-    "practice_per_rank": 8,
+    "practice_per_rank": 16,
     "training_cost": {
       "3": 100,
       "4": 300,
@@ -137,10 +137,10 @@
   },
   "stealth": {
     "name": "Stealth",
-    "description": "Not being noticed. A creature that sees you notices you only by chance (always at rank 1, less each rank after); blows at a creature that hasn't noticed you land more often and harder. Practice: slipping past a creature, striking unnoticed. Trained by the trainer. Placeholders (v0.56.0).",
+    "description": "Not being noticed. A creature that sees you notices you only by chance (most of the time at rank 1, less each rank after); blows at a creature that hasn't noticed you land more often and harder. Practice: slipping past a creature, striking unnoticed. Trained by the trainer. Placeholders (v0.56.0).",
     "max_rank": 6,
     "self_taught_to": 2,
-    "practice_per_rank": 8,
+    "practice_per_rank": 6,
     "training_cost": {
       "3": 100,
       "4": 300,

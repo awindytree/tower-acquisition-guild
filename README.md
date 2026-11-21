@@ -374,9 +374,11 @@ next rank for shards (Training tab). `c` shows your skills.
 - **Repair** (`r`): pay the repair fee and get the working artifact back.
   Repairing reveals what it was.
 - **Sell broken** (`b`): the artificer buys it as it is, for a small price.
-- **Consign** (`c`): the artificer repairs and sells it, and you're paid at
-  once: (working price − repair fee) ÷ 2. If you haven't identified it, you
-  won't know how much until you're paid.
+- **Consign** (`c`): the artificer repairs and sells it. You pay your half of
+  the repair fee first, then you're paid half the working price at once
+  (shown as "-13, +36"). If you can't pay your half, sell it broken instead. If
+  you haven't identified it, you won't know how much until you're paid.
+The window shows what you pay with a minus and what you're paid with a plus.
 - **Sell a repaired one** (`b` on a working artifact in your pack): half its
   sale price. It goes up for sale in the workshop. Take it off first if it's
   equipped.
@@ -572,9 +574,10 @@ Tenacity lost "spell power" and "mana"): each also speeds practice in its skills
 - **Tracking** (Acumen; the trainer): creatures leave tracks (`"`) where they've
   walked, lasting 10 turns a rank. Rank 2: entering an area, you sense roughly
   how many creatures it holds (the number at 4). Rank 3: a marked bounty shows on
-  your minimap. Rank 4 and up: creatures near you show on it, unseen.
-- **Stealth** (Celerity; the trainer): at rank 1 anything that sees you notices
-  you; each rank after, less often. A blow at a creature that hasn't noticed
+  your minimap. Rank 4 and up: creatures near you show on it, unseen. Practice:
+  entering new areas.
+- **Stealth** (Celerity; the trainer): a creature that sees you notices you 85%
+  of the time at rank 1 (each turn); each rank after, 10% less (30% at least). A blow at a creature that hasn't noticed
   you gets +2 accuracy and +1 damage per two ranks.
 - **Harvesting** (Physicality; the smith): creatures leave materials 5% more
   often a rank, and one more of each at rank 5.

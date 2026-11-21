@@ -67,6 +67,7 @@ class Table:
         self.chance = raw.get("chance", 0.3)
         self.per_tier = raw.get("per_tier", 0.1)
         self.small_hit = raw.get("small_hit", 0.0)   # any lesser hit: this chance
+        self.weights = raw.get("weights", {})        # how likely each kind is picked (v0.64.0)
         self.types: dict[str, InjuryType] = {}
         for iid, d in raw["injuries"].items():
             if d["severity"] not in ("minor", "serious"):
@@ -155,7 +156,11 @@ def roll_injury(player, monster_type, damage: int, day: int, rng: random.Random)
                                       or it.id in monster_type.injures)]
     if not pool:
         return None
-    it = rng.choice(sorted(pool, key=lambda x: x.id))
+    # (v0.64.0, user: a fresh Hunter rarely had a use for a bandage) bleeding and poison are likelier
+    # than other injuries, bleeding most: weights in data/injuries.json "weights"
+    pool = sorted(pool, key=lambda x: x.id)
+    w = t.weights
+    it = rng.choices(pool, weights=[w.get(i.dot["kind"], 1) if i.dot else w.get("other", 1) for i in pool])[0]
     add(player, it.id, day)
     return it
 
