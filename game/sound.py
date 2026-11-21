@@ -179,10 +179,22 @@ def play(event: str, volume: float = 1.0, gap: float = 0.0) -> None:
         _fail(exc)
 
 
-def step(symbol: str) -> None:
-    """A footstep on this kind of ground (data/sounds.json "steps": map symbol -> sound)."""
+_walk_steps = 0
+
+
+def step(symbol: str, walking: bool = False) -> None:
+    """A footstep on this kind of ground (data/sounds.json "steps": map symbol -> sound).
+    While auto-exploring or travelling (quick steps), every other one, a little softer."""
+    global _walk_steps
     kind = table()["steps"].get(symbol)
-    if kind:
+    if not kind:
+        return
+    if walking:
+        _walk_steps += 1
+        if _walk_steps % 2:
+            return
+        play(f"step_{kind}", 0.7)
+    else:
         play(f"step_{kind}")
 
 

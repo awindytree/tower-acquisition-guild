@@ -98,6 +98,13 @@ def next_step(engine, spot: tuple[int, int], beside: bool) -> tuple[int, int] | 
 
 
 def travel(engine, label: str, spot: tuple[int, int], beside: bool) -> None:
+    """Walk there all at once (tests and tools)."""
+    for _ in travel_steps(engine, label, spot, beside):
+        pass
+
+
+def travel_steps(engine, label: str, spot: tuple[int, int], beside: bool):
+    """Travel as a generator: one step each time it's advanced (watched step by step, v0.65.0)."""
     from game.actions import MoveAction
     gm, p = engine.game_map, engine.player
     known = set(map(id, creatures_in_view(engine)))
@@ -128,6 +135,7 @@ def travel(engine, label: str, spot: tuple[int, int], beside: bool) -> None:
             return
         if p.stats.hp < hp or engine.logged > after_step:
             return
+        yield
 
 
 def _seen_creature(engine, cell) -> bool:

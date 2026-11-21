@@ -103,7 +103,7 @@ class MoveAction(Action):
         from_x, from_y = player.x, player.y
         player.move(self.dx, self.dy)
         from game import sound
-        sound.step(tile.symbol)
+        sound.step(tile.symbol, walking=engine.walking is not None)
         here = engine.game_map.items_at(nx, ny)
         if len(here) == 1:
             engine.log(f"You see {article(here[0].item.floor_label)} here.")
@@ -484,9 +484,12 @@ class ExploreAction(Action):
     """Auto-explore (game/explore.py). Takes its own turns, step by step."""
 
     def perform(self, engine: "Engine") -> bool:
-        from game.explore import explore
-        explore(engine)
-        return False  # the turns were taken inside
+        from game.explore import explore, explore_steps
+        if engine.animate_walks:          # the game: watched a step at a time (v0.65.0)
+            engine.start_walk(explore_steps(engine))
+        else:                             # tests and tools: all at once
+            explore(engine)
+        return False  # the turns are taken inside
 
 
 class TravelAction(Action):
@@ -496,9 +499,12 @@ class TravelAction(Action):
         self.label, self.spot, self.beside = label, spot, beside
 
     def perform(self, engine: "Engine") -> bool:
-        from game.travel import travel
-        travel(engine, self.label, self.spot, self.beside)
-        return False  # the turns were taken inside
+        from game.travel import travel, travel_steps
+        if engine.animate_walks:
+            engine.start_walk(travel_steps(engine, self.label, self.spot, self.beside))
+        else:
+            travel(engine, self.label, self.spot, self.beside)
+        return False  # the turns are taken inside
 
 
 class ButcherAction(Action):

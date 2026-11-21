@@ -339,6 +339,33 @@ class Engine:
         self.logged += 1  # a running count, so auto-explore can tell when something was said
         del self.messages[:-MAX_LOG]
 
+    # ---- Walking on its own: auto-explore and travel-to, watched step by step (v0.65.0, user) ----
+    animate_walks = False     # main.py turns it on; tests and the bot walk all at once
+    walking = None            # the walk under way (a generator: one step each time it's advanced)
+    WALK_STEP_DELAY = 0.06    # seconds between steps (about 16 a second)
+
+    def start_walk(self, steps) -> None:
+        self.walking = steps
+        self.walk_step()          # the first step at once (or the reason it can't start)
+
+    def walk_step(self) -> None:
+        """One step of the walk under way, then what follows any action (scenes, talents)."""
+        if self.walking is None:
+            return
+        try:
+            next(self.walking)
+        except StopIteration:
+            self.walking = None
+        if self.screen is not None or (self.player and self.player.stats.is_dead):
+            self.walking = None
+        self.handle_action(None)
+
+    def stop_walk(self) -> None:
+        """A key was pressed: stop where you are."""
+        if self.walking is not None:
+            self.walking.close()
+            self.walking = None
+
     def handle_action(self, action: Action | None) -> None:
         if action is not None and action.perform(self):
             self.turn += 1

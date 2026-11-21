@@ -61,7 +61,15 @@ def next_step(engine) -> tuple[tuple[int, int] | None, str]:
 
 
 def explore(engine) -> None:
-    """Auto-explore until something comes up. Turns are taken here, step by step."""
+    """Auto-explore until something comes up, all at once (tests and the balance bot)."""
+    for _ in explore_steps(engine):
+        pass
+
+
+def explore_steps(engine):
+    """Auto-explore as a generator: one step (one turn) each time it's advanced. The game advances
+    it on a timer so you watch the Hunter walk (v0.65.0, user: arriving all at once was
+    disorienting, and every footstep sounded at once); a key stops it."""
     from game.actions import MoveAction, PickUpAction
     gm, p = engine.game_map, engine.player
     if not gm.fog:
@@ -109,6 +117,7 @@ def explore(engine) -> None:
             return
         if engine.logged > count_after_step:  # something happened that's worth a look
             return
+        yield
 
 
 def _way_spots(engine) -> set[tuple[int, int]]:

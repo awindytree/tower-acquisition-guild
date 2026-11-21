@@ -105,6 +105,7 @@ def main() -> None:
         # Sound (v0.63.0): after the window opens (SDL is up). If it can't start, the game is silent;
         # the Sound window (title menu or Esc) says why. Volumes live in saves/settings.json.
         sound.init(SAVES / "settings.json")
+        engine.animate_walks = True       # watch auto-explore and travel-to a step at a time
         last = time.monotonic()
         while True:
             # Rebuilt every time, so resizing the window just works.
@@ -116,7 +117,17 @@ def main() -> None:
             # wait() sleeps until there's input, so the game uses no CPU while idle;
             # a moving screen (the opening crawl) wakes it ~30 times a second instead.
             screen = engine.screen
-            if getattr(screen, "animating", False):
+            if engine.walking is not None:
+                # Auto-explore or travel-to under way (v0.65.0): a step every WALK_STEP_DELAY;
+                # any key stops it (and is used up doing so).
+                events = list(tcod.event.wait(timeout=engine.WALK_STEP_DELAY))
+                if any(isinstance(ev, tcod.event.KeyDown) for ev in events):
+                    engine.stop_walk()
+                    events = [ev for ev in events if not isinstance(ev, tcod.event.KeyDown)]
+                else:
+                    engine.walk_step()
+                last = time.monotonic()
+            elif getattr(screen, "animating", False):
                 events = list(tcod.event.wait(timeout=1 / 30))
                 now = time.monotonic()
                 screen.tick(engine, min(0.25, now - last))

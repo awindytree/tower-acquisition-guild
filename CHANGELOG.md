@@ -5,6 +5,10 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.65.0: Watch the Hunter walk (2026-11-21)
+- **Auto-explore and travel-to now walk a step at a time** that you can watch (about 16 steps a second), instead of jumping to where they stop (user: disorienting, and every footstep sounded at once). Any key stops the walk where you are. Each step is still a full turn.
+- Footsteps while walking like this play every other step, a little softer, so they don't patter.
+
 ## 0.64.1: The wind stops; Jodebris sensitivity (2026-11-21)
 - **Fixed: the title screen's wind went on playing under everything** (user: still there on a hunt). tcod loops a sound by re-queuing it when it ends, and fading a channel out didn't stop that, so a faded loop came straight back at full volume, and every place you'd been piled up. Loops are now stopped for good when they fade (and silenced outright once the fade is over).
 - **The talent "Jodebris Sense" is now "Windcatcher-Efficient"** (user: almost no one can sense Jodebris). Same effect; saves carry it over.

@@ -35,6 +35,7 @@ python main.py
 | Arrow keys / WASD | Move |
 | Numpad 8 4 6 2 | Move (movement is four-way: no diagonal steps) |
 | `.` or Numpad 5 | Wait one turn |
+| (walking) | Auto-explore (`o`) and travel-to (`t`) walk a step at a time; any key stops them |
 | `g` or `,` | Pick up what's here (a corpse only when nothing else is: it goes in your pack as a trophy) |
 | `b` | Butcher the corpse you're standing on, for materials (takes a turn) |
 | Walk into a creature | Attack it |
