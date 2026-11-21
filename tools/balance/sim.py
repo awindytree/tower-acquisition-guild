@@ -13,7 +13,13 @@ health with nothing left to drink. Between hunts it consigns every
 artifact, sells materials, hands in writings, reports notes, pays dues, sees the
 healer, restocks supplies (keeping back enough for the next dues), and buys better armour and weapons when it can.
 It picks a danger by level ("ladder"; any land and feature), or always one place (--region).
-It doesn't take odd jobs, fill requests, commission gear or train skills.
+Since v0.61 (stage 7) it also: takes a contract from the Guild's board at its danger when one is
+there (else a trip of its own); takes bounties and scouting jobs from the bounty board (the best
+paid it may take, up to two), goes to their places, hunts the marked creature or the artifact, and
+collects the pay; hauls home a corpse that would beat the trophy wall's record (if it fits), hands
+trophies to the trophymaster and has the butcher break down the rest; and trains skills with
+spare shards (its weapon's skill first, then the field skills). It still doesn't fill requests,
+commission gear or pay into the Guild's works beyond its dues. --plain turns the new habits off.
 
 Nothing here changes the game; it only drives it. Runs headless (no window).
 """
@@ -65,6 +71,9 @@ from game import combat  # noqa: E402
 
 DATA = ROOT / "data"
 LADDER = [(1, 1), (3, 2), (5, 3), (7, 4), (9, 5)]   # (from level, danger) since v0.44.0
+PLAIN = False           # --plain: the pre-stage-7 bot (trips only, no bounties, trophies or training)
+TRAIN_ORDER = ["survival", "stealth", "harvesting", "tracking", "medicine"]   # after the weapon's skill
+TRAIN_RESERVE = 60      # shards kept back (beyond the next dues) when training
 MAX_ACTIONS = 12000     # per hunt, before the bot gives up ("stuck")
 WANT = {"healing_draught": 3, "ration": 4, "bandage": 2, "torch": 3, "poultice": 1}
 
@@ -189,7 +198,9 @@ def hunt_turn(e, rec, state) -> None:
     if adjacent:
         act(e, MoveAction(adjacent[0].x - p.x, adjacent[0].y - p.y))
         return
-    hunting = [m for m in seen if m.type.behaviour == "hunt"]
+    # (a swimmer that can't reach you, or anything that hasn't come in 30 turns, isn't worth waiting for)
+    hunting = [m for m in seen if m.type.behaviour == "hunt" and not m.type.swims
+               and state.setdefault("waited", {}).get(id(m), 0) < 30]
     # Rest when nothing's about: natural healing (stopped while bleeding).
     if not hunting and not injuries.bleeding(p):
         if p.stats.hp < p.stats.max_hp * 0.6:
@@ -207,12 +218,19 @@ def hunt_turn(e, rec, state) -> None:
     if hunting and not state["retreat"]:
         target = min(hunting, key=lambda m: max(abs(m.x - p.x), abs(m.y - p.y)))
         if target.awake:
+            state["waited"][id(target)] = state["waited"].get(id(target), 0) + 1
             act(e, WaitAction())     # let it come to you
         elif not step_towards(e, (target.x, target.y), beside=True):
             act(e, WaitAction())
         return
-    # A corpse here: the bot butchers it for materials, never hauls it (v0.61.0).
-    if any(f.item.trophy is not None for f in gm.items_at(p.x, p.y)):
+    # A corpse here: haul it if it would make the trophy wall (and fits), else butcher it (v0.61.0).
+    corpses = [f for f in gm.items_at(p.x, p.y) if f.item.trophy is not None]
+    if corpses:
+        if not PLAIN and worth_hauling(e, corpses[-1].item):
+            act(e, PickUpAction())
+            if corpses[-1] not in gm.items:
+                rec["hauled"] = rec.get("hauled", 0) + 1
+                return
         from game.actions import ButcherAction
         act(e, ButcherAction())
         return
@@ -222,7 +240,23 @@ def hunt_turn(e, rec, state) -> None:
         PickUpAction().perform(e)
         if len(gm.items) < before:
             return
+        e.explore_seen_items.add((p.x, p.y))    # (no room for it: don't keep coming back)
     have = p.inventory.count_of(e.hunt.contract.artifact_id) > e.hunt.carried_at_start
+    if have and not state["retreat"] and bounty_pending(e):
+        # a bounty here isn't done: find the marked creature (or the artifact) in the last area
+        marked = [m for m in visible_monsters(e) if m.bounty]
+        for m in marked:
+            if step_towards(e, (m.x, m.y), beside=True):
+                return
+        step, why = explore_step(e) if e.hunt.current == e.hunt.contract.depth - 1 else (None, "")
+        if step is not None:
+            act(e, MoveAction(*step))
+            return
+        if e.hunt.current < e.hunt.contract.depth - 1:
+            for x in range(gm.width):
+                for y in range(gm.height):
+                    if gm.tile_at(x, y).symbol == ">" and gm.explored[x, y] and step_towards(e, (x, y)):
+                        return
     if have or state["retreat"]:
         if not head_home(e):
             state["stuck"] += 50
@@ -252,6 +286,27 @@ def hunt_turn(e, rec, state) -> None:
     state["stuck"] += 50
     state["retreat"] = True
     act(e, WaitAction())
+
+
+def bounty_pending(e) -> bool:
+    """A bounty or scouting job held for this place, not done yet."""
+    place = e.hunt.contract.region.id
+    return any(j.region == place and not j.done for j in e.player.jobs)
+
+
+def worth_hauling(e, item) -> bool:
+    """Would this body make the trophy wall (heavier than the record, or a new quirk), and is there
+    room for it with two slots to spare?"""
+    from game import trophies
+    st = trophies.state(e)
+    mid = item.type.properties["monster"]
+    rec = st["records"].get(mid)
+    quirk = item.trophy.get("quirk", "")
+    record = rec is None or item.trophy["kg"] > rec["kg"] or (quirk and quirk not in st["curios"].get(mid, {}))
+    inv = e.player.inventory
+    have = inv.count_of(e.hunt.contract.artifact_id) > e.hunt.carried_at_start
+    spare = 2 if have else 4          # room for the prize and what turns up on the way
+    return bool(record) and inv.used + item.slots + spare <= inv.capacity
 
 
 def run_hunt(e, contract, rec) -> str:
@@ -286,6 +341,21 @@ def city_phase(e, rec) -> None:
     inc, cost = rec["income"], rec["costs"]
     supplier = e.shops["supplier"]
     workshop = next(iter(e.workshops))
+    from game import work, trophies
+    if not PLAIN:
+        # Bounties first (a find bounty hands over the artifact itself).
+        s0 = p.shards
+        work.collect(e)
+        inc["bounties"] = inc.get("bounties", 0) + p.shards - s0
+        # Trophies: the trophymaster takes records; the butcher breaks down the rest.
+        for i in reversed(trophies.pack_trophies(e)):
+            s0 = p.shards
+            ok, _ = trophies.assess(e, i, e.rng)
+            if ok:
+                inc["trophies"] = inc.get("trophies", 0) + p.shards - s0
+                rec["records"] = rec.get("records", 0) + 1
+        for i in reversed(trophies.pack_trophies(e)):
+            trophies.butcher_at_shop(e, i)
     # Artifacts: consign every broken one.
     while True:
         i = next((i for i, it in enumerate(p.inventory.items) if it.type.is_broken_artifact), None)
@@ -353,6 +423,29 @@ def city_phase(e, rec) -> None:
         cost["rank"] = cost.get("rank", 0) + nxt["fee"]
         ranks.sit(e)
         rec["ranked_up"] = ranks.of(p)["name"]
+    if not PLAIN:
+        # Training: the weapon's skill first, then the field skills, with what's spare.
+        from game import skills, weaponskills
+        for sid in [weaponskills.weapon_skill(p)] + TRAIN_ORDER:
+            if sid is None or sid not in e.skills:
+                continue
+            sk = e.skills[sid]
+            price = skills.cost_for(p, sk)
+            if price is not None and skills.is_ready(sk, p.skill(sid)) and spend(price + TRAIN_RESERVE):
+                ok, _ = skills.train(p, sk)
+                if ok:
+                    cost["training"] = cost.get("training", 0) + price
+                    rec.setdefault("trained", []).append(f"{sid} {p.skill(sid).rank}")
+        # Bounties and scouting: the best paid it may take, at or below its danger.
+        from game import ranks
+        top = min(ranks.max_danger(p.rank), ladder_danger(p))
+        while len(p.jobs) < work.MAX_JOBS:
+            options = [j for j in e.job_board if not j.story and e.regions[j.region].danger[0] <= top]
+            if not options:
+                break
+            ok, _ = work.take_job(e, max(options, key=lambda j: j.reward))
+            if not ok:
+                break
     # Upgrades: better armour or weapon, keeping a reserve.
     reserve = 40
     for slot, score in (("armor", lambda t: t.properties.get("armor", 0)),
@@ -375,20 +468,36 @@ def city_phase(e, rec) -> None:
                 rec["bought"].append(line.item_id)
 
 
+def ladder_danger(p) -> int:
+    return max(d for lv, d in LADDER if p.stats.level >= lv)
+
+
 def pick_contract(e, region_id=None):
-    """A trip through the Wayfinder (v0.44.0): a danger word the Hunter's level suits (within
-    their rank), and any land and feature. --region names a place (danger/land/feature)."""
-    from game import ranks
+    """Where to go (v0.44.0; stage 7): a held bounty's place first; else a contract from the
+    Guild's board at the danger the Hunter's level suits (within their rank), not one a rival
+    took; else a trip to a place of that danger. --region names a place (danger/land/feature).
+    Returns (contract, kind)."""
+    from game import ranks, postings
     from game.hunt import trip
     p = e.player
     if region_id is not None:
-        return trip(e.regions[region_id], e.catalogue, e.rng)
-    kw = e.regions.keywords
+        return trip(e.regions[region_id], e.catalogue, e.rng), "trip"
     top = ranks.max_danger(p.rank)
-    want = min(top, max(d for lv, d in LADDER if p.stats.level >= lv))
+    want = min(top, ladder_danger(p))
+    if not PLAIN:
+        for j in p.jobs:
+            if not j.done and j.region in e.regions:
+                place = e.regions[j.region]
+                return (postings.matches(e, place) or trip(place, e.catalogue, e.rng)), "bounty"
+        taken = e.rival_taken["taken"] if e.rival_taken.get("day") == e.day else {}
+        board = [c for c in postings.generated(e, e.day) if c.danger == want and str(c.seed) not in taken
+                 and c.seed not in taken]
+        if board:
+            postings.take(e, board[0])
+            return board[0], "contract"
     from game.keywords import random_place
     place = random_place(e, want, e.rng)
-    return trip(place, e.catalogue, e.rng)
+    return trip(place, e.catalogue, e.rng), "trip"
 
 
 # ---- The run ---------------------------------------------------------------------------------------
@@ -396,12 +505,13 @@ def summary(p) -> dict:
     return {"level": p.stats.level, "hp": p.stats.max_hp, "shards": p.shards,
             "weapon": p.equipped["weapon"].type.id if "weapon" in p.equipped else None,
             "armor": p.equipped["armor"].type.id if "armor" in p.equipped else None,
-            "injuries": [i.id for i in p.injuries]}
+            "injuries": [i.id for i in p.injuries], "talents": list(p.talents), "rank": p.rank,
+            "skills": {sid: st.rank for sid, st in p.skills.items() if st.rank > 1}}
 
 
 def run(hunters: int, hunts: int, seed: int, region: str | None) -> dict:
     e = make_engine(seed)
-    out = {"hunters": [], "settings": {"hunters": hunters, "hunts": hunts, "seed": seed, "region": region}}
+    out = {"hunters": [], "settings": {"hunters": hunters, "hunts": hunts, "seed": seed, "region": region, "plain": PLAIN}}
     for h in range(hunters):
         if h:
             e.player = e.new_hunter()
@@ -416,8 +526,8 @@ def run(hunters: int, hunts: int, seed: int, region: str | None) -> dict:
                 career["stuck_owing"] = n
                 career["end"] = {"died": False, "level": p.stats.level}
                 break
-            c = pick_contract(e, region)
-            rec = {"n": n, "level": p.stats.level, "region": f"danger {c.danger}", "place": c.region.id, "danger": c.danger, "depth": c.depth,
+            c, kind = pick_contract(e, region)
+            rec = {"kind": kind, "n": n, "level": p.stats.level, "region": f"danger {c.danger}", "place": c.region.id, "danger": c.danger, "depth": c.depth,
                    "day0": e.day, "turn0": e.turn, "hp_max": p.stats.max_hp, "shards0": p.shards,
                    "earned0": p.earned, "xp0": p.stats.xp, "faints": 0, "used": {}, "artifacts": [],
                    "bought": [], "turned_back": False, "stuck": False,
@@ -430,6 +540,18 @@ def run(hunters: int, hunts: int, seed: int, region: str | None) -> dict:
             mats0 = sum(it.count for it in p.inventory.items if it.type.kind == "material")
             shards_before = p.shards
             outcome = run_hunt(e, c, rec)
+            rec["jobs_done"] = sum(1 for j in p.jobs if j.done)
+            if kind == "bounty" and e.player is p:     # two tries at a bounty, then drop it
+                tries = career.setdefault("tries", {})
+                for j in list(p.jobs):
+                    if j.region == c.region.id and not j.done:
+                        tries[str(j.id)] = tries.get(str(j.id), 0) + 1
+                        if tries[str(j.id)] >= 2:
+                            p.jobs.remove(j)
+                            rec["dropped_job"] = True
+            if e.player is p and p.contract is not None and outcome != "died" and \
+                    p.inventory.count_of(c.artifact_id) > 0 and kind == "contract":
+                p.contract = None
             if outcome == "died":
                 rec["outcome"] = "died"
                 rec["turns"] = e.turn - rec["turn0"]
@@ -469,7 +591,9 @@ if __name__ == "__main__":
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--region", default=None)
     ap.add_argument("--out", default="sim.json")
+    ap.add_argument("--plain", action="store_true", help="the bot as it was before stage 7")
     a = ap.parse_args()
+    PLAIN = a.plain
     t0 = time.time()
     result = run(a.hunters, a.hunts, a.seed, a.region)
     result["seconds"] = round(time.time() - t0, 1)

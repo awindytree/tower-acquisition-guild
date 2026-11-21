@@ -86,14 +86,14 @@ def main(paths):
                    ["Hunters"] + [str(len(by_n[n])) for n in sorted(by_n) if n % 3 == 0 or n < 3]]), ""]
 
     # ---- Economy per hunt, by danger
-    inc_keys = ["found", "artifacts", "materials", "gear", "writings", "notes"]
-    cost_keys = ["supplies", "dues", "healer", "gear", "rank"]
+    inc_keys = ["found", "artifacts", "materials", "gear", "writings", "notes", "bounties", "trophies"]
+    cost_keys = ["supplies", "dues", "healer", "gear", "rank", "training"]
     rows = []
     for r in REGIONS:
         hs = [h for h in hunts if h["region"] == r and h["outcome"] != "died"]
         if not hs:
             continue
-        inc = {k: mean([h["income"][k] for h in hs]) for k in inc_keys}
+        inc = {k: mean([h["income"].get(k, 0) for h in hs]) for k in inc_keys}
         cost = {k: mean([h["costs"].get(k, 0) for h in hs]) for k in cost_keys}
         rows.append([r] + [f"{inc[k]:.0f}" for k in inc_keys] + [f"{sum(inc.values()):.0f}"]
                     + [f"{cost[k]:.0f}" for k in cost_keys] + [f"{sum(inc.values()) - sum(cost.values()):+.0f}"])
@@ -107,6 +107,33 @@ def main(paths):
                 purse[h["n"]].append(h["shards1"])
     out += ["Purse after hunt N (median, survivors): " + ", ".join(
         f"{n + 1}: {med(purse[n])}" for n in sorted(purse) if n % 3 == 0 or n < 3) + ".", ""]
+
+    # ---- What kind of hunt (stage 7: contracts, bounties, trips)
+    kinds = Counter(h.get("kind", "trip") for h in hunts)
+    rows = []
+    for k in ("contract", "bounty", "trip"):
+        hs = [h for h in hunts if h.get("kind", "trip") == k]
+        if hs:
+            oc = Counter(h["outcome"] for h in hs)
+            rows.append([k, len(hs), pct(oc["success"], len(hs)), pct(oc["died"], len(hs)),
+                         f"{mean([h.get('jobs_done', 0) for h in hs]):.2f}"])
+    if rows:
+        out += ["## Kinds of hunt", "", table(["kind", "hunts", "success", "died", "jobs done (mean)"], rows), ""]
+    hauled = sum(h.get("hauled", 0) for h in hunts)
+    records = sum(h.get("records", 0) for h in hunts)
+    by_n_rec = defaultdict(list)
+    for c in hunters:
+        for h in c["hunts"]:
+            by_n_rec[h["n"] // 5].append(h["income"].get("trophies", 0))
+    out += [f"Trophies: {hauled} bodies hauled home, {records} records set. Trophy pay per hunt by hunt number: "
+            + ", ".join(f"{5 * b + 1}-{5 * b + 5}: {mean(v):.0f}" for b, v in sorted(by_n_rec.items())) + ".", ""]
+    trained = Counter(t.rsplit(" ", 1)[0] for h in hunts for t in h.get("trained", []))
+    out += ["Skills trained (rank-ups bought): " + (", ".join(f"{k} {v}" for k, v in trained.most_common()) or "none") + ".", ""]
+    ranks_ = Counter(h["ranked_up"] for h in hunts if h.get("ranked_up"))
+    out += ["Ranks sat: " + (", ".join(f"{k} {v}" for k, v in ranks_.most_common()) or "none") + ".", ""]
+    if any("final" in c and "talents" in c["final"] for c in hunters):
+        tal = Counter(t for c in hunters for t in c["final"].get("talents", []))
+        out += ["Talents held at the end (first offered is taken): " + ", ".join(f"{k} {v}" for k, v in tal.most_common(12)) + ".", ""]
 
     # ---- Supplies
     used = defaultdict(list)
