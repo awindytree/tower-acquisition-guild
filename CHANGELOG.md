@@ -5,6 +5,16 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.66.0: The story frame (2026-11-21)
+The frame the story goes in, built to the user's decisions (`claude/design-story-presentation.md`); no new plot.
+- **Kinds of story**, each with its own heading: **Chapter 1: Well Past Due** (the main story), **Paralogue 4: Passing Wind** (storylets), **Character Log 7: But Why Tinkerforge?** (a person's story), and two that belong to one Hunter: **Hewer Calling: The First Axe** (callings) and **Hunter Log 1: ...**.
+- **Title cards** open and close each one (heading, title, a line), and the log says when one begins or is complete. The quest log lists them in order: chapters, paralogues, character logs, callings, Hunter logs, then other quests.
+- **Lines that don't repeat:** any story text can have variants. The game uses each before repeating one, and a variant can depend on the Hunter (calling, gender, age, rank, Jodebris sensitivity, how many Hunters came before, whether one of the same calling died).
+- **The calendar:** story scenes can happen on dates (Turning Day, the holidays, a given Pulse, Cycle, Reckon or Judgment). The game refuses any story where a date that comes round less than once a Cycle would hold a step back (user's rule).
+- **The Story So Far:** a new Hunter is shown a card recapping where the main story stands.
+- **Tips** (how to play) now have their own look, a sea-glass frame titled "Tip", apart from story moments. The clerk's first jobs use it for their instructions.
+- Writer's guide (`data/story/_README.md`) and a worked example (`data/story/examples/frame/`).
+
 ## 0.65.1: Sound crash fixed (2026-11-21)
 - **Fixed a crash in the sound** (user: "IndexError: pop from empty list" from tcod's audio thread). 0.64.1's fix for looping sounds also emptied a faded loop's queue from the game's thread while the audio thread was mixing it. It no longer touches the queue at all: stopping a loop only clears its "play again" callback, under the channel's own lock, and lets tcod's fade do the rest.
 

@@ -40,17 +40,21 @@ EQUIP_KEY = _key("e")
 USE_KEY = _key("u")
 
 
-def draw_box(console, x: int, y: int, w: int, h: int, title: str = "") -> None:
+def draw_box(console, x: int, y: int, w: int, h: int, title: str = "", frame=None, title_fg=None) -> None:
     """A filled panel with a double-line border and an optional title."""
+    frame = frame or FRAME
     console.rgb["bg"][x : x + w, y : y + h] = BG
     console.rgb["ch"][x : x + w, y : y + h] = ord(" ")
-    console.print(x, y, "╔" + "═" * (w - 2) + "╗", fg=FRAME, bg=BG)
+    console.print(x, y, "╔" + "═" * (w - 2) + "╗", fg=frame, bg=BG)
     for row in range(y + 1, y + h - 1):
-        console.print(x, row, "║", fg=FRAME, bg=BG)
-        console.print(x + w - 1, row, "║", fg=FRAME, bg=BG)
-    console.print(x, y + h - 1, "╚" + "═" * (w - 2) + "╝", fg=FRAME, bg=BG)
+        console.print(x, row, "║", fg=frame, bg=BG)
+        console.print(x + w - 1, row, "║", fg=frame, bg=BG)
+    console.print(x, y + h - 1, "╚" + "═" * (w - 2) + "╝", fg=frame, bg=BG)
     if title:
-        console.print(x + 2, y, f" {title} ", fg=TEXT, bg=BG)
+        console.print(x + 2, y, f" {title} ", fg=title_fg or TEXT, bg=BG)
+
+
+TIP_FRAME = (110, 175, 170)    # tips (how to play) wear a sea-glass frame; story scenes the usual one (v0.66.0)
 
 
 def fit_window(console, list_len: int, extra: list, top: int = 3) -> tuple[int, int, list]:
@@ -2705,8 +2709,9 @@ class SceneScreen:
     """A scripted scene (data/story): pages of text, one at a time (any key turns the page),
     then choices if it has any (↑↓ or 1-9, Enter). Takes no time."""
 
-    def __init__(self, scene_id: str) -> None:
+    def __init__(self, scene_id: str, engine=None) -> None:
         self.scene_id = scene_id
+        self.texts = None     # each page's text, variants chosen once (v0.66.0)
         self.page = 0
         self.selected = 0
         self.sub = 0          # first line shown, when a page is taller than the screen
@@ -2757,12 +2762,16 @@ class SceneScreen:
         """This page's text, wrapped: a blank line between paragraphs (blank lines in the text),
         never two in a row (v0.54.1, user: popups looked oddly cut)."""
         from game import story
-        page = self.scene(engine)["pages"][self.page]
-        speaker, text = (page.get("speaker", ""), page["text"]) if isinstance(page, dict) else ("", page)
+        pages = self.scene(engine)["pages"]
+        if self.texts is None:            # variants are picked once, when the scene first shows
+            self.texts = [story.text(engine, f"scene:{self.scene_id}:{i}",
+                                     pg["text"] if isinstance(pg, dict) else pg) for i, pg in enumerate(pages)]
+        page = pages[self.page]
+        speaker = page.get("speaker", "") if isinstance(page, dict) else ""
         lines = []
         if speaker:
             lines.append((story.fill(engine, speaker), ACCENT))
-        paras = [p.strip() for p in story.fill(engine, text).split("\n")]
+        paras = [p.strip() for p in self.texts[self.page].split("\n")]
         for i, para in enumerate(paras):
             if para:
                 lines += wrapped(para, w - 4, TEXT)
@@ -2797,11 +2806,15 @@ class SceneScreen:
         footer = ("any key: more" if self.more else
                   ("↑↓ choose  Enter" if choices else "any key: continue") if last else "any key: next page")
         h = len(body) + 4
-        if sc.get("style") != "popup":        # a popup (v0.54.0) sits over the map; a scene has the screen
+        style = sc.get("style")
+        if style not in ("popup", "tip"):     # a popup (v0.54.0) or a tip (v0.66.0) sits over the map
             console.rgb["bg"][:area_w, :] = (10, 9, 8)
             console.rgb["ch"][:area_w, :] = ord(" ")
         x, y = (area_w - w) // 2, (console.height - h) // 2
-        draw_box(console, x, y, w, h, sc.get("title", ""))
+        if style == "tip":                   # how to play, not what's happening: its own look
+            draw_box(console, x, y, w, h, sc.get("title") or "Tip", frame=TIP_FRAME, title_fg=TIP_FRAME)
+        else:
+            draw_box(console, x, y, w, h, sc.get("title", ""))
         for i, (t, color) in enumerate(body):
             console.print(x + 2, y + 1 + i, t[: w - 4], fg=color, bg=BG)
         pages = f" {self.page + 1}/{len(sc['pages'])} " if len(sc["pages"]) > 1 else ""
@@ -2998,14 +3011,20 @@ class QuestLogScreen:
             if p.contract is not None and not p.contract.story:
                 out.append(("contract", p.contract))
             out += [("job", j) for j in p.jobs]
+        quests = []
         for qid, q in engine.story_data.quests.items():
             st = story.state(engine, qid)
             if not st:
                 continue
             over = st.get("done") or st.get("failed")
             if (self.tab == "current") != bool(over):
-                out.append(("quest", qid))
-        return out
+                quests.append(qid)
+        # (v0.66.0) chapters first, then paralogues, character logs, callings, Hunter logs, other quests
+        def order(qid):
+            q = engine.story_data.quests[qid]
+            n = q.get("number", 0)
+            return (story.KINDS.get(q.get("kind", "quest"), story.KINDS["quest"])[1], n if isinstance(n, int) else 0)
+        return out + [("quest", qid) for qid in sorted(quests, key=order)]
 
     def row_title(self, engine, row) -> str:
         kind, what = row
@@ -3013,7 +3032,8 @@ class QuestLogScreen:
             return "Contract: " + what.title(engine.catalogue)
         if kind == "job":
             return what.label(engine) + ("  (done)" if what.done else "")
-        return engine.story_data.quests[what]["title"]
+        from game import story
+        return story.heading(engine.story_data.quests[what])
 
     def details(self, engine, row, w: int) -> list:
         from game import story, postings, hunt
@@ -3034,7 +3054,10 @@ class QuestLogScreen:
             return out
         st = story.state(engine, what)
         if not (st.get("done") or st.get("failed")):
-            goal = story.stage_def(engine, what, st["stage"]).get("goal")
+            goal = st.get("goal")
+            if goal is None:          # (saves from before v0.66.0)
+                g = story.stage_def(engine, what, st["stage"]).get("goal")
+                goal = g if isinstance(g, str) else ""
             if goal:
                 out += wrapped("Now: " + story.fill(engine, goal), w, ACCENT)
         elif st.get("failed"):

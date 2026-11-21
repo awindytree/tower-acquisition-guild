@@ -809,6 +809,7 @@ class Engine:
                  f"having seen {aging.describe(aging.age_of(p, self.day))}."
                  + (f" They start with the {gift} shards their predecessor left." if gift else ""))
         from game import story
+        story.story_so_far(self)        # where the world's story stands, for the new Hunter (v0.66.0)
         story.fire(self, "new_hunter")
         self.autosave()
 

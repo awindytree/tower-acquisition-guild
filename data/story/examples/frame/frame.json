@@ -1,0 +1,50 @@
+{
+  "_comment": "An example of the story frame (v0.66.0): one of each kind of story, variant lines, a date, a tip. Not loaded by the game; the tests use it. All text is placeholder.",
+  "quests": {
+    "frame_ch1": {
+      "kind": "chapter", "number": 1, "title": "Well Past Due",
+      "intro": {"variants": ["Something the Guild has put off for too long.", "A debt comes due."]},
+      "outro": "Paid, for now.",
+      "recap": "The Guild settled an old debt.",
+      "stages": [
+        {"id": "ask", "goal": "Ask the clerk what's overdue.", "log": "The clerk looked worried.",
+         "recap": "The clerk has something on his mind.", "until": ["flag:world:frame_asked"]},
+        {"id": "pay", "goal": {"variants": ["Settle it.", "See it paid."]}, "log": "It was a debt after all.",
+         "recap": "There's a debt to settle.", "until": ["flag:world:frame_paid"]}
+      ]
+    },
+    "frame_para": {
+      "kind": "paralogue", "number": 4, "title": "Passing Wind",
+      "stages": [{"id": "go", "goal": "Listen.", "until": ["flag:world:frame_heard"]}]
+    },
+    "frame_log": {
+      "kind": "log", "number": 7, "title": "But Why Tinkerforge?",
+      "stages": [{"id": "ask", "goal": "Ask the artificer about the name."}]
+    },
+    "frame_hewer": {
+      "kind": "calling", "calling": "Hewer", "title": "The First Axe",
+      "stages": [{"id": "swing", "goal": "Fell something.", "until": ["count:frame_kills>=1"]}]
+    },
+    "frame_sense": {
+      "kind": "hunter_log", "number": 1, "title": "A Sound Like Singing",
+      "stages": [{"id": "hear", "goal": "Find where the singing comes from."}]
+    }
+  },
+  "scenes": {
+    "frame_turning": {"on": "day", "if": ["date:turning_day"], "do": ["start:frame_para"],
+                      "style": "popup", "title": "Turning Day", "pages": ["Bells across Bytorsskug: a new Turn."]},
+    "frame_hewer_start": {"on": "new_hunter", "if": ["calling:Hewer"], "do": ["start:frame_hewer"]},
+    "frame_sense_start": {"on": "new_hunter", "if": ["sensitive"], "do": ["start:frame_sense"]},
+    "frame_tip": {"on": "manual", "style": "tip", "pages": ["Press q for your quest log."]},
+    "frame_say": {"on": "manual", "pages": [{"speaker": "The guild clerk",
+      "text": {"variants": ["First line.", "Second line.", {"text": "Only for a Hewer.", "if": ["calling:Hewer"]}]}}]}
+  },
+  "talk": [
+    {"id": "frame_hewer_talk", "folk": "trainer", "if": ["quest:frame_hewer"], "once": false,
+     "text": "About the axe...",
+     "reply": {"variants": [
+       {"text": "Another axe. The last one who carried one like that didn't come back.", "if": ["fallen:Hewer"]},
+       "An axe, is it? Swing it like you mean it.",
+       "Axes. Honest weapons."]}}
+  ]
+}

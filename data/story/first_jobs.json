@@ -66,7 +66,7 @@
 
   "scenes": {
     "welcome": {
-      "on": "new_game", "style": "popup", "title": "The guild hall",
+      "on": "new_game", "style": "tip", "title": "The guild hall",
       "pages": [
         "You've just signed on with the Tower Acquisition Guild, here in its hall in Bytorsskug.\n\nMove with the arrow keys, WASD or the numpad. Walk into someone to talk to them. Press ? at any time for every key.",
         "The guild clerk works from a window at the back of the hall (▬), just south of you.\n\nWalk into the window to talk to the clerk."
@@ -99,21 +99,21 @@
     },
 
     "pop_contract_taken": {
-      "on": "manual", "style": "popup", "title": "Your contract",
+      "on": "manual", "style": "tip", "title": "Your contract",
       "pages": [
         "The contract is yours. Its three words name the place it's for: [Quiet][Green][Daybreak].\n\nHunts leave from the Wayfinder, the great artifact in the middle of the plaza, just north of the guild hall. Walk into it.\n\nYour quest log (q) keeps track of what you're doing; t walks you to places you know."
       ]
     },
 
     "wayfinder_brief": {
-      "on": "wayfinder", "if": ["quest:first_jobs:wayfinder"], "style": "popup", "title": "The Wayfinder",
+      "on": "wayfinder", "if": ["quest:first_jobs:wayfinder"], "style": "tip", "title": "The Wayfinder",
       "pages": [
         "The Wayfinder carries you to the place three words describe: how dangerous it is, what kind of land, and one thing about it. The same three words always lead to the same place.\n\nYour contract's words are already chosen. ←→ moves between the three, ↑↓ picks a word, and Enter sets out."
       ]
     },
 
     "first_area": {
-      "on": "area", "if": ["quest:first_jobs:hunt", "region:quiet/green/daybreak", "event:area=1"], "style": "popup", "title": "Out in the miasma",
+      "on": "area", "if": ["quest:first_jobs:hunt", "region:quiet/green/daybreak", "event:area=1"], "style": "tip", "title": "Out in the miasma",
       "pages": [
         "You're out in the miasma. You only see what's near you; the rest of the area is yours to find.\n\no explores on its own until something comes up. x looks at things. v swaps your messages for a minimap, and m shows the whole map.",
         "The trail home (≡) is your way back to Bytorsskug. » leads deeper; « leads back.\n\nWhat you're after lies at the far end of the deepest area: this place has two."
@@ -121,7 +121,7 @@
     },
 
     "first_creature": {
-      "on": "see", "if": ["quest:first_jobs"], "style": "popup", "title": "A creature",
+      "on": "see", "if": ["quest:first_jobs"], "style": "tip", "title": "A creature",
       "pages": [
         "A creature. Walk into it to attack. Whether a blow lands depends on your accuracy against its evasion.\n\nYou heal slowly: rest (. or numpad 5) when nothing's about. If it goes badly, drink a draught (i, then u on it).",
         "If you fall, you wake at the trail home, battered but alive: once a hunt. Fall a second time, and you're dead. A new Hunter takes up the work, and what you carried is lost."
@@ -129,24 +129,24 @@
     },
 
     "first_kill_drops": {
-      "on": "kill", "if": ["quest:first_jobs"], "style": "popup", "title": "What it leaves",
+      "on": "kill", "if": ["quest:first_jobs"], "style": "tip", "title": "What it leaves",
       "pages": [
         "Creatures leave their bodies where they fall. Butcher one where it lies (b) for materials: hide, sinew, scrap. The smith makes gear from them, and the supplier buys them. Or pick the body up (g) and haul it home whole as a trophy: it takes room in your pack, more for a big one, and the trophymaster by the plaza pays for a record."
       ]
     },
 
     "deepest_area": {
-      "on": "area", "if": ["quest:first_jobs:hunt", "region:quiet/green/daybreak", "event:area=2"], "style": "popup", "title": "The deepest area",
+      "on": "area", "if": ["quest:first_jobs:hunt", "region:quiet/green/daybreak", "event:area=2"], "style": "tip", "title": "The deepest area",
       "pages": ["This is the deepest area. The broken glass curio lies at its far end."]
     },
 
     "got_the_lens": {
-      "on": "pickup", "if": ["quest:first_jobs:hunt", "event:item=cracked_lens"], "style": "popup", "title": "The glass curio",
+      "on": "pickup", "if": ["quest:first_jobs:hunt", "event:item=cracked_lens"], "style": "tip", "title": "The glass curio",
       "pages": ["That's it. Now get back to the trail home (≡) in the first area: back through « and across.\n\nt can walk you to places you've found."]
     },
 
     "contract_done": {
-      "on": "contract_done", "if": ["event:contract=first_contract"], "style": "popup", "title": "Contract done",
+      "on": "contract_done", "if": ["event:contract=first_contract"], "style": "tip", "title": "Contract done",
       "pages": [
         "The curio is yours to keep. Broken artifacts can be studied (i, then u on it) to learn what they are, if your Identification is up to it.\n\nThe artificer, just off the plaza, repairs them, buys them as they are, or sells them on for you and splits the price.",
         "When you're ready, tell the clerk the job's done."
@@ -163,14 +163,14 @@
     },
 
     "pop_bounty_taken": {
-      "on": "manual", "style": "popup", "title": "Your bounty",
+      "on": "manual", "style": "tip", "title": "Your bounty",
       "pages": [
         "The bounty is yours. Its words: [Quiet][Broken][Daybreak]; the Wayfinder will have them ready.\n\nThe marked scavenger waits in the deepest area, drawn gold on red. Kill it, get back to the trail home, then see the clerk to be paid."
       ]
     },
 
     "bounty_home_hint": {
-      "on": "manual", "style": "popup", "title": "Back in Bytorsskug",
+      "on": "manual", "style": "tip", "title": "Back in Bytorsskug",
       "pages": ["Now see the clerk to be paid for the bounty."]
     },
 

@@ -196,6 +196,53 @@ Any text can use `{given}` (the Hunter's given name), `{name}` (their full name)
   `"story_item": false` (the prize is an ordinary find, not a story item).
 - **Scenes** with `"style": "popup"` sit over the map instead of filling the screen.
 
+## Kinds of story, title cards, variants, dates (v0.66.0)
+The user's frame (design in `claude/design-story-presentation.md`): the world is the main character; a Hunter can have small stories of their own; important beats are scenes, lore and character mostly conversation; no narrator; tips are popups.
+
+**Kinds.** Give a quest a `kind`, a `number` (all but `calling`) and a `title`. Its heading is made from them, used in the log, the quest log and the title cards:
+
+| kind | heading | belongs to |
+|---|---|---|
+| `chapter` | Chapter 1: Well Past Due | the world (the main story) |
+| `paralogue` | Paralogue 4: Passing Wind | the world (a storylet) |
+| `log` | Character Log 7: But Why Tinkerforge? | the world (a person's story) |
+| `calling` | Hewer Calling: The First Axe (`"calling": "Hewer"`) | the Hunter |
+| `hunter_log` | Hunter Log 1: A Sound Like Singing | the Hunter |
+| (none) | the title, as before | the world |
+
+- **Belonging:** `calling` and `hunter_log` quests are the Hunter's (`"scope": "hunter"` by default). They die with the Hunter and can start again for the next one.
+- **Cards:** when a kind of story begins, a title card shows its heading ("Chapter 1"), its title, and `intro`. When it's complete, the card shows `outro` and "Complete". `"cards": false` turns them off.
+- **The quest log** lists them in this order: chapters, paralogues, character logs, callings, Hunter logs, then plain quests.
+
+**Variants.** Any text the story shows can be `{"variants": [...]}` instead of a string:
+- **Where:** scene pages, talk replies, conversation node text, quest `intro`/`outro`/`done_log`/`recap`, and stage `log`/`goal`/`recap`.
+- **Picking:** each time, the game picks one this world hasn't used for that text yet. When all have been used, they come round again.
+- **Conditions:** a variant can be `{"text": "...", "if": [conditions]}`; it's only picked when they hold. Use this so a Hunter's story reads differently for each Hunter. For example, the trainer says something else to a new Hewer if a Hewer has died before.
+- **Random lists:** a plain list still means "pick one at random each time", as before.
+
+**Conditions about the Hunter** (for variants and Hunters' stories):
+- `calling:Hewer`
+- `gender:female`
+- `sensitive`: one of the rare Jodebris-sensitive Hunters.
+- `age>=N`: the Hunter's age in Judgments.
+- `hall>=N`: Hunters remembered in the Hall.
+- `fallen:Hewer`: a Hunter of that calling has died.
+
+**Dates:**
+- **Conditions:** `date:turning_day` (the first Pulse of a Turn), `date:holiday` (the holiday Pulses after a Duel), `date:duel=light|dark`, `date:pulse=Emu`, `date:cycle=N`, `date:reckon=N`, `date:judgment=N`. Use them in scenes `"on": "day"` (fired every Pulse).
+- **The rule (user):** a date may **start** a story or **add colour**. It may never hold a story step back for longer than a Cycle. A quest stage's `until`, or a scene or talk line that advances, stages, finishes, fails or posts something, can't wait on `turning_day`, `holiday`, `duel`, `cycle`, `reckon` or `judgment`; the game refuses to load it. `date:pulse=...` (every Cycle) is fine.
+
+**The Story So Far.** When a new Hunter joins (not on a new game), a card recaps the main story:
+- Each finished chapter's `recap`.
+- Then the current chapter's stage `recap` (or the chapter's `recap_now`).
+- Give every chapter a `recap`, and its stages one each, so a returning player knows where the world stands.
+
+**Tips.** A scene with `"style": "tip"` is how-to-play information. It sits over the map in a sea-glass frame titled "Tip" (or its own title). Story moments use a plain scene or `"style": "popup"`. The clerk's first jobs use tips for their instructions.
+
+**Starting a Hunter's story:** use scenes `"on": "new_hunter"` (and `"on": "new_game"` for the first Hunter) with conditions like `calling:Hewer` or `sensitive`, and `"do": ["start:QUEST"]`.
+
+A worked example of every part: `data/story/examples/frame/frame.json`.
+
 ## Testing without the story
 
 Set the environment variable `TAG_NO_STORY=1` and the game loads no story files

@@ -258,6 +258,9 @@ class Talk:
         text = node.get("text", "")
         if isinstance(text, list):
             text = self.rng.choice(text)
+        elif isinstance(text, dict):      # {"variants": [...]}: one not used yet in this world (v0.66.0)
+            from game import story
+            text = story.text(self.engine, f"node:{self.speaker.id}:{node_id}", text)
         extra = {}
         if self.speaker.id.startswith("rival:"):
             from game import rivals
@@ -305,7 +308,7 @@ class Talk:
             if t["id"] not in self.engine.story["seen"]:
                 self.engine.story["seen"].append(t["id"])
             reply = t.get("reply", "")
-            self.text = fill(self.engine, self.rng.choice(reply) if isinstance(reply, list) else reply)
+            self.text = story.text(self.engine, f"talk:{t['id']}", reply)
             self.opens = apply(self.engine, t.get("do")) or self.opens
             story.check(self.engine)
             if self.opens:
