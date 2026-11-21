@@ -5,6 +5,9 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.67.2: Selda teaches at 25% off (2026-11-21)
+- Selda teaches at **25% off** the trainer's price, like every mentor, up to her own ranks (user; 0.67.0 had 20%).
+
 ## 0.67.1: Older saves start Chapter 1 (2026-11-21)
 - **A save from before 0.67.0 now starts Chapter 1 when it's loaded** (user: their save had finished the clerk's first jobs, and the chapter only began as they ended). If the first jobs are done or were declined and the chapter hasn't begun, loading the save shows the Chapter 1 card, and the clerk has the hook.
 - The story has a new event, `load`, fired whenever a save is loaded, so later chapters can catch up the same way.
