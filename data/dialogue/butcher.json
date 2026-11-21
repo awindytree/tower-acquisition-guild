@@ -1,0 +1,53 @@
+{
+  "start": [
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "hello": {
+      "text": [
+        "What's that you've dragged in?",
+        "Something for the block, {calling}?",
+        "I'll take it off your hands. The hide and bone are yours; the meat's mine."
+      ],
+      "choices": [
+        {
+          "text": "Break down a trophy for me.",
+          "if": [
+            "trophies"
+          ],
+          "do": [
+            "butcher"
+          ]
+        },
+        {
+          "text": "Why do it for nothing?",
+          "goto": "why"
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "why": {
+      "text": "Nothing? I keep the meat, and the city's always hungry. You get every scrap worth having: hide, sinew, plate, whatever it's got. More than you'd cut off it out there with a field knife.",
+      "choices": [
+        {
+          "text": "Break down a trophy for me.",
+          "if": [
+            "trophies"
+          ],
+          "do": [
+            "butcher"
+          ]
+        },
+        {
+          "text": "Fair enough.",
+          "end": true
+        }
+      ]
+    }
+  }
+}

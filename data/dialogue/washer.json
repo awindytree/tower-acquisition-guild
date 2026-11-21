@@ -1,0 +1,32 @@
+{
+ "start": "bark",
+ "nodes": {
+  "bark": {
+   "text": [
+    "Well water's cold today.",
+    "Mind your boots, the stones are wet.",
+    "It's {pulse} already? Where does it go."
+   ],
+   "choices": [
+    {
+     "text": "Heard anything lately?",
+     "goto": "gossip"
+    },
+    {
+     "text": "(Leave)",
+     "end": true
+    }
+   ]
+  },
+  "gossip": {
+   "rumor": true,
+   "text": "",
+   "choices": [
+    {
+     "text": "(Leave)",
+     "end": true
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,74 @@
+{
+  "start": [
+    {
+      "if": [
+        "!flag:hunter:met_trainer"
+      ],
+      "node": "first"
+    },
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "first": {
+      "text": "You'll be new, then. I teach the bow, for those who'd rather not meet what's out there face to face, and the blade, the axe, the pick and the fist for those who would. Practice gets you started; past that, I charge.",
+      "do": [
+        "set:hunter:met_trainer"
+      ],
+      "choices": [
+        {
+          "text": "Train me.",
+          "do": [
+            "train:marksmanship,blades,axes,hafted,brawling,tracking,stealth"
+          ]
+        },
+        {
+          "text": "How do bows work?",
+          "goto": "bows"
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "hello": {
+      "text": [
+        "Back for a lesson, {given}?",
+        "Keep your arrows. Pick them up after."
+      ],
+      "choices": [
+        {
+          "text": "Train me.",
+          "do": [
+            "train:marksmanship,blades,axes,hafted,brawling,tracking,stealth"
+          ]
+        },
+        {
+          "text": "How do bows work?",
+          "goto": "bows"
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "bows": {
+      "text": "Wield one, then f to aim and shoot. Every shot at a creature teaches you something; a hit teaches you more. Arrows that survive can be picked up again. Up close a bow's only good for a bash.",
+      "choices": [
+        {
+          "text": "Train me.",
+          "do": [
+            "train:marksmanship,blades,axes,hafted,brawling,tracking,stealth"
+          ]
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    }
+  }
+}

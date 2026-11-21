@@ -1,0 +1,197 @@
+{
+  "_comment": "The new player's first steps (user's outline, 2026-11-20): the clerk's first jobs teach the game, a mechanic at a time, as each comes up. A contract first, then a bounty, then the clerk's welcome (100 shards). Choosing not to take the clerk's job skips to the story (a placeholder scene until the user writes it). ALL WORDING IS A DRAFT by the assistant, for the user to rewrite; the structure is the user's. The word 'tutorial' never appears in game text (user).",
+
+  "quests": {
+    "first_jobs": {
+      "title": "The clerk's first jobs",
+      "stages": [
+        {"id": "contract", "log": "The guild clerk has pinned a contract for you on the contracts board.",
+         "goal": "Take the contract marked for you on the contracts board: the left-hand board at the front of the guild hall.",
+         "do": ["post:first_contract", "only:contracts:first_contract"],
+         "until": ["taken:first_contract"]},
+        {"id": "wayfinder", "log": "You took the clerk's contract.",
+         "goal": "Walk into the Wayfinder in the plaza, just north of the guild hall, and set out with the contract's words.",
+         "do": ["only:clear", "scene:pop_contract_taken"],
+         "until": ["on_hunt"]},
+        {"id": "hunt",
+         "goal": "Find the broken glass curio at the far end of the deepest area, then bring it back to the trail home.",
+         "until": ["completed:first_contract"]},
+        {"id": "report", "log": "You brought back the broken glass curio.",
+         "goal": "Tell the guild clerk the contract's done.",
+         "until": ["seen:clerk_report"]},
+        {"id": "bounty", "log": "The clerk has put up a bounty for you on the bounty board.",
+         "goal": "Take the bounty marked for you on the bounty board: the right-hand board at the front of the guild hall.",
+         "until": ["bounty:first_bounty"]},
+        {"id": "bounty_out", "log": "You took the clerk's bounty.",
+         "goal": "Go through the Wayfinder to [Quiet][Broken][Daybreak] and kill the marked scavenger in the deepest area.",
+         "do": ["only:clear", "scene:pop_bounty_taken"],
+         "until": ["bounty_done:first_bounty"]},
+        {"id": "bounty_home", "log": "You killed the marked scavenger.",
+         "goal": "Get back to the trail home safely.",
+         "until": ["!on_hunt"]},
+        {"id": "bounty_report",
+         "goal": "See the guild clerk to be paid for the bounty.",
+         "do": ["scene:bounty_home_hint"],
+         "until": ["seen:clerk_welcome"]}
+      ],
+      "done_log": "The clerk welcomed you to the Guild properly."
+    }
+  },
+
+  "contracts": {
+    "first_contract": {
+      "words": ["quiet", "green", "daybreak"],
+      "title": "From the clerk: your first contract",
+      "heading": "☼ Marked for you by the clerk",
+      "posted_line": "The clerk pins up a contract for you on the contracts board",
+      "description": "A broken artifact, a glass curio by the look of it, has turned up at [Quiet][Green][Daybreak]: a quiet stretch of woods, by daylight. Go and fetch it. It's yours to keep.",
+      "prize": "cracked_lens",
+      "story_item": false,
+      "card_heading": "Contract complete",
+      "rank": 0,
+      "depth": 2
+    }
+  },
+
+  "bounties": {
+    "first_bounty": {
+      "words": ["quiet", "broken", "daybreak"],
+      "kind": "kill",
+      "creature": "scavenger",
+      "reward": 25,
+      "title": "From the clerk: a marked scavenger",
+      "description": "Marked for you by the clerk. A scavenger at [Quiet][Broken][Daybreak] has been getting fat on what Hunters leave behind."
+    }
+  },
+
+  "scenes": {
+    "welcome": {
+      "on": "new_game", "style": "popup", "title": "The guild hall",
+      "pages": [
+        "You've just signed on with the Tower Acquisition Guild, here in its hall in Bytorsskug.\n\nMove with the arrow keys, WASD or the numpad. Walk into someone to talk to them. Press ? at any time for every key.",
+        "The guild clerk works from a window at the back of the hall (▬), just south of you.\n\nWalk into the window to talk to the clerk."
+      ]
+    },
+
+    "clerk_meet": {
+      "on": "talk", "if": ["event:folk=clerk", "!started:first_jobs", "!flag:world:skipped_first_jobs"],
+      "pages": [
+        {"speaker": "The guild clerk", "text": "Oh, wonderful! A new Hunter. We can always use more of you, believe me."},
+        {"speaker": "The guild clerk", "text": "In fact, I have a job for you, if you'll have it."}
+      ],
+      "choices": [
+        {"text": "Sure, what have you got?", "do": ["start:first_jobs", "scene:clerk_thanks"]},
+        {"text": "If it's all the same to you, I'll figure it out as I go.", "do": ["set:world:skipped_first_jobs", "scene:story_next"]}
+      ]
+    },
+
+    "clerk_thanks": {
+      "on": "manual",
+      "pages": [
+        {"speaker": "The guild clerk", "text": "Thank you! Truly. It's good to have someone keen."},
+        {"speaker": "The guild clerk", "text": "First, a contract. That's a Hunter's bread and butter: we hear where something worth having lies, and you go and fetch it.\n\nI've pinned one up for you on the contracts board, the left-hand board at the front of the hall. It's marked for you."}
+      ]
+    },
+
+    "story_next": {
+      "on": "manual", "title": "The story",
+      "pages": ["[STORY GOES HERE]"]
+    },
+
+    "pop_contract_taken": {
+      "on": "manual", "style": "popup", "title": "Your contract",
+      "pages": [
+        "The contract is yours. Its three words name the place it's for: [Quiet][Green][Daybreak].\n\nHunts leave from the Wayfinder, the great artifact in the middle of the plaza, just north of the guild hall. Walk into it.\n\nYour quest log (q) keeps track of what you're doing; t walks you to places you know."
+      ]
+    },
+
+    "wayfinder_brief": {
+      "on": "wayfinder", "if": ["quest:first_jobs:wayfinder"], "style": "popup", "title": "The Wayfinder",
+      "pages": [
+        "The Wayfinder carries you to the place three words describe: how dangerous it is, what kind of land, and one thing about it. The same three words always lead to the same place.\n\nYour contract's words are already chosen. ←→ moves between the three, ↑↓ picks a word, and Enter sets out."
+      ]
+    },
+
+    "first_area": {
+      "on": "area", "if": ["quest:first_jobs:hunt", "region:quiet/green/daybreak", "event:area=1"], "style": "popup", "title": "Out in the miasma",
+      "pages": [
+        "You're out in the miasma. You only see what's near you; the rest of the area is yours to find.\n\no explores on its own until something comes up. x looks at things. v swaps your messages for a minimap, and m shows the whole map.",
+        "The trail home (≡) is your way back to Bytorsskug. » leads deeper; « leads back.\n\nWhat you're after lies at the far end of the deepest area: this place has two."
+      ]
+    },
+
+    "first_creature": {
+      "on": "see", "if": ["quest:first_jobs"], "style": "popup", "title": "A creature",
+      "pages": [
+        "A creature. Walk into it to attack. Whether a blow lands depends on your accuracy against its evasion.\n\nYou heal slowly: rest (. or numpad 5) when nothing's about. If it goes badly, drink a draught (i, then u on it).",
+        "If you fall, you wake at the trail home, battered but alive: once a hunt. Fall a second time, and you're dead. A new Hunter takes up the work, and what you carried is lost."
+      ]
+    },
+
+    "first_kill_drops": {
+      "on": "kill", "if": ["quest:first_jobs"], "style": "popup", "title": "What it leaves",
+      "pages": [
+        "Creatures leave their bodies where they fall. Butcher one where it lies (b) for materials: hide, sinew, scrap. The smith makes gear from them, and the supplier buys them. Or pick the body up (g) and haul it home whole as a trophy: it takes room in your pack, more for a big one, and the trophymaster by the plaza pays for a record."
+      ]
+    },
+
+    "deepest_area": {
+      "on": "area", "if": ["quest:first_jobs:hunt", "region:quiet/green/daybreak", "event:area=2"], "style": "popup", "title": "The deepest area",
+      "pages": ["This is the deepest area. The broken glass curio lies at its far end."]
+    },
+
+    "got_the_lens": {
+      "on": "pickup", "if": ["quest:first_jobs:hunt", "event:item=cracked_lens"], "style": "popup", "title": "The glass curio",
+      "pages": ["That's it. Now get back to the trail home (≡) in the first area: back through « and across.\n\nt can walk you to places you've found."]
+    },
+
+    "contract_done": {
+      "on": "contract_done", "if": ["event:contract=first_contract"], "style": "popup", "title": "Contract done",
+      "pages": [
+        "The curio is yours to keep. Broken artifacts can be studied (i, then u on it) to learn what they are, if your Identification is up to it.\n\nThe artificer, just off the plaza, repairs them, buys them as they are, or sells them on for you and splits the price.",
+        "When you're ready, tell the clerk the job's done."
+      ]
+    },
+
+    "clerk_report": {
+      "on": "talk", "if": ["event:folk=clerk", "quest:first_jobs:report"],
+      "pages": [
+        {"speaker": "The guild clerk", "text": "Back in one piece, and with the curio! Good."},
+        {"speaker": "The guild clerk", "text": "Next: bounties. They're the Guild's own work: kill a particular creature, or find a particular artifact, and the Guild pays you. We take no dues from that.\n\nI've put one up for you on the bounty board, the right-hand board at the front of the hall. A scavenger at [Quiet][Broken][Daybreak]."}
+      ],
+      "do": ["bounty:first_bounty", "only:bounties:first_bounty"]
+    },
+
+    "pop_bounty_taken": {
+      "on": "manual", "style": "popup", "title": "Your bounty",
+      "pages": [
+        "The bounty is yours. Its words: [Quiet][Broken][Daybreak]; the Wayfinder will have them ready.\n\nThe marked scavenger waits in the deepest area, drawn gold on red. Kill it, get back to the trail home, then see the clerk to be paid."
+      ]
+    },
+
+    "bounty_home_hint": {
+      "on": "manual", "style": "popup", "title": "Back in Bytorsskug",
+      "pages": ["Now see the clerk to be paid for the bounty."]
+    },
+
+    "clerk_welcome": {
+      "on": "talk", "if": ["event:folk=clerk", "quest:first_jobs:bounty_report"],
+      "pages": [
+        {"speaker": "The guild clerk", "text": "That's the scavenger seen to. Here's your pay."},
+        {"speaker": "The guild clerk", "text": "One more thing. The notice board in the plaza is where the people of Bytorsskug post requests: an artifact they're after, or materials. They pay well. Take the thing to whoever asked."},
+        {"speaker": "The guild clerk", "text": "And here: a hundred shards from the Guild, to see you started.\n\nWelcome to the Tower Acquisition Guild, Hunter. Properly, this time."}
+      ],
+      "do": ["collect_jobs", "shards:+100", "only:clear"]
+    },
+
+    "lost_the_contract": {
+      "on": "new_hunter", "once": false, "if": ["quest:first_jobs", "posted:first_contract", "!taken:first_contract"],
+      "do": ["stage:first_jobs:contract"]
+    },
+    "lost_the_bounty": {
+      "on": "new_hunter", "once": false,
+      "if": ["quest:first_jobs", "seen:clerk_report", "!bounty:first_bounty", "!quest:first_jobs:bounty_report"],
+      "do": ["bounty:first_bounty", "only:bounties:first_bounty", "stage:first_jobs:bounty"]
+    }
+  }
+}

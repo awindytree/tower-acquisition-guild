@@ -1,0 +1,65 @@
+{
+  "start": [
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "hello": {
+      "text": [
+        "Brought me something, {calling}?",
+        "The wall's always hungry. What have you got?",
+        "Back from the Overland? Let's see what you hauled."
+      ],
+      "choices": [
+        {
+          "text": "I've brought a trophy.",
+          "if": [
+            "trophies"
+          ],
+          "do": [
+            "trophies"
+          ]
+        },
+        {
+          "text": "Show me the records.",
+          "do": [
+            "trophy_wall"
+          ]
+        },
+        {
+          "text": "What counts as a record?",
+          "goto": "how"
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "how": {
+      "text": "The heaviest of its kind. Bring me one heavier than what's on the wall and it goes up, with your name, and I pay. A first of its kind pays too, and so does an odd one I've not seen: a pale one, a scarred one. Anything else I send back. The butcher will take what I don't.",
+      "choices": [
+        {
+          "text": "I've brought a trophy.",
+          "if": [
+            "trophies"
+          ],
+          "do": [
+            "trophies"
+          ]
+        },
+        {
+          "text": "Show me the records.",
+          "do": [
+            "trophy_wall"
+          ]
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    }
+  }
+}

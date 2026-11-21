@@ -1,0 +1,56 @@
+{
+  "start": [
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "hello": {
+      "text": [
+        "Still at it, {given}? Good. Sit a while.",
+        "I don't miss the miasma. I miss the work, a little.",
+        "Ask me anything. I've time now."
+      ],
+      "choices": [
+        {
+          "text": "Teach me what you know.",
+          "if": [
+            "mentor_teaches"
+          ],
+          "do": [
+            "mentor"
+          ]
+        },
+        {
+          "text": "What was it like, out there?",
+          "goto": "story"
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "story": {
+      "text": [
+        "Long. Cold. Every hunt felt like the last one, and then it wasn't.",
+        "You learn to listen. The creatures out there are never as quiet as they think."
+      ],
+      "choices": [
+        {
+          "text": "Teach me what you know.",
+          "if": [
+            "mentor_teaches"
+          ],
+          "do": [
+            "mentor"
+          ]
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    }
+  }
+}

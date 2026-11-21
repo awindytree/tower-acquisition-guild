@@ -1,0 +1,27 @@
+{
+  "start": [
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "hello": {
+      "text": [
+        "The Guild's stores. What do you need, {calling}?",
+        "Supplies for Hunters, and plenty of them. Guild prices."
+      ],
+      "choices": [
+        {
+          "text": "Let me see what you have.",
+          "do": [
+            "shop:quartermaster"
+          ]
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    }
+  }
+}

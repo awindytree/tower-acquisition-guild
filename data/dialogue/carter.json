@@ -1,0 +1,55 @@
+{
+ "start": [
+  {
+   "if": [
+    "holiday"
+   ],
+   "node": "holiday"
+  },
+  {
+   "node": "bark"
+  }
+ ],
+ "nodes": {
+  "bark": {
+   "text": [
+    "Roads are clear enough, inside the Brisering.",
+    "You can see Myligast from the north road on a clear day. Always there.",
+    "Hunters coming and going all day. Good for trade."
+   ],
+   "choices": [
+    {
+     "text": "Heard anything lately?",
+     "goto": "gossip"
+    },
+    {
+     "text": "(Leave)",
+     "end": true
+    }
+   ]
+  },
+  "holiday": {
+   "text": "A holiday! We made it through another Duel. Eat something, Hunter.",
+   "choices": [
+    {
+     "text": "Heard anything lately?",
+     "goto": "gossip"
+    },
+    {
+     "text": "(Leave)",
+     "end": true
+    }
+   ]
+  },
+  "gossip": {
+   "rumor": true,
+   "text": "",
+   "choices": [
+    {
+     "text": "(Leave)",
+     "end": true
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,310 @@
+{
+  "_comment": "Every item type in the game. Values are in shards. The key (e.g. short_sword) is the id used in player.json and map files. kind is one of: weapon, armor, consumable, material, treasure, key, artifact, misc. properties is free-form, for game rules to read later. A weapon's calling is the middle name it gives a Hunter who wields it (Ylfa Fencer Hunters).",
+
+  "short_sword": {
+    "name": "short sword", "glyph": "↓", "color": [200, 200, 215], "kind": "weapon",
+    "description": "A plain, serviceable blade. Guild issue.",
+    "value": 12, "properties": {"damage": "1d6", "skill": "blades", "calling": "Fencer"}
+  },
+  "hand_axe": {
+    "name": "hand axe", "glyph": "↓", "color": [180, 160, 130], "kind": "weapon",
+    "description": "Chops wood and other things.",
+    "value": 9, "properties": {"damage": "1d7", "skill": "axes", "calling": "Hewer"}
+  },
+  "arming_sword": {
+    "name": "arming sword", "glyph": "↓", "color": [215, 215, 230], "kind": "weapon",
+    "description": "A proper sword, well balanced. Sold by the supplier.",
+    "value": 40, "properties": {"damage": "1d8", "skill": "blades", "calling": "Fencer"}
+  },
+  "war_pick": {
+    "name": "war pick", "glyph": "↓", "color": [170, 170, 185], "kind": "weapon",
+    "description": "A heavy spike on a haft. Punches through hide and shell.",
+    "value": 75, "properties": {"damage": "1d10", "skill": "hafted", "calling": "Breaker"}
+  },
+  "short_bow": {
+    "name": "short bow", "glyph": "}", "color": [190, 150, 100], "kind": "weapon",
+    "description": "A short bow of horn and wood. Fire it with f; it needs arrows. Up close it's only good for a bash (1d2, plus 1 for every 6 Physicality).",
+    "value": 30, "properties": {"damage": "1d6", "range": 8, "ammo": "arrow", "melee": "1d2", "bash_every": 6, "calling": "Archer"}
+  },
+  "longbow": {
+    "name": "longbow", "glyph": "}", "color": [210, 175, 120], "kind": "weapon",
+    "description": "A tall bow that takes a strong arm to draw. Fire it with f; it needs arrows. Up close it's only good for a bash (1d2, plus 1 for every 6 Physicality).",
+    "value": 90, "properties": {"damage": "1d8", "range": 12, "ammo": "arrow", "melee": "1d2", "bash_every": 6, "calling": "Archer"}
+  },
+  "arrow": {
+    "name": "arrow", "glyph": "|", "color": [200, 190, 170], "kind": "consumable",
+    "description": "A fletched arrow. Shot, it may survive to be picked up again.",
+    "value": 1, "stackable": true
+  },
+  "leather_jerkin": {
+    "name": "leather jerkin", "glyph": "φ", "color": [150, 105, 60], "kind": "armor",
+    "description": "Stiff boiled leather. Better than nothing.",
+    "value": 10, "properties": {"armor": 1}
+  },
+  "studded_jerkin": {
+    "name": "studded jerkin", "glyph": "φ", "color": [165, 125, 80], "kind": "armor",
+    "description": "Leather riveted with iron studs.",
+    "value": 35, "properties": {"armor": 2}
+  },
+  "mail_shirt": {
+    "name": "mail shirt", "glyph": "φ", "color": [175, 180, 190], "kind": "armor",
+    "description": "Interlocked iron rings. Heavy, and worth it.",
+    "value": 80, "properties": {"armor": 3}
+  },
+  "healing_draught": {
+    "name": "healing draught", "glyph": "♥", "color": [220, 70, 80], "kind": "consumable",
+    "description": "Bitter and red. Closes small wounds.",
+    "value": 10, "stackable": true, "properties": {"heal": 8}
+  },
+  "healing_tonic": {
+    "name": "healing tonic", "glyph": "♥", "color": [240, 110, 150], "kind": "consumable",
+    "description": "A thicker, sweeter brew than the draught. Mends deeper wounds.",
+    "value": 35, "stackable": true, "properties": {"heal": 16}
+  },
+  "ration": {
+    "name": "ration", "glyph": "¥", "color": [190, 150, 90], "kind": "consumable",
+    "description": "Hard bread and harder cheese. Eaten, it mends you slowly: 1 HP a turn for 10 turns.",
+    "value": 4, "stackable": true, "properties": {"heal_per_turn": 1, "heal_turns": 10}
+  },
+  "bandage": {
+    "name": "bandage", "glyph": "=", "color": [235, 230, 215], "kind": "consumable",
+    "description": "Clean linen. Use it (u) to stop bleeding; with Medicine rank 2, to bind up a minor injury so it mends at once. It doesn't always work (Medicine).",
+    "value": 3, "stackable": true, "properties": {"treats": "bleeding"}
+  },
+  "poultice": {
+    "name": "poultice", "glyph": "=", "color": [140, 190, 110], "kind": "consumable",
+    "description": "Crushed leaves in a cloth. It smells bitter. Use it (u) to draw out poison. It doesn't always work (Medicine).",
+    "value": 6, "stackable": true, "properties": {"treats": "poisoned"}
+  },
+  "torch": {
+    "name": "torch", "glyph": "/", "color": [240, 150, 70], "kind": "misc",
+    "description": "Pitch-soaked wood. Light it (u) for a little more light in dark places, for 300 turns. Needs no Jodebris.",
+    "value": 1, "stackable": true, "properties": {"light": 3, "burn_turns": 300}
+  },
+  "rope": {
+    "name": "coil of rope", "plural": "coils of rope", "glyph": "&", "color": [170, 140, 100], "kind": "misc",
+    "description": "Fifty feet of hemp, knotted for climbing. On a hunt, use it (u) to make your way straight back to the trail home.",
+    "value": 10, "stackable": true, "properties": {"escape": true}
+  },
+  "old_key": {
+    "name": "old iron key", "glyph": "µ", "color": [150, 150, 160], "kind": "key",
+    "description": "Heavy and rust-flecked. It must open something.",
+    "value": 0
+  },
+  "_materials": "Materials: left by creatures when they die (data/monsters.json drops), used to commission gear (data/recipes.json), or sold. PLACEHOLDERS.",
+  "rough_hide": {
+    "name": "rough hide", "glyph": "~", "color": [160, 120, 80], "kind": "material",
+    "description": "A tough, uncured hide. A smith can make something of it.",
+    "value": 4, "stackable": true
+  },
+  "thick_hide": {
+    "name": "thick hide", "glyph": "~", "color": [180, 110, 70], "kind": "material",
+    "description": "A heavy hide, bristled and hard to cut.",
+    "value": 8, "stackable": true
+  },
+  "chitin_plate": {
+    "name": "chitin plate", "glyph": "∟", "color": [150, 160, 120], "kind": "material",
+    "description": "A curved plate of shell, light and hard.",
+    "value": 6, "stackable": true
+  },
+  "sinew": {
+    "name": "sinew", "glyph": "ε", "color": [210, 190, 170], "kind": "material",
+    "description": "Strong cord taken from something that no longer needs it.",
+    "plural": "sinew", "value": 5, "stackable": true
+  },
+  "iron_scrap": {
+    "name": "iron scrap", "glyph": "§", "color": [150, 110, 90], "kind": "material",
+    "description": "Rusted iron, good for reworking.",
+    "plural": "iron scrap", "value": 3, "stackable": true
+  },
+  "sentinel_stone": {
+    "name": "sentinel stone", "glyph": "*", "color": [170, 170, 190], "kind": "material",
+    "description": "A fist of dense, fitted stone from a fallen sentinel. Heavier than it looks.",
+    "value": 15, "stackable": true
+  },
+
+  "_crafted": "Gear a smith makes to order (data/recipes.json). PLACEHOLDERS.",
+  "hide_jerkin": {
+    "name": "hide jerkin", "glyph": "φ", "color": [170, 125, 80], "kind": "armor",
+    "description": "Layers of cured hide, stitched tight.",
+    "value": 30, "properties": {"armor": 2}
+  },
+  "thornback_coat": {
+    "name": "thornback coat", "glyph": "φ", "color": [190, 120, 70], "kind": "armor",
+    "description": "A long coat of thick hide, the bristles left on the shoulders.",
+    "value": 70, "properties": {"armor": 3}
+  },
+  "chitin_plate_armor": {
+    "name": "chitin armour", "glyph": "φ", "color": [160, 175, 125], "kind": "armor",
+    "description": "Overlapping shell plates on a sinew harness. Light for what it stops.",
+    "value": 130, "properties": {"armor": 4}
+  },
+  "sinew_bow": {
+    "name": "sinew bow", "glyph": "}", "color": [215, 195, 160], "kind": "weapon",
+    "description": "A recurved bow backed with sinew. Fire it with f; it needs arrows. Up close it's only good for a bash (1d2, plus 1 for every 6 Physicality).",
+    "value": 60, "properties": {"damage": "1d7", "range": 10, "ammo": "arrow", "melee": "1d2", "bash_every": 6, "calling": "Archer"}
+  },
+  "iron_shod_axe": {
+    "name": "iron-shod axe", "glyph": "↓", "color": [170, 130, 110], "kind": "weapon",
+    "description": "A heavy axe, its head reworked from scrap iron.",
+    "value": 45, "properties": {"damage": "1d8", "skill": "axes", "calling": "Hewer"}
+  },
+  "sentinel_maul": {
+    "name": "sentinel maul", "glyph": "↓", "color": [180, 180, 200], "kind": "weapon",
+    "description": "A maul with a head of sentinel stone. Slow to swing; terrible when it lands.",
+    "value": 160, "properties": {"damage": "2d6", "skill": "hafted", "calling": "Breaker"}
+  },
+
+  "_artifacts": "Tower Artifacts. PLACEHOLDER names, descriptions and effects. A broken artifact has: rarity (see rarities.json), appearance (what you see before identifying it: a name and description shared by several artifacts), repairs_to (the working artifact's id) and value (what the WORKING artifact sells for). Glyph and colour come from the rarity. Working artifacts: properties light (sight and torchlight, in dark places; the strongest one counts), armor, accuracy, evasion (while carried), and use: reveal (map the area) or heal N, uses_per_hunt. Out in the miasma, working artifacts only work while an equipped windcatcher has Jodebris left.",
+
+  "cracked_lens": {
+    "name": "cracked lens", "kind": "artifact", "rarity": "common", "appearance": "glass",
+    "description": "A thick disc of ground glass, split clean across. Held to the eye, it seems to gather light.",
+    "value": 60, "repairs_to": "glimmer_lens"
+  },
+  "shattered_bell": {
+    "name": "shattered bell", "kind": "artifact", "rarity": "common", "appearance": "bell",
+    "description": "Three pieces of a small bell. They hum faintly when held together.",
+    "value": 70, "repairs_to": "warding_chime"
+  },
+  "broken_astrolabe": {
+    "name": "broken astrolabe", "kind": "artifact", "rarity": "uncommon", "appearance": "brass",
+    "description": "Brass rings, bent and seized. One plate is missing.",
+    "value": 160, "repairs_to": "wayfinder_astrolabe"
+  },
+  "rusted_mechanism": {
+    "name": "rusted mechanism", "kind": "artifact", "rarity": "uncommon", "appearance": "brass",
+    "description": "Gears and springs fused by rust into a single lump. Something inside is warm.",
+    "value": 140, "repairs_to": "mending_engine"
+  },
+  "clouded_prism": {
+    "name": "clouded prism", "kind": "artifact", "rarity": "rare", "appearance": "glass",
+    "description": "A long prism gone milky and chipped. Light goes in and doesn't come out.",
+    "value": 380, "repairs_to": "far_sight_prism"
+  },
+  "seized_gyroscope": {
+    "name": "seized gyroscope", "kind": "artifact", "rarity": "rare", "appearance": "brass",
+    "description": "Nested gimbals locked at odd angles. It always settles the same way up.",
+    "value": 320, "repairs_to": "steadying_gyre"
+  },
+  "split_tuning_fork": {
+    "name": "split tuning fork", "kind": "artifact", "rarity": "very_rare", "appearance": "bell",
+    "description": "A fork of pale metal, one tine cracked to the root. Your hand twitches when you hold it.",
+    "value": 850, "repairs_to": "resonant_fork"
+  },
+  "broken_reliquary": {
+    "name": "broken reliquary", "kind": "artifact", "rarity": "very_rare", "appearance": "stone",
+    "description": "A stone case, its lid sheared off. The hollow inside is heart-shaped.",
+    "value": 760, "repairs_to": "heartstone"
+  },
+  "fractured_orrery": {
+    "name": "fractured orrery", "kind": "artifact", "rarity": "legendary", "appearance": "brass",
+    "description": "Dozens of tiny spheres on bent arms, most of them missing. The pattern looks like a map.",
+    "value": 2100, "repairs_to": "great_orrery"
+  },
+  "black_mirror": {
+    "name": "black mirror", "kind": "artifact", "rarity": "legendary", "appearance": "glass",
+    "description": "A hand mirror of dark glass, crazed with cracks. Your reflection is a moment late.",
+    "value": 1900, "repairs_to": "lantern_mirror"
+  },
+  "nameless_relic": {
+    "name": "nameless relic", "kind": "artifact", "rarity": "unique", "appearance": "stone",
+    "description": "A palm-sized stone set with glass, worn smooth. Nothing else like it is known.",
+    "value": 5000, "repairs_to": "nameless_relic_working"
+  },
+
+  "_windcatchers": "Windcatchers: artifacts that store Jodebris (the Chorus Winds) so other artifacts work out in the miasma. Broken ones look like any glass artifact. PLACEHOLDER names and numbers.",
+  "cracked_windcatcher": {
+    "name": "cracked windcatcher", "kind": "artifact", "rarity": "rare", "appearance": "glass",
+    "description": "A cage of fine wire around a bulb of thin glass, cracked through. Faint wind stirs inside it.",
+    "value": 600, "repairs_to": "lesser_windcatcher"
+  },
+  "shattered_windcatcher": {
+    "name": "shattered windcatcher", "kind": "artifact", "rarity": "very_rare", "appearance": "glass",
+    "description": "A tall windcatcher, its glass in pieces but every piece still in the frame.",
+    "value": 1300, "repairs_to": "windcatcher"
+  },
+  "ruined_great_windcatcher": {
+    "name": "ruined great windcatcher", "kind": "artifact", "rarity": "legendary", "appearance": "glass",
+    "description": "A windcatcher the size of a lantern, the glass clouded and holed. It sings when you breathe on it.",
+    "value": 3000, "repairs_to": "great_windcatcher"
+  },
+
+  "_working": "Repaired Tower Artifacts. Only Artificers make these (by repairing the broken ones above).",
+  "lesser_windcatcher": {
+    "name": "lesser windcatcher", "glyph": "Ω", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "A small cage of wire and glass, humming with stored Jodebris.",
+    "value": 600, "properties": {"windcatcher": true, "capacity": 1600}
+  },
+  "windcatcher": {
+    "name": "windcatcher", "glyph": "Ω", "kind": "artifact", "rarity": "very_rare", "working": true,
+    "description": "A sound windcatcher, singing faintly.",
+    "value": 1300, "properties": {"windcatcher": true, "capacity": 2500}
+  },
+  "great_windcatcher": {
+    "name": "great windcatcher", "glyph": "Ω", "kind": "artifact", "rarity": "legendary", "working": true,
+    "description": "A great windcatcher, loud with wind.",
+    "value": 3000, "properties": {"windcatcher": true, "capacity": 3900}
+  },
+  "glimmer_lens": {
+    "name": "glimmer lens", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "The lens, mended. It gathers light: you see further in dark places.",
+    "value": 60, "properties": {"light": 4}
+  },
+  "warding_chime": {
+    "name": "warding chime", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "The bell, whole again. Its faint hum turns aside a little of every blow.",
+    "value": 70, "properties": {"armor": 1}
+  },
+  "wayfinder_astrolabe": {
+    "name": "wayfinder astrolabe", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "The rings turn freely now. Used, it shows you the shape of the place you're in.",
+    "value": 160, "properties": {"use": "reveal", "uses_per_hunt": 1}
+  },
+  "mending_engine": {
+    "name": "mending engine", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "Wound and ticking. Pressed to a wound, its warmth closes it.",
+    "value": 140, "properties": {"use": "heal", "heal": 10, "uses_per_hunt": 2}
+  },
+  "far_sight_prism": {
+    "name": "far-sight prism", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "Clear as water now. Darkness thins wherever you look.",
+    "value": 380, "properties": {"light": 8}
+  },
+  "steadying_gyre": {
+    "name": "steadying gyre", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "The gimbals spin true. Your hand is steadier while you carry it.",
+    "value": 320, "properties": {"accuracy": 2}
+  },
+  "resonant_fork": {
+    "name": "resonant fork", "kind": "artifact", "rarity": "very_rare", "working": true,
+    "description": "Both tines ring together. You move a moment before you need to.",
+    "value": 850, "properties": {"evasion": 2}
+  },
+  "heartstone": {
+    "name": "heartstone", "kind": "artifact", "rarity": "very_rare", "working": true,
+    "description": "The reliquary, sealed and beating. It can pull you back from the edge.",
+    "value": 760, "properties": {"use": "heal", "heal": 20, "uses_per_hunt": 2}
+  },
+  "great_orrery": {
+    "name": "great orrery", "kind": "artifact", "rarity": "legendary", "working": true,
+    "description": "Every sphere in place and turning. It maps wherever you stand.",
+    "value": 2100, "properties": {"use": "reveal", "uses_per_hunt": 3}
+  },
+  "lantern_mirror": {
+    "name": "lantern mirror", "kind": "artifact", "rarity": "legendary", "working": true,
+    "description": "The dark glass glows from within, and your reflection keeps pace again.",
+    "value": 1900, "properties": {"light": 10, "evasion": 1}
+  },
+  "nameless_relic_working": {
+    "name": "nameless relic (restored)", "kind": "artifact", "rarity": "unique", "working": true,
+    "description": "Restored, it hums with something like attention. Nobody can say what it is for.",
+    "value": 5000, "properties": {"light": 6, "armor": 2, "accuracy": 2}
+  },
+
+  "shard": {
+    "name": "shard", "glyph": "♦", "color": [150, 220, 210], "kind": "treasure",
+    "description": "The coin of the realm. The first shards were true pieces of Windcatcher glass.",
+    "value": 1, "stackable": true
+  }
+}

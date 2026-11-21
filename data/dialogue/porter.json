@@ -1,0 +1,32 @@
+{
+ "start": "bark",
+ "nodes": {
+  "bark": {
+   "text": [
+    "Out of the way, Hunter, this crate's heavier than it looks.",
+    "Another Hunter. Bring back something shiny, eh?",
+    "You lot keep the artificers busy. Keeps me busy too."
+   ],
+   "choices": [
+    {
+     "text": "Heard anything lately?",
+     "goto": "gossip"
+    },
+    {
+     "text": "(Leave)",
+     "end": true
+    }
+   ]
+  },
+  "gossip": {
+   "rumor": true,
+   "text": "",
+   "choices": [
+    {
+     "text": "(Leave)",
+     "end": true
+    }
+   ]
+  }
+ }
+}

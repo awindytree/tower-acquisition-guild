@@ -1,0 +1,70 @@
+{
+  "start": [
+    {
+      "if": [
+        "!flag:hunter:met_healer"
+      ],
+      "node": "first"
+    },
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "first": {
+      "text": "Hunters come to me in pieces. Bones, cuts, bites gone bad. Small hurts mend on their own if you give them time; the rest, I can fix, for a fee. I teach, too, if you'd rather patch yourself up out there.",
+      "do": [
+        "set:hunter:met_healer"
+      ],
+      "choices": [
+        {
+          "text": "Can you see to my injuries?",
+          "if": [
+            "injured"
+          ],
+          "do": [
+            "treat:healer"
+          ]
+        },
+        {
+          "text": "Can you teach me medicine, or how to last out there?",
+          "do": [
+            "train:medicine,survival"
+          ]
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "hello": {
+      "text": [
+        "Let me look at you, {given}.",
+        "Hurt again?",
+        "Sit. Where does it hurt?"
+      ],
+      "choices": [
+        {
+          "text": "Can you see to my injuries?",
+          "if": [
+            "injured"
+          ],
+          "do": [
+            "treat:healer"
+          ]
+        },
+        {
+          "text": "Can you teach me medicine, or how to last out there?",
+          "do": [
+            "train:medicine,survival"
+          ]
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    }
+  }
+}

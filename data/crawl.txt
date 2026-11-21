@@ -1,0 +1,10 @@
+; The opening crawl, shown once after "New Game" (the user's copy, 2026-11-20).
+; Lines starting with ";" are comments. A blank line is a paragraph break.
+; Text is wrapped to fit the screen, so write whole paragraphs on one line.
+The Overland: A twilit world covered in a miasma which distorts the world and brings terrifying creatures. At its center stands Myligast, a great tower 9 km across and infinitely tall.
+
+You are a Hunter with the Tower Acquisition Guild. It is your job to venture out into the miasma to collect tower artifacts, returning to the city of Bytorsskug so that you might profit from their acquisition.
+
+Yours is a dangerous occupation. You will likely fail.
+
+But another Hunter will rise up to carry your mantle.

@@ -1,0 +1,477 @@
+"""Balance simulator: a simple bot plays Hunters through hunts with the real game rules,
+and writes what happened to a JSON file for report.py.
+
+    python tools/balance/sim.py --hunters 20 --hunts 30 --seed 1 --out sim.json
+    python tools/balance/sim.py --region quiet/green/daybreak ...   (every hunt at one place)
+
+The bot is deliberately plain, a careful but unskilled player: it explores each
+area, fights what it meets in melee (or shoots, with a bow and arrows), drinks a
+draught when low, eats when hurt, bandages bleeding, lights torches in the dark,
+rests (waits for natural healing) when hurt and nothing is in view, goes deeper
+until it has the artifact, then walks home. It turns back when it's low on
+health with nothing left to drink. Between hunts it consigns every
+artifact, sells materials, hands in writings, reports notes, pays dues, sees the
+healer, restocks supplies (keeping back enough for the next dues), and buys better armour and weapons when it can.
+It picks a danger by level ("ladder"; any land and feature), or always one place (--region).
+It doesn't take odd jobs, fill requests, commission gear or train skills.
+
+Nothing here changes the game; it only drives it. Runs headless (no window).
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import random
+import sys
+import time
+import types
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+import os
+os.environ.setdefault("TAG_NO_STORY", "1")   # the bot plays the hunting game, not the story
+sys.path.insert(0, str(ROOT))
+
+try:
+    import tcod  # noqa: F401  (the real one, if installed: only its event module is touched)
+    import tcod.event  # noqa: F401
+except ImportError:  # headless: a stand-in with just what the game's modules import
+    class _AnyKey(type):            # every key name the game asks for exists, as a distinct number
+        _ids: dict = {}
+        def __getattr__(cls, name):
+            if name.startswith("__"):
+                raise AttributeError(name)
+            return cls._ids.setdefault(name, len(cls._ids) + 1)
+    ev = types.ModuleType("tcod.event")
+    ev.KeySym = _AnyKey("KeySym", (), {})
+    class _E: ...
+    ev.Event, ev.Quit, ev.KeyDown = _E, type("Quit", (_E,), {}), type("KeyDown", (_E,), {})
+    t = types.ModuleType("tcod"); t.event = ev
+    sys.modules["tcod"], sys.modules["tcod.event"] = t, ev
+
+from game import injuries, ranged, shops as shops_mod, artifacts, library, archive  # noqa: E402
+from game.actions import MoveAction, PickUpAction, WaitAction, UseAction, FireAction  # noqa: E402
+from game.engine import Engine  # noqa: E402
+from game.explore import next_step as explore_step  # noqa: E402
+from game.game_map import GameMap  # noqa: E402
+from game.hunt import load_regions, make_contracts  # noqa: E402
+from game.items import Catalogue  # noqa: E402
+from game.monsters import load_monster_types  # noqa: E402
+from game.player import Player  # noqa: E402
+from game.artifacts import load_workshops  # noqa: E402
+from game.shops import load_shops  # noqa: E402
+from game.travel import next_step as travel_step  # noqa: E402
+from game import combat  # noqa: E402
+
+DATA = ROOT / "data"
+LADDER = [(1, 1), (3, 2), (5, 3), (7, 4), (9, 5)]   # (from level, danger) since v0.44.0
+MAX_ACTIONS = 12000     # per hunt, before the bot gives up ("stuck")
+WANT = {"healing_draught": 3, "ration": 4, "bandage": 2, "torch": 3, "poultice": 1}
+
+
+# ---- Setting up ------------------------------------------------------------------------------
+def make_engine(seed: int) -> Engine:
+    random.seed(seed)
+    cat = Catalogue.load(DATA / "items.json")
+    city, start = GameMap.from_file(DATA / "maps" / "city.txt")
+    rng = random.Random(seed)
+    new = lambda: Player.new(DATA / "player.json", cat, *start, rng=rng)
+    e = Engine(city, new(), cat, load_regions(DATA / "keywords.json"), load_monster_types(DATA / "monsters.json"),
+               new_hunter=new, saves=None, shops=load_shops(DATA / "shops.json", cat),
+               workshops=load_workshops(DATA / "workshops.json"))
+    e.rng = random.Random(seed + 1)
+    e.words = set(e.regions.keywords.all_ids())   # the bot knows every word
+    e.new_game()
+    return e
+
+
+def act(e, action) -> None:
+    e.handle_action(action)
+
+
+def index_of(p, item_id):
+    return next((i for i, it in enumerate(p.inventory.items) if it.type.id == item_id), None)
+
+
+def clear_screens(e) -> None:
+    """Answer whatever window is open: yes to confirmations, carry on past title cards; take the
+    first talent on offer (v0.58.0)."""
+    from game import talents
+    while e.player.talent_offers:
+        talents.choose(e, e.player.talent_offers[0][0])
+    for _ in range(5):
+        s = e.screen
+        if s is None:
+            return
+        e.screen = None
+        if getattr(s, "on_yes", None):
+            s.on_yes(e)
+        elif getattr(s, "on_continue", None):
+            s.on_continue(e)
+
+
+# ---- On a hunt -------------------------------------------------------------------------------
+def visible_monsters(e):
+    # (an ashmantle can't be fought, and a burrowed wyrm can't be reached: the bot ignores them)
+    return [m for m in e.game_map.monsters if e.visible is not None and e.visible[m.x, m.y]
+            and not m.type.ghost and not m.burrowed]
+
+
+def look_after_self(e, rec) -> bool:
+    """Drink, eat, bandage, light a torch. Returns True if a turn was spent."""
+    p = e.player
+    st = p.stats
+    for kind, item in (("bleeding", "bandage"), ("poisoned", "poultice")):
+        if kind in injuries.bleeding(p) and index_of(p, item) is not None:
+            rec["used"][item] = rec["used"].get(item, 0) + 1
+            act(e, UseAction(index_of(p, item)))
+            return True
+    if st.hp < st.max_hp * 0.4:
+        for item in ("healing_tonic", "healing_draught"):
+            if index_of(p, item) is not None:
+                rec["used"][item] = rec["used"].get(item, 0) + 1
+                act(e, UseAction(index_of(p, item)))
+                return True
+    if st.hp < st.max_hp * 0.7 and p.meal_turns == 0 and index_of(p, "ration") is not None:
+        rec["used"]["ration"] = rec["used"].get("ration", 0) + 1
+        act(e, UseAction(index_of(p, "ration")))
+        return True
+    if e.game_map.light == "torch" and p.torch_turns == 0 and index_of(p, "torch") is not None:
+        rec["used"]["torch"] = rec["used"].get("torch", 0) + 1
+        act(e, UseAction(index_of(p, "torch")))
+        return True
+    return False
+
+
+def can_heal(p) -> bool:
+    return any(index_of(p, i) is not None for i in ("healing_tonic", "healing_draught"))
+
+
+def step_towards(e, spot, beside=False) -> bool:
+    step = travel_step(e, spot, beside)
+    if step is None:
+        return False
+    act(e, MoveAction(*step))
+    return True
+
+
+def head_home(e) -> bool:
+    """One step towards the way back (or the trail home)."""
+    gm = e.game_map
+    sym = "H" if e.hunt.current == 0 else "<"
+    spot = e.hunt.entries[e.hunt.current]
+    if gm.tile_at(*spot).symbol != sym:
+        return False
+    p = e.player
+    if (p.x, p.y) == spot:               # standing on it (as you do after a faint): take it
+        if sym == "H":
+            e.reach_trail_home()
+        else:
+            e.travel(e.hunt.current - 1, arrive_at="far_end")
+        return True
+    return step_towards(e, spot)
+
+
+def hunt_turn(e, rec, state) -> None:
+    p, gm = e.player, e.game_map
+    if look_after_self(e, rec):
+        return
+    race = e.hunt.race or {}
+    if race.get("outcome") == "rival" and not state["retreat"]:   # a rival got the prize first: go home
+        state["retreat"] = True
+        rec["turned_back"] = True
+    seen = visible_monsters(e)
+    adjacent = [m for m in seen if abs(m.x - p.x) + abs(m.y - p.y) == 1]   # four-way: side by side only
+    low = p.stats.hp < p.stats.max_hp * 0.3 and not can_heal(p)
+    if low and not state["retreat"]:
+        state["retreat"] = True
+        rec["turned_back"] = True
+    if adjacent:
+        act(e, MoveAction(adjacent[0].x - p.x, adjacent[0].y - p.y))
+        return
+    hunting = [m for m in seen if m.type.behaviour == "hunt"]
+    # Rest when nothing's about: natural healing (stopped while bleeding).
+    if not hunting and not injuries.bleeding(p):
+        if p.stats.hp < p.stats.max_hp * 0.6:
+            state["resting"] = True
+        if state.get("resting") and p.stats.hp < p.stats.max_hp * 0.9:
+            rec["rested"] = rec.get("rested", 0) + 1
+            act(e, WaitAction())
+            return
+    state["resting"] = False
+    if hunting and ranged.bow(p) and ranged.can_fire(e) is None:
+        target = min(hunting, key=lambda m: max(abs(m.x - p.x), abs(m.y - p.y)))
+        if ranged.in_range(e, target.x, target.y):
+            act(e, FireAction(target.x, target.y))
+            return
+    if hunting and not state["retreat"]:
+        target = min(hunting, key=lambda m: max(abs(m.x - p.x), abs(m.y - p.y)))
+        if target.awake:
+            act(e, WaitAction())     # let it come to you
+        elif not step_towards(e, (target.x, target.y), beside=True):
+            act(e, WaitAction())
+        return
+    # A corpse here: the bot butchers it for materials, never hauls it (v0.61.0).
+    if any(f.item.trophy is not None for f in gm.items_at(p.x, p.y)):
+        from game.actions import ButcherAction
+        act(e, ButcherAction())
+        return
+    # Pick up what's here (not arrows already shot past: the bot just takes everything).
+    if gm.items_at(p.x, p.y) and p.inventory.items is not None:
+        before = len(gm.items)
+        PickUpAction().perform(e)
+        if len(gm.items) < before:
+            return
+    have = p.inventory.count_of(e.hunt.contract.artifact_id) > e.hunt.carried_at_start
+    if have or state["retreat"]:
+        if not head_home(e):
+            state["stuck"] += 50
+            act(e, WaitAction())
+        return
+    # The prize, if it's in sight.
+    target = e.hunt.contract.artifact_id
+    for f in gm.items:
+        if f.item.type.id == target and gm.explored[f.x, f.y]:
+            if step_towards(e, (f.x, f.y)):
+                return
+    step, why = explore_step(e)
+    if step is not None:
+        act(e, MoveAction(*step))
+        return
+    # Explored: deeper.
+    for x in range(gm.width):
+        for y in range(gm.height):
+            if gm.tile_at(x, y).symbol == ">" and gm.explored[x, y]:
+                if step_towards(e, (x, y)):
+                    return
+    # Nothing left but through a creature that won't come to you (with four-way movement one can
+    # hold a corridor): go and fight it.
+    for m in sorted(visible_monsters(e), key=lambda m: abs(m.x - p.x) + abs(m.y - p.y)):
+        if step_towards(e, (m.x, m.y), beside=True):
+            return
+    state["stuck"] += 50
+    state["retreat"] = True
+    act(e, WaitAction())
+
+
+def run_hunt(e, contract, rec) -> str:
+    p = e.player
+    e.begin_hunt(contract)
+    clear_screens(e)
+    state = {"retreat": False, "stuck": 0}
+    for n in range(MAX_ACTIONS):
+        if e.player is not p:
+            return "died"
+        if e.hunt is None:
+            return "done"
+        if e.screen is not None:
+            if type(e.screen).__name__ == "TitleCardScreen" and e.screen.heading == "Knocked out":
+                rec["faints"] += 1
+            clear_screens(e)
+            continue
+        hunt_turn(e, rec, state)
+        if state["stuck"] > 3000:
+            break
+    rec["stuck"] = True
+    if e.hunt is not None and e.player is p:
+        e.finish_hunt(success=False)
+        clear_screens(e)
+    return "stuck"
+
+
+# ---- In the city -------------------------------------------------------------------------------
+def city_phase(e, rec) -> None:
+    p = e.player
+    cat = e.catalogue
+    inc, cost = rec["income"], rec["costs"]
+    supplier = e.shops["supplier"]
+    workshop = next(iter(e.workshops))
+    # Artifacts: consign every broken one.
+    while True:
+        i = next((i for i, it in enumerate(p.inventory.items) if it.type.is_broken_artifact), None)
+        if i is None:
+            break
+        t = p.inventory.items[i].type
+        rec["artifacts"].append(t.rarity.id)
+        s0 = p.shards
+        artifacts.consign(p, i, e.stock(workshop), cat)
+        inc["artifacts"] += p.shards - s0
+    # Materials (and spare weapons, armour) to the supplier.
+    for i in reversed(range(len(p.inventory.items))):
+        it = p.inventory.items[i]
+        if (it.type.kind == "material" or (it.type.kind in ("weapon", "armor") and not p.is_equipped(it)
+                                            and it.type.id not in ("arrow",))):
+            for _ in range(it.count):
+                j = index_of(p, it.type.id)
+                if j is None:
+                    break
+                s0 = p.shards
+                ok, _ = shops_mod.sell(p, supplier, j, e.stock("supplier"))
+                if not ok:
+                    break
+                inc["materials" if it.type.kind == "material" else "gear"] += p.shards - s0
+    # Writings and notes.
+    s0 = p.shards
+    library.hand_in(e)
+    inc["writings"] += p.shards - s0
+    s0 = p.shards
+    archive.report(e)
+    inc["notes"] += p.shards - s0
+    # Dues.
+    s0 = p.shards
+    if p.dues_owed:
+        e.pay_dues()
+    cost["dues"] += s0 - p.shards
+    # The healer.
+    for inj in list(p.injuries):
+        t = injuries.table()[inj.id]
+        if t.severity == "serious" and p.shards >= t.fee:
+            injuries.treat(p, inj.id)
+            cost["healer"] += t.fee
+    # Keep back what the next dues will be (20% of what's been earned), as a sensible player would.
+    keep = p.dues_owed + int(p.earned * e.guild.get("dues_share", 0.2)) + 1
+    spend = lambda price: p.shards - price >= keep
+    # Supplies.
+    stock = e.stock("supplier")
+    want = dict(WANT)
+    if ranged.bow(p):
+        want["arrow"] = 30
+    for item_id, n in want.items():
+        while p.inventory.count_of(item_id) < n:
+            line = next((l for l in stock.shown() if l.item_id == item_id), None)
+            if line is None or not spend(line.price):
+                break
+            ok, _ = shops_mod.buy(p, cat[item_id], line.price, line.bundle)
+            if not ok:
+                break
+            stock.take(line, e.day)
+            cost["supplies"] += line.price
+    # Sit for the next rank when ready and it can be afforded on top of the dues.
+    from game import ranks
+    nxt = ranks.next_rank(p)
+    if nxt and ranks.ready(p) and spend(nxt["fee"]):
+        cost["rank"] = cost.get("rank", 0) + nxt["fee"]
+        ranks.sit(e)
+        rec["ranked_up"] = ranks.of(p)["name"]
+    # Upgrades: better armour or weapon, keeping a reserve.
+    reserve = 40
+    for slot, score in (("armor", lambda t: t.properties.get("armor", 0)),
+                        ("weapon", lambda t: combat.average(t.properties.get("damage", "1d2")))):
+        cur = p.equipped.get(slot)
+        cur_score = score(cur.type) if cur else 0
+        if slot == "weapon" and cur and ranged.bow(p):
+            continue  # an archer keeps their bow
+        options = [l for l in stock.shown() if cat[l.item_id].kind == ("armor" if slot == "armor" else "weapon")
+                   and cat[l.item_id].properties.get("range") is None and l.item_id != "arrow"
+                   and score(cat[l.item_id]) > cur_score and p.shards - l.price >= reserve + keep]
+        if options:
+            line = max(options, key=lambda l: score(cat[l.item_id]))
+            ok, _ = shops_mod.buy(p, cat[line.item_id], line.price, line.bundle)
+            if ok:
+                stock.take(line, e.day)
+                cost["gear"] += line.price
+                new = p.inventory.items[index_of(p, line.item_id)]
+                p.equip(new)
+                rec["bought"].append(line.item_id)
+
+
+def pick_contract(e, region_id=None):
+    """A trip through the Wayfinder (v0.44.0): a danger word the Hunter's level suits (within
+    their rank), and any land and feature. --region names a place (danger/land/feature)."""
+    from game import ranks
+    from game.hunt import trip
+    p = e.player
+    if region_id is not None:
+        return trip(e.regions[region_id], e.catalogue, e.rng)
+    kw = e.regions.keywords
+    top = ranks.max_danger(p.rank)
+    want = min(top, max(d for lv, d in LADDER if p.stats.level >= lv))
+    from game.keywords import random_place
+    place = random_place(e, want, e.rng)
+    return trip(place, e.catalogue, e.rng)
+
+
+# ---- The run ---------------------------------------------------------------------------------------
+def summary(p) -> dict:
+    return {"level": p.stats.level, "hp": p.stats.max_hp, "shards": p.shards,
+            "weapon": p.equipped["weapon"].type.id if "weapon" in p.equipped else None,
+            "armor": p.equipped["armor"].type.id if "armor" in p.equipped else None,
+            "injuries": [i.id for i in p.injuries]}
+
+
+def run(hunters: int, hunts: int, seed: int, region: str | None) -> dict:
+    e = make_engine(seed)
+    out = {"hunters": [], "settings": {"hunters": hunters, "hunts": hunts, "seed": seed, "region": region}}
+    for h in range(hunters):
+        if h:
+            e.player = e.new_hunter()
+            e.change_map(e.city, *e.city_start)
+        p = e.player
+        career = {"start": summary(p), "attributes": dict(p.stats.attributes),
+                  "kit": [it.type.id for it in p.inventory.items], "hunts": []}
+        for n in range(hunts):
+            if p.dues_owed:
+                e.pay_dues()
+            if p.dues_owed:          # can't pay: stuck owing
+                career["stuck_owing"] = n
+                career["end"] = {"died": False, "level": p.stats.level}
+                break
+            c = pick_contract(e, region)
+            rec = {"n": n, "level": p.stats.level, "region": f"danger {c.danger}", "place": c.region.id, "danger": c.danger, "depth": c.depth,
+                   "day0": e.day, "turn0": e.turn, "hp_max": p.stats.max_hp, "shards0": p.shards,
+                   "earned0": p.earned, "xp0": p.stats.xp, "faints": 0, "used": {}, "artifacts": [],
+                   "bought": [], "turned_back": False, "stuck": False,
+                   "kills": {}, "injuries": [],
+                   "income": {"found": 0, "artifacts": 0, "materials": 0, "gear": 0, "writings": 0, "notes": 0},
+                   "costs": {"dues": 0, "healer": 0, "supplies": 0, "gear": 0, "rank": 0}}
+            inj0 = {i.id for i in p.injuries}
+            logged0 = e.logged
+            kills0 = dict(p.notes.get("kills", {}))
+            mats0 = sum(it.count for it in p.inventory.items if it.type.kind == "material")
+            shards_before = p.shards
+            outcome = run_hunt(e, c, rec)
+            if outcome == "died":
+                rec["outcome"] = "died"
+                rec["turns"] = e.turn - rec["turn0"]
+                career["hunts"].append(rec)
+                career["end"] = {"died": True, "level": p.stats.level}
+                break
+            got = p.inventory.count_of(c.artifact_id) > 0
+            rec["outcome"] = "success" if (outcome == "done" and got) else ("stuck" if outcome == "stuck" else "abandoned")
+            rec["turns"] = e.turn - rec["turn0"]
+            rec["pulses"] = e.day - rec["day0"]
+            rec["xp"] = p.stats.xp - rec["xp0"]
+            rec["income"]["found"] = p.shards - shards_before
+            kills = p.notes.get("kills", {})
+            rec["kills"] = {k: v - kills0.get(k, 0) for k, v in kills.items() if v - kills0.get(k, 0)}
+            rec["materials"] = sum(it.count for it in p.inventory.items if it.type.kind == "material") - mats0
+            new_msgs = e.messages[-(e.logged - logged0):] if e.logged > logged0 else []
+            # every injury taken on the hunt (minor ones mend during the rest, so count them as they happen)
+            rec["injuries"] = [m for m in new_msgs if m.startswith("The blow leaves you with")]
+            rec["writings"] = sum(1 for it in p.inventory.items if it.type.writing)
+            city_phase(e, rec)
+            rec["shards1"] = p.shards
+            rec["level1"] = p.stats.level
+            career["hunts"].append(rec)
+        else:
+            career["end"] = {"died": False, "level": p.stats.level}
+        career["final"] = summary(p)
+        out["hunters"].append(career)
+        print(f"hunter {h + 1}/{hunters}: {len(career['hunts'])} hunts, level {p.stats.level}, "
+              f"{'died' if career['end']['died'] else 'alive'}", flush=True)
+    return out
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--hunters", type=int, default=10)
+    ap.add_argument("--hunts", type=int, default=20)
+    ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--region", default=None)
+    ap.add_argument("--out", default="sim.json")
+    a = ap.parse_args()
+    t0 = time.time()
+    result = run(a.hunters, a.hunts, a.seed, a.region)
+    result["seconds"] = round(time.time() - t0, 1)
+    Path(a.out).write_text(json.dumps(result), encoding="utf-8")
+    print(f"done in {result['seconds']}s -> {a.out}")

@@ -1,0 +1,34 @@
+{
+  "start": [
+    {"if": ["!flag:hunter:met_supplier"], "node": "first"},
+    {"node": "hello"}
+  ],
+  "nodes": {
+    "first": {
+      "text": "A new face. Draughts, blades, rope: if a Hunter needs it, I stock it. Not much of it, mind. What'll it be, {calling}?",
+      "do": ["set:hunter:met_supplier"],
+      "choices": [
+        {"text": "Let me see what you have.", "do": ["shop:supplier"]},
+        {"text": "Do you buy artifacts?", "goto": "artifacts"},
+        {"text": "Teach me to drive a better bargain?", "do": ["train:bargaining"]},
+        {"text": "Another time.", "end": true}
+      ]
+    },
+    "hello": {
+      "text": ["Back again, {given}. What'll it be?", "What do you need, {calling}?", "Mind the stock. It doesn't grow on trees."],
+      "choices": [
+        {"text": "Let me see what you have.", "do": ["shop:supplier"]},
+        {"text": "Do you buy artifacts?", "goto": "artifacts"},
+        {"text": "Teach me to drive a better bargain?", "do": ["train:bargaining"]},
+        {"text": "Another time.", "end": true}
+      ]
+    },
+    "artifacts": {
+      "text": "Artifacts? Not me. Take them to an artificer. The workshop's across the plaza.",
+      "choices": [
+        {"text": "Then let me see what you have.", "do": ["shop:supplier"]},
+        {"text": "Thanks.", "end": true}
+      ]
+    }
+  }
+}

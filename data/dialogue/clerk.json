@@ -1,0 +1,329 @@
+{
+  "start": [
+    {
+      "if": [
+        "dues"
+      ],
+      "node": "dues_owed"
+    },
+    {
+      "if": [
+        "!flag:hunter:met_clerk"
+      ],
+      "node": "first"
+    },
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "first": {
+      "text": "Welcome to the hall, {given}. Contracts go up on the board by the door, odd jobs on the other. Hunts leave from the artifact in the plaza: walk in and give it three words. The stash in the back room belongs to the hall: what you leave there stays for whoever comes after.",
+      "do": [
+        "set:hunter:met_clerk"
+      ],
+      "choices": [
+        {
+          "text": "Pay my dues ({dues} shards).",
+          "if": [
+            "dues"
+          ],
+          "goto": "paid",
+          "do": [
+            "pay_dues"
+          ]
+        },
+        {
+          "text": "I've finished a job. My pay?",
+          "if": [
+            "jobs_done"
+          ],
+          "goto": "paid_jobs",
+          "do": [
+            "collect_jobs"
+          ]
+        },
+        {
+          "text": "Does the Guild pay for hunts?",
+          "goto": "pay"
+        },
+        {
+          "text": "What work is there?",
+          "do": [
+            "jobs"
+          ]
+        },
+        {
+          "text": "What is the Guild building?",
+          "do": [
+            "works"
+          ]
+        },
+        {
+          "text": "I have field notes to report.",
+          "if": [
+            "notes"
+          ],
+          "goto": "reported",
+          "do": [
+            "report_notes"
+          ]
+        },
+        {
+          "text": "Let me see the archive.",
+          "do": [
+            "archive"
+          ]
+        },
+        {
+          "text": "I'd like to sit for {next_rank} ({rank_fee} shards).",
+          "if": [
+            "rank_ready"
+          ],
+          "do": [
+            "sit_rank"
+          ]
+        },
+        {
+          "text": "What would it take to rise in rank?",
+          "if": [
+            "!rank_ready"
+          ],
+          "goto": "rank_info"
+        },
+        {
+          "text": "Show me the Hall of Hunters.",
+          "do": [
+            "hall"
+          ]
+        },
+        {
+          "text": "I'd like to retire.",
+          "if": [
+            "!dues"
+          ],
+          "do": [
+            "retire"
+          ]
+        },
+        {
+          "text": "Where do I start?",
+          "goto": "start"
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    },
+    "hello": {
+      "text": [
+        "{given}. Back in one piece, I see.",
+        "Contracts are on the board, {calling}.",
+        "It's {date}. Don't keep the artifact waiting."
+      ],
+      "choices": [
+        {
+          "text": "Pay my dues ({dues} shards).",
+          "if": [
+            "dues"
+          ],
+          "goto": "paid",
+          "do": [
+            "pay_dues"
+          ]
+        },
+        {
+          "text": "I've finished a job. My pay?",
+          "if": [
+            "jobs_done"
+          ],
+          "goto": "paid_jobs",
+          "do": [
+            "collect_jobs"
+          ]
+        },
+        {
+          "text": "Does the Guild pay for hunts?",
+          "goto": "pay"
+        },
+        {
+          "text": "What work is there?",
+          "do": [
+            "jobs"
+          ]
+        },
+        {
+          "text": "What is the Guild building?",
+          "do": [
+            "works"
+          ]
+        },
+        {
+          "text": "I have field notes to report.",
+          "if": [
+            "notes"
+          ],
+          "goto": "reported",
+          "do": [
+            "report_notes"
+          ]
+        },
+        {
+          "text": "Let me see the archive.",
+          "do": [
+            "archive"
+          ]
+        },
+        {
+          "text": "I'd like to sit for {next_rank} ({rank_fee} shards).",
+          "if": [
+            "rank_ready"
+          ],
+          "do": [
+            "sit_rank"
+          ]
+        },
+        {
+          "text": "What would it take to rise in rank?",
+          "if": [
+            "!rank_ready"
+          ],
+          "goto": "rank_info"
+        },
+        {
+          "text": "Show me the Hall of Hunters.",
+          "do": [
+            "hall"
+          ]
+        },
+        {
+          "text": "I'd like to retire.",
+          "if": [
+            "!dues"
+          ],
+          "do": [
+            "retire"
+          ]
+        },
+        {
+          "text": "Where do I start?",
+          "goto": "start"
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    },
+    "pay": {
+      "text": "Pay? The Guild doesn't pay Hunters. Hunters pay the Guild: on the first Pulse of every Judgment, a share of what you've earned since the last. Pay here. Until you do, the contract boards are closed to you.",
+      "choices": [
+        {
+          "text": "Something else.",
+          "goto": "hello"
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    },
+    "start": {
+      "text": "Give the Wayfinder a Quiet word: that's the gentlest start. Take torches, take rations, take rope. And come back.",
+      "choices": [
+        {
+          "text": "Something else.",
+          "goto": "hello"
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    },
+    "dues_owed": {
+      "text": "You owe the Guild {dues} shards in dues, {given}. The boards stay closed to you until it's paid.",
+      "choices": [
+        {
+          "text": "Pay my dues ({dues} shards).",
+          "goto": "paid",
+          "do": [
+            "pay_dues"
+          ]
+        },
+        {
+          "text": "I can't pay. Can I work it off?",
+          "do": [
+            "labour"
+          ]
+        },
+        {
+          "text": "Not now.",
+          "end": true
+        }
+      ]
+    },
+    "paid": {
+      "text": [
+        "The Guild thanks you.",
+        "Noted in the ledger."
+      ],
+      "choices": [
+        {
+          "text": "Something else.",
+          "goto": "hello"
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    },
+    "paid_jobs": {
+      "text": [
+        "The Guild pays for odd jobs, at least.",
+        "Good work. Here."
+      ],
+      "choices": [
+        {
+          "text": "Something else.",
+          "goto": "hello"
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    },
+    "reported": {
+      "text": [
+        "Filed. Whoever goes out next will be glad of it.",
+        "Good. The archive's only as good as what you lot bring back."
+      ],
+      "choices": [
+        {
+          "text": "Something else.",
+          "goto": "hello"
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    },
+    "rank_info": {
+      "text": "You're a {rank}. {rank_needs}",
+      "choices": [
+        {
+          "text": "Something else.",
+          "goto": "hello"
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    }
+  }
+}

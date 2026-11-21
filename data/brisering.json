@@ -1,0 +1,4 @@
+{
+  "_comment": "The Brisering travel map (data/maps/brisering.txt, built by tools/brisering/build_brisering.py). A cell is 0.5 km across and 1 km down. steps_per_pulse: steps (or turns waited) out on the Brisering for a Pulse to pass (user, v0.50.1: 50; was 100, my call. 50 steps is 25 km going east or west, 50 km going north or south, since cells are 2:1; since v0.50.2 (user) a north-south step counts as two, so about 25 km a Pulse either way). Nothing lives there yet; artifacts work freely and windcatchers stay full (Jodebris is everywhere in the Brisering: user).",
+  "steps_per_pulse": 50
+}

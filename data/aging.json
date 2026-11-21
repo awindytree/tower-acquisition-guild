@@ -1,0 +1,16 @@
+{
+  "_comment": "Hunter ages (game/aging.py). Ages are written [Turns, Judgments]: a Turn is about 16 Earth years and a Judgment about 2 (user). start_age: new Hunters are rolled between these (user: 1 Turn 0 Judgments to 2 Turns 3 Judgments). An older recruit gets one more attribute point for every extra_point_every Judgments past the youngest start. The body (body attributes) declines past peak: one point for every decline_every Judgments, spread across them in turn. The mind (mind attributes) grows from mind_from: one point at it and one more every mind_every Judgments, at most mind_max. Past old_age_from, each new Judgment brings a chance of dying of old age: old_age_chance for the first, and that much more for each one after. Downtime: after every hunt the Hunter rests rest_pulses (9 = a Cycle; 81 = a Reckon), plus rest_per_injury for each injury they come home with. ALL NUMBERS EXCEPT THE START AGES ARE PLACEHOLDERS.",
+  "start_age": [[1, 0], [2, 3]],
+  "extra_point_every": 2,
+  "body": ["physicality", "celerity", "fortitude"],
+  "peak": [2, 4],
+  "decline_every": 2,
+  "mind": ["acumen", "tenacity"],
+  "mind_from": [1, 4],
+  "mind_every": 4,
+  "mind_max": 3,
+  "old_age_from": [3, 6],
+  "old_age_chance": 0.04,
+  "rest_pulses": 72,
+  "rest_per_injury": 18
+}

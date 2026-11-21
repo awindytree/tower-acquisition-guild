@@ -1,0 +1,16 @@
+{
+  "_comment": "Rumours and small talk from the people of the plaza (game/rumors.py; v0.47.0). User: in rarer cases, townsfolk pass on one of the Wayfinder's words as part of a rumour or chat. Ask someone listed in 'who' (\"Heard anything lately?\"): at most once a Pulse each, with chance 'chance' they pass on a word you don't know yet (any slot), in one of 'word_lines' ({word} is the word, shown in brackets); otherwise one of 'chatter'. ALL LINES ARE PLACEHOLDERS (they invent no lore).",
+  "who": ["porter", "washer", "carter"],
+  "chance": 0.15,
+  "word_lines": [
+    "A Hunter in the plaza was saying a word to the Wayfinder I'd never heard before: {word}. Make of it what you like.",
+    "Overheard two of your lot arguing over a word. {word}, it was. Something about the Wayfinder.",
+    "Someone left a note by the well with one word on it: {word}. Mean anything to you?"
+  ],
+  "chatter": [
+    "Nothing worth the telling. Same as yesterday.",
+    "Quiet, mostly. Hunters in, Hunters out.",
+    "Only what everyone knows: the Wayfinder's busy, and the artificers are busier.",
+    "Not a thing. Ask me tomorrow."
+  ]
+}

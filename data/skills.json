@@ -1,0 +1,213 @@
+{
+  "_comment": "Skills. A skill has ranks 1..max_rank. Practice fills a bar; the bar for rank r -> r+1 needs practice_per_rank * r points. Up to self_taught_to, a full bar raises the rank by itself; beyond that, a full bar means you're ready to train, and a trainer (see data/workshops.json) charges training_cost for the next rank. Numbers are PLACEHOLDERS. attribute: the attribute whose points over 10 add to each bit of practice (+1 per 2 points); practice_base: practice per session before that.",
+  "identification": {
+    "name": "Identification",
+    "description": "Telling what a broken Tower Artifact was. Your rank is the highest rarity you can identify (1 Common ... 6 Unique). Studying an artifact one rarity beyond you can't identify it, but still teaches you. Acumen makes practice count for more.",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 6,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "acumen",
+    "practice_base": 2
+  },
+  "marksmanship": {
+    "name": "Marksmanship",
+    "description": "Shooting straight. Each rank above 1 adds 2 to your accuracy with a bow. Every shot at a creature is practice (a hit counts double). Celerity makes practice count for more. Rank 3: Steady hand (no accuracy lost to distance); rank 5: Aimed shot (ready with z).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 12,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "celerity",
+    "practice_base": 1
+  },
+  "medicine": {
+    "name": "Medicine",
+    "description": "Tending wounds in the field. Using a bandage stops bleeding, and a poultice stops poison; your rank sets how often it works (50% at rank 1, +10% a rank). From rank 2, a bandage also mends a minor injury outright. Every try is practice (a success counts double). Acumen makes practice count for more. The healer trains it.",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 6,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "acumen",
+    "practice_base": 2
+  },
+  "scholarship": {
+    "name": "Scholarship",
+    "description": "Reading what others wrote: old hands, archaic scripts, ciphers. Your rank is the hardest writing you can read (1 to 6). Trying to read one a rank beyond you can't succeed, but still teaches you. Acumen makes practice count for more. The Academy librarian trains it.",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 6,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "acumen",
+    "practice_base": 1
+  },
+  "blades": {
+    "name": "Blades",
+    "description": "Fighting with swords and knives. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Rank 3 brings a passive technique, rank 5 one you ready with z. Every blow is practice (a hit counts double). Placeholders (v0.55.0). The trainer in the guild hall's training corner trains it.",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 12,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "celerity",
+    "practice_base": 1
+  },
+  "axes": {
+    "name": "Axes",
+    "description": "Fighting with axes. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Rank 3 brings a passive technique, rank 5 one you ready with z. Every blow is practice (a hit counts double). Placeholders (v0.55.0). The trainer trains it.",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 12,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "physicality",
+    "practice_base": 1
+  },
+  "hafted": {
+    "name": "Hafted",
+    "description": "Fighting with picks, mauls and the like. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Rank 3 brings a passive technique, rank 5 one you ready with z. Every blow is practice (a hit counts double). Placeholders (v0.55.0). The trainer trains it.",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 12,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "physicality",
+    "practice_base": 1
+  },
+  "brawling": {
+    "name": "Brawling",
+    "description": "Fighting bare-handed. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Rank 3 brings a passive technique, rank 5 one you ready with z. Every blow is practice (a hit counts double). Placeholders (v0.55.0). The trainer trains it.",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 12,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "physicality",
+    "practice_base": 1
+  },
+  "tracking": {
+    "name": "Tracking",
+    "description": "Reading the ground. Creatures leave tracks you can see, longer with rank; at rank 2 you sense what an area holds as you enter it; at 3 a marked bounty shows on your minimap; at 4 and up, creatures near you do. Practice: new areas, kills. Trained by the trainer. Placeholders (v0.56.0).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 8,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "acumen",
+    "practice_base": 1
+  },
+  "stealth": {
+    "name": "Stealth",
+    "description": "Not being noticed. A creature that sees you notices you only by chance (always at rank 1, less each rank after); blows at a creature that hasn't noticed you land more often and harder. Practice: slipping past a creature, striking unnoticed. Trained by the trainer. Placeholders (v0.56.0).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 8,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "celerity",
+    "practice_base": 1
+  },
+  "harvesting": {
+    "name": "Harvesting",
+    "description": "Taking what a creature leaves. Materials more often (+5% a rank above 1), and one more of each at ranks 3 and 5. Practice: every material a kill leaves. Trained by the smith. Placeholders (v0.56.0).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 8,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "physicality",
+    "practice_base": 1
+  },
+  "survival": {
+    "name": "Survival",
+    "description": "Living out there. A shorter rest after hunts, rations that mend for longer, torches that burn longer, and from rank 4 bleeding and poison that run half as long. Practice: coming home from hunts, rations, torches. Trained by the healer. Placeholders (v0.56.0).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 8,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "fortitude",
+    "practice_base": 1
+  },
+  "attunement": {
+    "name": "Attunement",
+    "description": "A feel for Jodebris and the artifacts it drives. Your windcatcher drains 10% slower a rank above 1; at rank 3 artifacts with limited uses get one more each hunt; at rank 5 you have a fourth artifact slot. Practice: using artifacts, and moving between areas on a hunt with Jodebris in your windcatcher. Trained by the artificer. Placeholders (v0.57.0).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 8,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "tenacity",
+    "practice_base": 1
+  },
+  "bargaining": {
+    "name": "Bargaining",
+    "description": "Getting a better price. The supplier and the artificer deal 3% better a rank above 1, both ways: you pay less, they pay more, and repairs cost less. Practice: every trade. Trained by the supplier. Placeholders (v0.59.0).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 10,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "acumen",
+    "practice_base": 1
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "_comment": "Corpses and trophies (v0.61.0; user, design-progression.md stage 6b). A creature leaves its corpse where it dies (not one that bursts, like the lantern tick, and not a ghost). Picked up (g), the corpse is a trophy: hauled home whole, it takes pack slots by size. Butchered (b) it gives materials (the creature's drops in monsters.json; Harvesting helps). The trophymaster keeps the records: the heaviest of each creature, and the first of each quirk; a record pays (pay), anything else he turns away. The butcher breaks a trophy down into materials for nothing, more surely than you can in the field. kg: [usual weight, spread] (each one weighs usual x a normal roll around 1 with that spread, kept between low and high). slots: pack slots it takes. ALL NUMBERS, QUIRKS AND LINES ARE PLACEHOLDERS.",
+  "weight": {"low": 0.6, "high": 1.6},
+  "pay": {"_comment": "shards: a first record pays base[tier]; beating a record pays base[tier] x (1 + per_margin x the share it beat it by), at most most x base; a curiosity (the first of a quirk) pays curio x base.",
+          "base": [0, 20, 40, 80, 160], "per_margin": 4, "most": 3.0, "curio": 0.5},
+  "quirk_chance": 0.1,
+  "quirks": {
+    "scarred": {"name": "scarred", "note": "Old wounds across its hide: it had won fights before yours."},
+    "pale": {"name": "pale", "note": "Pale all over, as if the colour had been drawn out of it."},
+    "old": {"name": "old", "note": "Grey about the face and worn at the edges. It had lived a long time."},
+    "runt": {"name": "runt", "note": "Small for its kind, and all the fiercer for it."},
+    "misshapen": {"name": "misshapen", "note": "Something about it grew wrong: an extra ridge, a twisted limb."}
+  },
+  "creatures": {
+    "cave_bat": {"kg": [0.6, 0.15], "slots": 1},
+    "pale_lurker": {"kg": [35, 0.12], "slots": 2},
+    "deep_horror": {"kg": [160, 0.12], "slots": 4},
+    "hollow_brute": {"kg": [320, 0.1], "slots": 6},
+    "rust_rat": {"kg": [2.5, 0.15], "slots": 1},
+    "scavenger": {"kg": [55, 0.12], "slots": 2},
+    "ruin_stalker": {"kg": [60, 0.12], "slots": 2},
+    "stone_sentinel": {"kg": [400, 0.08], "slots": 6},
+    "wild_dog": {"kg": [25, 0.12], "slots": 2},
+    "strangler_vine": {"kg": [15, 0.2], "slots": 2},
+    "thornback_boar": {"kg": [110, 0.12], "slots": 3},
+    "woodland_stalker": {"kg": [140, 0.12], "slots": 4},
+    "glasswing": {"kg": [0.3, 0.15], "slots": 1},
+    "mirebellow": {"kg": [220, 0.12], "slots": 4},
+    "hookjaw_eel": {"kg": [12, 0.15], "slots": 1},
+    "crawler": {"kg": [60, 0.12], "slots": 4},
+    "thistlehound": {"kg": [40, 0.12], "slots": 2},
+    "hollow_elk": {"kg": [250, 0.1], "slots": 4},
+    "gravel_wyrm": {"kg": [600, 0.1], "slots": 6}
+  },
+  "lines": {
+    "first": ["Nobody's brought me a {creature} before. {weight}: that's the mark to beat now.",
+              "A {creature}! The wall's had a space for one of these. {weight}, and the record's yours."],
+    "record": ["New record! You brought in a {weight} {creature}. {extra}",
+               "{weight}! That beats {holder_s} {old} by {margin}. New record. {extra}"],
+    "big": ["How did you even haul this back?", "My back hurts just looking at it.", "You carried this all the way home?"],
+    "small": ["A fine one.", "Up it goes.", "That'll look well on the wall."],
+    "curio": ["A {quirk} {creature}! I've never had one of those. That goes up too.",
+              "Now that's something: a {quirk} {creature}. A first for the wall."],
+    "reject": ["{weight}? The record's {old}, {holder_s}. Not this one. The butcher might make use of it.",
+               "No, this won't do. {holder_s} {old} still stands. Try the butcher."]
+  }
+}

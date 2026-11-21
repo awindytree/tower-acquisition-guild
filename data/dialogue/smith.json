@@ -1,0 +1,98 @@
+{
+  "start": [
+    {
+      "if": [
+        "!flag:hunter:met_smith"
+      ],
+      "node": "first"
+    },
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "first": {
+      "text": "Bring me what the creatures out there leave behind, hides, shell, iron, and I'll make you something better than the supplier sells. Takes time, mind, and a fee.",
+      "do": [
+        "set:hunter:met_smith"
+      ],
+      "choices": [
+        {
+          "text": "My order's ready?",
+          "if": [
+            "orders_ready"
+          ],
+          "goto": "collected",
+          "do": [
+            "collect_orders"
+          ]
+        },
+        {
+          "text": "What can you make?",
+          "do": [
+            "craft:smith"
+          ]
+        },
+        {
+          "text": "Can you teach me to take more from a kill?",
+          "do": [
+            "train:harvesting"
+          ]
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "hello": {
+      "text": [
+        "Back, {given}? Brought me anything?",
+        "Hide, shell, iron. What have you got?"
+      ],
+      "choices": [
+        {
+          "text": "My order's ready?",
+          "if": [
+            "orders_ready"
+          ],
+          "goto": "collected",
+          "do": [
+            "collect_orders"
+          ]
+        },
+        {
+          "text": "What can you make?",
+          "do": [
+            "craft:smith"
+          ]
+        },
+        {
+          "text": "Can you teach me to take more from a kill?",
+          "do": [
+            "train:harvesting"
+          ]
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "collected": {
+      "text": "There. Treat it well.",
+      "choices": [
+        {
+          "text": "What else can you make?",
+          "do": [
+            "craft:smith"
+          ]
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    }
+  }
+}

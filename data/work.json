@@ -1,0 +1,75 @@
+{
+  "_comment": "Bounties and scouting (the bounty board in the guild hall; also through the clerk) and requests (plaza notice board). See game/work.py. All numbers are PLACEHOLDERS. board_every: Pulses between new boards and new requests (81 = a Reckon: about one hunt and its rest). jobs_on_board: postings on the bounty board. Each is at a place (three keywords) of a danger picked by danger_weights (rank decides which a Hunter may take): kill (a bounty on one marked creature, the toughest kind the place's deepest area allows; reward = kill_base + kill_per_tier x tier + per_danger x danger), find (a bounty on a particular broken artifact, waiting in the place's deepest area; reward = its rarity's broken price x find_reward + per_danger x danger; hand it to the clerk), or scout (reach an area of the place; reward = scout_base + scout_per_area x area + per_danger x danger). kill_chance and find_chance: how often each kind is posted; the rest are scouting. The Guild pays them and takes no dues from that pay. Requests: requesters are townsfolk ids; request_rarities weights which rarities are asked for; specific_chance = how often they want one named kind (it must be identified to hand over) rather than any of a rarity; reward = the working value x specific_reward, or the broken price x rarity_reward; each stands request_days Pulses. Material requests: material_chance = how often a request asks for materials instead of an artifact; material_counts = how many of each material can be asked for [least, most]; reward = the material's value x count x material_reward. Errands (v0.47.0; user: townsfolk requests that send the Hunter to a place; hearing of one, on the notice board or from the person, teaches its words): errand_chance = how often a request is one; errand_dangers = the dangers picked from; the artifact waits in the place's deepest area, and pays its rarity's broken price x errand_reward + per_danger x danger (no identifying needed).",
+  "board_every": 81,
+  "jobs_on_board": 4,
+  "danger_weights": {
+    "1": 4,
+    "2": 3,
+    "3": 2,
+    "4": 1.5,
+    "5": 1
+  },
+  "kill_chance": 0.35,
+  "kill_base": 15,
+  "kill_per_tier": 12,
+  "find_chance": 0.3,
+  "find_reward": 4.0,
+  "scout_base": 10,
+  "scout_per_area": 8,
+  "per_danger": 4,
+  "requests_open": 3,
+  "request_days": 243,
+  "requesters": [
+    "porter",
+    "washer",
+    "carter",
+    "supplier",
+    "artificer",
+    "smith"
+  ],
+  "request_rarities": {
+    "common": 5,
+    "uncommon": 4,
+    "rare": 2,
+    "very_rare": 1
+  },
+  "specific_chance": 0.5,
+  "specific_reward": 0.6,
+  "rarity_reward": 4,
+  "material_chance": 0.4,
+  "material_reward": 1.5,
+  "material_counts": {
+    "rough_hide": [
+      3,
+      6
+    ],
+    "thick_hide": [
+      2,
+      4
+    ],
+    "chitin_plate": [
+      2,
+      5
+    ],
+    "sinew": [
+      2,
+      4
+    ],
+    "iron_scrap": [
+      4,
+      8
+    ],
+    "sentinel_stone": [
+      1,
+      2
+    ]
+  },
+  "errand_chance": 0.3,
+  "errand_dangers": [
+    1,
+    2,
+    2,
+    3
+  ],
+  "errand_reward": 4
+}

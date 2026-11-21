@@ -1,0 +1,129 @@
+"""The look command: describing what's at a spot on the map.
+
+What you're told depends on what you can see. In fog-of-war areas, a spot
+in view shows everything; a spot you've seen before shows only what you
+remember (the ground and items, not creatures); a spot you've never seen
+shows nothing.
+"""
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from game.engine import Engine
+
+TEXT = (233, 223, 204)
+DIM = (150, 138, 122)
+WARN = (240, 120, 40)
+ACCENT = (230, 160, 80)
+
+# How dangerous a creature looks, by its tier.
+THREAT = {1: "Looks like a minor threat.", 2: "Looks dangerous.",
+          3: "Looks very dangerous.", 4: "Looks deadly."}
+
+
+def health_words(hp: int, max_hp: int) -> str:
+    share = hp / max_hp if max_hp else 0
+    if share >= 1:
+        return "unhurt"
+    if share > 0.66:
+        return "lightly wounded"
+    if share > 0.33:
+        return "wounded"
+    return "badly wounded"
+
+
+def can_see(engine: "Engine", x: int, y: int) -> bool:
+    gm = engine.game_map
+    return not gm.fog or bool(engine.visible[x, y])
+
+
+def has_seen(engine: "Engine", x: int, y: int) -> bool:
+    gm = engine.game_map
+    return not gm.fog or bool(gm.explored[x, y])
+
+
+def targets(engine: "Engine") -> list[tuple[int, int]]:
+    """Interesting spots in view (creatures, people, items), nearest first."""
+    gm, p = engine.game_map, engine.player
+    spots = {(m.x, m.y) for m in gm.monsters} | {(n.x, n.y) for n in gm.npcs} | {(f.x, f.y) for f in gm.items}
+    spots = [s for s in spots if gm.in_bounds(*s) and can_see(engine, *s) and engine.in_vision(*s)]
+    return sorted(spots, key=lambda s: max(abs(s[0] - p.x), abs(s[1] - p.y) * 2))
+
+
+def describe(engine: "Engine", x: int, y: int) -> tuple[str, list[tuple[str, tuple]]]:
+    """(heading, [(line, colour), ...]) for whatever is at (x, y)."""
+    gm, p = engine.game_map, engine.player
+    if not gm.in_bounds(x, y) or not has_seen(engine, x, y):
+        return "Unknown", [("You haven't seen what's there.", DIM)]
+
+    lines: list[tuple[str, tuple]] = []
+    if (x, y) == (p.x, p.y):
+        st = p.stats
+        heading = f"{p.full_name} (you)"
+        lines.append((f"Level {st.level} Hunter, {health_words(st.hp, st.max_hp)} ({st.hp}/{st.max_hp} HP).", TEXT))
+    elif can_see(engine, x, y) and (m := gm.monster_at(x, y)):
+        t = m.type
+        heading = t.name.capitalize()
+        if t.description:
+            lines.append((t.description, DIM))
+        state = health_words(m.hp, t.hp).capitalize()
+        if t.behaviour == "still":
+            notice = "It doesn't move."
+        else:
+            notice = "It has noticed you." if m.awake else "It hasn't noticed you."
+        lines.append((f"{state}. {notice}", TEXT))
+        from game import mastery
+        pa, pd = mastery.prey_bonus(engine.player, m)
+        if pa:                                   # knowing your prey (v0.59.0)
+            kills = engine.player.prey.get(t.id, 0)
+            lines.append((f"You know its ways: {kills} killed ({'+1 accuracy, +1 damage' if pd else '+1 accuracy'}).", ACCENT))
+        if getattr(m, "bleeding", 0) or getattr(m, "staggered", 0):   # (your techniques, v0.55.0)
+            lines.append((" ".join(w for w in ("It's bleeding." if m.bleeding else "",
+                                               "It's reeling." if m.staggered else "") if w), ACCENT))
+        lines.append((THREAT.get(t.tier, ""), WARN if t.tier >= 3 else TEXT))
+    elif can_see(engine, x, y) and (n := gm.npc_at(x, y)):
+        heading = n.name
+        folk = engine.townsfolk.get(n.folk_id)
+        if folk and folk.description:
+            lines.append((folk.description, TEXT))
+        lines.append(("Walk into them to talk.", DIM))
+    else:
+        heading = gm.tile_at(x, y).name.capitalize()
+        if gm.tile_at(x, y).symbol == "N":
+            lines.append(("Notices from the people of Bytorsskug, asking for things they'll pay for. "
+                          "Walk into it to read them.", TEXT))
+        if gm.tile_at(x, y).symbol == "L":
+            lines.append(("A brass plaque naming those who paid for the Guild's works. Walk into it to read it.", TEXT))
+        if gm.tile_at(x, y).symbol in "UZKE" and gm.hall:
+            lines.append(("Part of the Guild's works. The plaque by the door says who paid for it.", DIM))
+        if gm.tile_at(x, y).symbol == "D":
+            lines.append(("The trophy wall: the records the trophymaster keeps, mounted. Walk into it to read them.", TEXT))
+        if gm.tile_at(x, y).symbol == "C":
+            lines.append(("The guild hall's stash chest. Walk into it to store things or take them out. "
+                          "What's in it passes to the next Hunter.", TEXT))
+
+    # Items lying here (remembered ones too).
+    here = gm.items_at(x, y)
+    if here:
+        names = ", ".join(f.item.floor_label for f in here)
+        lines.append((f"Lying here: {names}.", TEXT))
+        if len(here) == 1 and here[0].item.trophy is not None:
+            it = here[0].item
+            from game import trophies
+            lines.append((f"About {trophies.weight_text(it.trophy['kg'])}. Pick it up (g) to haul it home as a "
+                          f"trophy ({it.slots} slot{'s' if it.slots > 1 else ''}), or butcher it (b) for materials.", DIM))
+        elif len(here) == 1:
+            lines.append((here[0].item.type.description, DIM))
+    if (x, y) in gm.windows:              # a service window
+        who = next((n for n in gm.npcs if n.folk_id == gm.windows[(x, y)]), None)
+        heading = f"{who.name}'s window" if who else "A service window"
+        lines.insert(0, ((f"Walk into it to talk to {who.name}." if who else "No one's behind it just now."), TEXT))
+    if (x, y) in gm.landmarks:            # a named place on the Brisering
+        heading = gm.landmarks[(x, y)]
+        lines.insert(0, (f"A {gm.tile_at(x, y).name}.", TEXT))
+    if heading != gm.tile_at(x, y).name.capitalize() and (x, y) != (p.x, p.y):
+        lines.append((f"On {gm.tile_at(x, y).name}.", DIM))
+    if not can_see(engine, x, y):
+        lines.insert(0, ("You remember this place; it's out of sight now.", DIM))
+    return heading, lines

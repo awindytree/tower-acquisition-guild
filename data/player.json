@@ -1,0 +1,95 @@
+{
+  "_comment": "The starting character. name null = a random given name (data/names.json); gender is picked from genders; random_attributes: every attribute starts at base, then points are handed out one at a time to random attributes, none above max (8 + 10 points = the same total as before). Leave out random_attributes to use attributes as written. Money is in shards. faints_allowed: knockouts survived per hunt before death. equipped: item ids from the inventory that start wielded or worn. Attributes must match the list in game/stats.py. artifact_slot_count: how many artifacts can be equipped at once (they leave the bag). skills: skill id -> starting rank (data/skills.json). Inventory entries are item ids from items.json, or [id, count] for stacks. random_kit (if present) replaces inventory, equipped and shards for each new Hunter: one weapon set is picked from weapons (the first item is wielded; the rest, like arrows, go in the bag), one armour from armor (null = none), each supply gets a random count in [low, high], and shards a random amount in [low, high]. PLACEHOLDER choices and numbers.",
+  "name": null,
+  "genders": [
+    "female",
+    "male"
+  ],
+  "random_attributes": {
+    "base": 8,
+    "points": 10,
+    "max": 14
+  },
+  "shards": 15,
+  "level": 1,
+  "faints_allowed": 1,
+  "attributes": {
+    "physicality": 10,
+    "celerity": 10,
+    "fortitude": 12,
+    "acumen": 9,
+    "tenacity": 9
+  },
+  "inventory": [
+    "short_sword",
+    "leather_jerkin",
+    [
+      "healing_draught",
+      2
+    ],
+    [
+      "ration",
+      3
+    ],
+    [
+      "torch",
+      2
+    ]
+  ],
+  "equipped": [
+    "short_sword",
+    "leather_jerkin"
+  ],
+  "skills": {
+    "identification": 1
+  },
+  "artifact_slot_count": 3,
+  "random_kit": {
+    "weapons": [
+      [
+        "short_sword"
+      ],
+      [
+        "hand_axe"
+      ],
+      [
+        "short_bow",
+        [
+          "arrow",
+          20
+        ]
+      ]
+    ],
+    "armor": [
+      "leather_jerkin",
+      "leather_jerkin",
+      null
+    ],
+    "supplies": {
+      "healing_draught": [
+        1,
+        3
+      ],
+      "ration": [
+        2,
+        4
+      ],
+      "torch": [
+        1,
+        3
+      ],
+      "rope": [
+        0,
+        1
+      ],
+      "bandage": [
+        1,
+        3
+      ]
+    },
+    "shards": [
+      5,
+      30
+    ]
+  }
+}

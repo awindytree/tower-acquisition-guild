@@ -1,0 +1,24 @@
+{
+  "_comment": "How given names are built. classes: the phoneme classes (A's are two-letter sounds). syllables: patterns made of class letters; a name is 2 syllables, sometimes 3. allowed_clusters: every pair of consonant sounds allowed side by side (within a syllable or across syllables); any other pair, like fd or fb, is rejected, and so is a vowel next to a vowel across syllables. At most 3 consonants in a row. Surnames and middle names aren't made here: every Hunter's surname is Hunters, and the middle name comes from their weapon.",
+
+  "classes": {
+    "P": ["p", "b", "t", "d", "k", "g"],
+    "N": ["m", "n"],
+    "L": ["r", "l", "j"],
+    "F": ["f", "þ", "s", "x"],
+    "A": ["hl", "tl"],
+    "V": ["y", "a", "i", "u", "e", "o"]
+  },
+  "syllables": ["PV", "FV", "NV", "PVN", "LV", "V", "FLV", "FVL", "FVN", "PLV", "PVL", "AV", "VN", "NVF", "FPV", "VLP", "VL"],
+  "three_syllable_chance": 0.15,
+  "length": [3, 8],
+
+  "allowed_clusters": [
+    "pr", "pl", "pj", "br", "bl", "bj", "tr", "tj", "dr", "dj", "kr", "kl", "kj", "gr", "gl", "gj",
+    "fr", "fl", "fj", "þr", "þj", "sl", "sj", "sp", "st", "sk", "ft", "xt",
+    "mp", "mb", "mf", "ms", "nt", "nd", "nk", "ng", "ns", "nþ",
+    "rp", "rb", "rt", "rd", "rk", "rg", "rm", "rn", "rf", "rþ", "rs", "rl",
+    "lp", "lb", "lt", "ld", "lk", "lg", "lm", "ln", "lf", "ls",
+    "pt", "kt", "ps", "ks", "ts"
+  ]
+}

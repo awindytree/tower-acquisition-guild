@@ -1,0 +1,143 @@
+{
+  "_comment": "Writings found on hunts (game/library.py). ALL TITLES AND TEXTS ARE PLACEHOLDERS that only restate lore the user has already given; replace them with the real lore. look: what it is before it's read (see looks). difficulty 1-6: the Scholarship rank needed to read it (one rank short: you can't read it, but learn from trying). teaches (optional; user, 2026-11-19): keyword ids for the Wayfinder that reading it teaches, if the Hunter's Scholarship is up to its difficulty (most writings teach none: they're lore). PLACEHOLDERS: three writings teach a word. regions: optional, where it can turn up: a land style (caves, ruins, forest), a keyword id, or a place id (danger/land/feature); empty = anywhere. find_chance: the chance each area of a hunt holds a writing. pay_per_difficulty: what the Academy librarian pays for one (x difficulty), doubled if you've read it yourself. A writing that's shelved in the library, or that someone has (bag, stash, the city), doesn't turn up again.",
+  "find_chance": 0.2,
+  "pay_per_difficulty": 3,
+  "read_bonus": 2,
+  "scripts": {
+    "1": "in a plain, everyday hand",
+    "2": "in an old and faded hand",
+    "3": "in an archaic script",
+    "4": "in a scholar's shorthand",
+    "5": "in a script you hardly recognise",
+    "6": "in a script you've never seen"
+  },
+  "looks": {
+    "torn_page": {
+      "name": "torn page",
+      "glyph": "?",
+      "color": [
+        225,
+        210,
+        170
+      ],
+      "description": "A page torn from a book, written"
+    },
+    "journal": {
+      "name": "weathered journal",
+      "glyph": "?",
+      "color": [
+        170,
+        130,
+        90
+      ],
+      "description": "A small journal, swollen with damp, written"
+    },
+    "letter": {
+      "name": "folded letter",
+      "glyph": "?",
+      "color": [
+        235,
+        225,
+        200
+      ],
+      "description": "A letter, folded small and sealed with wax, written"
+    },
+    "tablet": {
+      "name": "inscribed tablet",
+      "glyph": "?",
+      "color": [
+        170,
+        165,
+        155
+      ],
+      "description": "A slab of stone, palm-sized, carved"
+    },
+    "scroll": {
+      "name": "rolled scroll",
+      "glyph": "?",
+      "color": [
+        210,
+        190,
+        150
+      ],
+      "description": "A tight roll of thin hide, written"
+    }
+  },
+  "writings": {
+    "hunters_tally": {
+      "look": "torn_page",
+      "difficulty": 1,
+      "title": "A Hunter's tally",
+      "text": "A list, in a hurried hand: hunts, and what came of them. Most lines end the same way: a broken artifact carried home, and what the workshop paid. A few lines end in nothing at all. The last line is unfinished."
+    },
+    "ordinal_days": {
+      "look": "letter",
+      "difficulty": 1,
+      "title": "A letter about the holidays",
+      "text": "Written to a friend: 'Emu, Lagau, Erku, Maforu, Nusu, Senu, Riu, Dymiu, Neu, and round again, until the Duel is over. Then four days with no names at all, and we'll drink to having lived through it, and ready ourselves for the next. Come home for them, if you can.'"
+    },
+    "crumbling_gate_notes": {
+      "look": "journal",
+      "difficulty": 1,
+      "title": "Notes from beyond the Crumbling Gate",
+      "regions": [
+        "ruins"
+      ],
+      "text": "Field notes. East through the Crumbling Gate, into the ruins. The writer counts the fallen walls, and the creatures among them, and how far they dared go. The entries grow shorter towards the end.",
+      "teaches": [
+        "toppling"
+      ]
+    },
+    "founding_record": {
+      "look": "tablet",
+      "difficulty": 2,
+      "title": "A founding record",
+      "text": "Carved: in the hundred and twentieth Turn, a city was founded nine kilometres south of the Tower, and named Bytorsskug. The rest of the stone is worn smooth."
+    },
+    "chorus_winds": {
+      "look": "journal",
+      "difficulty": 2,
+      "title": "On the Chorus Winds",
+      "text": "The Winds blow about the Tower and hold the miasma back, out to ninety-nine kilometres from it: the Brisering. Beyond, there is only the miasma, and the Tower's artifacts fall silent there unless one carries the Winds along in a windcatcher."
+    },
+    "artificers_letter": {
+      "look": "letter",
+      "difficulty": 2,
+      "title": "A letter to the Artificers' Guild",
+      "text": "A request to be examined for the rank of Journeyman. The writer lists the artifacts they have mended, and the Master they apprenticed under, and asks when the board next sits."
+    },
+    "glass_and_coin": {
+      "look": "scroll",
+      "difficulty": 3,
+      "title": "Glass and coin",
+      "text": "The shards that pass from hand to hand in the markets were, once, true pieces of windcatcher glass. The writer seems to think this important, and spends the rest of the scroll arguing about it with someone who isn't there.",
+      "teaches": [
+        "hoard"
+      ]
+    },
+    "tower_measurements": {
+      "look": "scroll",
+      "difficulty": 3,
+      "title": "Measurements of Myligast",
+      "regions": [
+        "caves"
+      ],
+      "text": "Myligast: nine kilometres across at its foot. Its height: none could be measured; it does not end. A way in: none found. The writer has underlined that last line twice.",
+      "teaches": [
+        "dripping"
+      ]
+    },
+    "count_of_turns": {
+      "look": "tablet",
+      "difficulty": 4,
+      "title": "A count of Turns",
+      "text": "A long column of marks, one for every Turn since the first was counted, each a Light Duel and a Dark Duel with holidays between. The column stops at two hundred and ten."
+    },
+    "untranslated_fragment": {
+      "look": "torn_page",
+      "difficulty": 5,
+      "title": "An untranslated fragment",
+      "text": "Only a few words can be made out with any confidence: the Tower, the Winds, and one more that no two scholars at the Academy read the same way. The rest waits for a better scholar."
+    }
+  }
+}

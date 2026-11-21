@@ -1,0 +1,4 @@
+{
+  "_comment": "The Tower Acquisition Guild. Dues (user, 2026-11-18): owed on the first Pulse of each Judgment (changed from each Reckon by the user once hunts took about a Reckon each), as a share of the shards the Hunter earned since the last dues (picked up, or from selling and consigning); paid to the guild clerk; until they're paid, the gates' contract boards are closed to that Hunter. dues_share is a PLACEHOLDER.",
+  "dues_share": 0.2
+}

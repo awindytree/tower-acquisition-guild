@@ -1,0 +1,7 @@
+{
+  "_comment": "What an unidentified (broken) Tower Artifact looks like. Several artifacts share each appearance, so you can't tell them apart by looks. PLACEHOLDER wording.",
+  "glass": {"name": "broken glass curio", "description": "A piece of strange old glass, cracked or clouded. It's a Tower Artifact, but you can't tell what it was."},
+  "brass": {"name": "broken brass device", "description": "Old metalwork, bent and seized. It's a Tower Artifact, but you can't tell what it was."},
+  "bell":  {"name": "broken ringing thing", "description": "Metal that should ring and doesn't. It's a Tower Artifact, but you can't tell what it was."},
+  "stone": {"name": "broken stone token", "description": "Carved stone, worn and split. It's a Tower Artifact, but you can't tell what it was."}
+}

@@ -1,0 +1,27 @@
+{
+  "start": [
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "hello": {
+      "text": [
+        "Words, {given}. The Wayfinder answers to words, and I collect them.",
+        "Another word? Sixty shards, and I'll teach you one the Guild doesn't know yet."
+      ],
+      "choices": [
+        {
+          "text": "Teach me a word. (60 shards)",
+          "do": [
+            "word_lesson"
+          ]
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    }
+  }
+}

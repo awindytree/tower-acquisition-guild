@@ -1,0 +1,369 @@
+{
+  "_comment": "Talents (v0.58.0; design-progression.md stage 4, the user's direction: a big pool, three offered at random at each talent level, like a run upgrade). Hunter's own (lost on death). every: a talent every N levels (3, 6, 9...). effects: numbers summed across the talents a Hunter has, read by the game where each applies (game/talents.py lists the keys). requires: another talent, or an attribute at least so high. ALL names, numbers and the pool are placeholders.",
+  "every": 3,
+  "offer": 3,
+  "talents": {
+    "thick_skin": {
+      "name": "Thick Skin",
+      "description": "+1 armour.",
+      "effects": {
+        "armor": 1
+      }
+    },
+    "nimble": {
+      "name": "Nimble",
+      "description": "+1 evasion.",
+      "effects": {
+        "evasion": 1
+      }
+    },
+    "steady_eye": {
+      "name": "Steady Eye",
+      "description": "+1 accuracy in melee.",
+      "effects": {
+        "accuracy": 1
+      }
+    },
+    "heavy_hand": {
+      "name": "Heavy Hand",
+      "description": "+1 damage in melee.",
+      "effects": {
+        "damage": 1
+      }
+    },
+    "eagle_eye": {
+      "name": "Eagle Eye",
+      "description": "+2 accuracy with a bow.",
+      "effects": {
+        "ranged_accuracy": 2
+      }
+    },
+    "broadheads": {
+      "name": "Broadheads",
+      "description": "+1 damage with a bow.",
+      "effects": {
+        "ranged_damage": 1
+      }
+    },
+    "long_draw": {
+      "name": "Long Draw",
+      "description": "Your bow reaches 2 further.",
+      "effects": {
+        "range": 2
+      }
+    },
+    "keen_edge": {
+      "name": "Keen Edge",
+      "description": "Blows that land have a 5% chance to do double damage.",
+      "effects": {
+        "crit": 5
+      }
+    },
+    "executioner": {
+      "name": "Executioner",
+      "description": "Another 8% chance for a landed blow to do double damage.",
+      "effects": {
+        "crit": 8
+      },
+      "requires": {
+        "talent": "keen_edge"
+      }
+    },
+    "bloodthirst": {
+      "name": "Bloodthirst",
+      "description": "Each kill mends 2 HP.",
+      "effects": {
+        "heal_on_kill": 2
+      }
+    },
+    "second_wind": {
+      "name": "Second Wind",
+      "description": "Once a hunt, falling below a quarter of your HP mends a third of it.",
+      "effects": {
+        "second_wind": 1
+      }
+    },
+    "last_stand": {
+      "name": "Last Stand",
+      "description": "+3 damage while below a third of your HP.",
+      "effects": {
+        "low_hp_damage": 3
+      }
+    },
+    "vengeful": {
+      "name": "Vengeful",
+      "description": "After a creature hits you, your next blow gets +3 accuracy.",
+      "effects": {
+        "after_hit_accuracy": 3
+      }
+    },
+    "duelist": {
+      "name": "Duelist",
+      "description": "+2 accuracy when only one creature is in view.",
+      "effects": {
+        "solo_accuracy": 2
+      }
+    },
+    "tough": {
+      "name": "Tough",
+      "description": "+5 maximum HP.",
+      "effects": {
+        "max_hp": 5
+      }
+    },
+    "stout": {
+      "name": "Stout",
+      "description": "+8 maximum HP.",
+      "effects": {
+        "max_hp": 8
+      },
+      "requires": {
+        "attribute": [
+          "fortitude",
+          12
+        ]
+      }
+    },
+    "hard_to_kill": {
+      "name": "Hard to Kill",
+      "description": "One more faint each hunt before a fall is your last.",
+      "effects": {
+        "faints": 1
+      }
+    },
+    "iron_will": {
+      "name": "Iron Will",
+      "description": "Hard blows are 30% less likely to leave a lasting injury.",
+      "effects": {
+        "injury_chance": 30
+      }
+    },
+    "clear_headed": {
+      "name": "Clear-Headed",
+      "description": "Being dazed wears off 3 turns sooner.",
+      "effects": {
+        "daze_resist": 3
+      }
+    },
+    "burr_proof": {
+      "name": "Burr-Proof",
+      "description": "Thorny creatures' burrs can't hurt you.",
+      "effects": {
+        "thorn_resist": 1
+      }
+    },
+    "thick_blood": {
+      "name": "Thick Blood",
+      "description": "Bleeding and poison last half as long.",
+      "effects": {
+        "wound": 50
+      }
+    },
+    "quick_healer": {
+      "name": "Quick Healer",
+      "description": "You heal on your own two turns sooner.",
+      "effects": {
+        "heal_rate": 2
+      }
+    },
+    "strong": {
+      "name": "Strong",
+      "description": "+1 Physicality.",
+      "effects": {
+        "attr:physicality": 1
+      }
+    },
+    "quick": {
+      "name": "Quick",
+      "description": "+1 Celerity.",
+      "effects": {
+        "attr:celerity": 1
+      }
+    },
+    "hale": {
+      "name": "Hale",
+      "description": "+1 Fortitude.",
+      "effects": {
+        "attr:fortitude": 1
+      }
+    },
+    "clever": {
+      "name": "Clever",
+      "description": "+1 Acumen.",
+      "effects": {
+        "attr:acumen": 1
+      }
+    },
+    "resolute": {
+      "name": "Resolute",
+      "description": "+1 Tenacity.",
+      "effects": {
+        "attr:tenacity": 1
+      }
+    },
+    "iron_gut": {
+      "name": "Iron Gut",
+      "description": "Rations mend half again as much.",
+      "effects": {
+        "ration": 50
+      }
+    },
+    "field_medic": {
+      "name": "Field Medic",
+      "description": "Draughts and tonics mend 4 more.",
+      "effects": {
+        "draught": 4
+      }
+    },
+    "pack_mule": {
+      "name": "Pack Mule",
+      "description": "+3 slots in your pack.",
+      "effects": {
+        "carry": 3
+      }
+    },
+    "keen_eye": {
+      "name": "Keen Eye",
+      "description": "You see 2 further.",
+      "effects": {
+        "sight": 2
+      }
+    },
+    "trailblazer": {
+      "name": "Trailblazer",
+      "description": "Tracks stay fresh 20 turns longer.",
+      "effects": {
+        "track": 20
+      }
+    },
+    "shadow": {
+      "name": "Shadow",
+      "description": "Creatures that see you are 10% less likely to notice you.",
+      "effects": {
+        "notice": 10
+      }
+    },
+    "unseen": {
+      "name": "Unseen",
+      "description": "+2 damage against a creature that hasn't noticed you.",
+      "effects": {
+        "sneak_damage": 2
+      },
+      "requires": {
+        "talent": "shadow"
+      }
+    },
+    "forager": {
+      "name": "Forager",
+      "description": "Creatures leave materials 10% more often.",
+      "effects": {
+        "material_chance": 10
+      }
+    },
+    "butcher": {
+      "name": "Butcher",
+      "description": "One more of each material a creature leaves.",
+      "effects": {
+        "material_extra": 1
+      }
+    },
+    "tireless": {
+      "name": "Tireless",
+      "description": "Your rest after a hunt is 15% shorter.",
+      "effects": {
+        "rest": 15
+      }
+    },
+    "wayfarer": {
+      "name": "Wayfarer",
+      "description": "You walk a quarter again as far on the Brisering before a Pulse passes.",
+      "effects": {
+        "brisering_steps": 25
+      }
+    },
+    "jodebris_sense": {
+      "name": "Jodebris Sense",
+      "description": "Your windcatcher drains 15% slower.",
+      "effects": {
+        "drain": 15
+      }
+    },
+    "tinkerer": {
+      "name": "Tinkerer",
+      "description": "Artifacts with limited uses get one more each hunt.",
+      "effects": {
+        "extra_uses": 1
+      }
+    },
+    "good_eye": {
+      "name": "Good Eye",
+      "description": "You can identify artifacts one rarity beyond your Identification.",
+      "effects": {
+        "identify": 1
+      }
+    },
+    "lucky": {
+      "name": "Lucky",
+      "description": "Shards you find lying about are worth half again as much.",
+      "effects": {
+        "shards_found": 50
+      }
+    },
+    "guild_favourite": {
+      "name": "Guild Favourite",
+      "description": "Bounties and scouting pay 20% more.",
+      "effects": {
+        "bounty_pay": 20
+      }
+    },
+    "well_liked": {
+      "name": "Well Liked",
+      "description": "Townsfolk pay 20% more for their requests.",
+      "effects": {
+        "request_pay": 20
+      }
+    },
+    "guild_darling": {
+      "name": "Guild Darling",
+      "description": "The Guild takes 5 points less of your earnings as dues.",
+      "effects": {
+        "dues": 5
+      }
+    },
+    "quick_study": {
+      "name": "Quick Study",
+      "description": "All practice counts a fifth again.",
+      "effects": {
+        "practice_all": 20
+      }
+    },
+    "born_fighter": {
+      "name": "Born Fighter",
+      "description": "Practice with weapons counts half again.",
+      "effects": {
+        "practice_weapon": 50
+      }
+    },
+    "woodwise": {
+      "name": "Woodwise",
+      "description": "Practice in Tracking, Stealth, Harvesting and Survival counts half again.",
+      "effects": {
+        "practice_field": 50
+      }
+    },
+    "fast_learner": {
+      "name": "Fast Learner",
+      "description": "20% more experience from kills.",
+      "effects": {
+        "xp": 20
+      }
+    },
+    "quick_recovery": {
+      "name": "Quick Recovery",
+      "description": "Your techniques rest 10 turns less after use.",
+      "effects": {
+        "tech_rest": 10
+      }
+    }
+  }
+}

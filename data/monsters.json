@@ -1,0 +1,653 @@
+{
+ "_comment": "Creatures found on hunts. ALL PLACEHOLDERS for the real lore. description is shown by the look command (x). habitats: which area styles they appear in (caves, ruins, forest). tier 1-4: how dangerous; deeper and more dangerous hunts allow higher tiers. accuracy and evasion are on the same scale as the Hunter's Celerity (10 = average). damage is dice like 1d6+1. armor is subtracted from each hit taken. sight: how far away they notice you (columns; rows count double). behaviour: hunt (notices and chases you) or still (never moves; attacks anything next to it). drops: [[item id, chance, least, most], ...] left where it dies (materials; PLACEHOLDERS). injures: extra lasting injuries its big hits can cause (data/injuries.json; PLACEHOLDERS). New in v0.49.0 (the user's creatures): habitats can be a list (any time) or {style: \"day\"|\"night\"|\"any\"} (night = a dark place, torchlight only); styles also include mountains and plains. Optional: speed (slow: acts every other turn; quick: twice a turn), flies (can cross water), swims (lives in water; spawns there), spawn_weight (how often it's picked, x), opens (daze: dazes you when it first notices you; leap: jumps up to 3 cells to your side when you come near), burst (dice: on death, hurts everything beside it), ghost (can't hit or be hit; keeps its distance), trail (dice: the ash it leaves hurts you when you walk on it), thorns (HP you lose when your blow lands), flees (runs when its HP falls to this share), burrows (moves underground, surfaces to fight, burrows again).",
+ "cave_bat": {
+  "description": "A leathery flutter in the dark. Quick and hard to hit, but frail.",
+  "name": "cave bat",
+  "glyph": "b",
+  "color": [
+   150,
+   130,
+   160
+  ],
+  "habitats": [
+   "caves",
+   "mountains"
+  ],
+  "tier": 1,
+  "hp": 5,
+  "accuracy": 11,
+  "evasion": 14,
+  "damage": "1d3",
+  "armor": 0,
+  "xp": 3,
+  "sight": 10,
+  "drops": [
+   [
+    "sinew",
+    0.3,
+    1,
+    1
+   ]
+  ]
+ },
+ "pale_lurker": {
+  "description": "Something long and colourless that waits in the shadows.",
+  "name": "pale lurker",
+  "glyph": "L",
+  "color": [
+   210,
+   210,
+   190
+  ],
+  "habitats": [
+   "caves"
+  ],
+  "tier": 2,
+  "hp": 15,
+  "accuracy": 11,
+  "evasion": 10,
+  "damage": "1d6",
+  "armor": 1,
+  "xp": 12,
+  "sight": 9,
+  "injures": [
+   "festering_bite"
+  ],
+  "drops": [
+   [
+    "sinew",
+    0.6,
+    1,
+    2
+   ]
+  ]
+ },
+ "deep_horror": {
+  "description": "A shape the torchlight doesn't quite want to reach.",
+  "name": "deep horror",
+  "glyph": "D",
+  "color": [
+   140,
+   90,
+   160
+  ],
+  "habitats": [
+   "caves"
+  ],
+  "tier": 3,
+  "hp": 30,
+  "accuracy": 13,
+  "evasion": 9,
+  "damage": "1d8+2",
+  "armor": 2,
+  "xp": 25,
+  "sight": 9,
+  "drops": [
+   [
+    "sinew",
+    0.5,
+    2,
+    3
+   ]
+  ]
+ },
+ "hollow_brute": {
+  "description": "Huge and heavily built. It hits like a falling wall.",
+  "name": "hollow brute",
+  "glyph": "H",
+  "color": [
+   190,
+   80,
+   70
+  ],
+  "habitats": [
+   "forest",
+   "ruins",
+   "mountains",
+   "plains"
+  ],
+  "tier": 4,
+  "hp": 45,
+  "accuracy": 12,
+  "evasion": 7,
+  "damage": "2d6+2",
+  "armor": 3,
+  "xp": 45,
+  "sight": 8,
+  "drops": [
+   [
+    "thick_hide",
+    0.5,
+    1,
+    2
+   ],
+   [
+    "iron_scrap",
+    0.3,
+    1,
+    2
+   ]
+  ]
+ },
+ "rust_rat": {
+  "description": "A rat with a coat the colour of old iron. Nimble.",
+  "name": "rust rat",
+  "glyph": "r",
+  "color": [
+   190,
+   120,
+   80
+  ],
+  "habitats": [
+   "ruins"
+  ],
+  "tier": 1,
+  "hp": 6,
+  "accuracy": 11,
+  "evasion": 13,
+  "damage": "1d3",
+  "armor": 0,
+  "xp": 3,
+  "sight": 8,
+  "drops": [
+   [
+    "iron_scrap",
+    0.4,
+    1,
+    1
+   ]
+  ]
+ },
+ "scavenger": {
+  "description": "A hunched figure picking through the ruins for scraps.",
+  "name": "scavenger",
+  "glyph": "s",
+  "color": [
+   180,
+   170,
+   140
+  ],
+  "habitats": [
+   "ruins",
+   "plains"
+  ],
+  "tier": 1,
+  "hp": 11,
+  "accuracy": 10,
+  "evasion": 10,
+  "damage": "1d5",
+  "armor": 1,
+  "xp": 6,
+  "sight": 10,
+  "drops": [
+   [
+    "iron_scrap",
+    0.6,
+    1,
+    3
+   ]
+  ]
+ },
+ "ruin_stalker": {
+  "description": "Lean and patient. It moves between the broken walls like it owns them.",
+  "name": "ruin stalker",
+  "glyph": "k",
+  "color": [
+   120,
+   170,
+   160
+  ],
+  "habitats": [
+   "ruins"
+  ],
+  "tier": 2,
+  "hp": 14,
+  "accuracy": 12,
+  "evasion": 11,
+  "damage": "1d6",
+  "armor": 1,
+  "xp": 11,
+  "sight": 11,
+  "injures": [
+   "festering_bite"
+  ],
+  "drops": [
+   [
+    "rough_hide",
+    0.5,
+    1,
+    1
+   ]
+  ]
+ },
+ "stone_sentinel": {
+  "description": "A heavy figure of fitted stone. Slow, tough, relentless.",
+  "name": "stone sentinel",
+  "glyph": "S",
+  "color": [
+   160,
+   160,
+   170
+  ],
+  "habitats": [
+   "ruins",
+   "mountains"
+  ],
+  "tier": 3,
+  "hp": 28,
+  "accuracy": 11,
+  "evasion": 6,
+  "damage": "1d8+1",
+  "armor": 4,
+  "xp": 22,
+  "sight": 7,
+  "drops": [
+   [
+    "sentinel_stone",
+    0.6,
+    1,
+    1
+   ]
+  ]
+ },
+ "wild_dog": {
+  "description": "Rangy and hungry, with a nose for Hunters.",
+  "name": "wild dog",
+  "glyph": "d",
+  "color": [
+   170,
+   140,
+   100
+  ],
+  "habitats": [
+   "forest",
+   "plains",
+   "mountains"
+  ],
+  "tier": 1,
+  "hp": 8,
+  "accuracy": 12,
+  "evasion": 12,
+  "damage": "1d4",
+  "armor": 0,
+  "xp": 4,
+  "sight": 14,
+  "drops": [
+   [
+    "rough_hide",
+    0.6,
+    1,
+    1
+   ]
+  ]
+ },
+ "strangler_vine": {
+  "description": "A knot of creeper that tightens around anything that comes close. It doesn't move.",
+  "name": "strangler vine",
+  "glyph": "v",
+  "color": [
+   110,
+   170,
+   70
+  ],
+  "habitats": [
+   "forest"
+  ],
+  "tier": 1,
+  "hp": 12,
+  "accuracy": 12,
+  "evasion": 4,
+  "damage": "1d4",
+  "armor": 0,
+  "xp": 5,
+  "sight": 2,
+  "behaviour": "still",
+  "drops": [
+   [
+    "sinew",
+    0.4,
+    1,
+    1
+   ]
+  ]
+ },
+ "thornback_boar": {
+  "description": "A boar with a ridge of thorny bristles. It charges hard.",
+  "name": "thornback boar",
+  "glyph": "B",
+  "color": [
+   150,
+   100,
+   70
+  ],
+  "habitats": [
+   "forest",
+   "plains"
+  ],
+  "tier": 2,
+  "hp": 16,
+  "accuracy": 10,
+  "evasion": 8,
+  "damage": "1d6+1",
+  "armor": 1,
+  "xp": 13,
+  "sight": 10,
+  "injures": [
+   "gored_thigh"
+  ],
+  "drops": [
+   [
+    "thick_hide",
+    0.6,
+    1,
+    1
+   ]
+  ]
+ },
+ "woodland_stalker": {
+  "description": "Hard to see among the trees until it's already close.",
+  "name": "woodland stalker",
+  "glyph": "W",
+  "color": [
+   90,
+   140,
+   110
+  ],
+  "habitats": [
+   "forest"
+  ],
+  "tier": 3,
+  "hp": 26,
+  "accuracy": 13,
+  "evasion": 12,
+  "damage": "1d8",
+  "armor": 1,
+  "xp": 22,
+  "sight": 16,
+  "drops": [
+   [
+    "rough_hide",
+    0.6,
+    1,
+    2
+   ],
+   [
+    "sinew",
+    0.3,
+    1,
+    1
+   ]
+  ]
+ },
+ "glasswing": {
+  "name": "glasswing",
+  "glyph": "g",
+  "color": [
+   190,
+   230,
+   240
+  ],
+  "tier": 1,
+  "hp": 6,
+  "accuracy": 12,
+  "evasion": 13,
+  "damage": "1d3",
+  "armor": 0,
+  "xp": 4,
+  "sight": 10,
+  "habitats": {
+   "forest": "night",
+   "plains": "night",
+   "mountains": "night"
+  },
+  "flies": true,
+  "description": "A moth the size of a hand, its wings gone hard and clear as windcatcher glass. It flies by night, never under a roof."
+ },
+ "mirebellow": {
+  "name": "mirebellow",
+  "glyph": "m",
+  "color": [
+   120,
+   140,
+   90
+  ],
+  "tier": 2,
+  "hp": 24,
+  "accuracy": 10,
+  "evasion": 7,
+  "damage": "1d8+2",
+  "armor": 1,
+  "xp": 14,
+  "sight": 9,
+  "habitats": [
+   "forest",
+   "mountains"
+  ],
+  "speed": "slow",
+  "opens": "daze",
+  "drops": [
+   [
+    "thick_hide",
+    0.6,
+    1,
+    1
+   ]
+  ],
+  "description": "A bloated, slow beast that booms before it moves. The sound alone can leave a Hunter reeling, and it hits hard."
+ },
+ "hookjaw_eel": {
+  "name": "hookjaw eel",
+  "glyph": "h",
+  "color": [
+   200,
+   200,
+   215
+  ],
+  "tier": 1,
+  "hp": 9,
+  "accuracy": 12,
+  "evasion": 10,
+  "damage": "1d5",
+  "armor": 0,
+  "xp": 6,
+  "sight": 6,
+  "habitats": [
+   "caves"
+  ],
+  "swims": true,
+  "opens": "leap",
+  "spawn_weight": 0.4,
+  "drops": [
+   [
+    "sinew",
+    0.4,
+    1,
+    1
+   ]
+  ],
+  "description": "A pale eel that waits in cave water and lunges out across the stone at anything that comes near."
+ },
+ "lantern_tick": {
+  "name": "lantern tick",
+  "glyph": "t",
+  "color": [
+   240,
+   200,
+   90
+  ],
+  "tier": 2,
+  "hp": 6,
+  "accuracy": 9,
+  "evasion": 8,
+  "damage": "1d3",
+  "armor": 0,
+  "xp": 8,
+  "sight": 7,
+  "habitats": [
+   "forest"
+  ],
+  "burst": "2d4",
+  "drops": [
+   [
+    "chitin_plate",
+    0.3,
+    1,
+    1
+   ]
+  ],
+  "description": "A fist-sized tick with a swollen, glowing belly. It bursts when it dies, burning whatever stands beside it. Better shot than struck."
+ },
+ "crawler": {
+  "name": "crawler",
+  "glyph": "C",
+  "color": [
+   150,
+   130,
+   110
+  ],
+  "tier": 3,
+  "hp": 42,
+  "accuracy": 10,
+  "evasion": 6,
+  "damage": "1d6+1",
+  "armor": 3,
+  "xp": 26,
+  "sight": 7,
+  "habitats": [
+   "caves",
+   "ruins"
+  ],
+  "speed": "slow",
+  "drops": [
+   [
+    "chitin_plate",
+    0.7,
+    1,
+    3
+   ]
+  ],
+  "description": "A slow, many-legged thing armoured in plates. No deadlier than most, but it takes a beating like nothing else down here."
+ },
+ "ashmantle": {
+  "name": "ashmantle",
+  "glyph": "A",
+  "color": [
+   150,
+   150,
+   160
+  ],
+  "tier": 3,
+  "hp": 20,
+  "accuracy": 0,
+  "evasion": 0,
+  "damage": "1d1",
+  "armor": 0,
+  "xp": 0,
+  "sight": 12,
+  "habitats": {
+   "caves": "night",
+   "ruins": "night",
+   "forest": "night",
+   "plains": "night",
+   "mountains": "night"
+  },
+  "speed": "slow",
+  "ghost": true,
+  "trail": "1d3",
+  "description": "A stooped, cloaked shape that follows at a distance and leaves smouldering ash where it walks. Nothing touches it, and it touches nothing."
+ },
+ "thistlehound": {
+  "name": "thistlehound",
+  "glyph": "T",
+  "color": [
+   170,
+   150,
+   90
+  ],
+  "tier": 3,
+  "hp": 18,
+  "accuracy": 13,
+  "evasion": 13,
+  "damage": "1d6+1",
+  "armor": 1,
+  "xp": 22,
+  "sight": 12,
+  "habitats": {
+   "forest": "night",
+   "mountains": "day"
+  },
+  "speed": "quick",
+  "thorns": 1,
+  "drops": [
+   [
+    "rough_hide",
+    0.6,
+    1,
+    1
+   ]
+  ],
+  "description": "A lean, fast hound whose coat is all barbed burrs. Strike it and the burrs bite back."
+ },
+ "hollow_elk": {
+  "name": "hollow elk",
+  "glyph": "E",
+  "color": [
+   180,
+   160,
+   130
+  ],
+  "tier": 2,
+  "hp": 20,
+  "accuracy": 11,
+  "evasion": 11,
+  "damage": "1d6",
+  "armor": 0,
+  "xp": 14,
+  "sight": 12,
+  "habitats": {
+   "forest": "night"
+  },
+  "flees": 0.3,
+  "drops": [
+   [
+    "thick_hide",
+    0.5,
+    1,
+    1
+   ]
+  ],
+  "description": "A great elk with an empty ribcage and a crown of dead branches. It runs when it's losing."
+ },
+ "gravel_wyrm": {
+  "name": "gravel wyrm",
+  "glyph": "G",
+  "color": [
+   160,
+   150,
+   140
+  ],
+  "tier": 4,
+  "hp": 45,
+  "accuracy": 13,
+  "evasion": 8,
+  "damage": "2d6",
+  "armor": 2,
+  "xp": 50,
+  "sight": 10,
+  "habitats": [
+   "mountains",
+   "caves",
+   "ruins"
+  ],
+  "burrows": true,
+  "drops": [
+   [
+    "sentinel_stone",
+    0.4,
+    1,
+    1
+   ]
+  ],
+  "description": "A blind serpent that moves under the ground and surfaces to strike. Hit it while it's up: below, nothing reaches it."
+ }
+}

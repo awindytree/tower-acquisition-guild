@@ -1,0 +1,259 @@
+{
+  "_comment": "The people of Bytorsskug. Placed in map files with ;npc=x,y <id>. name: given, middle (occupational) and surname (affiliation; may be empty if unknown). dialogue: a file in data/dialogue/ (without .json). wander: how far (in steps) they stray from where they're placed; 0 = they stay put. ALL NAMES AND LINES ARE PLACEHOLDERS (given names come from the name generator).",
+  "supplier": {
+    "name": [
+      "Boda",
+      "Trader",
+      ""
+    ],
+    "glyph": "@",
+    "color": [
+      240,
+      200,
+      120
+    ],
+    "description": "Keeps the supplier's shop on the edge of the plaza.",
+    "dialogue": "supplier",
+    "wander": 0
+  },
+  "artificer": {
+    "name": [
+      "Ymaj",
+      "Repairer",
+      "Tinkerforge"
+    ],
+    "glyph": "@",
+    "color": [
+      240,
+      200,
+      120
+    ],
+    "description": "An artificer of the Artificers' Guild, who runs the workshop near the plaza.",
+    "dialogue": "artificer",
+    "wander": 0
+  },
+  "clerk": {
+    "name": [
+      "Erþel",
+      "Clerk",
+      "Hunters"
+    ],
+    "glyph": "@",
+    "color": [
+      240,
+      200,
+      120
+    ],
+    "description": "Keeps the Tower Acquisition Guild's hall in order.",
+    "dialogue": "clerk",
+    "wander": 0
+  },
+  "porter": {
+    "name": [
+      "Klubo",
+      "Porter",
+      ""
+    ],
+    "glyph": "@",
+    "color": [
+      200,
+      180,
+      150
+    ],
+    "description": "Carries loads across the plaza for a few shards.",
+    "dialogue": "porter",
+    "wander": 6
+  },
+  "washer": {
+    "name": [
+      "Jokro",
+      "Washer",
+      ""
+    ],
+    "glyph": "@",
+    "color": [
+      200,
+      180,
+      150
+    ],
+    "description": "Fetches water from the well and doesn't hurry about it.",
+    "dialogue": "washer",
+    "wander": 4
+  },
+  "carter": {
+    "name": [
+      "Somirk",
+      "Carter",
+      ""
+    ],
+    "glyph": "@",
+    "color": [
+      200,
+      180,
+      150
+    ],
+    "description": "Drives a cart in from the farms most mornings.",
+    "dialogue": "carter",
+    "wander": 8
+  },
+  "trainer": {
+    "name": [
+      "Bumpry",
+      "Archer",
+      "Hunters"
+    ],
+    "glyph": "@",
+    "color": [
+      240,
+      200,
+      120
+    ],
+    "description": "A seasoned Hunter who teaches at the guild hall.",
+    "dialogue": "trainer",
+    "wander": 0
+  },
+  "smith": {
+    "name": [
+      "Bartum",
+      "Smith",
+      ""
+    ],
+    "glyph": "@",
+    "color": [
+      240,
+      200,
+      120
+    ],
+    "description": "Works hide, shell, iron and stone into gear, to order.",
+    "dialogue": "smith",
+    "wander": 0
+  },
+  "healer": {
+    "name": [
+      "Lifa",
+      "Healer",
+      ""
+    ],
+    "glyph": "@",
+    "color": [
+      200,
+      230,
+      200
+    ],
+    "description": "Sets bones, stitches cuts and draws out poison, for a fee.",
+    "dialogue": "healer",
+    "wander": 0
+  },
+  "librarian": {
+    "name": [
+      "Ymalda",
+      "Librarian",
+      "Academy"
+    ],
+    "glyph": "@",
+    "color": [
+      200,
+      200,
+      240
+    ],
+    "description": "Keeps the Academy's library, and buys whatever writing Hunters bring back.",
+    "dialogue": "librarian",
+    "wander": 0
+  },
+  "mentor": {
+    "name": [
+      "Retired",
+      "Hunter",
+      ""
+    ],
+    "glyph": "@",
+    "color": [
+      200,
+      190,
+      160
+    ],
+    "description": "A retired Hunter, who teaches what they know for less than the trainer.",
+    "dialogue": "mentor",
+    "wander": 0
+  },
+  "rival": {
+    "name": [
+      "A",
+      "Hunter",
+      ""
+    ],
+    "glyph": "@",
+    "color": [
+      80,
+      180,
+      255
+    ],
+    "description": "Another Hunter of the Guild (game/rivals.py fills in who).",
+    "dialogue": "rival",
+    "wander": 0
+  },
+  "quartermaster": {
+    "name": [
+      "Palboj",
+      "Quartermaster",
+      "Hunters"
+    ],
+    "glyph": "@",
+    "color": [
+      232,
+      196,
+      100
+    ],
+    "description": "The Guild's quartermaster, in the stash room: supplies for Hunters, more of them than the market keeps. (Placeholder; there once the Guild's works hire one.)",
+    "dialogue": "quartermaster",
+    "wander": 0
+  },
+  "scholar": {
+    "name": [
+      "Etly",
+      "Scholar",
+      "Hunters"
+    ],
+    "glyph": "@",
+    "color": [
+      232,
+      196,
+      100
+    ],
+    "description": "The Guild's scholar of the Wayfinder's words, in the training corner's study. (Placeholder; there once the Guild's works build the study.)",
+    "dialogue": "scholar",
+    "wander": 0
+  },
+  "trophymaster": {
+    "name": [
+      "Pulnaþ",
+      "Trophymaster",
+      ""
+    ],
+    "glyph": "@",
+    "color": [
+      222,
+      200,
+      160
+    ],
+    "description": "Keeps the trophy wall in the lodge by the plaza: the heaviest of every creature Hunters have hauled home, and who hauled it. (Placeholder.)",
+    "dialogue": "trophymaster",
+    "wander": 0
+  },
+  "butcher": {
+    "name": [
+      "Dimam",
+      "Butcher",
+      ""
+    ],
+    "glyph": "@",
+    "color": [
+      210,
+      150,
+      140
+    ],
+    "description": "The butcher by the plaza. Breaks down whatever Hunters drag in, and keeps the meat. (Placeholder.)",
+    "dialogue": "butcher",
+    "wander": 0
+  }
+}

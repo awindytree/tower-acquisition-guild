@@ -1,0 +1,57 @@
+{
+  "_comment": "What the smith makes to order. Each recipe: the item made, the materials it takes {item id: count}, the fee in shards, and how many Pulses until it's ready (81 = a Reckon, about one hunt and the rest after it). Placed by talking to the smith. ALL PLACEHOLDERS.",
+  "smith": [
+    {
+      "item": "hide_jerkin",
+      "materials": {
+        "rough_hide": 4
+      },
+      "fee": 10,
+      "pulses": 81
+    },
+    {
+      "item": "iron_shod_axe",
+      "materials": {
+        "iron_scrap": 5
+      },
+      "fee": 15,
+      "pulses": 81
+    },
+    {
+      "item": "sinew_bow",
+      "materials": {
+        "sinew": 3,
+        "rough_hide": 2
+      },
+      "fee": 20,
+      "pulses": 162
+    },
+    {
+      "item": "thornback_coat",
+      "materials": {
+        "thick_hide": 3,
+        "rough_hide": 2
+      },
+      "fee": 30,
+      "pulses": 162
+    },
+    {
+      "item": "chitin_plate_armor",
+      "materials": {
+        "chitin_plate": 5,
+        "sinew": 2
+      },
+      "fee": 50,
+      "pulses": 243
+    },
+    {
+      "item": "sentinel_maul",
+      "materials": {
+        "sentinel_stone": 2,
+        "iron_scrap": 4
+      },
+      "fee": 70,
+      "pulses": 243
+    }
+  ]
+}

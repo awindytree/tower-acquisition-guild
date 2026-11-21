@@ -1,0 +1,41 @@
+{
+  "start": [
+    {"if": ["!flag:hunter:met_artificer"], "node": "first"},
+    {"node": "hello"}
+  ],
+  "nodes": {
+    "first": {
+      "text": "Another Hunter. Brought me something broken? I repair, I buy as is, or I take it on consignment and we split what it fetches.",
+      "do": ["set:hunter:met_artificer"],
+      "choices": [
+        {"text": "Show me the workshop.", "do": ["workshop:artificer"]},
+        {"text": "How does consignment work?", "goto": "consign"},
+        {"text": "What's a windcatcher?", "goto": "windcatcher"},
+        {"text": "Another time.", "end": true}
+      ]
+    },
+    "hello": {
+      "text": ["Brought me something broken? Let's see it.", "{given}. What have you found?"],
+      "choices": [
+        {"text": "Show me the workshop.", "do": ["workshop:artificer"]},
+        {"text": "How does consignment work?", "goto": "consign"},
+        {"text": "What's a windcatcher?", "goto": "windcatcher"},
+        {"text": "Another time.", "end": true}
+      ]
+    },
+    "consign": {
+      "text": "You leave it with me. I mend it and sell it. Take the repair off the price, and we halve what's left. You're paid now; I wait for the buyer.",
+      "choices": [
+        {"text": "Something else.", "goto": "hello"},
+        {"text": "Thanks.", "end": true}
+      ]
+    },
+    "windcatcher": {
+      "text": "It holds Jodebris. Out in the miasma there are no Chorus Winds, so your artifacts go dead unless you carry some with you.",
+      "choices": [
+        {"text": "Something else.", "goto": "hello"},
+        {"text": "Thanks.", "end": true}
+      ]
+    }
+  }
+}

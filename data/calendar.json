@@ -1,0 +1,11 @@
+{
+  "_comment": "The calendar. A day is a Pulse; Pulses are named in order within each Cycle (ordinal names: Firstday, Secondday...). A Turn is: Light Duel, 4 intercalary Pulses, Dark Duel, 4 intercalary Pulses. The game's day count (day 1, 2...) is laid onto this starting at start_turn / start_pulse_of_turn (1 = the first Pulse of the Light Duel). The game begins at the start of Turn 211 (Turn 1 was more than three millennia earlier; Bytorsskug was founded in Turn 120). Time passes in the game: a Pulse for every move from one area to another (city to hunt, area to area, back home), and a whole Cycle (9 Pulses) when a hunt is completed.",
+  "pulses": ["Emu", "Lagau", "Erku", "Maforu", "Nusu", "Senu", "Riu", "Dymiu", "Neu"],
+  "cycles_per_reckon": 9,
+  "reckons_per_judgment": 12,
+  "judgments_per_duel": 4,
+  "intercalary_pulses": 4,
+  "duels": ["Light Duel", "Dark Duel"],
+  "start_turn": 211,
+  "start_pulse_of_turn": 1
+}

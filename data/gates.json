@@ -1,0 +1,19 @@
+{
+  "_comment": "Bytorsskug's four gates (user, 2026-11-18). Since 2026-11-19 (user) they lead out into the Brisering (data/maps/brisering.txt), each onto its own terrain; hunts leave from the Wayfinder instead. name: used in sentences as \"the Tower Gate\". toward: what lies beyond (said as you go out).",
+  "north": {
+    "name": "Tower Gate",
+    "toward": "the northern mountains, and Myligast"
+  },
+  "east": {
+    "name": "Crumbling Gate",
+    "toward": "the eastern ruins"
+  },
+  "south": {
+    "name": "Woodgate",
+    "toward": "the southern forests"
+  },
+  "west": {
+    "name": "Towerway",
+    "toward": "the western forests along the Towerway"
+  }
+}

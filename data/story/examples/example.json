@@ -1,0 +1,190 @@
+{
+  "_comment": "AN EXAMPLE, NOT LOADED BY THE GAME (only *.json directly in data/story/ are). It shows every part of the story format (quests, scenes, talk and a key hunt: a story contract) with things that already exist (the clerk, the trainer, the librarian, an old key) and no new lore. Copy it up a folder to try it in play. See data/story/_README.md.",
+  "quests": {
+    "example_errand": {
+      "title": "The clerk's errand",
+      "stages": [
+        {
+          "id": "see_clerk",
+          "log": "A note was left for you: the guild clerk wants a word.",
+          "goal": "Speak to the guild clerk in the hall.",
+          "until": [
+            "seen:example_clerk_line"
+          ]
+        },
+        {
+          "id": "find_key",
+          "log": "The clerk lost a key out at [Quiet][Green][Daybreak], and wants it back.",
+          "goal": "Find the clerk's old key at [Quiet][Green][Daybreak] (it's in the second area).",
+          "do": [
+            "hide:old_key:quiet/green/daybreak:2"
+          ],
+          "until": [
+            "item:old_key"
+          ]
+        },
+        {
+          "id": "return_key",
+          "log": "You found the key.",
+          "goal": "Take the key back to the clerk.",
+          "until": [
+            "seen:example_key_returned"
+          ]
+        }
+      ],
+      "done_log": "The clerk has the key back.",
+      "on_done": [
+        "shards:+20",
+        "count:example_errands:+1"
+      ]
+    },
+    "example_dogs": {
+      "title": "Dog trouble",
+      "scope": "hunter",
+      "stages": [
+        {
+          "id": "hunt_dogs",
+          "log": "The trainer says the wild dogs at [Quiet][Green][Daybreak] have grown bold.",
+          "goal": "Kill three wild dogs ({example_dogs} so far).",
+          "until": [
+            "count:example_dogs>=3"
+          ]
+        }
+      ],
+      "done_log": "Three dogs fewer. The trainer will be pleased."
+    },
+    "example_proving": {
+      "title": "A key hunt",
+      "stages": [
+        {
+          "id": "take_it",
+          "log": "The clerk has posted a key hunt for you on the contracts board: something old, with something big guarding it.",
+          "goal": "Take the key hunt from the contracts board and bring back what it asks for.",
+          "do": [
+            "post:example_proving_hunt"
+          ],
+          "until": [
+            "completed:example_proving_hunt"
+          ]
+        }
+      ],
+      "done_log": "You brought it back. The clerk looked almost impressed."
+    }
+  },
+  "scenes": {
+    "example_welcome": {
+      "on": "new_game",
+      "title": "A note",
+      "pages": [
+        "Pinned to the door of the guild hall, with your name on it:",
+        {
+          "speaker": "Erþel Clerk Hunters",
+          "text": "Come and find me when you've a moment, {given}. Nothing urgent. Probably."
+        }
+      ],
+      "choices": [
+        {
+          "text": "Go and see what the clerk wants.",
+          "do": [
+            "start:example_errand"
+          ]
+        },
+        {
+          "text": "Leave it for now.",
+          "do": [
+            "start:example_errand"
+          ]
+        }
+      ]
+    },
+    "example_dog_tally": {
+      "on": "kill",
+      "if": [
+        "event:monster=wild_dog",
+        "quest:example_dogs"
+      ],
+      "once": false,
+      "do": [
+        "count:example_dogs:+1"
+      ]
+    },
+    "example_found_key": {
+      "on": "pickup",
+      "if": [
+        "event:item=old_key",
+        "quest:example_errand:find_key"
+      ],
+      "title": "The key",
+      "pages": [
+        "Half buried in the leaf litter: an old iron key, just as the clerk described."
+      ]
+    }
+  },
+  "talk": [
+    {
+      "id": "example_clerk_line",
+      "folk": "clerk",
+      "if": [
+        "quest:example_errand:see_clerk"
+      ],
+      "text": "You wanted to see me?",
+      "reply": "I dropped a key out at [Quiet][Green][Daybreak], the last time I went walking. Bring it back if you're out that way, would you?"
+    },
+    {
+      "id": "example_key_returned",
+      "folk": "clerk",
+      "if": [
+        "quest:example_errand:return_key",
+        "item:old_key"
+      ],
+      "text": "Here's your key.",
+      "reply": "My key! Thank you, {given}. Here, for your trouble.",
+      "do": [
+        "take:old_key"
+      ]
+    },
+    {
+      "id": "example_trainer_dogs",
+      "folk": "trainer",
+      "if": [
+        "!started:example_dogs"
+      ],
+      "text": "Any work going?",
+      "reply": "The wild dogs at [Quiet][Green][Daybreak] are getting bold. Thin them out: three will do.",
+      "do": [
+        "start:example_dogs"
+      ]
+    },
+    {
+      "id": "example_clerk_proving",
+      "folk": "clerk",
+      "if": [
+        "done:example_errand",
+        "!started:example_proving"
+      ],
+      "text": "Is there anything special for me?",
+      "reply": "There might be. I've posted something on the contracts board. Bring it back and we'll talk.",
+      "do": [
+        "start:example_proving"
+      ]
+    }
+  ],
+  "contracts": {
+    "example_proving_hunt": {
+      "words": ["restless", "green", "tusks"],
+      "rank": "Recruit",
+      "depth": 3,
+      "title": "The clerk's proving hunt",
+      "description": "The clerk wants an old brass device brought back from deep at [Restless][Green][Tusks]. Something large has made its home beside it.",
+      "prize": "broken_astrolabe",
+      "guardian": "thornback_boar",
+      "done_text": [
+        "The clerk turns the brass device over in their hands.",
+        "\"Not bad, {given}. Not bad at all.\""
+      ],
+      "on_done": [
+        "shards:+30"
+      ]
+    }
+  }
+}

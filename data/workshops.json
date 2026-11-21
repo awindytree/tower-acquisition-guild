@@ -1,0 +1,10 @@
+{
+  "_comment": "Artificers' workshops. Each repairs, buys broken, and takes on consignment any Tower Artifact, at the prices in rarities.json. trains: skill ids this workshop teaches (data/skills.json). sells: what the workshop has for sale, as in shops.json (id, price, max, restock in Pulses; 81 Pulses = a Reckon). Artifacts consigned here also go up for sale, at their full value. Placed in map files with ;npc=x,y <id>. Names are PLACEHOLDERS.",
+  "artificer": {
+    "name": "The Artificer's Workshop",
+    "keeper": "the artificer",
+    "greeting": "\"Brought me something broken? Let's see it.\"",
+    "trains": ["identification", "attunement"],
+    "sells": [{"id": "lesser_windcatcher", "price": 900, "max": 1, "restock": 729}]
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "start": [
+    {
+      "if": [
+        "!flag:hunter:met_librarian"
+      ],
+      "node": "first"
+    },
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "first": {
+      "text": "A Hunter, in the Academy? Good. You go where we can't. Anything written that you find out there, a page, a letter, a carved stone, bring it here. We'll pay a little, and shelve it, and anyone may read it. If you'd read such things yourself, I teach Scholarship.",
+      "do": [
+        "set:hunter:met_librarian"
+      ],
+      "choices": [
+        {
+          "text": "I've found some writings.",
+          "if": [
+            "writings"
+          ],
+          "goto": "handed",
+          "do": [
+            "hand_in_writings"
+          ]
+        },
+        {
+          "text": "May I read in the library?",
+          "do": [
+            "library"
+          ]
+        },
+        {
+          "text": "Can you teach me scholarship?",
+          "do": [
+            "train:scholarship"
+          ]
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "hello": {
+      "text": [
+        "Welcome back to the Academy, {given}.",
+        "Quietly, please. What have you brought?",
+        "Ah, {given}. Anything for the shelves?"
+      ],
+      "choices": [
+        {
+          "text": "I've found some writings.",
+          "if": [
+            "writings"
+          ],
+          "goto": "handed",
+          "do": [
+            "hand_in_writings"
+          ]
+        },
+        {
+          "text": "May I read in the library?",
+          "do": [
+            "library"
+          ]
+        },
+        {
+          "text": "Can you teach me scholarship?",
+          "do": [
+            "train:scholarship"
+          ]
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "handed": {
+      "text": [
+        "Wonderful. These will be shelved by tonight.",
+        "Every scrap matters. Thank you."
+      ],
+      "choices": [
+        {
+          "text": "May I read in the library?",
+          "do": [
+            "library"
+          ]
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    }
+  }
+}

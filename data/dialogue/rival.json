@@ -1,0 +1,67 @@
+{
+  "start": [
+    {
+      "if": [
+        "on_hunt"
+      ],
+      "node": "race"
+    },
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "hello": {
+      "text": "{rival_greeting}",
+      "choices": [
+        {
+          "text": "How did your last hunt go?",
+          "goto": "news"
+        },
+        {
+          "text": "Who are you?",
+          "goto": "who"
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "news": {
+      "text": "{rival_news}",
+      "choices": [
+        {
+          "text": "Who are you, again?",
+          "goto": "who"
+        },
+        {
+          "text": "Good luck out there.",
+          "end": true
+        }
+      ]
+    },
+    "who": {
+      "text": "{rival_name}, {rival_rank}. I've seen {rival_age}, and {rival_hunts} hunts. You?",
+      "choices": [
+        {
+          "text": "How did your last hunt go?",
+          "goto": "news"
+        },
+        {
+          "text": "See you around.",
+          "end": true
+        }
+      ]
+    },
+    "race": {
+      "text": "{rival_race_line}",
+      "choices": [
+        {
+          "text": "(Let them go.)",
+          "end": true
+        }
+      ]
+    }
+  }
+}

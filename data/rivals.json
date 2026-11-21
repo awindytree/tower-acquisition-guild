@@ -1,0 +1,28 @@
+{
+  "_comment": "Rival Hunters (game/rivals.py): other members of the Guild, world state like the city. They take contracts off the gate boards, bring finds home (sold through the workshop), sometimes beat you to a request or an odd job, level up, age, retire, die, and are remembered in the Hall of Hunters. Sometimes one takes the same contract as you: a race for the prize. User's choices: a small cast; all of the off-screen life; races; no fighting between Hunters. ALL NUMBERS, CALLINGS AND LINES ARE PLACEHOLDERS. color: how rivals look on the map (sky blue, to stand out from you (@), the townsfolk and the creatures). count: rivals at a time; new ones join (join_chance a Pulse) when there are fewer. start_levels: the cast at a new game. daily: the chance each Pulse that a rested rival at home takes a contract, fills a request, or takes an odd job. success/death: the chances for a hunt off-screen, from base + per_level x (level - 2 x danger), kept between low and high. xp_per_danger: experience for a successful hunt (the same level curve as yours). retire_from: [Turns, Judgments] after which each new Judgment has retire_chance of retiring (old age as for you: data/aging.json). race_chance: when you take a contract, the chance a rival at home goes after it too. race_turns: turns a rival needs per area: base - per_level x level, at least min. temperaments: how each kind greets you (used in data/dialogue/rival.json as {rival_greeting}).",
+  "color": [80, 180, 255],
+  "count": 5,
+  "start_levels": [1, 6],
+  "join_chance": 0.02,
+  "daily": {"contract": 0.12, "request": 0.01, "job": 0.01},
+  "callings": ["Fencer", "Hewer", "Archer", "Breaker"],
+  "success": {"base": 0.6, "per_level": 0.08, "low": 0.1, "high": 0.95},
+  "death": {"base": 0.03, "per_level": -0.02, "low": 0.003, "high": 0.25},
+  "xp_per_danger": 45,
+  "retire_from": [2, 6],
+  "retire_chance": 0.12,
+  "race_chance": 0.25,
+  "race_turns": {"base": 480, "per_level": 25, "min": 220},
+  "temperaments": {
+    "boastful": ["Back already? I'd have had three artifacts by now.", "Still alive, {given}? Good. Someone has to watch me work.", "Ask me anything. I've seen it all, out there."],
+    "gruff": ["Hm.", "What.", "{given}. Make it quick."],
+    "friendly": ["{given}! Glad you made it back.", "Sit, sit. How are you holding up?", "Good to see a face I know."],
+    "wary": ["Oh. It's you.", "Careful out there, {given}. I mean it.", "You look tired. We all do."]
+  },
+  "race_lines": {
+    "boastful": ["Keep up if you can, {given}!", "Too slow! It's mine."],
+    "gruff": ["Out of my way.", "Mine."],
+    "friendly": ["No hard feelings, {given}, but I'm getting there first!", "May the best Hunter win!"],
+    "wary": ["You too? Don't get yourself killed over it.", "Let's not both die for one artifact."]
+  }
+}
