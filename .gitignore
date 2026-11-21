@@ -3,3 +3,9 @@ __pycache__/
 .venv/
 crash.log
 saves/
+
+# Editors and systems
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
