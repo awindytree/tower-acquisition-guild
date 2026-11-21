@@ -740,7 +740,7 @@ class Engine:
         from game.screens import TitleCardScreen
         p = self.player
         left = []
-        things = list(p.inventory.items) + p.equipped_artifacts
+        things = p.all_items()              # (bag, equipment and artifact slots; v0.69.0)
         for item in things:
             if not self.stash.add(item):
                 left.append(item.type.name)

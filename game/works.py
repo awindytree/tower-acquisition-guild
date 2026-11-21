@@ -253,13 +253,7 @@ def lend(engine) -> None:
         new = cat[item_id]
         if old is not None and old.type.value >= new.value:
             continue
-        item = Item(new)
-        if old is not None:
-            idx = p.inventory.items.index(old)
-            p.inventory.items[idx] = item
-            p.equipped[slot] = item
-        elif p.inventory.add(item):
-            p.equipped[slot] = item
+        p.equipped[slot] = Item(new)     # (in place of the old one, as before)
     engine.log("The Guild's armoury lends you better gear to start with.")
 
 

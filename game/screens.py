@@ -79,27 +79,28 @@ def wrapped(text: str, width: int, color) -> list:
 
 
 class InventoryScreen:
-    """The bag, and below it the artifact slots. ↑↓ moves through both."""
+    """The bag. (Since v0.69.0, user: what's equipped is out of the bag, in the equipment window, e;
+    Tab switches to it.)"""
 
     def __init__(self) -> None:
         self.selected = 0
 
     @staticmethod
     def rows(engine) -> list:
-        """("item", index) for each thing in the bag, then ("slot", n) for each artifact slot."""
-        p = engine.player
-        from game import attunement
-        attunement.sync_slots(p)                    # (a fourth slot at Attunement 5)
-        return ([("item", i) for i in range(len(p.inventory.items))]
-                + [("slot", n) for n in range(len(p.artifact_slots))])
+        """("item", index) for each thing in the bag."""
+        return [("item", i) for i in range(len(engine.player.inventory.items))]
 
     def handle(self, event: tcod.event.Event, engine: "Engine") -> Action | None:
-        from game.actions import ArtifactSlotAction
         if not isinstance(event, tcod.event.KeyDown):
             return None
         rows = self.rows(engine)
         if event.sym in CLOSE_KEYS:
             engine.screen = None
+            return None
+        if event.sym == KeySym.TAB:
+            engine.screen = EquipmentScreen()
+            return None
+        if not rows:
             return None
         if event.sym in UP_KEYS:
             self.selected = (self.selected - 1) % len(rows)
@@ -109,9 +110,6 @@ class InventoryScreen:
             return None
         self.selected = min(self.selected, len(rows) - 1)
         kind, i = rows[self.selected]
-        if kind == "slot":
-            what = {DROP_KEY: "drop", EQUIP_KEY: "unequip", USE_KEY: "use"}.get(event.sym)
-            return ArtifactSlotAction(i, what) if what else None
         if event.sym == DROP_KEY:
             return DropAction(i)
         if event.sym == EQUIP_KEY:
@@ -125,51 +123,22 @@ class InventoryScreen:
         inv = p.inventory
         items = inv.items
         rows = self.rows(engine)
-        self.selected = min(self.selected, len(rows) - 1)
+        self.selected = max(0, min(self.selected, len(rows) - 1))
         w = min(area_w - 2, 48)
 
-        # Details of the selected thing (in full).
-        kind, i = rows[self.selected]
-        item = items[i] if kind == "item" else p.artifact_slots[i]
-        if item is not None:
-            worth = item_worth(item, engine)
-            details = f"{worth} {item.type.description}" if item.type.rarity else f"{item.type.description} {worth}"
-            props = item.type.properties
-            if "damage" in props:
-                details += f" Damage {props['damage']}."
-            if "armor" in props and not item.type.rarity:
-                details += f" Armour {props['armor']}."
-            if "heal" in props and not item.type.rarity:
-                details += f" Heals {props['heal']}."
+        if rows:
+            item = items[rows[self.selected][1]]
+            extra = wrapped(item_details(item, engine), w - 4, DIM)
         else:
-            details = "An empty artifact slot. Equip a working artifact (e) from your bag to fill it."
-        extra = wrapped(details, w - 4, DIM)
-
-        # One scrolling list: bag rows, a heading, then the slot rows.
-        lines = []  # (row index or None for a heading, text, glyph, glyph colour, text colour)
-        if not items:
-            lines.append((None, "You carry nothing.", "", DIM, DIM))
-        for r, (kind_r, i_r) in enumerate(rows):
-            if kind_r == "slot" and i_r == 0:
-                lines.append((None, f"Artifact slots ({len(p.equipped_artifacts)}/{len(p.artifact_slots)})", "", ACCENT, ACCENT))
-            if kind_r == "item":
-                it = items[i_r]
-                label = it.label
-                if p.is_equipped(it):
-                    slot = p.slot_for(it)
-                    label += {"weapon": " (wielded)", "windcatcher": " (equipped)"}.get(slot, " (worn)")
-                lines.append((r, label, it.type.glyph, it.type.color, TEXT))
-            else:
-                art = p.artifact_slots[i_r]
-                if art is None:
-                    lines.append((r, "(empty)", "·", DIM, DIM))
-                else:
-                    lines.append((r, art.type.name, art.type.glyph, art.type.color, TEXT))
+            extra = []
+        lines = [(r, it.label, it.type.glyph, it.type.color, TEXT) for r, it in enumerate(items)]
+        if not lines:
+            lines = [(None, "You carry nothing.", "", DIM, DIM)]
 
         h, list_rows, extra = fit_window(console, len(lines), extra, top=2)
         x, y = (area_w - w) // 2, (console.height - h) // 2
         draw_box(console, x, y, w, h, f"Inventory {inv.used}/{inv.capacity}")
-        here = next(n for n, line in enumerate(lines) if line[0] == self.selected)
+        here = next((n for n, line in enumerate(lines) if line[0] == self.selected), 0)
         first = max(0, min(here - list_rows // 2, len(lines) - list_rows))
         for row, (r, text, glyph, gcolor, tcolor) in enumerate(lines[first : first + list_rows]):
             bg = HIGHLIGHT if r is not None and r == self.selected else BG
@@ -179,8 +148,194 @@ class InventoryScreen:
             console.print(x + (4 if r is not None else 2), y + 2 + row, text[: w - 7], fg=tcolor, bg=bg)
         for row, (text, color) in enumerate(extra):
             console.print(x + 2, y + 2 + list_rows + 1 + row, text, fg=color, bg=BG)
-        keys = ("↑↓ select  e take off  u use  d drop  Esc" if kind == "slot"
-                else "↑↓ select  e equip  u use/study  d drop  Esc")
+        keys = "↑↓  e equip  u use  d drop  Tab equipment"
+        console.print(x + 2, y + h - 2, keys[: w - 4], fg=DIM, bg=BG)
+
+
+def item_details(item, engine: "Engine") -> str:
+    """An item's description, worth and numbers, for the inventory and equipment windows."""
+    worth = item_worth(item, engine)
+    details = f"{worth} {item.type.description}" if item.type.rarity else f"{item.type.description} {worth}"
+    props = item.type.properties
+    if "damage" in props:
+        details += f" Damage {props['damage']}."
+    if "armor" in props and not item.type.rarity:
+        details += f" Armour {props['armor']}."
+    if "heal" in props and not item.type.rarity:
+        details += f" Heals {props['heal']}."
+    return details
+
+
+GEAR_SLOTS = (("weapon", "Weapon", "bare hands"), ("armor", "Armour", "no armour"),
+              ("windcatcher", "Windcatcher", "none"))
+
+
+def gear_stat(item, engine: "Engine") -> list[tuple[str, tuple]]:
+    """The short numbers beside an equipped thing: pieces of (text, colour)."""
+    from game.engine import JODEBRIS, JODEBRIS_LOW
+    t = item.type
+    props = t.properties
+    if props.get("windcatcher"):                       # a bar, never numbers (user, v0.41.1)
+        share = max(0.0, min(1.0, item.jodebris / item.capacity)) if item.capacity else 0.0
+        fill = round(share * 10)
+        low = share <= 0.25
+        return [("█" * fill, JODEBRIS_LOW if low else JODEBRIS), ("░" * (10 - fill), (100, 90, 78))]
+    if t.kind == "weapon":
+        text = props.get("damage", "")
+        if "range" in props:
+            text += f", range {props['range']}"
+        return [(text, DIM)]
+    if t.kind == "armor":
+        return [(f"armour {props.get('armor', 0)}", DIM)]
+    if t.working:
+        parts = [f"{label} +{props[k]}" for k, label in (("light", "light"), ("armor", "armour"),
+                                                        ("accuracy", "accuracy"), ("evasion", "evasion")) if k in props]
+        if props.get("use"):
+            from game import artifacts
+            parts.append(f"use {artifacts.uses_left(engine.player, t)} left")
+        return [(", ".join(parts), DIM)]
+    return []
+
+
+class EquipmentScreen:
+    """What the Hunter has on, slot by slot (user, v0.69.0): weapon, armour, windcatcher, then the
+    artifact slots. e takes off, u uses an artifact, Enter picks something from the bag for the
+    slot (swapping), Tab goes to the bag. Equipping takes a turn, as in the inventory."""
+
+    def __init__(self) -> None:
+        self.selected = 0
+        self.picking = None          # None, or the bag indices that fit the selected slot
+        self.pick = 0
+        self.notice = ""
+
+    @staticmethod
+    def rows(engine) -> list:
+        from game import attunement
+        attunement.sync_slots(engine.player)
+        return [("gear", s) for s, _, _ in GEAR_SLOTS] + [("art", n) for n in range(len(engine.player.artifact_slots))]
+
+    @staticmethod
+    def fits(engine, row) -> list[int]:
+        p = engine.player
+        kind, slot = row
+        return [i for i, it in enumerate(p.inventory.items)
+                if (p.goes_in_artifact_slot(it) if kind == "art" else p.slot_for(it) == slot)]
+
+    def held(self, engine, row):
+        kind, slot = row
+        return engine.player.equipped.get(slot) if kind == "gear" else engine.player.artifact_slots[slot]
+
+    def handle(self, event: tcod.event.Event, engine: "Engine") -> Action | None:
+        from game.actions import ArtifactSlotAction, UnequipAction
+        if not isinstance(event, tcod.event.KeyDown):
+            return None
+        rows = self.rows(engine)
+        self.selected = min(self.selected, len(rows) - 1)
+        row = rows[self.selected]
+        if self.picking is not None:                 # choosing something from the bag
+            if event.sym == KeySym.ESCAPE:
+                self.picking = None
+            elif event.sym in UP_KEYS:
+                self.pick = (self.pick - 1) % len(self.picking)
+            elif event.sym in DOWN_KEYS:
+                self.pick = (self.pick + 1) % len(self.picking)
+            elif event.sym in CONFIRM_KEYS:
+                index = self.picking[self.pick]
+                self.picking = None
+                return EquipAction(index, row[1] if row[0] == "art" else None)
+            return None
+        self.notice = ""
+        if event.sym == KeySym.ESCAPE:      # (e takes off in here; Esc closes)
+            engine.screen = None
+        elif event.sym == KeySym.TAB:
+            engine.screen = InventoryScreen()
+        elif event.sym in UP_KEYS:
+            self.selected = (self.selected - 1) % len(rows)
+        elif event.sym in DOWN_KEYS:
+            self.selected = (self.selected + 1) % len(rows)
+        elif event.sym in CONFIRM_KEYS:
+            fits = self.fits(engine, row)
+            if fits:
+                self.picking, self.pick = fits, 0
+            else:
+                self.notice = "Nothing in your pack fits here."
+        elif event.sym == EQUIP_KEY:
+            if self.held(engine, row) is None:
+                self.notice = "Nothing's there."
+            elif row[0] == "gear":
+                return UnequipAction(row[1])
+            else:
+                return ArtifactSlotAction(row[1], "unequip")
+        elif event.sym == USE_KEY and row[0] == "art" and self.held(engine, row) is not None:
+            return ArtifactSlotAction(row[1], "use")
+        return None
+
+    def render(self, console, engine: "Engine", area_w: int) -> None:
+        p = engine.player
+        rows = self.rows(engine)
+        self.selected = min(self.selected, len(rows) - 1)
+        w = min(area_w - 2, 58)
+        label_w = 13
+
+        # The lines: (row index or None, label, glyph, glyph colour, name, name colour, stat pieces)
+        lines = []
+        if self.picking is None:
+            for r, (kind, slot) in enumerate(rows):
+                if kind == "art" and slot == 0:
+                    lines.append((None, f"Artifacts ({len(p.equipped_artifacts)}/{len(p.artifact_slots)})",
+                                  "", ACCENT, "", ACCENT, []))
+                item = self.held(engine, (kind, slot))
+                label = (dict((s, l) for s, l, _ in GEAR_SLOTS)[slot] if kind == "gear" else f"  {slot + 1}")
+                empty = dict((s, e) for s, _, e in GEAR_SLOTS)[slot] if kind == "gear" else "(empty)"
+                if item is None:
+                    lines.append((r, label, "·", DIM, empty, DIM, []))
+                else:
+                    lines.append((r, label, item.type.glyph, item.type.color, item.type.name, TEXT,
+                                  gear_stat(item, engine)))
+            sel_item = self.held(engine, rows[self.selected])
+            title = "Equipment"
+            keys = "↑↓  e take off  u use  Enter swap  Tab pack  Esc"
+        else:
+            kind, slot = rows[self.selected]
+            name = dict((s, l) for s, l, _ in GEAR_SLOTS)[slot] if kind == "gear" else f"artifact slot {slot + 1}"
+            for n, i in enumerate(self.picking):
+                it = p.inventory.items[i]
+                lines.append((n, "", it.type.glyph, it.type.color, it.label, TEXT, gear_stat(it, engine)))
+            sel_item = p.inventory.items[self.picking[self.pick]]
+            title = f"Equip: {name.lower() if kind == 'gear' else name}"
+            keys = "↑↓ select  Enter equip  Esc back"
+            label_w = 0
+        extra = wrapped(item_details(sel_item, engine), w - 4, DIM) if sel_item is not None else \
+            [("Empty. Enter picks something from your pack for it.", DIM)]
+        if self.notice:
+            extra = [(self.notice, ACCENT)] + extra
+        h, list_rows, extra = fit_window(console, len(lines), extra, top=2)
+        x, y = (area_w - w) // 2, (console.height - h) // 2
+        draw_box(console, x, y, w, h, title)
+        current = self.selected if self.picking is None else self.pick
+        here = next((n for n, line in enumerate(lines) if line[0] == current), 0)
+        first = max(0, min(here - list_rows // 2, len(lines) - list_rows))
+        for row, (r, label, glyph, gcolor, name, ncolor, stat) in enumerate(lines[first : first + list_rows]):
+            yy = y + 2 + row
+            bg = HIGHLIGHT if r is not None and r == current else BG
+            console.rgb["bg"][x + 1 : x + w - 1, yy] = bg
+            if r is None:                                   # a heading
+                console.print(x + 2, yy, label[: w - 4], fg=gcolor, bg=bg)
+                continue
+            cx = x + 2
+            if label_w:
+                console.print(cx, yy, label, fg=DIM, bg=bg)
+                cx += label_w
+            console.print(cx, yy, glyph, fg=gcolor, bg=bg)
+            stat_w = sum(len(t) for t, _ in stat)
+            room = x + w - 2 - (cx + 2) - (stat_w + 1 if stat_w else 0)
+            console.print(cx + 2, yy, name[:max(0, room)], fg=ncolor, bg=bg)
+            sx = x + w - 2 - stat_w
+            for text, color in stat:
+                console.print(sx, yy, text, fg=color, bg=bg)
+                sx += len(text)
+        for row, (text, color) in enumerate(extra):
+            console.print(x + 2, y + 2 + list_rows + 1 + row, text, fg=color, bg=BG)
         console.print(x + 2, y + h - 2, keys[: w - 4], fg=DIM, bg=BG)
 
 
@@ -1802,6 +1957,7 @@ KEY_REFERENCE = [
     ]),
     ("Windows", [
         ("i", "inventory (e equip, u use, d drop)"),
+        ("e", "equipment (e take off, Enter swap)"),
         ("c", "character sheet"),
         ("k", "skills"),
         ("q", "quest log"),

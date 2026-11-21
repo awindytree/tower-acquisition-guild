@@ -69,7 +69,7 @@ class Player(Entity):
     gender: str = ""
     inventory: Inventory = field(default_factory=lambda: Inventory(10))
     shards: int = 0  # money: coins today, once true pieces of Windcatcher glass
-    equipped: dict = field(default_factory=dict)  # slot -> Item (an item in the inventory)
+    equipped: dict = field(default_factory=dict)  # slot -> Item, out of the bag (user, v0.69.0; was: in it)
     faints_allowed: int = 1  # knockouts survived per hunt; the next one is death
     regen_progress: int = 0  # turns towards the next point of natural healing
     hunter_id: str = field(default_factory=lambda: uuid.uuid4().hex)  # which saves are this Hunter's
@@ -146,16 +146,22 @@ class Player(Entity):
     def goes_in_artifact_slot(item: Item) -> bool:
         return item.type.working and not item.type.properties.get("windcatcher")
 
-    def equip_artifact(self, index: int) -> tuple[bool, str]:
-        """Move a working artifact from the bag into a free artifact slot."""
+    def equip_artifact(self, index: int, slot: int | None = None) -> tuple[bool, str]:
+        """Move a working artifact from the bag into an artifact slot: the first free one, or the
+        given one (v0.69.0, from the equipment window), swapping out what's there into the bag."""
         item = self.inventory.items[index]
         from game import attunement
         attunement.sync_slots(self)                  # a fourth slot at Attunement 5 (v0.57.0)
-        if None not in self.artifact_slots:
-            return False, (f"Your {len(self.artifact_slots)} artifact slots are full. "
-                           "Take one off first.")
-        slot = self.artifact_slots.index(None)
+        if slot is None:
+            if None not in self.artifact_slots:
+                return False, (f"Your {len(self.artifact_slots)} artifact slots are full. "
+                               "Take one off first.")
+            slot = self.artifact_slots.index(None)
+        old = self.artifact_slots[slot]
         self.artifact_slots[slot] = self.inventory.remove(index)
+        if old is not None:
+            self.inventory.add(old)                  # (the new one's place in the bag is free)
+            return True, f"You swap the {old.type.name} for the {item.type.name}."
         return True, f"You equip the {item.type.name}."
 
     def unequip_artifact(self, slot: int) -> tuple[bool, str]:
@@ -180,19 +186,42 @@ class Player(Entity):
     def is_equipped(self, item: Item) -> bool:
         return any(item is e for e in self.equipped.values())
 
+    def all_items(self) -> list[Item]:
+        """Everything the Hunter has: the bag, the equipment slots and the artifact slots."""
+        return list(self.inventory.items) + list(self.equipped.values()) + self.equipped_artifacts
+
     def equip(self, item: Item) -> Item | None:
-        """Wield or wear an item from the inventory. Returns what it replaced."""
+        """Wield, wear or hang an item (from the bag, or given). Since v0.69.0 (user) equipment has its
+        own slots, out of the bag: the item leaves the bag, and what it replaces goes into the bag.
+        Returns what it replaced. Raises ValueError if it can't be equipped or the old one won't fit."""
         slot = self.slot_for(item)
         if slot is None:
             raise ValueError(f"{item.type.name} can't be equipped")
         old = self.equipped.get(slot)
+        idx = next((i for i, x in enumerate(self.inventory.items) if x is item), None)
+        if idx is not None:
+            self.inventory.items.pop(idx)
+        if old is not None and not self.inventory.add(old):
+            if idx is not None:
+                self.inventory.items.insert(idx, item)
+            raise ValueError(f"No room in your pack for the {old.type.name}")
         self.equipped[slot] = item
         return old
 
-    def unequip(self, item: Item) -> None:
-        for slot, e in list(self.equipped.items()):
-            if e is item:
-                del self.equipped[slot]
+    def unequip_slot(self, slot: str) -> tuple[bool, str]:
+        """Take off what's in an equipment slot and put it in the bag."""
+        item = self.equipped.get(slot)
+        if item is None:
+            return False, "Nothing's there."
+        if not self.inventory.add(item):
+            return False, f"You have no room in your pack for the {item.type.name}."
+        del self.equipped[slot]
+        off = {"weapon": "put away", "windcatcher": "unhook"}.get(slot, "take off")
+        return True, f"You {off} the {item.type.name}."
+
+    def unequip(self, item: Item) -> tuple[bool, str]:
+        slot = next((s for s, e in self.equipped.items() if e is item), None)
+        return self.unequip_slot(slot) if slot else (False, "That isn't equipped.")
 
     # ---- Combat (see game/combat.py) --------------------------------------
     @property
@@ -338,7 +367,7 @@ class Player(Entity):
             "shards": self.shards,
             **self.stats.to_dict(),
             "inventory": self.inventory.to_list(),
-            "equipped": [item.type.id for item in self.equipped.values()],
+            "equipment": {slot: item.to_entry() for slot, item in self.equipped.items()},   # (v0.69.0)
             "faints_allowed": self.faints_allowed,
             "skills": {sid: [st.rank, st.practice] for sid, st in self.skills.items()},
             "known_artifacts": sorted(self.known_artifacts),
@@ -410,9 +439,12 @@ class Player(Entity):
             stats.hp = min(hp, stats.max_hp)
         if "hunter_id" in data:
             player.hunter_id = data["hunter_id"]
-        for item_id in data.get("equipped", []):
-            item = next((i for i in inventory.items if i.type.id == item_id), None)
+        if "equipment" in data:                    # v0.69.0: equipment out of the bag
+            for slot, entry in data["equipment"].items():
+                player.equipped[slot] = Item.from_entry(entry, catalogue)
+        for item_id in data.get("equipped", []):   # older saves and player.json: equipped things are in the bag
+            item = next((i for i in inventory.items if i.type.id == item_id and not player.is_equipped(i)), None)
             if item is None:
                 raise ValueError(f"Equipped {item_id!r} isn't in the inventory")
-            player.equip(item)
+            player.equip(item)                      # (moves it out of the bag)
         return player

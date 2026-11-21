@@ -43,7 +43,8 @@ python main.py
 | (shop) | Trade (`←→`/Tab: Buy or Sell, Enter, Esc) |
 | (workshop) | Workshop: `r` repair, `b` sell (broken or repaired), `c` consign; `←→`/Tab: Buy, Training |
 | `x` | Look: move the cursor (movement keys) or `Tab` between things in view; the view follows the cursor, as far as you can see (less in the dark); `Esc` done |
-| `i` | Inventory: `↑↓` select, `e` wield/wear/remove, `e` also equips a windcatcher, `u` use (drink, use an artifact, or study a broken one), `d` drop, `Esc` close |
+| `i` | Inventory (the bag): `↑↓` select, `e` wield/wear/equip (weapon, armour, windcatcher or artifact), `u` use (drink, use an artifact, or study a broken one), `d` drop, `Tab` the equipment window, `Esc` close |
+| `e` | Equipment: weapon, armour, windcatcher (its Jodebris bar) and artifact slots. `↑↓` select, `e` take off, `u` use an artifact, `Enter` pick something from the bag for that slot (swapping), `Tab` the bag, `Esc` close |
 | `t` | Travel to a known place (walks there, stopping if anything comes up) |
 | `o` | Auto-explore (hunts): walk to unexplored ground until something comes up (a creature, an item, the way deeper) |
 | `f` | Aim and shoot a wielded bow: Tab next target, move keys to aim, Enter/`f` shoot, Esc |
@@ -411,8 +412,10 @@ say what an artifact is until it's repaired. Selling and consigning ask first.
 **Working artifacts** only work while **equipped in an artifact slot**. You
 have three, separate from your bag: equipping (`e` in the inventory) takes the
 artifact out of the bag and into a slot, so the bag limit and the slots are
-two separate limits. The inventory screen lists the slots under the bag; on
-a slot, `e` takes it off, `u` uses it, `d` drops it. Equipped artifacts give
+two separate limits. The equipment window (`e`) shows them; on a slot, `e`
+takes it off, `u` uses it, and `Enter` picks one from the bag. **Since v0.69.0
+your weapon, armour and windcatcher are out of the bag too**, in their own
+slots, so they don't take bag room. Equipped artifacts give
 more light in dark places, armour, accuracy or evasion, or can be used (heal,
 or map the area you're in). Used ones recover before each hunt.
 

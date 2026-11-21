@@ -239,7 +239,7 @@ def drain(player, amount: int) -> list[str]:
 
 def refill(player) -> None:
     """Back in the Brisering: every windcatcher fills up again."""
-    for item in player.inventory.items:
+    for item in player.all_items():     # (the equipped one is out of the bag since v0.69.0)
         if item.type.properties.get("windcatcher"):
             item.charge = None
 

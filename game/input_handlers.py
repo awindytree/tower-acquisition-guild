@@ -37,6 +37,7 @@ MOVE_KEYS = {_key(name): d for name, d in _DIRECTIONS.items()}
 WAIT_KEYS = {_key("PERIOD"), _key("KP_5")}
 PICKUP_KEYS = {_key("g"), _key("COMMA")}
 INVENTORY_KEY = _key("i")
+EQUIPMENT_KEY = _key("e")   # the equipment window (user, v0.69.0)
 LOOK_KEY = _key("x")
 CHARACTER_KEY = _key("c")
 FIRE_KEY = _key("f")
@@ -106,6 +107,10 @@ def action_for_event(event: tcod.event.Event, engine: "Engine") -> Action | None
         if event.sym == INVENTORY_KEY:
             from game.screens import InventoryScreen
             engine.screen = InventoryScreen()
+        if event.sym == EQUIPMENT_KEY:
+            from game.screens import EquipmentScreen
+            engine.screen = EquipmentScreen()
+            return None
         if event.sym == EXPLORE_KEY:
             from game.actions import ExploreAction
             return ExploreAction()

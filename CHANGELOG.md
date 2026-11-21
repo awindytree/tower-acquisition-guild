@@ -5,6 +5,12 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.69.0: The equipment window (2026-11-21)
+- **Equipment has its own slots** (user): your weapon, armour and windcatcher are out of the bag, like artifacts already were, so they no longer take bag room. Equipping something from the bag puts what it replaces back in the bag.
+- **The equipment window (`e`)** shows everything you have on, slot by slot: weapon (damage, range), armour, windcatcher (its Jodebris bar, no numbers), then the artifact slots with what each gives. `e` takes something off, `u` uses an artifact, `Enter` picks something from your bag for that slot (and swaps), and `Tab` goes to the bag. Equipping takes a turn, as it does from the inventory.
+- **The inventory (`i`) is the bag only**; `Tab` goes to the equipment window. The artifact slots moved from the inventory to the equipment window.
+- Older saves load with their equipped things moved out of the bag into their slots. Retiring sends your equipped gear to the stash with the rest.
+
 ## 0.68.2: The title menu's Continue line (2026-11-21)
 - **Continue** now shows the Hunter, their level and where they are ("Ylfa Fencer, Lv 3, Bytorsskug"), without the date. The date was cut short to just the Duel and the Pulse's name, which told you nothing (user). The full date is still shown when you load from a save slot.
 

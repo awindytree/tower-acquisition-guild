@@ -185,7 +185,6 @@ class DropAction(Action):
         if player.inventory.items[self.index].type.properties.get("no_drop"):   # (Selda, v0.67.0)
             engine.log(f"You won't leave {player.inventory.items[self.index].type.name} behind.")
             return False
-        player.unequip(player.inventory.items[self.index])
         item = player.inventory.remove(self.index)
         engine.game_map.items.append(FloorItem(player.x, player.y, item))
         engine.log(f"You drop {article(item.label)}.")
@@ -300,16 +299,18 @@ class AttackAction(Action):
 
 
 class EquipAction(Action):
-    """Wield or wear an inventory item, or take it off if it's already on."""
+    """Wield, wear or hang a bag item in its equipment slot (out of the bag since v0.69.0); an
+    artifact goes in an artifact slot (the given one, or the first free)."""
 
-    def __init__(self, index: int) -> None:
+    def __init__(self, index: int, slot: int | None = None) -> None:
         self.index = index
+        self.slot = slot
 
     def perform(self, engine: "Engine") -> bool:
         player = engine.player
         item = player.inventory.items[self.index]
         if player.goes_in_artifact_slot(item):
-            ok, msg = player.equip_artifact(self.index)
+            ok, msg = player.equip_artifact(self.index, self.slot)
             engine.log(msg)
             return ok
         slot = player.slot_for(item)
@@ -317,12 +318,11 @@ class EquipAction(Action):
             engine.log(f"You can't wield or wear {article(item.label)}.")
             return False
         verb = {"weapon": "wield", "windcatcher": "hang at your belt"}.get(slot, "put on")
-        if player.is_equipped(item):
-            player.unequip(item)
-            off = {"weapon": "put away", "windcatcher": "unhook"}.get(slot, "take off")
-            engine.log(f"You {off} the {item.type.name}.")
-            return True
-        old = player.equip(item)
+        try:
+            old = player.equip(item)          # (out of the bag into its slot; the old one into the bag)
+        except ValueError as err:
+            engine.log(f"{err}.")
+            return False
         if old:
             engine.log(f"You swap the {old.type.name} for the {item.type.name}.")
         else:
@@ -447,6 +447,18 @@ class UseAction(Action):
         engine.travel(0, arrive_at="entry")
         engine.reach_trail_home()
         return False  # the journey happens between turns
+
+
+class UnequipAction(Action):
+    """Take off what's in an equipment slot (weapon, armor, windcatcher) into the bag (v0.69.0)."""
+
+    def __init__(self, slot: str) -> None:
+        self.slot = slot
+
+    def perform(self, engine: "Engine") -> bool:
+        ok, msg = engine.player.unequip_slot(self.slot)
+        engine.log(msg)
+        return ok
 
 
 class ArtifactSlotAction(Action):
