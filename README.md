@@ -614,8 +614,14 @@ Your home belongs to the world, like the stash: the next Hunter moves in.
 their landmark (Ingenfjel's village, or the stead just north of the Towerway)
 to go in, and onto the gate to come back out. Ingenfjel is only a piece of the
 village for now; its stables and circuit are for later. Travel-to (`t`) knows
-"your home". Prices and sizes are placeholders. A workbench (repairing Common
-artifacts) and a small forge (minor smithing) are planned.
+"your home". Prices and sizes are placeholders.
+
+**Forge and workbench:** the Bytorsskug house takes a forge (raise weapons and
+armour to +3) and a workbench (repair Common artifacts); Ingenfjel's workbench
+does both (walk into it and choose); the stead has room for neither.
+Repairing at home costs no shards but takes a Pulse, and you need to know
+what the artifact is first (study it with `u`). Rarer ones go to the
+Artificer. Broken artifacts in your home chest count.
 
 ## The Brisering
 

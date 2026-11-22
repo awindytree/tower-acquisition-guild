@@ -5,6 +5,22 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.79.0: Repairs at home (2026-11-22)
+Stage 5 of the equipment refactor (design: `claude/design-equipment.md`).
+
+**Repair Common artifacts yourself** (user) on a home workbench:
+- No fee, and a Pulse's work.
+- You need to know what it is first, so study it (`u`). It's one more use for Identification.
+- Anything rarer is the Artificer's work, and story artifacts can't be repaired anywhere.
+- Broken artifacts in your home chest count, and the repaired one goes back where it was.
+
+**The workbenches** (user):
+- **The Bytorsskug house** now takes a **workbench** (300) beside its forge. The forge raises gear; the workbench repairs artifacts.
+- **Ingenfjel's workbench** does both: walk into it and choose "Repair an artifact" or "Raise a weapon or armour piece".
+- **The stead:** neither.
+
+**Fixed:** a minimap test now and then failed when a random hunt put a creature in view (auto-explore wouldn't start); the test clears the creatures first.
+
 ## 0.78.0: Six new weapon types (2026-11-22)
 Stage 4 of the equipment refactor (design: `claude/design-equipment.md`). Names, numbers and techniques are the design's drafts.
 

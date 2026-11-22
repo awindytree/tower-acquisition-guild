@@ -132,7 +132,8 @@ def describe(engine: "Engine", x: int, y: int) -> tuple[str, list[tuple[str, tup
                           "q": "Your chest: walk into it to put things in or take them out.",
                           "j": "Your trophy shelves: walk into them to put a trophy up or take one down.",
                           "F": "Your forge: walk into it to raise a weapon or armour piece, up to +3.",
-                          "d": "Your workbench: walk into it to raise a weapon or armour piece, up to +3."}[sym_here], TEXT))
+                          "d": "Your workbench: walk into it to repair a Common artifact"
+                               + (", or raise a weapon or armour piece up to +3." if homes.smithing_key(engine) == "workbench" else ".")}[sym_here], TEXT))
     from game import monuments
     mon = monuments.at(gm, x, y)
     if mon:                               # a statue and its story (v0.68.0)

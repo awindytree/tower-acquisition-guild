@@ -1040,6 +1040,82 @@ class GameMenuScreen(MenuScreen):
         engine.screen = None
 
 
+class ChoiceScreen(MenuScreen):
+    """A few things to do (v0.79.0: the Ingenfjel workbench, which does two jobs). Esc closes."""
+
+    def __init__(self, title: str, choices: list) -> None:
+        super().__init__()
+        self.title = title
+        self.choices = choices       # [(label, function(engine))]
+
+    def options(self, engine):
+        return [(label, True, fn) for label, fn in self.choices]
+
+    def on_escape(self, engine):
+        engine.screen = None
+
+
+class ArtificyScreen:
+    """The home workbench (user, v0.79.0): repair a Common artifact yourself, from your pack or your
+    home chest. No fee; it takes a Pulse. You need to know what it is first (study it with u)."""
+
+    def __init__(self) -> None:
+        self.selected = 0
+        self.notice = ""
+
+    def handle(self, event, engine: "Engine") -> Action | None:
+        from game import homes
+        if not isinstance(event, tcod.event.KeyDown):
+            return None
+        rows = homes.repairable(engine)
+        if event.sym == KeySym.ESCAPE:
+            engine.screen = None
+        elif event.sym in UP_KEYS and rows:
+            self.selected = (self.selected - 1) % len(rows)
+            self.notice = ""
+        elif event.sym in DOWN_KEYS and rows:
+            self.selected = (self.selected + 1) % len(rows)
+            self.notice = ""
+        elif event.sym in CONFIRM_KEYS and rows:
+            store, item = rows[min(self.selected, len(rows) - 1)]
+            ok, self.notice = homes.repair_at_home(engine, store, item)
+            if ok:
+                engine.log(self.notice)
+                engine.screen = self
+        return None
+
+    def render(self, console, engine: "Engine", area_w: int) -> None:
+        from game import homes
+        w = min(area_w - 2, 58)
+        rows = homes.repairable(engine)
+        self.selected = max(0, min(self.selected, len(rows) - 1))
+        extra = []
+        if rows:
+            store, item = rows[self.selected]
+            why = homes.repair_blocked(item)
+            extra += wrapped(why or "Repair it: no fee, a Pulse's work.", w - 4, CANT if why else TEXT)
+        else:
+            extra += wrapped("You have no broken artifacts here, in your pack or your home chest.", w - 4, DIM)
+        extra += wrapped("Common artifacts only; the Artificer does the rest.", w - 4, DIM)
+        if self.notice:
+            extra += [("", DIM)] + wrapped(self.notice, w - 4, ACCENT)
+        h, visible, extra = fit_window(console, max(len(rows), 1), extra)
+        x, y = (area_w - w) // 2, (console.height - h) // 2
+        draw_box(console, x, y, w, h, "Your workbench: artifacts")
+        first = max(0, min(self.selected - visible // 2, len(rows) - visible))
+        for i, (store, it) in enumerate(rows[first : first + visible]):
+            row, bg = y + 3 + i, HIGHLIGHT if first + i == self.selected else BG
+            console.rgb["bg"][x + 1 : x + w - 1, row] = bg
+            ok = homes.repair_blocked(it) is None
+            tag = it.type.rarity.name + (", chest" if store is not engine.player.inventory else "")
+            console.print(x + 2, row, it.type.glyph, fg=it.type.color, bg=bg)
+            console.print(x + 4, row, it.type.name[: w - 8 - len(tag)], fg=TEXT if ok else CANT, bg=bg)
+            console.print(x + w - 2 - len(tag), row, tag, fg=DIM, bg=bg)
+        for i, (text, color) in enumerate(extra):
+            console.print(x + 2, y + 4 + visible + i, text[: w - 4], fg=color, bg=BG)
+        console.print(x + 2, y + h - 2, "↑↓ choose  Enter repair  Esc"[: w - 4], fg=DIM, bg=BG)
+
+
 class SlotScreen(MenuScreen):
     """Pick a slot to save into or load from."""
 

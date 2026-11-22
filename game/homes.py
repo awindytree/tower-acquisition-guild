@@ -18,7 +18,7 @@ import json
 from collections import deque
 from pathlib import Path
 
-from game.items import Inventory
+from game.items import Inventory, Item
 
 
 class Shelf(Inventory):
@@ -254,7 +254,7 @@ def use(engine, x: int, y: int) -> bool:
     sym = engine.game_map.tile_at(x, y).symbol
     if sym not in FURNITURE.values() or owned(engine) is None:
         return False
-    {"n": rest, "q": open_chest, "j": open_shelves, "F": smithing, "d": smithing}[sym](engine)
+    {"n": rest, "q": open_chest, "j": open_shelves, "F": smithing, "d": workbench}[sym](engine)
     return True
 
 
@@ -272,6 +272,65 @@ def smithing(engine) -> None:
     if key is None:
         return
     engine.screen = UpgradeScreen(at="home", title=f"Your {data()['improvements'][key]['name'].lower()}")
+
+
+def artificy_key(engine) -> str | None:
+    """The improvement that repairs Common artifacts at the owned home, if it's built (v0.79.0)."""
+    hid = owned(engine)
+    key = data()["homes"][hid].get("artificy") if hid else None
+    return key if key and tier(engine, key) else None
+
+
+def workbench(engine) -> None:
+    """The workbench: artifacts, and (where there's no forge) gear too: then it asks which."""
+    from game.screens import ArtificyScreen, ChoiceScreen
+    art, smith = artificy_key(engine) == "workbench", smithing_key(engine) == "workbench"
+    if art and smith:
+        engine.screen = ChoiceScreen("Your workbench", [("Repair an artifact", lambda e: setattr(e, "screen", ArtificyScreen())),
+                                                        ("Raise a weapon or armour piece", smithing)])
+    elif art:
+        engine.screen = ArtificyScreen()
+    elif smith:
+        smithing(engine)
+
+
+COMMON = 1     # the rarity tier you can repair at home (user: Common artifacts)
+
+
+def repairable(engine) -> list:
+    """(store, item) for every broken artifact in the pack and the home chest."""
+    out = [(engine.player.inventory, it) for it in engine.player.inventory.items if it.type.is_broken_artifact]
+    if getattr(engine, "home", None):
+        out += [(engine.home["chest"], it) for it in engine.home["chest"].items if it.type.is_broken_artifact]
+    return out
+
+
+def repair_blocked(item) -> str | None:
+    from game import artifacts
+    t = item.type
+    if artifacts.locked(t):
+        return "You can't make anything of this one."
+    if t.rarity.tier > COMMON:
+        return f"{t.rarity.name}: past Common, that's the Artificer's work."
+    if not t.identified:
+        return "You'd need to know what it is first: study it (u)."
+    return None
+
+
+def repair_at_home(engine, store, item) -> tuple[bool, str]:
+    """Repair a Common artifact yourself on the workbench (user, v0.79.0): no fee, a Pulse's work."""
+    why = repair_blocked(item)
+    if why:
+        return False, why
+    from game import artifacts
+    working = engine.catalogue[item.type.repairs_to]
+    i = next(n for n, it in enumerate(store.items) if it is item)
+    store.items[i] = Item(working)
+    artifacts.learn(engine.player, item.type)
+    engine.next_day()
+    from game import sound
+    sound.play("pay")
+    return True, f"A Pulse at the bench, and the {item.type.name} works again: {artifacts._a(working.name)}."
 
 
 # ---- Saving ----------------------------------------------------------------------------------------------------
