@@ -5,6 +5,9 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.80.1: Duel tool fix (2026-11-22)
+- `tools/balance/duels.py`: a Hunter's calling followed the weapon used most over all its fights, so weapons fought later inherited earlier weapons' calling bonuses. It's cleared for every fight now. The before-and-after numbers in the balance report (pass 4) were rerun with the fix. No change to the game.
+
 ## 0.80.0: Balance pass 4, the equipment (2026-11-22)
 Stage 6 of the equipment refactor. Findings and runs: `claude/balance-report.md` (pass 4). The user's choices:
 - **Knives and claws find the gaps in armour:** every knife and claw ignores 1 armour. **The leather whip is 1d6** (from 1d4), and the smith's sinew lash 1d7.

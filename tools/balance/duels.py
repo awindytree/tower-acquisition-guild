@@ -72,6 +72,8 @@ def fight(e, spot, weapon_id, tier, rank, creature, level, seed) -> dict:
         st = p.skill(sid)
         st.rank, st.practice = rank, 0
     p.readied, p.tech_rest, p.frenzy, p.unloaded, p.dazed = None, 0, 0, False, 0
+    p.close_rest = 0
+    p.weapon_use = {}           # (the calling follows the weapon in hand, not earlier fights' weapons)
     injuries.apply_to_stats(p)
     p.stats.hp = p.stats.max_hp
     hp0 = p.stats.hp
