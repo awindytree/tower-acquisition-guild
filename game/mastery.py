@@ -16,6 +16,13 @@ CALLINGS = {   # calling -> (skill, what it gives, the bonus key, how much)
     "Breaker": ("hafted", "1 more armour ignored", "pierce", 1),
     "Archer": ("marksmanship", "+2 bow range", "range", 2),
     "Brawler": ("brawling", "+1 accuracy", "accuracy", 1),
+    # the six new types (v0.78.0; placeholders)
+    "Cutter": ("knives", "+1 damage", "damage", 1),
+    "Lasher": ("whips", "+1 accuracy", "accuracy", 1),
+    "Warder": ("staves", "+1 evasion", "evasion", 1),
+    "Arbalist": ("crossbows", "+2 crossbow range", "range", 2),
+    "Raker": ("claws", "+1 damage", "damage", 1),
+    "Lancer": ("polearms", "1 more armour ignored", "pierce", 1),
 }
 PREY_ACCURACY, PREY_DAMAGE = 10, 25
 

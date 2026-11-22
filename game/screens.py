@@ -1988,7 +1988,7 @@ KEY_REFERENCE = [
     ("Acting", [
         ("g or ,", "pick up what's here (a corpse last, as a trophy)"),
         ("b", "butcher the corpse here, for materials"),
-        ("f", "aim and shoot a wielded bow"),
+        ("f", "aim and shoot a bow or crossbow"),
         ("x", "look (Tab: next thing in view)"),
     ]),
     ("Windows", [
@@ -2412,7 +2412,8 @@ class CharacterScreen(ScrollScreen):
 
 
 SKILL_GROUPS = [   # (heading, skill ids) for the skills window; anything not listed goes under "Other"
-    ("Weapons", ["blades", "axes", "hafted", "brawling", "marksmanship"]),
+    ("Weapons", ["blades", "knives", "axes", "hafted", "brawling", "claws", "whips", "staves", "polearms",
+                 "marksmanship", "crossbows"]),
     ("In the field", ["tracking", "stealth", "harvesting", "survival", "medicine"]),
     ("Knowledge and trade", ["identification", "scholarship", "bargaining"]),
     ("Jodebris", ["attunement"]),

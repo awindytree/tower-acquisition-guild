@@ -106,6 +106,8 @@ class Monster(Entity):
     staggered: int = 0         # turns it loses (Stagger, Throw: game/weaponskills.py)
     bleeding: int = 0          # turns it bleeds (Rend)
     touched: bool = False      # have you struck at it yet (Quick hands)
+    held: int = 0              # turns it can't move (Snare, v0.78.0); it can still fight
+    set_done: bool = False     # a polearm's Set has struck it (once)
 
     @classmethod
     def spawn(cls, mtype: MonsterType, x: int, y: int) -> "Monster":

@@ -299,7 +299,14 @@ def restore(engine: "Engine", data: dict) -> None:
         engine.jobs_posted, engine.requests_posted = w["posted"]
         engine.next_work_id = w["next_id"]
     engine.reset_stocks()  # (vendors this save doesn't know yet start full)
-    engine.stocks.update({vid: Stock.from_list(data) for vid, data in world.get("stocks", {}).items()})
+    fresh = engine.stocks
+    engine.stocks = dict(fresh)
+    for vid, data in world.get("stocks", {}).items():
+        st = Stock.from_list(data)
+        if vid in fresh:            # (v0.78.0) lines added to the data since this save start full
+            have = {l.item_id for l in st.lines if l.max > 0}
+            st.lines += [l for l in fresh[vid].lines if l.max > 0 and l.item_id not in have]
+        engine.stocks[vid] = st
     engine.hunt = hunt
     engine.screen = None
     engine.started = True

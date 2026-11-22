@@ -62,7 +62,7 @@
   },
   "blades": {
     "name": "Blades",
-    "description": "Fighting with swords and knives. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Rank 3 brings a passive technique, rank 5 one you ready with z. Every blow is practice (a hit counts double). Placeholders (v0.55.0). The trainer in the guild hall's training corner trains it.",
+    "description": "Fighting with swords. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Rank 3 brings a passive technique, rank 5 one you ready with z. Every blow is practice (a hit counts double). Placeholders (v0.55.0). The trainer in the guild hall's training corner trains it.",
     "max_rank": 6,
     "self_taught_to": 2,
     "practice_per_rank": 30,
@@ -208,6 +208,96 @@
       "6": 2000
     },
     "attribute": "acumen",
+    "practice_base": 1
+  },
+  "knives": {
+    "name": "Knives",
+    "description": "Fighting with daggers and knives. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Every blow is practice (a hit counts double). Rank 3: Backstab (an unnoticed hit does double damage); rank 5: Flurry (two strikes at once), readied with z. The trainer trains it. Placeholders (v0.78.0).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 30,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "celerity",
+    "practice_base": 1
+  },
+  "whips": {
+    "name": "Whips",
+    "description": "Fighting with whips, at a distance: a whip strikes a creature two cells away in a straight line. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Every blow is practice (a hit counts double). Rank 3: Crack (+2 accuracy striking at two cells); rank 5: Snare (the creature can't move for 3 turns), readied with z. The trainer trains it. Placeholders (v0.78.0).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 30,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "celerity",
+    "practice_base": 1
+  },
+  "staves": {
+    "name": "Staves",
+    "description": "Fighting with a staff. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Every blow is practice (a hit counts double). Rank 3: Guard (+2 evasion); rank 5: Sweep (strike everything beside you, each staggered a turn), readied with z. The trainer trains it. Placeholders (v0.78.0).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 30,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "tenacity",
+    "practice_base": 1
+  },
+  "crossbows": {
+    "name": "Crossbows",
+    "description": "Shooting a crossbow. Each rank above 1 adds 2 to your accuracy with it. Every shot at a creature is practice (a hit counts double). Rank 3: Braced (+2 accuracy when you didn't move the turn before); rank 5: Piercing bolt (the bolt hits everything in its line), readied with z. The trainer trains it. Placeholders (v0.78.0).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 30,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "acumen",
+    "practice_base": 1
+  },
+  "claws": {
+    "name": "Claws",
+    "description": "Fighting with claws and katars: quick and close. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Every blow is practice (a hit counts double). Rank 3: Rake (a hit bleeds 20% of the time); rank 5: Frenzy (your next three blows take no time), readied with z. The trainer trains it. Placeholders (v0.78.0).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 30,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "celerity",
+    "practice_base": 1
+  },
+  "polearms": {
+    "name": "Polearms",
+    "description": "Fighting with spears and glaives, at a distance: a polearm strikes a creature two cells away in a straight line. Each rank above 1 adds 1 to your accuracy with it; ranks 3 and 5 each add 1 to its damage. Every blow is practice (a hit counts double). Rank 3: Set (a free strike at a creature that steps into reach); rank 5: Impale (a blow that ignores armour and staggers), readied with z. The trainer trains it. Placeholders (v0.78.0).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 30,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "physicality",
     "practice_base": 1
   }
 }

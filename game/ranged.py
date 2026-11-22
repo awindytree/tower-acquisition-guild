@@ -24,8 +24,13 @@ DISTANCE_PENALTY = 3      # -1 accuracy for every this many cells away
 ARROW_SURVIVES = 0.5      # chance a shot arrow can be picked up again
 
 
+def skill_of(weapon) -> str:
+    """The skill a ranged weapon practises: Marksmanship for bows, Crossbows for crossbows (v0.78.0)."""
+    return weapon.type.properties.get("skill", SKILL) if weapon is not None else SKILL
+
+
 def bow(player):
-    """The wielded ranged weapon, if any."""
+    """The wielded ranged weapon (a bow or a crossbow), if any."""
     weapon = player.equipped.get("weapon")
     return weapon if weapon and "range" in weapon.type.properties else None
 
@@ -70,17 +75,21 @@ def flight(engine, tx: int, ty: int) -> tuple[list[tuple[int, int]], object | No
 
 def accuracy(player, dist: float) -> int:
     from game import artifacts
-    rank = player.skill(SKILL).rank
+    sk_id = skill_of(bow(player))
+    rank = player.skill(sk_id).rank
     from game import injuries
     from game import weaponskills
     from game import talents
-    steady = rank >= weaponskills.PASSIVE_RANK or talents.total(player, "steady")   # Steady hand (or the trait)
+    steady = ((sk_id == SKILL and rank >= weaponskills.PASSIVE_RANK)       # Steady hand (or the trait)
+              or talents.total(player, "steady"))
+    braced = (weaponskills.BRACED_ACCURACY if sk_id == "crossbows" and rank >= weaponskills.PASSIVE_RANK
+              and not getattr(player, "stepped_last", False) else 0)     # Braced (Crossbows 3, v0.78.0)
     aimed = weaponskills.AIM_ACCURACY if player.readied == "Aimed shot" else 0
     from game import talents
     aimed += talents.total(player, "ranged_accuracy")          # (Eagle Eye)
     return (player.stats["celerity"] + artifacts.bonus(player, "accuracy") + injuries.total(player, "ranged")
             + RANK_BONUS * (rank - 1) - (0 if steady else int(dist // DISTANCE_PENALTY)) + aimed
-            - (2 if player.dazed else 0) + gear.accuracy(bow(player)))     # (the bow's tier, v0.75.0)
+            - (2 if player.dazed else 0) + gear.accuracy(bow(player)) + braced)     # (the bow's tier, v0.75.0)
 
 
 def hit_chance(player, creature, dist: float) -> int:
@@ -93,7 +102,7 @@ def can_fire(engine) -> str | None:
     p = engine.player
     weapon = bow(p)
     if weapon is None:
-        return "You need a bow in hand to shoot."
+        return "You need a bow or a crossbow in hand to shoot."
     ammo = weapon.type.properties.get("ammo", "arrow")
     if p.inventory.count_of(ammo) <= 0:
         return f"You have no {engine.catalogue[ammo].label(2)[2:]} left."
@@ -135,21 +144,30 @@ def fire(engine, tx: int, ty: int, rng: random.Random = random) -> bool:
     i = next(n for n, it in enumerate(p.inventory.items) if it.type.id == ammo_id)
     p.inventory.remove(i, 1)
     p.note_weapon_use()   # every shot counts towards the Hunter's calling
+    sk_id = skill_of(weapon)
+    from game import weaponskills
     path, creature = flight(engine, tx, ty)
+    piercing = creature is not None and p.readied == "Piercing bolt" and weaponskills.spend(p)
+    targets = [creature] if creature is not None else []
+    if piercing:                      # Piercing bolt (Crossbows 5, v0.78.0): everything in its line, to range
+        path, targets = flight_through(engine, tx, ty)
     landed = path[-1] if path else (p.x, p.y)
     from game import sound
     sound.play("bow")
-    if creature is None:
-        engine.log("Your arrow flies wide and clatters away." if path else "Your arrow strikes the rock at once.")
-    else:
+    noun = "bolt" if ammo_id == "bolt" else "arrow"
+    if not targets:
+        engine.log(f"Your {noun} flies wide and clatters away." if path else f"Your {noun} strikes the rock at once.")
+    skill = engine.skills.get(sk_id)
+    aimed = bool(targets) and p.readied == "Aimed shot" and weaponskills.spend(p)
+    what = "Your aimed shot" if aimed else ("Your piercing bolt" if piercing else f"Your {noun}")
+    from game import talents
+    braced = sk_id == "crossbows" and weaponskills.has_passive(p, "crossbows") and not getattr(p, "stepped_last", False)
+    for creature in targets:
+        unaware = not creature.awake
         creature.awake, creature.turns_unseen = True, 0
         dist = distance(p.x, p.y, creature.x, creature.y)
         chance = hit_chance(p, creature, dist)
-        skill = engine.skills.get(SKILL)
-        hit = rng.randint(1, 100) <= chance
-        from game import weaponskills
-        aimed = p.readied == "Aimed shot" and weaponskills.spend(p)
-        what = "Your aimed shot" if aimed else "Your arrow"
+        hit = rng.randint(1, 100) <= chance or (unaware and bool(talents.total(p, "sure_unnoticed")))   # Reliable
         if hit:
             dice = weapon.type.properties["damage"]
             from game import talents
@@ -157,7 +175,9 @@ def fire(engine, tx: int, ty: int, rng: random.Random = random) -> bool:
             damage = max(1, sum(combat.roll(dice, rng) for _ in range(2 if aimed else 1))
                          + talents.total(p, "ranged_damage") + mastery.prey_bonus(p, creature)[1]
                          + gear.damage(weapon) - max(0, creature.armor - talents.total(p, "ranged_pierce"))
-                         + (talents.total(p, "marked_shot_damage") if getattr(creature, "shot", False) else 0))
+                         + (talents.total(p, "marked_shot_damage") if getattr(creature, "shot", False) else 0)
+                         + (talents.total(p, "braced_damage") if braced else 0)                # Braced stock
+                         + (talents.total(p, "tier3_ranged_damage") if creature.type.tier >= 3 else 0))   # Siege-made
             creature.shot = True                                           # (Hunter's mark, a trait)
             creature.take_damage(damage)
             sound.play("arrow_hit")
@@ -171,13 +191,41 @@ def fire(engine, tx: int, ty: int, rng: random.Random = random) -> bool:
             engine.log(f"{what} misses the {creature.name}.")
         if skill:
             from game.skills import gain_for
-            for message in add_practice(skill, p.skill(SKILL), gain_for(skill, p) * (2 if hit else 1)):
+            for message in add_practice(skill, p.skill(sk_id), gain_for(skill, p) * (2 if hit else 1)):
                 engine.log(message)
+    if weapon.type.properties.get("reload"):   # a crossbow: a turn to wind it before the next shot
+        from game import talents
+        p.cranked = not getattr(p, "cranked", False)
+        p.unloaded = not (talents.total(p, "quick_reload") and p.cranked)    # Quick crank: every other shot
     from game import talents
     if path and rng.random() < ARROW_SURVIVES + talents.total(p, "arrow_survive") / 100:
         gm.items.append(FloorItem(*landed, Item(engine.catalogue[ammo_id])))
     free = talents.total(p, "free_shot")                    # Swift string (a trait): no turn, sometimes
     return not (free and rng.randint(1, 100) <= free)
+
+
+def flight_through(engine, tx: int, ty: int) -> tuple[list, list]:
+    """A piercing bolt: on along the line past (tx, ty) to the weapon's range, through every creature,
+    stopping before anything solid. Returns the path and the creatures on it."""
+    p, gm = engine.player, engine.game_map
+    reach = bow_range(p, bow(p))
+    far = (p.x + (tx - p.x) * 40, p.y + (ty - p.y) * 40)
+    path, hit = [], []
+    for cell in line(p.x, p.y, *far):
+        if not gm.in_bounds(*cell) or not gm.transparent[cell] or distance(p.x, p.y, *cell) > reach:
+            break
+        path.append(cell)
+        m = gm.monster_at(*cell)
+        if m and not m.type.ghost and not m.burrowed:
+            hit.append(m)
+    return path, hit
+
+
+def reload(engine) -> bool:
+    """f with an unwound crossbow: a turn to wind it and fit a bolt."""
+    engine.player.unloaded = False
+    engine.log("You wind the crossbow and fit a bolt.")
+    return True
 
 
 def shot_traits(engine, creature, rng) -> None:

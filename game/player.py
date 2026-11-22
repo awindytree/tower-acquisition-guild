@@ -22,6 +22,12 @@ from game.skills import SkillState
 from game import gear
 from game.stats import ATTRIBUTES, Stats, carry_slots, regen_turns
 
+def weaponskills_guard(player) -> int:
+    """Guard (Staves 3, v0.78.0): +2 evasion with a staff in hand."""
+    from game import weaponskills
+    return weaponskills.GUARD_EVASION if weaponskills.has_passive(player, "staves") else 0
+
+
 # Which kinds of item go in which equipment slot (armour: its own slot, game/gear.py, v0.75.0).
 SLOT_FOR_KIND = {"weapon": "weapon"}
 UNARMED = "1d3"
@@ -95,6 +101,10 @@ class Player(Entity):
     talent_offers: list = field(default_factory=list)  # [[id, id, id], ...]: choices still to make
     second_wind_used: bool = False   # (the Second Wind talent: once a hunt)
     vengeance: bool = False          # (Vengeful: a creature hit you; your next blow gets more accuracy)
+    unloaded: bool = False           # a crossbow shot and not yet wound again (v0.78.0)
+    frenzy: int = 0                  # Frenzy (Claws 5): blows left that take no time
+    stepped_now: bool = False        # this action was a step (Braced: did you step the turn before?)
+    stepped_last: bool = False
     prey: dict = field(default_factory=dict)   # creature id -> kills by this Hunter (game/mastery.py)
     tech_rest: int = 0           # turns before one can be readied again
     torch_light: int = 0     # how much light it gives
@@ -249,7 +259,9 @@ class Player(Entity):
     def evasion(self) -> int:
         from game import talents, mastery
         return (self.stats["celerity"] + artifacts.bonus(self, "evasion") + injuries.total(self, "evasion")
-                + talents.total(self, "evasion") + mastery.calling_bonus(self, "evasion") - (2 if self.dazed else 0))
+                + talents.total(self, "evasion") + mastery.calling_bonus(self, "evasion") - (2 if self.dazed else 0)
+                + weaponskills_guard(self)
+                + (0 if self.stepped_now else talents.total(self, "still_evasion")))       # Line-holder
 
     @property
     def light_bonus(self) -> int:
@@ -325,7 +337,8 @@ class Player(Entity):
     @property
     def armor(self) -> int:
         from game import talents
-        return gear.armour_total(self) + artifacts.bonus(self, "armor") + talents.total(self, "armor")
+        return (gear.armour_total(self) + artifacts.bonus(self, "armor") + talents.total(self, "armor")
+                + (0 if self.stepped_now else talents.total(self, "still_armour")))        # Braced (legs)
 
     @property
     def is_dead(self) -> bool:

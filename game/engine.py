@@ -383,6 +383,9 @@ class Engine:
             self.walking = None
 
     def handle_action(self, action: Action | None) -> None:
+        if action is not None:
+            p = self.player                  # (Braced, v0.78.0: was the last action a step?)
+            p.stepped_last, p.stepped_now = p.stepped_now, False
         if action is not None and action.perform(self):
             self.turn += 1
             self.end_turn()
@@ -528,6 +531,11 @@ class Engine:
                     self.log(f"The {m.name} bleeds out.")
                     self.slay(m)
                     continue
+            if getattr(m, "held", 0):               # Snare: it can't move (it can still fight)
+                m.held -= 1
+                m.holding = True
+            else:
+                m.holding = False
             if getattr(m, "staggered", 0):          # Stagger, Throw: it loses this turn
                 m.staggered -= 1
                 continue
@@ -538,7 +546,10 @@ class Engine:
                     break
                 if m.awake and steps_to_player is None:
                     steps_to_player = self.distances_from(p.x, p.y)
+                before = (m.x, m.y)
                 self.monster_turn(m, steps_to_player)
+                if (m.x, m.y) != before:
+                    self.set_strike(m)
 
     def monster_turn(self, m, steps_to_player) -> None:
         """One creature's action: attack, close in, or one of its own ways (v0.49.0)."""
@@ -589,6 +600,8 @@ class Engine:
                 return
         if near == 1 and (m.awake or t.behaviour == "still") and not t.ghost:   # side by side, not corners
             self.monster_attacks(m)
+        elif getattr(m, "holding", False):
+            return                          # snared: it can't move (v0.78.0)
         elif t.behaviour == "still" or (t.swims and gm.tile_at(m.x, m.y).symbol == "~" and not m.opened):
             return                          # (a swimmer waits in the water until it leaps)
         elif m.awake and steps_to_player is not None:
@@ -596,6 +609,25 @@ class Engine:
         elif self.rng.random() < WANDER_CHANCE:
             ddx, ddy = self.rng.choice(STEPS)
             self.try_move_monster(m, m.x + ddx, m.y + ddy)
+
+    def set_strike(self, m) -> None:
+        """Set (Polearms 3, v0.78.0): a creature that steps into reach takes a free strike, once."""
+        p, gm = self.player, self.game_map
+        if (m not in gm.monsters or m.set_done or m.type.ghost or m.burrowed or p.is_dead
+                or not weaponskills.has_passive(p, "polearms") or not weaponskills.in_reach(self, m)):
+            return
+        from game import combat
+        m.set_done = True
+        from game import talents
+        back = combat.resolve(p, m, self.rng, rolls=1 + talents.total(p, "set_rolls"))
+        weaponskills.practise(self, back.hit)
+        if not back.hit:
+            self.log(f"You set your spear, but miss the {m.name}.")
+        elif back.killed:
+            self.log(f"You set your spear: the {m.name} runs onto it and dies.")
+            self.slay(m)
+        else:
+            self.log(f"You set your spear: the {m.name} runs onto it ({back.damage}).")
 
     def step_away(self, m, dist) -> None:
         """Move one step further from the player, if a free cell is."""
@@ -637,6 +669,14 @@ class Engine:
         sound.play("hurt" if result.hit else "creature_miss")
         if not result.hit:
             self.log(f"The {m.name} misses you.")
+            counter = talents.total(self.player, "counter")              # Counterpunch (a trait, v0.78.0)
+            if counter and not m.type.ghost and not m.burrowed and self.rng.randint(1, 100) <= counter:
+                back = combat.resolve(self.player, m, self.rng)
+                if back.killed:
+                    self.log(f"You counter and kill the {m.name}.")
+                    self.slay(m)
+                    return
+                self.log(f"You counter: {'you hit the ' + m.name + f' for {back.damage}' if back.hit else 'you miss'}.")
             if weaponskills.has_passive(self.player, "blades") and not m.type.ghost and not m.burrowed:
                 back = combat.resolve(self.player, m, self.rng,          # Riposte: you strike back at once
                                       accuracy=talents.total(self.player, "riposte_accuracy"))

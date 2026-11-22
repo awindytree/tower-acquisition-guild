@@ -96,6 +96,48 @@
         "restock": 81,
         "bundle": 10,
         "price": 8
+      },
+      {
+        "id": "hunting_knife",
+        "max": 1,
+        "restock": 243
+      },
+      {
+        "id": "leather_whip",
+        "max": 1,
+        "restock": 243
+      },
+      {
+        "id": "quarterstaff",
+        "max": 1,
+        "restock": 243
+      },
+      {
+        "id": "light_crossbow",
+        "max": 1,
+        "restock": 729
+      },
+      {
+        "id": "iron_claws",
+        "max": 1,
+        "restock": 243
+      },
+      {
+        "id": "boar_spear",
+        "max": 1,
+        "restock": 243
+      },
+      {
+        "id": "studded_gloves",
+        "max": 1,
+        "restock": 243
+      },
+      {
+        "id": "bolt",
+        "max": 4,
+        "restock": 81,
+        "bundle": 10,
+        "price": 10
       }
     ],
     "buys": [

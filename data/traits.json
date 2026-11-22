@@ -1,5 +1,5 @@
 {
- "_comment": "Gear traits (v0.77.0; design: claude/design-equipment.md, the assistant's draft pools, 12 per type). Rolled when a piece reaches +5, +10, +15... from its type's pool (data/gear.json types), never twice on one piece. Only traits with \"ready\": true are rolled; the rest wait for their mechanics (reach, knockback and so on) or their weapon type (stage 4). effects use the talent keys (game/talents.py) plus the gear keys in game/gear.py; a key ending in /5 counts once for every 5 tiers of the piece. ALL PLACEHOLDERS.",
+ "_comment": "Gear traits (v0.77.0, more ready in v0.78.0; design: claude/design-equipment.md, the assistant's draft pools, 12 per type). Rolled when a piece reaches +5, +10, +15... from its type's pool (data/gear.json types), never twice on one piece. Only traits with \"ready\": true are rolled; the rest wait for their mechanics (reach, knockback and so on) or their weapon type (stage 4). effects use the talent keys (game/talents.py) plus the gear keys in game/gear.py; a key ending in /5 counts once for every 5 tiers of the piece. ALL PLACEHOLDERS.",
  "pools": {
   "knife": {
    "venom_groove": {
@@ -10,17 +10,26 @@
    "shadowed": {
     "name": "Shadowed",
     "text": "creatures notice you 10% less often",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "notice": 10
+    }
    },
    "quick_draw": {
     "name": "Quick draw",
-    "text": "your first strike on each creature is a critical hit",
-    "ready": false
+    "text": "your first strike on each creature rolls double damage",
+    "ready": true,
+    "effects": {
+     "first_double": 1
+    }
    },
    "opener": {
     "name": "Opener",
     "text": "+3 damage against a creature at full health",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "full_hp_damage": 3
+    }
    },
    "wrist_flick": {
     "name": "Wrist-flick",
@@ -29,33 +38,51 @@
    },
    "gutting": {
     "name": "Gutting",
-    "text": "butchering with it yields one more material",
-    "ready": false
+    "text": "butchering yields one more material",
+    "ready": true,
+    "effects": {
+     "material_extra": 1
+    }
    },
    "nick": {
     "name": "Nick",
     "text": "15% chance to bleed",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "bleed_chance": 15
+    }
    },
    "sly": {
     "name": "Sly",
     "text": "+2 accuracy against a creature that hasn't noticed you",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "sneak_accuracy": 2
+    }
    },
    "fleet": {
     "name": "Fleet",
     "text": "+1 evasion",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "evasion": 1
+    }
    },
    "coup_de_grace": {
     "name": "Coup de grâce",
     "text": "kills anything under 15% health outright",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "execute": 15
+    }
    },
    "thiefs_luck": {
     "name": "Thief's luck",
     "text": "+15% loose shards found",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "shards_found": 15
+    }
    },
    "paired": {
     "name": "Paired",
@@ -330,17 +357,26 @@
    "barbed": {
     "name": "Barbed",
     "text": "15% chance to bleed",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "bleed_chance": 15
+    }
    },
    "long": {
     "name": "Long",
     "text": "reach 3",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "reach": 1
+    }
    },
    "tripping": {
     "name": "Tripping",
-    "text": "15% chance to knock the creature down (it loses its next turn)",
-    "ready": false
+    "text": "15% chance to trip the creature (it loses its next turn)",
+    "ready": true,
+    "effects": {
+     "stagger_chance": 15
+    }
    },
    "cracking": {
     "name": "Cracking",
@@ -359,8 +395,11 @@
    },
    "stinging": {
     "name": "Stinging",
-    "text": "+2 damage at full reach",
-    "ready": false
+    "text": "+2 damage striking at reach",
+    "ready": true,
+    "effects": {
+     "reach_damage": 2
+    }
    },
    "disarming": {
     "name": "Disarming",
@@ -380,7 +419,10 @@
    "flayed": {
     "name": "Flayed",
     "text": "critical hits bleed",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "crit_bleed": 1
+    }
    },
    "tamers": {
     "name": "Tamer's",
@@ -392,12 +434,18 @@
    "ironwood": {
     "name": "Ironwood",
     "text": "+1 armour while wielded",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "armor": 1
+    }
    },
    "warding": {
     "name": "Warding",
     "text": "+2 evasion",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "evasion": 2
+    }
    },
    "pole_vault": {
     "name": "Pole-vault",
@@ -407,37 +455,58 @@
    "sweeping": {
     "name": "Sweeping",
     "text": "Sweep staggers for two turns",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "sweep_stagger": 1
+    }
    },
    "humming": {
     "name": "Humming",
     "text": "your windcatcher drains 10% slower",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "drain": 10
+    }
    },
    "pilgrims": {
     "name": "Pilgrim's",
     "text": "rations heal 50% more",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "ration": 50
+    }
    },
    "long_arm": {
     "name": "Long-arm",
     "text": "reach 2",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "reach": 1
+    }
    },
    "steadying": {
     "name": "Steadying",
-    "text": "+2 to shrug off dazes (shorter daze)",
-    "ready": false
+    "text": "dazes last 2 turns less",
+    "ready": true,
+    "effects": {
+     "daze_resist": 2
+    }
    },
    "wayfarers": {
     "name": "Wayfarer's",
     "text": "time on the Brisering passes 10% slower",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "brisering_steps": 10
+    }
    },
    "lantern_pole": {
     "name": "Lantern-pole",
     "text": "+2 light in dark places",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "light": 2
+    }
    },
    "rhythm": {
     "name": "Rhythm",
@@ -543,17 +612,27 @@
    "quick_crank": {
     "name": "Quick crank",
     "text": "reload takes no turn every other shot",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "quick_reload": 1
+    }
    },
    "heavy_bolt": {
     "name": "Heavy bolt",
     "text": "+3 damage, −1 range",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "ranged_damage": 3,
+     "range": -1
+    }
    },
    "bodkin": {
     "name": "Bodkin",
     "text": "+2 armour pierce",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "ranged_pierce": 2
+    }
    },
    "kick": {
     "name": "Kick",
@@ -563,32 +642,50 @@
    "scope": {
     "name": "Scope",
     "text": "+3 range",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "range": 3
+    }
    },
    "stunning": {
     "name": "Stunning",
-    "text": "10% chance to stagger",
-    "ready": false
+    "text": "10% chance to stagger (it loses 2 turns)",
+    "ready": true,
+    "effects": {
+     "ranged_stagger": 10
+    }
    },
    "barbed_bolts": {
     "name": "Barbed bolts",
     "text": "15% chance to bleed",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "ranged_bleed_chance": 15
+    }
    },
    "braced_stock": {
     "name": "Braced stock",
     "text": "Braced also gives +2 damage",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "braced_damage": 2
+    }
    },
    "recovering": {
     "name": "Recovering",
     "text": "bolts survive 75% of the time",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "arrow_survive": 25
+    }
    },
    "siege_made": {
     "name": "Siege-made",
     "text": "+4 damage against creatures of tier 3 and up",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "tier3_ranged_damage": 4
+    }
    },
    "twin_string": {
     "name": "Twin string",
@@ -598,44 +695,68 @@
    "reliable": {
     "name": "Reliable",
     "text": "can't miss a creature that hasn't noticed you",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "sure_unnoticed": 1
+    }
    }
   },
   "claw": {
    "serrated": {
     "name": "Serrated",
     "text": "25% chance to bleed",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "bleed_chance": 25
+    }
    },
    "twin_blades": {
     "name": "Twin blades",
     "text": "15% chance to strike twice",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "double_strike": 15
+    }
    },
    "raking": {
     "name": "Raking",
     "text": "bleeds you cause last 2 turns longer",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "bleed_extra": 2
+    }
    },
    "gripping": {
     "name": "Gripping",
     "text": "a hit holds the creature in place for a turn",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "hold_on_hit": 1
+    }
    },
    "feral": {
     "name": "Feral",
     "text": "+3 damage while you're bleeding",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "bleeding_damage": 3
+    }
    },
    "pouncing": {
     "name": "Pouncing",
     "text": "+2 accuracy on the first strike at a creature",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "first_accuracy": 2
+    }
    },
    "tearing": {
     "name": "Tearing",
     "text": "+1 armour pierce",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "pierce": 1
+    }
    },
    "hollow_point": {
     "name": "Hollow-point",
@@ -650,24 +771,36 @@
    "quickened": {
     "name": "Quickened",
     "text": "Frenzy gives four attacks",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "frenzy_extra": 1
+    }
    },
    "climbers": {
     "name": "Climber's",
     "text": "+1 evasion",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "evasion": 1
+    }
    },
    "rending_grip": {
     "name": "Rending grip",
     "text": "critical hits stagger",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "crit_stagger": 1
+    }
    }
   },
   "gloves": {
    "weighted_knuckles": {
     "name": "Weighted knuckles",
     "text": "+2 damage",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "damage": 2
+    }
    },
    "iron_grip": {
     "name": "Iron grip",
@@ -676,18 +809,27 @@
    },
    "pugilists": {
     "name": "Pugilist's",
-    "text": "15% chance to daze",
-    "ready": false
+    "text": "15% chance to stagger (it loses a turn)",
+    "ready": true,
+    "effects": {
+     "stagger_chance": 15
+    }
    },
    "counterpunch": {
     "name": "Counterpunch",
     "text": "15% chance of a free blow when a creature misses you",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "counter": 15
+    }
    },
    "hardened": {
     "name": "Hardened",
     "text": "+1 armour",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "armor": 1
+    }
    },
    "quick_hands": {
     "name": "Quick hands",
@@ -697,44 +839,68 @@
    "pressure_points": {
     "name": "Pressure points",
     "text": "10% chance to stagger",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "stagger_chance": 10
+    }
    },
    "grapplers": {
     "name": "Grappler's",
     "text": "a hit holds the creature in place for a turn",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "hold_on_hit": 1
+    }
    },
    "spiked": {
     "name": "Spiked",
     "text": "+1 armour pierce",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "pierce": 1
+    }
    },
    "steady_fists": {
     "name": "Steady fists",
     "text": "+2 accuracy",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "accuracy": 2
+    }
    },
    "workers": {
     "name": "Worker's",
     "text": "+1 carrying slot",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "carry": 1
+    }
    },
    "thick_skinned": {
     "name": "Thick-skinned",
     "text": "creatures with thorns don't hurt you",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "thorn_resist": 1
+    }
    }
   },
   "polearm": {
    "long_hafted": {
     "name": "Long-hafted",
     "text": "reach 3",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "reach": 1
+    }
    },
    "set_firm": {
     "name": "Set firm",
-    "text": "Set's strike does double damage",
-    "ready": false
+    "text": "Set's strike rolls double damage",
+    "ready": true,
+    "effects": {
+     "set_rolls": 1
+    }
    },
    "hooking": {
     "name": "Hooking",
@@ -754,17 +920,26 @@
    "spiked_butt": {
     "name": "Spiked butt",
     "text": "+2 damage against a creature beside you",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "close_damage": 2
+    }
    },
    "sweeping": {
     "name": "Sweeping",
     "text": "a critical hit staggers the creature",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "crit_stagger": 1
+    }
    },
    "pinning": {
     "name": "Pinning",
     "text": "10% chance to pin the target (it can't move for 2 turns)",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "pin_chance": 10
+    }
    },
    "boar_spear": {
     "name": "Boar-spear",
@@ -773,18 +948,27 @@
    },
    "line_holder": {
     "name": "Line-holder",
-    "text": "+2 evasion while you haven't moved this turn",
-    "ready": false
+    "text": "+2 evasion when you didn't step this turn",
+    "ready": true,
+    "effects": {
+     "still_evasion": 2
+    }
    },
    "lancers": {
     "name": "Lancer's",
     "text": "+5% critical chance",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "crit": 5
+    }
    },
    "impaling": {
     "name": "Impaling",
     "text": "Impale's stagger lasts two turns",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "impale_stagger": 1
+    }
    }
   },
   "head": {
@@ -1029,8 +1213,11 @@
    },
    "braced": {
     "name": "Braced",
-    "text": "+2 armour while you haven't moved this turn",
-    "ready": false
+    "text": "+2 armour when you didn't step this turn",
+    "ready": true,
+    "effects": {
+     "still_armour": 2
+    }
    },
    "ash_walker": {
     "name": "Ash-walker",

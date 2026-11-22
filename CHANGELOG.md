@@ -5,6 +5,39 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.78.0: Six new weapon types (2026-11-22)
+Stage 4 of the equipment refactor (design: `claude/design-equipment.md`). Names, numbers and techniques are the design's drafts.
+
+**Six new types, and gloves.** Each has a skill (practice, and the trainer for ranks 3 and up), a calling, a passive technique at rank 3 and one readied with `z` at rank 5:
+  - **Knives** (Cutter): Backstab (an unnoticed hit does double damage); Flurry (two strikes at once). The first cut at each creature takes no time.
+  - **Whips** (Lasher): Crack (+2 accuracy striking at reach); Snare (it can't move for 3 turns, though it can still fight).
+  - **Staves** (Warder): Guard (+2 evasion); Sweep (strikes everything beside you; each is staggered).
+  - **Crossbows** (Arbalist): Braced (+2 accuracy when you didn't step the turn before); Piercing bolt (the bolt goes on along its line to its range, hitting everything).
+  - **Claws** (Raker): Rake (a hit bleeds 20% of the time); Frenzy (three blows that take no time).
+  - **Polearms** (Lancer): Set (a free strike at a creature that steps into reach, once each); Impale (ignores armour and staggers).
+  - **Gloves** are weapons now (Brawling, Brawler), with tiers and traits; bare hands still work as before.
+
+**Reach** (new): whips and polearms strike a creature two cells away in a straight line with nothing between. Walk toward it to strike ("You hit the wild dog at reach"). Some traits add a cell.
+
+**Crossbows** shoot with `f`, using **bolts** (new; bundles of 10 at the supplier). After each shot one needs winding: `f` again winds it, a turn.
+
+**Where to get them.** The supplier sells a plain one of each: hunting knife, leather whip, quarterstaff, light crossbow, iron claws, boar spear and studded gloves. The smith makes a better one of each to order: bone knife, sinew lash, vinewood staff, heavy crossbow, tusk claws, black-iron glaive and chitin knuckles.
+
+**Callings:** Cutter +1 damage, Lasher +1 accuracy, Warder +1 evasion, Arbalist +2 crossbow range, Raker +1 damage, Lancer 1 more armour ignored (at skill rank 3, as the others).
+
+**Traits:** 59 more are ready, 120 of 168 in all. That covers most of the new types' pools, plus Braced on leg armour. Each piece of new wording says what the game does:
+  - Quick draw: the first strike rolls double damage.
+  - Tripping and Pugilist's: stagger.
+  - Line-holder and Braced: when you didn't step this turn.
+  - Pinning on polearms: it can't move for 2 turns.
+
+Still waiting are the ones that need knockback, pulling, throwing, fleeing, poison on creatures, and so on.
+
+**Fixes:**
+- An older save's shops now get any stock lines added to the game since the save was made. Before, v0.75.0's caps and leggings never reached the supplier in older saves.
+- The skills window lists the new weapon skills under Weapons.
+- Blades no longer claims knives.
+
 ## 0.77.0: Traits (2026-11-21)
 Stage 3 of the equipment refactor (design: `claude/design-equipment.md`; the traits are the assistant's drafts).
 - **A trait at every fifth tier** (user): reaching +5, +10, +15... gives the piece a trait at random from its type's pool, never one it already has. The message says which. Traits work while the piece is worn or wielded. The item windows list them ("Traits: Keen (+5% critical chance); ..."); below +5 the windows say a trait comes at +5.

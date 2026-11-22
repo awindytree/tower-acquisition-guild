@@ -192,6 +192,83 @@
     "value": 45, "properties": {"armor": 2, "slot": "legs"}
   },
 
+  "_weapons_v078": "The six new weapon types and gloves (v0.78.0; design: claude/design-equipment.md). Reach 2: strikes a creature two cells away in a straight line. A crossbow needs bolts and a turn to wind between shots. Names and numbers PLACEHOLDERS.",
+  "hunting_knife": {
+    "name": "hunting knife", "glyph": "↓", "color": [200, 200, 205], "kind": "weapon",
+    "description": "A plain, sharp knife. The first cut at a creature costs no time.",
+    "value": 10, "properties": {"damage": "1d4", "skill": "knives", "calling": "Cutter", "quick_first": true}
+  },
+  "leather_whip": {
+    "name": "leather whip", "glyph": "↓", "color": [160, 115, 70], "kind": "weapon",
+    "description": "A braided leather whip. It strikes two cells away in a straight line: walk toward a creature to lash it.",
+    "value": 14, "properties": {"damage": "1d4", "skill": "whips", "calling": "Lasher", "reach": 2}
+  },
+  "quarterstaff": {
+    "name": "quarterstaff", "glyph": "↓", "color": [170, 130, 85], "kind": "weapon",
+    "description": "A long staff of seasoned wood, shod with iron at both ends.",
+    "value": 12, "properties": {"damage": "1d6", "skill": "staves", "calling": "Warder"}
+  },
+  "light_crossbow": {
+    "name": "light crossbow", "glyph": "}", "color": [175, 160, 140], "kind": "weapon",
+    "description": "A crossbow with a crank. Fire it with f; it needs bolts, and a turn to wind it again after each shot. Up close it's only good for a bash (1d3, plus 1 for every 6 Physicality).",
+    "value": 70, "properties": {"damage": "1d10", "range": 8, "ammo": "bolt", "melee": "1d3", "bash_every": 6, "skill": "crossbows", "calling": "Arbalist", "reload": true}
+  },
+  "iron_claws": {
+    "name": "iron claws", "glyph": "↓", "color": [180, 185, 195], "kind": "weapon",
+    "description": "Three iron blades on a grip that fits over the knuckles.",
+    "value": 16, "properties": {"damage": "1d4", "skill": "claws", "calling": "Raker"}
+  },
+  "boar_spear": {
+    "name": "boar spear", "glyph": "↓", "color": [185, 165, 130], "kind": "weapon",
+    "description": "A spear with a crossbar behind the head. It strikes two cells away in a straight line: walk toward a creature to strike it.",
+    "value": 30, "properties": {"damage": "1d8", "skill": "polearms", "calling": "Lancer", "reach": 2}
+  },
+  "studded_gloves": {
+    "name": "studded gloves", "glyph": "↓", "color": [150, 110, 70], "kind": "weapon",
+    "description": "Leather gloves with iron studs over the knuckles.",
+    "value": 8, "properties": {"damage": "1d4", "skill": "brawling", "calling": "Brawler"}
+  },
+  "bone_knife": {
+    "name": "bone knife", "glyph": "↓", "color": [225, 215, 190], "kind": "weapon",
+    "description": "A knife ground from a long bone, wickedly sharp. The first cut at a creature costs no time.",
+    "value": 30, "properties": {"damage": "1d5", "skill": "knives", "calling": "Cutter", "quick_first": true}
+  },
+  "sinew_lash": {
+    "name": "sinew lash", "glyph": "↓", "color": [210, 190, 170], "kind": "weapon",
+    "description": "A whip of braided sinew with a weighted tip. It strikes two cells away in a straight line.",
+    "value": 40, "properties": {"damage": "1d5", "skill": "whips", "calling": "Lasher", "reach": 2}
+  },
+  "vinewood_staff": {
+    "name": "vinewood staff", "glyph": "↓", "color": [120, 160, 90], "kind": "weapon",
+    "description": "A staff of dried vinewood, springy and hard to break.",
+    "value": 40, "properties": {"damage": "1d7", "skill": "staves", "calling": "Warder"}
+  },
+  "heavy_crossbow": {
+    "name": "heavy crossbow", "glyph": "}", "color": [110, 110, 125], "kind": "weapon",
+    "description": "A heavy crossbow of black iron and sinew. Fire it with f; it needs bolts, and a turn to wind it after each shot.",
+    "value": 150, "properties": {"damage": "1d12", "range": 9, "ammo": "bolt", "melee": "1d3", "bash_every": 6, "skill": "crossbows", "calling": "Arbalist", "reload": true}
+  },
+  "tusk_claws": {
+    "name": "tusk claws", "glyph": "↓", "color": [230, 210, 160], "kind": "weapon",
+    "description": "Curved tusk blades set into a hide grip.",
+    "value": 45, "properties": {"damage": "1d5", "skill": "claws", "calling": "Raker"}
+  },
+  "black_iron_glaive": {
+    "name": "black-iron glaive", "glyph": "↓", "color": [95, 95, 110], "kind": "weapon",
+    "description": "A long blade on a pole, of old dark iron. It strikes two cells away in a straight line.",
+    "value": 120, "properties": {"damage": "1d10", "skill": "polearms", "calling": "Lancer", "reach": 2}
+  },
+  "chitin_knuckles": {
+    "name": "chitin knuckles", "glyph": "↓", "color": [150, 160, 120], "kind": "weapon",
+    "description": "Gloves faced with plates of shell.",
+    "value": 30, "properties": {"damage": "1d5", "skill": "brawling", "calling": "Brawler"}
+  },
+  "bolt": {
+    "name": "bolt", "glyph": "|", "color": [170, 170, 180], "kind": "consumable",
+    "description": "A short, heavy crossbow bolt.",
+    "value": 1, "stackable": true
+  },
+
   "_crafted": "Gear a smith makes to order (data/recipes.json). PLACEHOLDERS.",
   "hide_jerkin": {
     "name": "hide jerkin", "glyph": "φ", "color": [170, 125, 80], "kind": "armor",

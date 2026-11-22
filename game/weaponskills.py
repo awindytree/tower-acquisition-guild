@@ -11,13 +11,21 @@ All numbers are placeholders.
 """
 from __future__ import annotations
 
-MELEE_SKILLS = ("blades", "axes", "hafted", "brawling")
+MELEE_SKILLS = ("blades", "axes", "hafted", "brawling", "knives", "whips", "staves", "claws", "polearms")
+RANGED_SKILLS = ("marksmanship", "crossbows")
 BOW_SKILL = "marksmanship"
 PASSIVE_RANK, ACTIVE_RANK = 3, 5
 REST = 20                 # turns before an active technique can be readied again
 STAGGER_TURNS = 2         # a staggered creature loses this many turns
 REND_TURNS, REND_DAMAGE = 5, 1
 LUNGE_ACCURACY = AIM_ACCURACY = 4
+# The six new types (v0.78.0; design: claude/design-equipment.md). Placeholders.
+CRACK_ACCURACY = 2        # Crack (Whips 3): striking at two cells
+GUARD_EVASION = 2         # Guard (Staves 3)
+BRACED_ACCURACY = 2       # Braced (Crossbows 3): you didn't step the turn before
+RAKE_CHANCE = 20          # Rake (Claws 3): % a hit bleeds
+SNARE_TURNS = 3           # Snare (Whips 5): it can't move
+FRENZY_BLOWS = 3          # Frenzy (Claws 5): blows that take no time
 
 TECHNIQUES = {
     "blades": {"passive": ("Riposte", "when a creature misses you in melee, you strike back at once"),
@@ -30,6 +38,18 @@ TECHNIQUES = {
                      "active": ("Aimed shot", "the next arrow at +4 accuracy and double damage dice")},
     "brawling": {"passive": ("Quick hands", "your first blow against each creature takes no time"),
                  "active": ("Throw", "knock a creature back a step and daze it for a turn")},
+    "knives": {"passive": ("Backstab", "a hit on a creature that hasn't noticed you does double damage"),
+               "active": ("Flurry", "two strikes at once")},
+    "whips": {"passive": ("Crack", "+2 accuracy striking at two cells"),
+              "active": ("Snare", "the creature can't move for 3 turns (it can still fight)")},
+    "staves": {"passive": ("Guard", "+2 evasion"),
+               "active": ("Sweep", "strike everything beside you, each staggered a turn")},
+    "crossbows": {"passive": ("Braced", "+2 accuracy when you didn't step the turn before"),
+                  "active": ("Piercing bolt", "the next bolt hits everything in its line")},
+    "claws": {"passive": ("Rake", "a hit bleeds 20% of the time"),
+              "active": ("Frenzy", "your next three blows take no time")},
+    "polearms": {"passive": ("Set", "a free strike at a creature that steps into reach"),
+                 "active": ("Impale", "a blow that ignores armour and staggers")},
 }
 
 
@@ -51,7 +71,7 @@ def weapon_skill(player) -> str | None:
     if weapon is None:
         return "brawling"
     props = weapon.type.properties
-    return BOW_SKILL if props.get("ammo") else props.get("skill")
+    return props.get("skill", BOW_SKILL) if props.get("ammo") else props.get("skill")
 
 
 def rank(player, skill: str | None) -> int:
@@ -113,7 +133,7 @@ def ready(engine) -> None:
         engine.log(f"Not yet: you can try {name} again in {p.tech_rest} turns.")
         return
     p.readied = name
-    engine.log(f"You ready a {name}: your next {'shot' if skill == BOW_SKILL else 'blow'} uses it.")
+    engine.log(f"You ready a {name}: your next {'shot' if skill in RANGED_SKILLS else 'blow'} uses it.")
 
 
 def spend(player) -> str | None:
@@ -144,3 +164,51 @@ def sheet_lines(engine, skill_id: str) -> list[str]:
             key = " (z to ready)" if which == "active" and r >= at else ""
             out.append(f"{name} ({state}): {what}{key}.")
     return out
+
+
+# ---- Reach (whips and polearms, v0.78.0) ---------------------------------------------------------
+def reach_of(player) -> int:
+    """How far the weapon in hand strikes, in a straight line: 1, or 2 for whips and polearms (traits
+    can add one more)."""
+    weapon = player.equipped.get("weapon")
+    if weapon is None or weapon.type.properties.get("range"):
+        return 1
+    from game import talents                    # (Long, Long-hafted, Long-arm: traits)
+    return weapon.type.properties.get("reach", 1) + talents.total(player, "reach")
+
+
+def _clear(engine, x: int, y: int) -> bool:
+    gm = engine.game_map
+    return (gm.in_bounds(x, y) and gm.is_walkable(x, y) and gm.transparent[x, y]
+            and not gm.monster_at(x, y) and not gm.npc_at(x, y))
+
+
+def reach_target(engine, dx: int, dy: int):
+    """The creature a reach weapon would strike stepping (dx, dy): the first one 2..reach cells away
+    in that line, with nothing between, that you can see. None if there isn't one."""
+    p, gm = engine.player, engine.game_map
+    r = reach_of(p)
+    for k in range(2, r + 1):
+        if not _clear(engine, p.x + dx * (k - 1), p.y + dy * (k - 1)):
+            return None
+        x, y = p.x + dx * k, p.y + dy * k
+        if not gm.in_bounds(x, y):
+            return None
+        m = gm.monster_at(x, y)
+        if m is not None:
+            seen = engine.visible is None or not gm.fog or bool(engine.visible[x, y])
+            return m if seen and not m.type.ghost and not m.burrowed else None
+    return None
+
+
+def in_reach(engine, m) -> bool:
+    """Is this creature 2..reach cells away in a straight line, with nothing between?"""
+    p = engine.player
+    dx, dy = m.x - p.x, m.y - p.y
+    if dx and dy:
+        return False
+    n = abs(dx) + abs(dy)
+    if not 2 <= n <= reach_of(p):
+        return False
+    sx, sy = (dx > 0) - (dx < 0), (dy > 0) - (dy < 0)
+    return all(_clear(engine, p.x + sx * k, p.y + sy * k) for k in range(1, n))

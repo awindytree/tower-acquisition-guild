@@ -47,7 +47,7 @@ python main.py
 | `e` | Equipment: weapon, head, chest, legs, windcatcher (its Jodebris bar) and artifact slots. `↑↓` select, `e` take off, `u` use an artifact, `Enter` pick something from the bag for that slot (swapping), `Tab` the bag, `Esc` close |
 | `t` | Travel to a known place (walks there, stopping if anything comes up) |
 | `o` | Auto-explore (hunts): walk to unexplored ground until something comes up (a creature, an item, the way deeper) |
-| `f` | Aim and shoot a wielded bow: Tab next target, move keys to aim, Enter/`f` shoot, Esc |
+| `f` | Aim and shoot a wielded bow or crossbow (a crossbow that needs winding: `f` winds it, a turn): Tab next target, move keys to aim, Enter/`f` shoot, Esc |
 | `z` | Ready your weapon's rank-5 technique (again to put it aside); no time |
 | `n` | Choose a talent you've earned |
 | `c` | Character sheet, in three tabs (`←→`/Tab): **Hunter** (level, rank, age, HP/XP/Jodebris bars, attributes with what's changing them (`↑↓` picks one to read about), fighting numbers, condition), **Guild** (progress to the next rank, money and dues, words known, field notes), **Calling** (your calling, prey, talents). `e` and `k` jump to equipment and skills |
@@ -148,6 +148,38 @@ bow, and every 3 cells of distance takes 1 away. Every shot at a creature is
 practice (a hit counts double; Celerity helps). Practice takes you to rank
 2; the trainer in the guild hall teaches the ranks after that, for shards.
 Arrows are sold in bundles of 10 at the supplier.
+
+## The weapon types (v0.78.0)
+
+Eleven kinds, each with its own skill (practice, and the trainer for ranks 3
+and up), a calling, a passive technique at rank 3 and one you ready with `z`
+at rank 5:
+
+| Type | Skill | Calling | Rank 3 | Rank 5 |
+|---|---|---|---|---|
+| Sword | Blades | Fencer | Riposte | Lunge |
+| Knife | Knives | Cutter | Backstab: an unnoticed hit does double damage | Flurry: two strikes at once |
+| Axe | Axes | Hewer | Cleave | Rend |
+| Haft | Hafted | Breaker | Crush | Stagger |
+| Gloves (or bare hands) | Brawling | Brawler | Quick hands | Throw |
+| Claws | Claws | Raker | Rake: a hit bleeds 20% of the time | Frenzy: three blows with no time |
+| Whip | Whips | Lasher | Crack: +2 accuracy at reach | Snare: it can't move for 3 turns |
+| Staff | Staves | Warder | Guard: +2 evasion | Sweep: everything beside you, staggered |
+| Polearm | Polearms | Lancer | Set: a free strike at anything stepping into reach | Impale: ignores armour, staggers |
+| Bow | Marksmanship | Archer | Steady hand | Aimed shot |
+| Crossbow | Crossbows | Arbalist | Braced: +2 accuracy if you didn't step | Piercing bolt: hits everything in its line |
+
+- **Reach:** whips and polearms strike a creature **two cells away in a
+  straight line** with nothing between. Walk toward it to strike instead of
+  stepping. A creature beside you is struck as usual.
+- **Knives:** the first cut at each creature takes no time.
+- **Crossbows:** shoot with `f` like a bow, using **bolts** (bundles of 10 at
+  the supplier). After each shot the crossbow needs winding: `f` winds it, a
+  turn.
+- **Gloves** are real weapons now, with tiers and traits; bare hands still
+  work as before.
+- The supplier sells a plain one of each; the smith makes a better one of
+  each to order.
 
 ## The Academy and the Guild archive
 

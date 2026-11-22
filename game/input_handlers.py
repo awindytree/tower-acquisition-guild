@@ -118,6 +118,9 @@ def action_for_event(event: tcod.event.Event, engine: "Engine") -> Action | None
             from game import ranged
             from game.screens import TargetScreen
             why = ranged.can_fire(engine)
+            if not why and engine.player.unloaded and ranged.bow(engine.player).type.properties.get("reload"):
+                from game.actions import ReloadAction
+                return ReloadAction()                   # a crossbow: wind it first (v0.78.0)
             if why:
                 engine.log(why)
             else:

@@ -20,7 +20,7 @@
         {
           "text": "Train me.",
           "do": [
-            "train:marksmanship,blades,axes,hafted,brawling,tracking,stealth"
+            "train:marksmanship,blades,axes,hafted,brawling,knives,whips,staves,crossbows,claws,polearms,tracking,stealth"
           ]
         },
         {
@@ -42,7 +42,7 @@
         {
           "text": "Train me.",
           "do": [
-            "train:marksmanship,blades,axes,hafted,brawling,tracking,stealth"
+            "train:marksmanship,blades,axes,hafted,brawling,knives,whips,staves,crossbows,claws,polearms,tracking,stealth"
           ]
         },
         {
@@ -61,7 +61,7 @@
         {
           "text": "Train me.",
           "do": [
-            "train:marksmanship,blades,axes,hafted,brawling,tracking,stealth"
+            "train:marksmanship,blades,axes,hafted,brawling,knives,whips,staves,crossbows,claws,polearms,tracking,stealth"
           ]
         },
         {

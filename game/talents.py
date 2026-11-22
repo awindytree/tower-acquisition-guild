@@ -110,7 +110,7 @@ def show_offer(engine) -> None:
 def practice_pct(player, skill_id: str) -> int:
     from game import weaponskills, fieldskills
     pct = total(player, "practice_all")
-    if skill_id in weaponskills.MELEE_SKILLS or skill_id == weaponskills.BOW_SKILL:
+    if skill_id in weaponskills.MELEE_SKILLS or skill_id in weaponskills.RANGED_SKILLS:
         pct += total(player, "practice_weapon")
     if skill_id in fieldskills.FIELD_SKILLS:
         pct += total(player, "practice_field")

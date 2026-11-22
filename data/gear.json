@@ -8,17 +8,17 @@
     "fibre": ["sinew", "vinewood", "wyrm_sinew"]
   },
   "types": {
-    "knife": {"name": "Dagger/Knife", "families": ["metal", "bone"]},
+    "knife": {"name": "Dagger/Knife", "families": ["metal", "bone"], "skill": "knives"},
     "sword": {"name": "Sword", "families": ["metal", "hide"], "skill": "blades"},
     "haft": {"name": "Haft", "families": ["metal", "bone"], "skill": "hafted"},
     "axe": {"name": "Axe", "families": ["metal", "fibre"], "skill": "axes"},
-    "whip": {"name": "Whip", "families": ["hide", "fibre"]},
-    "staff": {"name": "Staff", "families": ["fibre", "bone"]},
+    "whip": {"name": "Whip", "families": ["hide", "fibre"], "skill": "whips"},
+    "staff": {"name": "Staff", "families": ["fibre", "bone"], "skill": "staves"},
     "bow": {"name": "Bow", "families": ["fibre", "bone"], "ammo": "arrow"},
-    "crossbow": {"name": "Crossbow", "families": ["metal", "fibre"]},
-    "claw": {"name": "Claw/Katara", "families": ["bone", "metal"]},
+    "crossbow": {"name": "Crossbow", "families": ["metal", "fibre"], "skill": "crossbows"},
+    "claw": {"name": "Claw/Katara", "families": ["bone", "metal"], "skill": "claws"},
     "gloves": {"name": "Gloves/Unarmed", "families": ["hide", "chitin"], "skill": "brawling"},
-    "polearm": {"name": "Polearm", "families": ["fibre", "metal"]},
+    "polearm": {"name": "Polearm", "families": ["fibre", "metal"], "skill": "polearms"},
     "head": {"name": "Head", "families": ["hide", "chitin"]},
     "chest": {"name": "Chest", "families": ["hide", "metal"]},
     "legs": {"name": "Legs", "families": ["hide", "chitin"]}

@@ -52,6 +52,69 @@
       },
       "fee": 70,
       "pulses": 243
+    },
+    {
+      "item": "bone_knife",
+      "materials": {
+        "bone": 3,
+        "iron_scrap": 2
+      },
+      "fee": 15,
+      "pulses": 81
+    },
+    {
+      "item": "sinew_lash",
+      "materials": {
+        "sinew": 3,
+        "rough_hide": 2
+      },
+      "fee": 20,
+      "pulses": 81
+    },
+    {
+      "item": "vinewood_staff",
+      "materials": {
+        "vinewood": 3,
+        "bone": 1
+      },
+      "fee": 20,
+      "pulses": 81
+    },
+    {
+      "item": "heavy_crossbow",
+      "materials": {
+        "black_iron": 3,
+        "sinew": 3
+      },
+      "fee": 60,
+      "pulses": 243
+    },
+    {
+      "item": "tusk_claws",
+      "materials": {
+        "tusk_antler": 3,
+        "rough_hide": 1
+      },
+      "fee": 25,
+      "pulses": 162
+    },
+    {
+      "item": "black_iron_glaive",
+      "materials": {
+        "black_iron": 3,
+        "vinewood": 2
+      },
+      "fee": 55,
+      "pulses": 243
+    },
+    {
+      "item": "chitin_knuckles",
+      "materials": {
+        "chitin_plate": 3,
+        "rough_hide": 1
+      },
+      "fee": 15,
+      "pulses": 81
     }
   ]
 }
