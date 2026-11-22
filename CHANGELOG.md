@@ -5,6 +5,13 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.72.0: The character sheet in tabs (2026-11-21)
+The sheet was one long scrolling page (about three screens on the laptop). It's now three tabs, each fitting one screen. `←→` or Tab switches between them.
+- **Hunter:** your level, rank, gender and age; HP and XP bars side by side; your windcatcher's Jodebris. Your attributes sit in a grid with what's changing them ("+1 age", "-1 injury"). `↑↓` picks one, and only that one's description shows, not all five. Beside them are your fighting numbers, and under those your **condition**: injuries and how they mend, faints left on a hunt, dues owed, a talent waiting, skills ready to train.
+- **Guild:** your rank and the next one, with a bar for each requirement (hunts, level, √ when met) and the fee against your shards; money earned and dues building up; how many Wayfinder words you know; field notes waiting for the clerk.
+- **Calling:** your calling and what it gives you, the creatures you know best (your prey), and your talents with the level of your next one.
+- Equipment and artifacts are no longer repeated on the sheet (they're in the equipment window, `e`); `e` and `k` jump from the sheet to equipment and skills.
+
 ## 0.71.0: The hunt line (2026-11-21)
 - **A line across the top of the map on a hunt** (user), above the map, so nothing is covered:
   - **Progress:** the trail home (≡), then one segment per area, split by shards (♦) like the title cards' accents. The areas you've reached fill in (a lit double line); deeper areas you've come back from stay filled but half-lit; the rest are a thin dark line. A shard lights once you've crossed it.

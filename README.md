@@ -50,7 +50,7 @@ python main.py
 | `f` | Aim and shoot a wielded bow: Tab next target, move keys to aim, Enter/`f` shoot, Esc |
 | `z` | Ready your weapon's rank-5 technique (again to put it aside); no time |
 | `n` | Choose a talent you've earned |
-| `c` | Character sheet: attributes, fighting numbers, artifacts, calling and prey, talents, the Guild |
+| `c` | Character sheet, in three tabs (`←→`/Tab): **Hunter** (level, rank, age, HP/XP/Jodebris bars, attributes with what's changing them (`↑↓` picks one to read about), fighting numbers, condition), **Guild** (progress to the next rank, money and dues, words known, field notes), **Calling** (your calling, prey, talents). `e` and `k` jump to equipment and skills |
 | `k` | Skills: every skill, grouped, with rank, practice and what it gives |
 | `m` | The whole map, over the map view (explored ground only, out in the miasma and on the Brisering) |
 | `v` | Side panel: the minimap or the message log (big maps show the stretch around you) |
@@ -392,7 +392,7 @@ this Hunter.
 
 **Skill ranks.** Practice raises Identification to rank 2 by itself. After
 that, a full practice bar means you're ready, and the artificer trains the
-next rank for shards (Training tab). `c` shows your skills.
+next rank for shards (Training tab). `k` shows your skills.
 
 **The artificer's workshop** is near the plaza. Walk into the artificer:
 - **Repair** (`r`): pay the repair fee and get the working artifact back.

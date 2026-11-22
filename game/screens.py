@@ -2090,27 +2090,58 @@ class TravelScreen:
         console.print(x + 2, y + h - 2, keys[: w - 4], fg=DIM, bg=BG)
 
 class CharacterScreen(ScrollScreen):
-    """The character sheet (reworked v0.52.0, user: colour and layout): who you are, bars, attributes,
-    fighting numbers, artifacts, injuries, the Guild (rank, dues, earnings) and skills. Lines are
-    built from coloured pieces. Scrolls if taller than the screen; Esc or c closes."""
+    """The character sheet, in three tabs (user, v0.72.0; before, one long scrolling page):
+    Hunter (who, bars, attributes one at a time, fighting numbers, condition), Guild (rank and
+    what the next one takes, money and dues, words and notes) and Calling (calling, prey,
+    talents). ←→ or Tab change tab; on Hunter, ↑↓ pick an attribute to read about; elsewhere
+    they scroll if a tab runs long. Esc or c closes. Lines are built from coloured pieces."""
 
     GOOD = (140, 205, 120)
     HP_BAR = (200, 72, 60)
     XP_BAR = (120, 165, 225)
     GOLD = (232, 196, 100)
     RULE = (90, 80, 70)
+    TABS = ("hunter", "guild", "calling")
+    TAB_NAMES = {"hunter": "Hunter", "guild": "Guild", "calling": "Calling"}
 
     def __init__(self) -> None:
         super().__init__()
         from game.input_handlers import CHARACTER_KEY
         self.close_keys = {CHARACTER_KEY}
+        self.tab = "hunter"
+        self.attr = 0
 
     @property
     def title(self):
         return self._title
 
     def footer(self) -> str:
-        return "↑↓ scroll  [ ] page  Esc or c close"
+        if self.tab == "hunter":
+            return "↑↓ attribute  ←→ tab  e equipment  k skills  Esc"
+        return "←→ tab  ↑↓ scroll  e equipment  k skills  Esc"
+
+    def handle(self, event, engine: "Engine") -> Action | None:
+        if not isinstance(event, tcod.event.KeyDown):
+            return None
+        tabs = self.TABS
+        if tabs and event.sym in (KeySym.LEFT, KeySym.RIGHT, KeySym.TAB, KeySym.KP_4, KeySym.KP_6) \
+                or (tabs and event.sym in (_key("a"), _key("d"))):
+            step = -1 if event.sym in (KeySym.LEFT, KeySym.KP_4, _key("a")) else 1
+            self.tab = tabs[(tabs.index(self.tab) + step) % len(tabs)]
+            self.top = 0
+            return None
+        if tabs and self.tab == "hunter" and (event.sym in UP_KEYS or event.sym in DOWN_KEYS):
+            from game.stats import ATTRIBUTES
+            self.attr = (self.attr + (-1 if event.sym in UP_KEYS else 1)) % len(ATTRIBUTES)
+            return None
+        from game.input_handlers import EQUIPMENT_KEY, SKILLS_KEY
+        if tabs and event.sym == EQUIPMENT_KEY:
+            engine.screen = EquipmentScreen()
+            return None
+        if tabs and event.sym == SKILLS_KEY:
+            engine.screen = SkillsScreen()
+            return None
+        return super().handle(event, engine)
 
     # A line is a list of (text, colour) pieces.
     def heading(self, name: str, width: int) -> list:
@@ -2121,181 +2152,229 @@ class CharacterScreen(ScrollScreen):
         return [(f"{label:<4}", DIM), ("█" * filled, color), ("░" * (width - filled), self.RULE),
                 (f" {now}/{most}", TEXT), (note, DIM)]
 
+    @staticmethod
+    def side_by_side(left: list, right: list, lw: int) -> list:
+        """Two columns of lines: the left padded to `lw` characters."""
+        out = []
+        for i in range(max(len(left), len(right))):
+            a = left[i] if i < len(left) else []
+            b = right[i] if i < len(right) else []
+            n = sum(len(t) for t, _ in a)
+            out.append(a + [(" " * max(1, lw - n), TEXT)] + b)
+        return out
+
     def lines(self, engine, width: int):
+        self._title = engine.player.full_name
+        return {"hunter": self.hunter_lines, "guild": self.guild_lines,
+                "calling": self.calling_lines}[self.tab](engine, width)
+
+    # ---- Hunter --------------------------------------------------------------------------------------
+    def hunter_lines(self, engine, width: int):
         from game.engine import JODEBRIS, HP_LOW
         from game.stats import ATTRIBUTES
-        from game import aging, ranks, artifacts, archive
+        from game import aging, ranks, artifacts, injuries
         p, st = engine.player, engine.player.stats
-        self._title = p.full_name
         rank = ranks.of(p)["name"]
         L: list[list] = []
-        blank = lambda: L.append([("", TEXT)])
-        def text(t, color=TEXT):
-            for line, c in wrapped(t, width, color) or [("", color)]:
-                L.append([(line, c)])
-
-        # Who
-        who = [(p.gender.capitalize() + "  ·  " if p.gender else "", DIM), (f"Level {st.level} ", TEXT),
-               (rank, self.GOLD), (f"  ·  {aging.describe(aging.age_of(p, engine.day))}", DIM)]
-        L.append(who)
-        blank()
-        L.append(self.bar("HP", st.hp, st.max_hp, HP_LOW if st.hp * 3 < st.max_hp else self.HP_BAR))
-        L.append(self.bar("XP", st.xp, st.xp_to_next, self.XP_BAR, note=f"  to level {st.level + 1}"))
+        L.append([(f"Level {st.level} ", TEXT), (rank, self.GOLD),
+                  (f"  ·  {p.gender.capitalize()}" if p.gender else "", DIM),
+                  (f"  ·  {aging.describe(aging.age_of(p, engine.day))}", DIM)])
+        bw = max(8, min(20, (width - 26) // 2))
+        hp = self.bar("HP", st.hp, st.max_hp, HP_LOW if st.hp * 3 < st.max_hp else self.HP_BAR, bw)
+        xp = self.bar("XP", st.xp, st.xp_to_next, self.XP_BAR, bw)
+        if sum(len(t) for t, _ in hp + xp) + 3 <= width:
+            L.append(hp + [("   ", TEXT)] + xp)
+        else:
+            L += [hp, xp]
         w = p.windcatcher
-        if w is not None:
-            L.append([("JB  ", DIM), (f"{w.type.name}: {artifacts.charge_words(w)}", JODEBRIS)])
+        L.append([("JB  ", DIM), (f"{w.type.name}: {artifacts.charge_words(w)}", JODEBRIS)] if w is not None
+                 else [("JB  ", DIM), ("no windcatcher", self.RULE)])
 
-        # Attributes: two columns, changes from age and injuries shown beside them
-        blank(); L.append(self.heading("Attributes", width))
-        cells = []
-        for a in ATTRIBUTES:
+        lw = max(24, width // 2)
+        # Attributes, with what's raising or lowering them; the picked one is described below.
+        left = [self.heading("Attributes", lw - 2)]
+        for i, a in enumerate(ATTRIBUTES):
             base, now = st.attributes[a.key], st[a.key]
-            diff = now - base
-            cell = [(f"{a.name:<12}", DIM), (f"{now:>3}", TEXT)]
-            cell.append((f" ({diff:+d})" if diff else "     ", self.GOOD if diff > 0 else WARN))
-            cells.append(cell)
-        half = max(20, width // 2)
-        for i in range(0, len(cells), 2):
-            left = cells[i]
-            pad = half - sum(len(t) for t, _ in left)
-            row = left + [(" " * max(1, pad), TEXT)]
-            if i + 1 < len(cells):
-                row += cells[i + 1]
-            L.append(row)
-        for a in ATTRIBUTES:                      # what each is for (rewritten v0.57.0)
-            for j, (line, c) in enumerate(wrapped(f"{a.abbr}  {a.description}", width - 2, DIM)):
-                L.append([("  " if j else "", DIM), (line, c)])
-
-        # Fighting
-        blank(); L.append(self.heading("Fighting", width))
+            why = []
+            age = p.age_mods.get(a.key, 0) if hasattr(p, "age_mods") and isinstance(p.age_mods, dict) else 0
+            if age:
+                why.append(f"{age:+d} age")
+            hurt = now - base - age
+            if hurt:
+                why.append(f"{hurt:+d} injury" if hurt < 0 else f"{hurt:+d}")
+            sel = i == self.attr
+            row = [("►" if sel else " ", ACCENT), (f"{a.name:<12}", TEXT if sel else DIM), (f"{now:>3}", TEXT)]
+            if why:
+                diff = now - base
+                row.append((f" ({', '.join(why)})", self.GOOD if diff > 0 else WARN))
+            left.append(row)
+        # Fighting, then condition
         dmg = p.damage_dice + (f"{p.damage_bonus:+d}" if p.damage_bonus else "")
-        L.append([("Accuracy ", DIM), (f"{p.accuracy:<4}", TEXT), ("Evasion ", DIM), (f"{p.evasion:<4}", TEXT),
-                  ("Armour ", DIM), (f"{p.armor:<4}", TEXT), ("Damage ", DIM), (dmg, TEXT)])
-        weapon = p.equipped.get("weapon")
-        armour = p.equipped.get("armor")
-        L.append([("Wielding ", DIM), (weapon.type.name if weapon else "bare hands", weapon.type.color if weapon else TEXT),
-                  ("   Wearing ", DIM), (armour.type.name if armour else "nothing", armour.type.color if armour else TEXT)])
+        rw = width - lw
+        right = [self.heading("In a fight", rw)]
+        right.append([("Accuracy ", DIM), (f"{p.accuracy:<4}", TEXT), ("Armour ", DIM), (f"{p.armor}", TEXT)])
+        right.append([("Evasion  ", DIM), (f"{p.evasion:<4}", TEXT), ("Damage ", DIM), (dmg, TEXT)])
         if p.light_bonus:
-            L.append([("Light ", DIM), (f"+{p.light_bonus}", self.GOLD), (" in dark places", DIM)])
+            right.append([("Light    ", DIM), (f"+{p.light_bonus}", self.GOLD)])
         if p.dazed:
-            L.append([("Dazed", WARN), (f" for {p.dazed} more turns", DIM)])
+            right.append([("Dazed", WARN), (f" {p.dazed} more turns", DIM)])
         if p.readied:
-            L.append([("Readied ", DIM), (p.readied, self.GOLD), ("  (your next attack uses it)", DIM)])
+            right.append([("Readied ", DIM), (p.readied, self.GOLD)])
         elif p.tech_rest:
-            L.append([("Technique resting ", DIM), (f"{p.tech_rest} turns", TEXT)])
+            right.append([("Technique rests ", DIM), (f"{p.tech_rest}", TEXT)])
+        # Condition, under the fight numbers: injuries, faints, dues, things waiting for you
+        cond = []
+        for inj in p.injuries:
+            it = injuries.table()[inj.id]
+            if it.mends is None:
+                when = "needs a healer"
+            else:
+                left_p = max(0, it.mends - (engine.day - inj.since))
+                when = f"mends in {left_p} Pulse{'s' if left_p != 1 else ''}"
+            cond.append((f"! {it.name}: {it.effect_text()}; {when}", WARN))   # (running bleeds: the side panel)
+        if engine.hunt:
+            faints = p.faint_limit - engine.hunt.faints_used
+            cond.append((f"Faints left {faints}", DIM if faints else WARN))
+        if p.dues_owed:
+            cond.append((f"Dues owed ♦ {p.dues_owed}: pay the clerk", WARN))
+        if p.talent_offers:
+            cond.append(("A talent to choose: press n", ACCENT))
+        from game import skills as skills_mod
+        ready = sum(1 for sid, sk in engine.skills.items() if skills_mod.is_ready(sk, p.skill(sid)))
+        if ready:
+            cond.append((f"{ready} ready to train (k)", self.GOOD))
+        if cond:
+            right.append([("", TEXT)])
+            right.append(self.heading("Condition", rw))
+            for t, c in cond:
+                for line, cc in wrapped(t, rw, c):
+                    right.append([(line, cc)])
+        # The picked attribute's description, under the attributes
+        at = ATTRIBUTES[self.attr]
+        left.append([("", TEXT)])
+        for line, c in wrapped(f"{at.name}: {at.description}", lw - 2, DIM):
+            left.append([(line, c)])
+        L += self.side_by_side(left, right, lw)
+        return L
 
-        # Artifacts
-        from game import attunement
-        attunement.sync_slots(p)
-        blank(); L.append(self.heading(f"Artifacts ({len(p.equipped_artifacts)}/{len(p.artifact_slots)})", width))
-        for item in p.artifact_slots:
-            if item is None:
-                L.append([("  ·  ", self.RULE), ("(empty slot)", self.RULE)])
-                continue
-            t = item.type
-            L.append([(f"  {t.glyph}  ", t.color), (t.name, TEXT)] +
-                     ([(f"  {t.rarity.name}", t.rarity.color)] if t.rarity else []))
-            effect = artifacts.effect_text(t)
-            if effect:
-                for line, c in wrapped(effect, width - 5, DIM):
-                    L.append([("     ", DIM), (line, c)])
-
-        # Calling and prey (v0.59.0)
-        from game import mastery
-        blank(); L.append(self.heading("Calling and prey", width))
-        for line, c in wrapped(mastery.calling_line(p), width - 2, TEXT):
-            L.append([("  ", DIM), (line, c)])
-        prey = mastery.prey_lines(engine)
-        if not prey:
-            L.append([("  No kills yet.", DIM)])
-        for name, n, what in prey[:8]:
-            L.append([(f"  {name[:20].capitalize():<20}", TEXT), (f"{n:>4} ", self.GOLD), (what, DIM)])
-        if len(prey) > 8:
-            L.append([(f"  and {len(prey) - 8} more kinds", DIM)])
-
-        # Talents (v0.58.0)
-        from game import talents
-        if True:
-            blank(); L.append(self.heading(f"Talents ({len(p.talents)})", width))
-            for tid in p.talents:
-                t = talents.pool().get(tid)
-                if t:
-                    L.append([("  ☼ ", self.GOLD), (t["name"], TEXT)])
-                    for line, c in wrapped(t["description"], width - 5, DIM):
-                        L.append([("     ", DIM), (line, c)])
-            if p.talent_offers:
-                L.append([("  A talent to choose: press n", ACCENT)])
-        lvl = (p.stats.level // talents.every() + 1) * talents.every()
-        L.append([("  Next talent at level ", DIM), (str(lvl), TEXT)])
-
-        # Injuries
-        if p.injuries:
-            from game import injuries
-            blank(); L.append(self.heading("Injuries", width))
-            for inj in p.injuries:
-                it = injuries.table()[inj.id]
-                if it.mends is None:
-                    when = "needs a healer"
-                else:
-                    left = max(0, it.mends - (engine.day - inj.since))
-                    when = f"mends in {left} Pulse{'s' if left != 1 else ''}"
-                L.append([("  ! ", WARN), (it.name.capitalize(), WARN), (f"  ({when})", DIM)])
-                for line, c in wrapped(it.effect_text(), width - 4, DIM):
-                    L.append([("    ", DIM), (line, c)])
-                if inj.dot_left:
-                    L.append([("    ", DIM), (f"{it.dot['kind'].capitalize()} for {inj.dot_left} more turns", WARN)])
-
-        # The Guild
-        blank(); L.append(self.heading("The Guild", width))
-        L.append([("Rank ", DIM), (rank, self.GOLD), ("   Hunts completed ", DIM), (str(p.hunts_done), TEXT)])
-        text(ranks.describe_next(p), DIM)
-        share = engine.dues_share                # (Guild Darling lowers it)
+    # ---- Guild ---------------------------------------------------------------------------------------
+    def guild_lines(self, engine, width: int):
+        from game import ranks, archive, keywords
+        p = engine.player
+        L: list[list] = []
+        def note(t, color=DIM, indent="  "):
+            for line, c in wrapped(t, width - len(indent), color):
+                L.append([(indent, DIM), (line, c)])
+        L.append(self.heading("Rank", width))
+        nxt = ranks.next_rank(p)
+        L.append([("Rank ", DIM), (ranks.of(p)["name"], self.GOLD)] +
+                 ([("   next: ", DIM), (nxt["name"], self.GOLD)] if nxt else [("   the highest there is", DIM)]))
+        if nxt is not None:
+            for label, have, need in (("Hunts", p.hunts_done, nxt["hunts"]), ("Level", p.stats.level, nxt["level"])):
+                row = self.bar(label, min(have, need), need, self.GOOD if have >= need else self.XP_BAR, 12)
+                row[0] = (f"{label:<6}", DIM)
+                row.append(("  √" if have >= need else "", self.GOOD))
+                L.append([("  ", TEXT)] + row)
+            fee_ok = p.shards >= nxt["fee"]
+            L.append([("  Fee   ", DIM), (f"♦ {nxt['fee']}", TEXT), (f"  (you have ♦ {p.shards})", self.GOOD if fee_ok else DIM)])
+            if ranks.ready(p):
+                note("Ready: sit for it at the clerk's window.", self.GOOD)
+        L.append([("", TEXT)])
+        L.append(self.heading("Money and dues", width))
+        share = engine.dues_share
         total = p.earned + p.earned_free
-        def note(t):
-            for line, c in wrapped(t, width - 2, DIM):
-                L.append([("  ", DIM), (line, c)])
         L.append([("Earned this Judgment ", DIM), (f"♦ {total}", TEXT)])
         if p.earned_free:
             note(f"{p.earned_free} of it is Guild pay, which owes no dues.")
-        L.append([("Dues so far ", DIM), (f"♦ {engine.dues_so_far}", self.GOLD)])
-        note(f"{round(share * 100)}% of the {p.earned} that owes dues, due at the start of the next Judgment.")
+        L.append([("Dues so far ", DIM), (f"♦ {engine.dues_so_far}", self.GOLD),
+                  (f"  ({round(share * 100)}% of ♦ {p.earned}, due next Judgment)", DIM)])
         if p.dues_owed:
             L.append([("Dues owed now ", WARN), (f"♦ {p.dues_owed}", WARN), ("  pay the clerk", DIM)])
+        L.append([("", TEXT)])
+        L.append(self.heading("Words and notes", width))
+        kw = engine.regions.keywords
+        counts = []
+        for slot in keywords.SLOTS:
+            ordinary = kw.ordinary(slot)
+            known = sum(1 for wid in kw.words[slot] if wid in engine.words)
+            counts.append(f"{known} {slot}")
+        L.append([("Wayfinder words known ", DIM), (", ".join(counts), TEXT)])
         if archive.has_notes(p):
             n = p.notes
-            text(f"Field notes for the clerk: {len(n.get('seen', []))} creatures seen, "
-                 f"{sum(n.get('kills', {}).values())} kills, {len(n.get('reached', {}))} places scouted.", ACCENT)
+            note(f"Field notes for the clerk: {len(n.get('seen', []))} creatures seen, "
+                 f"{sum(n.get('kills', {}).values())} kills, {len(n.get('reached', {}))} places scouted.", ACCENT, "")
+        else:
+            L.append([("No field notes to report.", DIM)])
+        return L
 
-        # Skills have their own window (k, v0.59.1)
-        blank(); L.append(self.heading("Skills", width))
-        from game import skills as skills_mod
-        ready = sum(1 for sid, sk in engine.skills.items() if skills_mod.is_ready(sk, p.skill(sid)))
-        L.append([(f"  {len(engine.skills)} skills: press ", DIM), ("k", self.GOLD), (" to see them.", DIM)]
-                 + ([(f"  {ready} ready to train.", self.GOOD)] if ready else []))
+    # ---- Calling -------------------------------------------------------------------------------------
+    def calling_lines(self, engine, width: int):
+        from game import mastery, talents
+        p = engine.player
+        L: list[list] = []
+        L.append(self.heading("Calling", width))
+        for line, c in wrapped(mastery.calling_line(p), width, TEXT):
+            L.append([(line, c)])
+        L.append([("", TEXT)])
+        L.append(self.heading("Prey", width))
+        prey = mastery.prey_lines(engine)
+        if not prey:
+            L.append([("No kills yet.", DIM)])
+        for name, n, what in prey[:8]:
+            L.append([(f"{name[:20].capitalize():<20}", TEXT), (f"{n:>4} ", self.GOLD), (what, DIM)])
+        if len(prey) > 8:
+            L.append([(f"and {len(prey) - 8} more kinds", DIM)])
+        L.append([("", TEXT)])
+        L.append(self.heading(f"Talents ({len(p.talents)})", width))
+        for tid in p.talents:
+            t = talents.pool().get(tid)
+            if t:
+                L.append([("☼ ", self.GOLD), (t["name"], TEXT)])
+                for line, c in wrapped(t["description"], width - 2, DIM):
+                    L.append([("  ", DIM), (line, c)])
+        if p.talent_offers:
+            L.append([("A talent to choose: press n", ACCENT)])
+        lvl = (p.stats.level // talents.every() + 1) * talents.every()
+        L.append([("Next talent at level ", DIM), (str(lvl), TEXT)])
         return L
 
     def text(self, engine, width: int = 66) -> str:
-        """The sheet as plain text (for tests and searching)."""
-        return " ".join(" ".join("".join(t for t, _ in pieces) for pieces in self.lines(engine, width)).split())
+        """The whole sheet as plain text, every tab (for tests and searching)."""
+        keep_tab = self.tab
+        parts = []
+        for tab in (self.TABS or (None,)):
+            if tab is not None:
+                self.tab = tab
+            parts.append(" ".join("".join(t for t, _ in pieces) for pieces in self.lines(engine, width)))
+        self.tab = keep_tab
+        return " ".join(" ".join(parts).split())
 
     def render(self, console, engine: "Engine", area_w: int) -> None:
         w = min(area_w - 2, 70)
         h = console.height - 2
         x, y = (area_w - w) // 2, 1
         rows = self.lines(engine, w - 4)
-        self.page = h - 4
+        top_rows = 0                                    # (the tabs sit on the top border)
+        self.page = h - 4 - top_rows
         last = max(0, len(rows) - self.page)
         if self.top is None:
             self.top = 0
         self.top = max(0, min(self.top, last))
         draw_box(console, x, y, w, h, self.title)
+        if self.TABS:                                   # the tabs, on the top border at the right
+            labels = [f" {self.TAB_NAMES[tab]} " for tab in self.TABS]
+            tx = x + w - 2 - sum(len(l) + 1 for l in labels) + 1
+            for tab, label in zip(self.TABS, labels):
+                sel = tab == self.tab
+                console.print(tx, y, label, fg=TEXT if sel else DIM, bg=HIGHLIGHT if sel else BG)
+                tx += len(label) + 1
         for i, pieces in enumerate(rows[self.top : self.top + self.page]):
             cx = x + 2
             for t, color in pieces:
                 room = x + w - 2 - cx
                 if room <= 0:
                     break
-                console.print(cx, y + 1 + i, t[:room], fg=color, bg=BG)
+                console.print(cx, y + 1 + top_rows + i, t[:room], fg=color, bg=BG)
                 cx += len(t[:room])
         if last:
             where = f" {self.top + 1}-{min(len(rows), self.top + self.page)} of {len(rows)} "
@@ -2314,6 +2393,8 @@ SKILL_GROUPS = [   # (heading, skill ids) for the skills window; anything not li
 class SkillsScreen(CharacterScreen):
     """Every skill, grouped, with rank, practice and what it gives (k, v0.59.1: moved off the character
     sheet, which had grown long). Scrolls; Esc or k closes."""
+
+    TABS = ()
 
     def __init__(self) -> None:
         super().__init__()
