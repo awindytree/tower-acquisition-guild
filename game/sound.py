@@ -273,7 +273,7 @@ def place_key(engine) -> str:
         return "title"
     gm = engine.game_map
     if engine.hunt is not None:
-        style = engine.hunt.contract.region.style
+        style = getattr(gm, "style", "") or engine.hunt.contract.region.style   # (this area's terrain, v0.70.0)
         night = gm.light == "torch"
         return f"{style}_night" if night and f"{style}_night" in table()["ambience"] else style
     if getattr(engine, "in_brisering", None) and engine.in_brisering():

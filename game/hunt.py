@@ -38,6 +38,30 @@ class Region:
     rarity_up: int = 0            # finds rolled as if the danger were this much higher
     writings: float = 1.0         # multiplier on the chance of a writing
     sight: float = 1.0            # how far light reaches here (v0.67.0: Broken Promise, 0.8)
+    # v0.70.0 (the user's new words):
+    styles: tuple = ()            # ((style, weight), ...): a terrain rolled for each area (Tiresome, Cardinal...)
+    rarity_chance: float = 0.0    # chance the prize is one rarity higher (Artificer)
+    items: tuple = ()             # ((item id, least, most), ...) extra things lying in each area (Gift Basket)
+    time: int = 1                 # turns that pass for each step (Gravity: 2)
+    alert: bool = False           # creatures start awake and always notice you (Combative)
+    only: str = ""                # the only creature here, wherever it lives (Ashfall: ashmantles)
+
+    def style_for(self, index: int) -> str:
+        """The terrain of area `index`. Fixed by the words (same words, same place: user), so a
+        land word with several terrains rolls one per area, the same every time."""
+        if not self.styles:
+            return self.style
+        rng = random.Random(zlib.crc32(f"style:{self.id}/{index}".encode()))
+        names = [s for s, _ in self.styles]
+        return rng.choices(names, [w for _, w in self.styles])[0]
+
+    def all_styles(self) -> list[str]:
+        return [s for s, _ in self.styles] or [self.style]
+
+    def style_text(self) -> str:
+        """For people: "caves", "mountains or marsh", "mountains, ruins, forest or plains"."""
+        names = self.all_styles()
+        return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1]
 
 
 def load_regions(path: str | Path):
@@ -70,6 +94,11 @@ def pick_artifact(region: "Region", danger: int, catalogue: Catalogue, rng: rand
     if not weights:  # the region has nothing at these rarities: take any of its artifacts
         return rng.choice(sorted(t.id for t in pool))
     rarity = rng.choices(list(weights), weights=list(weights.values()))[0]
+    chance = getattr(region, "rarity_chance", 0.0)
+    if chance and rng.random() < chance:       # Artificer (v0.70.0): one rarity higher, if there is one
+        tiers = sorted(by_rarity, key=lambda r: catalogue[by_rarity[r][0]].rarity.tier)
+        if tiers.index(rarity) + 1 < len(tiers):
+            rarity = tiers[tiers.index(rarity) + 1]
     return rng.choice(by_rarity[rarity])
 
 
@@ -165,9 +194,12 @@ class Hunt:
         # what's in it (creatures, loose finds) from this trip's seed.
         layout = zlib.crc32(f"place:{region.id}/{index}".encode()) if region.place else seed
         w, h = region.area_size
-        plan = procgen.generate(region.style, layout, w, h)
+        style = region.style_for(index)             # (a land word can roll its terrain per area, v0.70.0)
+        plan = procgen.generate(style, layout, w, h)
         rng = random.Random(seed + 1)
         procgen.scatter_loot(plan, rng, c.danger)
+        if region.items:                            # extra things lying about (Gift Basket, v0.70.0)
+            procgen.scatter_extra(plan, random.Random(seed + 11), region.items)
 
         last = index == c.depth - 1
         rows = [list(r) for r in plan.rows]
@@ -191,6 +223,7 @@ class Hunt:
         game_map, _ = GameMap.from_rows(["".join(r) for r in rows],
                                         name=f"{region.id}_{index + 1}", light=region.light)
         game_map.title = f"Area {index + 1} of {c.depth}"
+        game_map.style = style
         game_map.fog = True
         game_map.item_spawns = plan.items
         game_map.place_items(catalogue)
@@ -202,9 +235,12 @@ class Hunt:
         spots = [p for p, d in dist.items() if d > 10 and p != plan.far_end]
         water = [(x, y) for y, row in enumerate(plan.rows) for x, ch in enumerate(row) if ch == "~"
                  and any(dist.get((x + dx, y + dy), 0) > 6 for dx, dy in ((0, 1), (0, -1), (1, 0), (-1, 0)))]
-        game_map.monsters = choose_spawns(self.monster_types, region.style, c.danger, index, spots, rng,
+        game_map.monsters = choose_spawns(self.monster_types, style, c.danger, index, spots, rng,
                                           more=region.creatures, favour=region.favour, light=region.light,
-                                          water=water)
+                                          water=water, only=region.only)
+        if region.alert:                            # Combative (v0.70.0): everything's awake and watching
+            for m in game_map.monsters:
+                m.awake = True
         if last and c.guardian and c.guardian in self.monster_types:   # a story contract's guardian, by the prize
             near = sorted((p for p, d in dist.items() if p != plan.far_end
                            and 1 <= max(abs(p[0] - fx), abs(p[1] - fy)) <= 3), key=lambda p: (p[1], p[0]))

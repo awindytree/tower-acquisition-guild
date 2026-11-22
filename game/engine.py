@@ -137,6 +137,7 @@ class Engine:
         self.mentor: dict | None = None  # the latest retired Hunter, teaching in the guild hall (world state)
         self.mentor_spot = None          # where the mentor stands (from the city map)
         self.passing = False             # a Hunter has just died of old age (stops time until the card)
+        self.heavy_step = False          # the last action was a step (Gravity, v0.70.0)
         from game import story
         import os
         # quests, scenes, story talk and key hunts (data/story/*.json); TAG_NO_STORY=1 runs without
@@ -389,6 +390,21 @@ class Engine:
             gm.explored |= self.visible
 
     def end_turn(self) -> None:
+        """Everything that happens after the player acts. A step in a place whose words slow you
+        (Gravity, v0.70.0: `Region.time`) lets that many turns pass, the extra ones counted too."""
+        times = 1
+        if getattr(self, "heavy_step", False) and self.hunt is not None:
+            times = max(1, getattr(self.hunt.contract.region, "time", 1))
+        self.heavy_step = False
+        hunt, player = self.hunt, self.player
+        for n in range(times):
+            if n:
+                if self.hunt is not hunt or self.player is not player or player.stats.is_dead:
+                    break                    # (the hunt ended, or the Hunter fell, on the turn before)
+                self.turn += 1
+            self._end_turn_once()
+
+    def _end_turn_once(self) -> None:
         """Everything that happens after the player acts: creatures take
         their turns (later also hunger, status effects and so on)."""
         self.update_fov()

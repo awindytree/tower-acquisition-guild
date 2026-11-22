@@ -116,7 +116,46 @@ def ruins(rng: random.Random, w: int, h: int) -> Grid:
     return grid
 
 
-STYLES = {"caves": caves, "forest": forest, "ruins": ruins, "mountains": mountains, "plains": plains}
+def grassland(rng: random.Random, w: int, h: int) -> Grid:
+    """Lush, open grassland (v0.70.0, user: Verdant): a few copses, and wide swathes of tall
+    grass you can walk through but not see over."""
+    grid = _cellular(rng, w, h, wall="T", floor=",", fill=0.3)
+    for y in range(1, h - 1):                     # thin the copses out to the odd stand of trees
+        for x in range(1, w - 1):
+            if grid[y][x] == "T" and rng.random() < 0.7:
+                grid[y][x] = ","
+    _ponds(rng, grid, "~", count=rng.randint(0, 1))
+    _patches(rng, grid, ",", "g", share=0.5)
+    return grid
+
+
+def marsh(rng: random.Random, w: int, h: int) -> Grid:
+    """Bog and marsh (v0.70.0, user: Deeply Ill): mud winding between black pools, reed beds
+    that hide what's in them, the odd tussock of grass."""
+    grid = _cellular(rng, w, h, wall="~", floor="e", fill=0.36)
+    _patches(rng, grid, "e", "r", share=0.5)
+    for y in range(1, h - 1):
+        for x in range(1, w - 1):
+            if grid[y][x] == "e" and rng.random() < 0.06:
+                grid[y][x] = ","
+    return grid
+
+
+def _patches(rng: random.Random, grid: Grid, under: str, over: str, share: float) -> None:
+    """Blobs of `over` on cells of `under` (smoothed noise), about `share` of them."""
+    h, w = len(grid), len(grid[0])
+    cells = [[rng.random() < share for _ in range(w)] for _ in range(h)]
+    for _ in range(3):
+        cells = [[sum(cells[y + dy][x + dx] for dy in (-1, 0, 1) for dx in (-1, 0, 1)) >= 5
+                  if 0 < x < w - 1 and 0 < y < h - 1 else False for x in range(w)] for y in range(h)]
+    for y in range(h):
+        for x in range(w):
+            if cells[y][x] and grid[y][x] == under:
+                grid[y][x] = over
+
+
+STYLES = {"caves": caves, "forest": forest, "ruins": ruins, "mountains": mountains, "plains": plains,
+          "grassland": grassland, "marsh": marsh}
 
 
 # ---- Putting it together ---------------------------------------------------
@@ -152,9 +191,24 @@ def scatter_loot(plan: AreaPlan, rng: random.Random, danger: int) -> None:
             plan.items.append((x, y, rng.choice(supplies), 1))
 
 
+def scatter_extra(plan: AreaPlan, rng: random.Random, items) -> None:
+    """Extra things lying about an area, for a place's words (v0.70.0): ((item id, least, most), ...),
+    each a separate find, anywhere but the entry and the far end."""
+    spots = sorted(p for p in _distances(plan.rows, plan.entry)
+                   if p not in (plan.entry, plan.far_end) and plan.rows[p[1]][p[0]] in WALKABLE_FLOORS)
+    taken = {(x, y) for x, y, _, _ in plan.items}
+    spots = [p for p in spots if p not in taken]
+    rng.shuffle(spots)
+    for item_id, least, most in items:
+        for _ in range(rng.randint(int(least), int(most))):
+            if spots:
+                x, y = spots.pop()
+                plan.items.append((x, y, item_id, 1))
+
+
 # ---- Helpers ----------------------------------------------------------------
-WALKABLE_FLOORS = set("c.,")
-WALKABLE = set("c.,+><H")
+WALKABLE_FLOORS = set("c.,ger")       # (g tall grass, e mud, r reeds: v0.70.0)
+WALKABLE = set("c.,+><Hger")
 
 
 def _walkable(ch: str) -> bool:

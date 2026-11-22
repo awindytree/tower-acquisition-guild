@@ -5,6 +5,18 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.70.0: New words, new terrains (2026-11-21)
+Nineteen new Wayfinder words from the user, and the terrain rework they needed. Where the user named a word without an effect, the effect is the assistant's.
+- **Danger:** **Sundering** (danger 5, 3 areas), **Critical** (danger 4, 3 areas), **Combative** (danger 3, 3 areas; creatures start awake and always notice you), **Trifling** (danger 1, one area).
+- **Land:** **Verdant** (grassland, by day), **Deeply Ill** (marsh, dark), **Explicit** (forest, by day, large), **Understated** (caves, small), **Historical** (ruins, by day), **Tiresome** (each area mountains or marsh, half and half), **Cardinal** (each area mountains, ruins, forest or plains: the four directions), **Ordinal** (each area caves, marsh, grassland or ruins; dark), **Old Hunter's** (forest by day; an old Hunter's leavings lie about: torches, maybe rope or a draught).
+- **Feature:** **Artificer** (10% chance the prize is one rarity higher), **Conundrum** (mirebellows, far more often), **Gift Basket** (rations lying about), **Endlessness** (three times the creatures), **Gravity** (each step lets two turns pass), **Ashfall** (nothing but ashmantles, and half as many again).
+- **Two new terrains:** **grassland**, with tall grass you can walk through but not see over, and **marsh**, with mud, black pools and reed beds that hide what's in them. Existing creatures live in them for now: wild dogs, scavengers, thornback boars, thistlehounds and hollow brutes on the grassland; mirebellows, hookjaw eels, lantern ticks and strangler vines in the marsh, and glasswings, ashmantles and others by night.
+- **A land word can roll its terrain per area**, fixed by the words, so the same words still always lead to the same place. The Wayfinder and the archive say "mountains or marsh".
+- **Any of the three words can carry effects** now, combined, not just the feature.
+- The new words are learned like others: from boards, rumours, writings, errands and the Guild scholar. None are known at the start.
+- Bounty boards don't post scouting for one-area places.
+- Places that existed before are unchanged: same words, same place.
+
 ## 0.69.0: The equipment window (2026-11-21)
 - **Equipment has its own slots** (user): your weapon, armour and windcatcher are out of the bag, like artifacts already were, so they no longer take bag room. Equipping something from the bag puts what it replaces back in the bag.
 - **The equipment window (`e`)** shows everything you have on, slot by slot: weapon (damage, range), armour, windcatcher (its Jodebris bar, no numbers), then the artifact slots with what each gives. `e` takes something off, `u` uses an artifact, `Enter` picks something from your bag for that slot (and swaps), and `Tab` goes to the bag. Equipping takes a turn, as it does from the inventory.

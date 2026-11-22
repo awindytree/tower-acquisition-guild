@@ -159,13 +159,15 @@ def spawn_count(danger: int, area_index: int) -> int:
 def choose_spawns(types: dict[str, MonsterType], habitat: str, danger: int, area_index: int,
                   spots: list[tuple[int, int]], rng: random.Random,
                   more: float = 1.0, favour: str = "", light: str = "day",
-                  water: list[tuple[int, int]] | None = None) -> list[Monster]:
+                  water: list[tuple[int, int]] | None = None, only: str = "") -> list[Monster]:
     """Pick creatures for an area and place them on the given spots. `more` scales how
     many; `favour` is a creature that turns up far more often, wherever it lives, if
     the danger allows its tier (keyword places, game/keywords.py)."""
     cap = tier_cap(danger, area_index)
     pool = [t for t in types.values() if (t.lives(habitat, light) or t.id == favour) and t.tier <= cap
             and (not t.swims or water)]          # (swimmers only where there's water)
+    if only and only in types:                   # a place with one creature only (Ashfall, v0.70.0): any tier, anywhere
+        pool = [types[only]]
     if not pool:
         return []
     # Higher tiers are rarer: weight 4 for tier 1, 3 for tier 2, and so on.

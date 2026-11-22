@@ -113,7 +113,8 @@ def creature_lines(engine, creature_id: str, catalogue) -> list[str]:
     lv = level(engine.archive, creature_id)
     kills = engine.archive["creatures"].get(creature_id, {}).get("kills", 0)
     kw = engine.regions.keywords
-    homes = ", ".join(sorted(w.shown for w in kw.words["land"].values() if w.data["style"] in t.habitats)) or "unknown"
+    homes = ", ".join(sorted(w.shown for w in kw.words["land"].values() if not w.data.get("story")
+                             and (set(w.data.get("styles", {})) | {w.data.get("style")}) & set(t.habitats))) or "unknown"
     lines = [t.description, f"Found in: {homes}."]
     if lv >= 2:
         lines.append(f"Danger: tier {t.tier}. Hits for {t.damage}; about {t.hp} HP; armour {t.armor}. "
@@ -136,10 +137,10 @@ def region_lines(engine, region_id: str) -> list[str]:
     r = engine.regions[region_id]
     deepest = engine.archive["regions"].get(region_id, 0)
     lo, hi = r.danger
-    lines = [f"Danger {lo}, {r.depth or '?'} areas deep, {r.style}. "
+    lines = [f"Danger {lo}, {r.depth or '?'} areas deep, {r.style_text()}. "
              + ("Hunted by day." if r.light == "day" else "Dark: bring light."),
              f"Deepest reported: area {deepest}." if deepest else "No Hunter has reported scouting it yet."]
     known = [engine.monster_types[c].name for c in engine.archive["creatures"]
-             if c in engine.monster_types and r.style in engine.monster_types[c].habitats]
+             if c in engine.monster_types and set(r.all_styles()) & set(engine.monster_types[c].habitats)]
     lines.append("Creatures on record there: " + (", ".join(sorted(known)) if known else "none yet") + ".")
     return lines

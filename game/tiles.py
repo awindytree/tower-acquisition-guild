@@ -60,6 +60,13 @@ TILE_TYPES: list[TileType] = [
     TileType("grass", ",", walkable=True, transparent=True,
              glyphs="\"',.`" + " " * 2, colors=((84, 120, 54), (98, 138, 62), (72, 104, 48)),
              bg=(14, 18, 11)),
+    # Grassland and marsh (v0.70.0): tall grass and reeds you can walk through but not see through.
+    TileType("tall grass", "g", walkable=True, transparent=False,
+             glyphs="ⁿⁿ\"", colors=((150, 170, 80), (130, 156, 70), (168, 180, 96)), bg=(18, 22, 10)),
+    TileType("mud", "e", walkable=True, transparent=True,
+             glyphs=".,∙. ", colors=((104, 96, 62), (92, 84, 56)), bg=(16, 15, 10)),
+    TileType("reeds", "r", walkable=True, transparent=False,
+             glyphs="ƒ⌠ƒ", colors=((150, 146, 84), (126, 132, 72)), bg=(16, 17, 10)),
     TileType("tree", "T", walkable=False, transparent=False,
              glyphs="♣♠", colors=((70, 128, 60), (58, 110, 52)), bg=(14, 18, 11),
              hide_when_buried=True),

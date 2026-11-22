@@ -54,6 +54,7 @@ class GameMap:
         self.gates: dict[tuple[int, int], str] = {}  # city gates: position -> region id
         self.arrivals: dict[str, tuple[int, int]] = {}  # gate id -> where you come out (the Brisering)
         self.trails: dict[tuple[int, int], int] = {}
+        self.style = ""        # a hunt area's terrain (v0.70.0; "" elsewhere)
         self.monuments: dict[tuple[int, int], str] = {}  # statues and the like: cell -> id (data/monuments.json)
         self.landmarks: dict[tuple[int, int], str] = {}  # named places (the Brisering): cell -> name
         self.windows: dict[tuple[int, int], str] = {}    # service windows: cell -> folk id behind it

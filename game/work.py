@@ -156,7 +156,7 @@ def make_jobs(engine, rng: random.Random) -> list[Job]:
                 reward = round((s["kill_base"] + s["kill_per_tier"] * mtype.tier + s["per_danger"] * danger) * s.get("bounty_pay", 1.0))   # (balance pass 3: × 0.6)
                 jobs.append(Job(engine.next_work_id, "kill", region.id, 1, mtype.tier, reward, 0, mtype.id))
                 continue
-        if roll < s["kill_chance"] + s["find_chance"]:
+        if roll < s["kill_chance"] + s["find_chance"] or (region.depth or 5) < 2:   # (one area: nothing to scout)
             from game.hunt import pick_artifact
             art = engine.catalogue[pick_artifact(region, danger, engine.catalogue, rng)]
             reward = round((int(art.rarity.broken_price * s["find_reward"]) + s["per_danger"] * danger) * s.get("bounty_pay", 1.0))   # (balance pass 3: × 0.6)
@@ -175,7 +175,7 @@ def bounty_creature(engine, region, rng: random.Random):
     depth = region.depth or 3
     cap = tier_cap(region.danger[0], depth - 1)
     pool = [t for t in engine.monster_types.values()
-            if (t.lives(region.style, region.light) or t.id == region.favour) and t.tier <= cap
+            if (t.lives(region.style_for(depth - 1), region.light) or t.id == region.favour) and t.tier <= cap
             and t.behaviour != "still" and not t.ghost]
     if not pool:
         return None

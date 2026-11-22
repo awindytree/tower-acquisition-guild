@@ -49,8 +49,11 @@ class Keywords:
                     raise ValueError(f"Keyword {w.id!r} ({slot}): pos must be {' or '.join(allowed_pos)}")
         from game import procgen
         for w in self.words["land"].values():
-            if w.data["style"] not in procgen.STYLES:
-                raise ValueError(f"Keyword {w.id!r}: style must be one of {list(procgen.STYLES)}")
+            # A land word names one terrain ("style") or several, rolled per area ("styles": {style: weight}).
+            names = list(w.data.get("styles", {})) or [w.data.get("style")]
+            for st in names:
+                if st not in procgen.STYLES:
+                    raise ValueError(f"Keyword {w.id!r}: style must be one of {list(procgen.STYLES)}")
         for wid in self.start + [w for ws in self.rank_words.values() for w in ws]:
             self.word(wid)   # (raises if unknown)
 
@@ -93,14 +96,29 @@ def make_place(kw: Keywords, d: str, l: str, f: str):
     if not kw.valid(d, l):
         raise KeyError(f"{d}/{l}/{f}: two verbs")
     danger = int(dw.data["danger"])
+    # Effects can come from any of the three words (v0.70.0; before, only the feature had them).
+    words = (dw.data, lw.data, fw.data)
+    def product(key):
+        out = 1.0
+        for wd in words:
+            out *= float(wd.get(key, 1.0))
+        return out
+    styles = lw.data.get("styles", {})
     return Region(
         id=place_id(d, l, f), name=f"{dw.shown}{lw.shown}{fw.shown}", gate="Wayfinder",
-        style=lw.data["style"], light=fw.data.get("light", lw.data.get("light", "torch")),
+        style=lw.data.get("style") or max(styles, key=styles.get),
+        light=fw.data.get("light", lw.data.get("light", "torch")),
         danger=(danger, danger), area_size=tuple(lw.data.get("area_size", (72, 40))), artifacts=(),
         place=(d, l, f), depth=int(dw.data.get("depth", min(5, 2 + danger))),
-        creatures=float(fw.data.get("creatures", 1.0)), favour=fw.data.get("favour", ""),
-        rarity_up=int(fw.data.get("rarity_up", 0)), writings=float(fw.data.get("writings", 1.0)),
-        sight=float(fw.data.get("sight", 1.0)))
+        creatures=product("creatures"), favour=next((wd["favour"] for wd in reversed(words) if wd.get("favour")), ""),
+        rarity_up=sum(int(wd.get("rarity_up", 0)) for wd in words), writings=product("writings"),
+        sight=product("sight"),
+        styles=tuple((s, float(wt)) for s, wt in styles.items()),
+        rarity_chance=max(float(wd.get("rarity_chance", 0)) for wd in words),
+        items=tuple(tuple(it) for wd in words for it in wd.get("items", [])),
+        time=max(int(wd.get("time", 1)) for wd in words),
+        alert=any(wd.get("alert") for wd in words),
+        only=next((wd["only"] for wd in reversed(words) if wd.get("only")), ""))
 
 
 class PlaceBook(Mapping):

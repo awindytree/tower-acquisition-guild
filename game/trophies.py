@@ -301,7 +301,8 @@ def rival_trophy(engine, who: str, trip: dict, rng=random) -> str:
     place = engine.regions[trip["region"]]
     cap = monsters.tier_cap(trip.get("danger", 1), max(0, trip.get("depth", 2) - 1))
     kinds = sorted((m for m in engine.monster_types.values()
-                    if leaves_corpse(m) and m.tier <= cap and m.lives(place.style, place.light)
+                    if leaves_corpse(m) and m.tier <= cap
+                    and any(m.lives(st, place.light) for st in place.all_styles())
                     and type_id(m.id) in engine.catalogue.types), key=lambda m: m.id)
     if not kinds:
         return ""

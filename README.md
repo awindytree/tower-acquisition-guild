@@ -472,9 +472,10 @@ the autosave; the menu starts here when there is one), **Load game** or **Quit**
 
 Hunts leave from **the Wayfinder**, the great artifact in the plaza (`▓`).
 Walk into it and choose **three words**: a **danger** word (how dangerous, how
-many areas deep), a **land** word (caves, ruins or forest) and a **feature**
-word, a noun (daybreak or midnight, a swarm or silence, a hoard, letters, a
-favoured creature). **The same three words always lead to the same place**:
+many areas deep), a **land** word (caves, ruins, forest, mountains, plains,
+grassland or marsh; some lands roll a different terrain for each area) and a
+**feature** word, a noun (daybreak or midnight, a swarm or silence, a hoard,
+letters, a favoured creature, and more). **The same three words always lead to the same place**:
 the same layout every time, though what's in it is new each trip. `←→`
 choose the slot, `↑↓` the word, `Enter` go. A slot left on "(anything)" lets
 the Wayfinder choose from the words you know. Danger and
@@ -636,10 +637,19 @@ Places you've seen stay on the map, dim and colourless, as memory; places
 you haven't are dark. The city has no fog. Any map can turn it on with
 `;fog=on`.
 
-The words are in `data/keywords.json` (all placeholders for now): each danger
-word's danger and depth, each land word's style, light and area size, each
-feature word's effect, the words known at the start, and the words each rank
-teaches.
+The words are in `data/keywords.json`: each danger word's danger and depth,
+each land word's style (or `styles` with weights, rolled per area), light and
+area size, each word's effects, the words known at the start, and the words each
+rank teaches. **Since v0.70.0 any word can carry effects**, combined across the
+three: `creatures` (×), `favour`, `rarity_up`, `rarity_chance` (the prize one
+rarity higher), `writings` (×), `sight` (×), `items` (extra finds in each area),
+`time` (turns per step), `alert` (creatures awake and always noticing you) and
+`only` (one kind of creature only).
+
+**Terrains** (v0.70.0): caves, ruins, forest, mountains, plains, **grassland**
+(open ground and wide swathes of tall grass, `ⁿ`, that you walk through but
+can't see over) and **marsh** (mud, `.`, winding between black pools, and reed
+beds, `ƒ`, that hide what's in them).
 | Esc | Menu: resume, save, load, save and quit |
 
 The window opens maximised and the screen fills it. The game picks the

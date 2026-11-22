@@ -104,7 +104,9 @@
    "forest",
    "ruins",
    "mountains",
-   "plains"
+   "plains",
+   "marsh",
+   "grassland"
   ],
   "tier": 4,
   "hp": 57,
@@ -169,7 +171,8 @@
   ],
   "habitats": [
    "ruins",
-   "plains"
+   "plains",
+   "grassland"
   ],
   "tier": 1,
   "hp": 11,
@@ -262,7 +265,8 @@
   "habitats": [
    "forest",
    "plains",
-   "mountains"
+   "mountains",
+   "grassland"
   ],
   "tier": 1,
   "hp": 8,
@@ -291,7 +295,8 @@
    210
   ],
   "habitats": [
-   "forest"
+   "forest",
+   "marsh"
   ],
   "tier": 1,
   "hp": 12,
@@ -322,7 +327,8 @@
   ],
   "habitats": [
    "forest",
-   "plains"
+   "plains",
+   "grassland"
   ],
   "tier": 2,
   "hp": 16,
@@ -398,7 +404,9 @@
   "habitats": {
    "forest": "night",
    "plains": "night",
-   "mountains": "night"
+   "mountains": "night",
+   "marsh": "night",
+   "grassland": "night"
   },
   "flies": true,
   "description": "A moth the size of a hand, its wings gone hard and clear as windcatcher glass. It flies by night, never under a roof."
@@ -421,7 +429,8 @@
   "sight": 9,
   "habitats": [
    "forest",
-   "mountains"
+   "mountains",
+   "marsh"
   ],
   "speed": "slow",
   "opens": "daze",
@@ -452,7 +461,8 @@
   "xp": 6,
   "sight": 6,
   "habitats": [
-   "caves"
+   "caves",
+   "marsh"
   ],
   "swims": true,
   "opens": "leap",
@@ -484,7 +494,8 @@
   "xp": 8,
   "sight": 7,
   "habitats": [
-   "forest"
+   "forest",
+   "marsh"
   ],
   "burst": "2d4",
   "drops": [
@@ -549,7 +560,9 @@
    "ruins": "night",
    "forest": "night",
    "plains": "night",
-   "mountains": "night"
+   "mountains": "night",
+   "marsh": "night",
+   "grassland": "night"
   },
   "speed": "slow",
   "ghost": true,
@@ -574,7 +587,9 @@
   "sight": 12,
   "habitats": {
    "forest": "night",
-   "mountains": "day"
+   "mountains": "day",
+   "marsh": "night",
+   "grassland": "day"
   },
   "speed": "quick",
   "thorns": 1,
@@ -605,7 +620,8 @@
   "xp": 14,
   "sight": 12,
   "habitats": {
-   "forest": "night"
+   "forest": "night",
+   "grassland": "night"
   },
   "flees": 0.3,
   "drops": [

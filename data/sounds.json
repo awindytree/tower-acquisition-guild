@@ -106,7 +106,10 @@
   "H": "dirt",
   "<": "stone",
   ">": "stone",
-  "@": "stone"
+  "@": "stone",
+  "g": "grass",
+  "r": "grass",
+  "e": "dirt"
  },
  "ambience": {
   "title": "amb_brisering",
@@ -120,7 +123,11 @@
   "ruins": "amb_ruins",
   "mountains": "amb_mountains",
   "plains": "amb_plains",
-  "plains_night": "amb_plains_night"
+  "plains_night": "amb_plains_night",
+  "grassland": "amb_plains",
+  "grassland_night": "amb_plains_night",
+  "marsh": "amb_plains_night",
+  "marsh_night": "amb_plains_night"
  },
  "music": {}
 }

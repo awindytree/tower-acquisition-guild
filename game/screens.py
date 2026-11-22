@@ -764,7 +764,7 @@ class ArtifactScreen:
             place = engine.regions.place(*(wid for wid, _, _ in chosen))
             light = "by day" if place.light == "day" else "dark"
             info.append((f"{place.name}", ACCENT))
-            info.append((f"Danger {danger_pips(place.danger[0])}  {place.depth} areas  {place.style}, {light}", TEXT))
+            info.append((f"Danger {danger_pips(place.danger[0])}  {place.depth} areas  {place.style_text()}, {light}", TEXT))
             if postings.matches(engine, place):
                 info += wrapped("Your contract is here: " + engine.player.contract.title(engine.catalogue), w - 4, TEXT)
             for job in engine.player.jobs:

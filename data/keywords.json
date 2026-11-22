@@ -1,5 +1,5 @@
 {
-  "_comment": "The Wayfinder's keywords (game/keywords.py; design: claude/design-brisering-keywords.md). A trip is three words, one per slot, like .hack's Chaos Gates (user, 2026-11-19): danger, then land, then feature. The same three words always lead to the same place (layout fixed by the words); what's in it is rolled each trip. EVERY WORD HERE IS A PLACEHOLDER until the user writes the real vocabulary. GRAMMAR (user, 2026-11-19): danger and land words are each an adjective or a verb (pos: adjective or verb; verbs are written as -ing words, like Dancing); a place can't have a verb for both its danger and its land word (both adjectives is fine); feature words are nouns (pos: noun; a noun phrase is fine, like Victory Lap). Valid: [Hungry][Tangled][Victory Lap], [Dancing][Green][Ropeway]. Invalid: [Singing][Listing][Ideas]. Ids are lowercase; 'word' is how it's shown, in brackets. danger words: danger 1-5 (creature tiers, how rare the find is) and depth (number of areas, 1-5). land words: style (caves, ruins, forest, mountains, plains), light (day or torch: dark, torchlight only), area_size [width, height]. feature words (every key optional): light (overrides the land's), creatures (a multiplier on how many), favour (a creature id that turns up far more often, wherever it lives, if the danger allows its tier), rarity_up (the find is rolled as if the danger were this much higher), writings (a multiplier on the chance of a writing in each area). start: the words known at a new game. rank_words: words the Guild teaches a Hunter who rises to that rank (index into data/ranks.json). v0.67.0 (user, Chapter 1): Murmuring (danger 3), Specter's (caves, dark), Broken Promise (creatures halved, sight: light reaches 20% less far). Taught only by the chapter.",
+  "_comment": "The Wayfinder's keywords (game/keywords.py; design: claude/design-brisering-keywords.md). A trip is three words, one per slot, like .hack's Chaos Gates (user, 2026-11-19): danger, then land, then feature. The same three words always lead to the same place (layout fixed by the words); what's in it is rolled each trip. EVERY WORD HERE IS A PLACEHOLDER until the user writes the real vocabulary. GRAMMAR (user, 2026-11-19): danger and land words are each an adjective or a verb (pos: adjective or verb; verbs are written as -ing words, like Dancing); a place can't have a verb for both its danger and its land word (both adjectives is fine); feature words are nouns (pos: noun; a noun phrase is fine, like Victory Lap). Valid: [Hungry][Tangled][Victory Lap], [Dancing][Green][Ropeway]. Invalid: [Singing][Listing][Ideas]. Ids are lowercase; 'word' is how it's shown, in brackets. danger words: danger 1-5 (creature tiers, how rare the find is) and depth (number of areas, 1-5). land words: style (caves, ruins, forest, mountains, plains), light (day or torch: dark, torchlight only), area_size [width, height]. feature words (every key optional): light (overrides the land's), creatures (a multiplier on how many), favour (a creature id that turns up far more often, wherever it lives, if the danger allows its tier), rarity_up (the find is rolled as if the danger were this much higher), writings (a multiplier on the chance of a writing in each area). start: the words known at a new game. rank_words: words the Guild teaches a Hunter who rises to that rank (index into data/ranks.json). v0.67.0 (user, Chapter 1): Murmuring (danger 3), Specter's (caves, dark), Broken Promise (creatures halved, sight: light reaches 20% less far). Taught only by the chapter. v0.70.0 (user's additions; effects the user didn't give are the assistant's): any word may carry effects now, combined across the three words: creatures (multiplied), favour, rarity_up, rarity_chance (chance the prize is one rarity higher), writings, sight, items [[item id, least, most], ...] (extra finds in each area), time (turns per step: 2 = half speed), alert (creatures awake and always noticing you), only (the only creature, any tier, anywhere). A land word can give styles {style: weight} instead of style: each area rolls its terrain, fixed by the words. Styles: caves, ruins, forest, mountains, plains, grassland, marsh.",
   "danger": {
     "quiet": {
       "word": "Quiet",
@@ -60,6 +60,31 @@
       "pos": "adjective",
       "danger": 5,
       "depth": 5
+    },
+    "sundering": {
+      "word": "Sundering",
+      "pos": "verb",
+      "danger": 5,
+      "depth": 3
+    },
+    "critical": {
+      "word": "Critical",
+      "pos": "adjective",
+      "danger": 4,
+      "depth": 3
+    },
+    "combative": {
+      "word": "Combative",
+      "pos": "adjective",
+      "danger": 3,
+      "depth": 3,
+      "alert": true
+    },
+    "trifling": {
+      "word": "Trifling",
+      "pos": "adjective",
+      "danger": 1,
+      "depth": 1
     },
     "murmuring": {
       "word": "Murmuring",
@@ -171,6 +196,126 @@
         40
       ]
     },
+    "verdant": {
+      "word": "Verdant",
+      "pos": "adjective",
+      "style": "grassland",
+      "light": "day",
+      "area_size": [
+        80,
+        44
+      ]
+    },
+    "deeply_ill": {
+      "word": "Deeply Ill",
+      "pos": "adjective",
+      "style": "marsh",
+      "light": "torch",
+      "area_size": [
+        72,
+        40
+      ]
+    },
+    "explicit": {
+      "word": "Explicit",
+      "pos": "adjective",
+      "style": "forest",
+      "light": "day",
+      "area_size": [
+        80,
+        44
+      ]
+    },
+    "tiresome": {
+      "word": "Tiresome",
+      "pos": "adjective",
+      "styles": {
+        "mountains": 1,
+        "marsh": 1
+      },
+      "light": "day",
+      "area_size": [
+        80,
+        44
+      ]
+    },
+    "understated": {
+      "word": "Understated",
+      "pos": "adjective",
+      "style": "caves",
+      "light": "torch",
+      "area_size": [
+        64,
+        36
+      ]
+    },
+    "historical": {
+      "word": "Historical",
+      "pos": "adjective",
+      "style": "ruins",
+      "light": "day",
+      "area_size": [
+        72,
+        40
+      ]
+    },
+    "cardinal": {
+      "word": "Cardinal",
+      "pos": "adjective",
+      "styles": {
+        "mountains": 1,
+        "ruins": 1,
+        "forest": 1,
+        "plains": 1
+      },
+      "light": "day",
+      "area_size": [
+        72,
+        40
+      ]
+    },
+    "ordinal": {
+      "word": "Ordinal",
+      "pos": "adjective",
+      "styles": {
+        "caves": 1,
+        "marsh": 1,
+        "grassland": 1,
+        "ruins": 1
+      },
+      "light": "torch",
+      "area_size": [
+        72,
+        40
+      ]
+    },
+    "old_hunters": {
+      "word": "Old Hunter's",
+      "pos": "adjective",
+      "style": "forest",
+      "light": "day",
+      "area_size": [
+        72,
+        40
+      ],
+      "items": [
+        [
+          "torch",
+          1,
+          2
+        ],
+        [
+          "rope",
+          0,
+          1
+        ],
+        [
+          "healing_draught",
+          0,
+          1
+        ]
+      ]
+    },
     "specters": {
       "word": "Specter's",
       "pos": "adjective",
@@ -224,6 +369,43 @@
       "word": "Lurker",
       "pos": "noun",
       "favour": "pale_lurker"
+    },
+    "artificer": {
+      "word": "Artificer",
+      "pos": "noun",
+      "rarity_chance": 0.1
+    },
+    "conundrum": {
+      "word": "Conundrum",
+      "pos": "noun",
+      "favour": "mirebellow"
+    },
+    "gift_basket": {
+      "word": "Gift Basket",
+      "pos": "noun",
+      "items": [
+        [
+          "ration",
+          2,
+          4
+        ]
+      ]
+    },
+    "endlessness": {
+      "word": "Endlessness",
+      "pos": "noun",
+      "creatures": 3.0
+    },
+    "gravity": {
+      "word": "Gravity",
+      "pos": "noun",
+      "time": 2
+    },
+    "ashfall": {
+      "word": "Ashfall",
+      "pos": "noun",
+      "only": "ashmantle",
+      "creatures": 1.5
     },
     "broken_promise": {
       "word": "Broken Promise",

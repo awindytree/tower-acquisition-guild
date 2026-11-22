@@ -116,6 +116,8 @@ def notice_chance(engine) -> float:
 def notices(engine, m) -> bool:
     """A creature that sees you: does it notice you this turn?"""
     chance = notice_chance(engine)
+    if engine.hunt is not None and getattr(engine.hunt.contract.region, "alert", False):
+        return True                                  # Combative (v0.70.0): nothing misses you
     if chance >= 1.0 or engine.rng.random() < chance:
         return True
     if not getattr(m, "slipped", False):          # practice: once for each creature you slip past

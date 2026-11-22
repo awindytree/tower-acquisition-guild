@@ -106,6 +106,7 @@ class MoveAction(Action):
 
         from_x, from_y = player.x, player.y
         player.move(self.dx, self.dy)
+        engine.heavy_step = True        # (a step: Gravity makes time pass faster for it, v0.70.0)
         from game import sound
         sound.step(tile.symbol, walking=engine.walking is not None)
         here = engine.game_map.items_at(nx, ny)
