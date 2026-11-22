@@ -5,6 +5,35 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.81.0: The rest of the traits (2026-11-22)
+**40 more traits can roll: 160 of 168.** Eight wait for mechanics that don't exist yet: the two thrown weapons (Wrist-flick, Throwing balance), Pole-vault, Wading, Mud-boots, Runner's, Pathfinder's, and Chorus-touched (kept for Chorus magic).
+
+**New things they use:**
+- **Creatures can be poisoned** (1 damage every other turn), **slowed** (they act every other turn), **frightened** (they run for a few turns), or have their **next attack go wide**.
+- **Pulling and pushing:** a reach strike can drag a creature closer; a crossbow bolt can knock one back; Snare can pull; Throw can throw two cells.
+- **Charging:** a creature that has just closed in on you is "charging". Bracing gives armour against it, and Ringing and Boar-spear add damage.
+- **Streaks:** hits in a row (Momentum), kills this area (Notched), and after a kill (Frenzied).
+- **Beasts:** the animals (dogs, boars, elk, thistlehounds, bats, rats, eels, mirebellows, woodland stalkers, gravel wyrms) are tagged as beasts for Herder's and Boar-spear. The list is my call.
+
+**Reworded to fit the game:**
+- Measured: after a miss, your next blow almost never misses.
+- Bonebreaker: 20% chance to slow.
+- Ringing: wakes creatures within 6 cells; +2 damage on one that's charging.
+- Pulping: no body, twice the materials.
+- Axe Hooked: hooks the creature's guard aside, so its next attack misses. An axe only strikes what's beside you, so it can't pull.
+- Snaking: passes a creature in the way with reach 3.
+- Tamer's: creatures you've hit run at a third of their health.
+- Silent: +3 damage on a shot at a creature that hasn't noticed you. Shots never woke other creatures.
+- Point blank: +3 damage within 2 cells.
+- Quick hands (gloves): one more free blow.
+- Bracing and Boar-spear: against a creature that's just closed in.
+- Listening: you hear roughly how many creatures an area holds.
+- Fearsome: when you first see a creature.
+- Brimmed: in daylit places.
+- Gleaming: noticed 20% more, +1 armour.
+- Sure-footed: no leg injuries, since nothing knocks the Hunter down.
+- Kicking: once an area, your first blow comes with a free 1d3 kick.
+
 ## 0.80.2: Arrows and gloves (2026-11-22)
 User:
 - **Arrows ignore 2 armour** (the arrow's own `pierce`; bolts don't). Against a crawler (armour 3), a longbow Hunter now loses about half the HP (6–7% a fight instead of 14–15%).

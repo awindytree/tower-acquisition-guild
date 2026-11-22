@@ -163,17 +163,38 @@ def fire(engine, tx: int, ty: int, rng: random.Random = random) -> bool:
     what = "Your aimed shot" if aimed else ("Your piercing bolt" if piercing else f"Your {noun}")
     from game import talents
     braced = sk_id == "crossbows" and weaponskills.has_passive(p, "crossbows") and not getattr(p, "stepped_last", False)
-    for creature in targets:
+    shots = [(c, False) for c in targets]
+    def spare() -> bool:                       # another arrow or bolt for an extra shot (v0.81.0)
+        k = next((n for n, it in enumerate(p.inventory.items) if it.type.id == ammo_id), None)
+        if k is None:
+            return False
+        p.inventory.remove(k, 1)
+        return True
+    twin = talents.total(p, "twin_shot")                     # Twin string: a second bolt
+    if targets and twin and rng.randint(1, 100) <= twin and spare():
+        shots.append((targets[0], True))
+    if aimed and talents.total(p, "volley"):                 # Volley: another at a second creature in view
+        other = min((m for m in gm.monsters if m not in targets and not m.type.ghost and not m.burrowed
+                     and can_see(engine, m.x, m.y) and in_range(engine, m.x, m.y)),
+                    key=lambda m: distance(p.x, p.y, m.x, m.y), default=None)
+        if other is not None and spare():
+            shots.append((other, True))
+    for creature, extra in shots:
+        if creature not in gm.monsters:
+            continue
         unaware = not creature.awake
         creature.awake, creature.turns_unseen = True, 0
         dist = distance(p.x, p.y, creature.x, creature.y)
         chance = hit_chance(p, creature, dist)
         hit = rng.randint(1, 100) <= chance or (unaware and bool(talents.total(p, "sure_unnoticed")))   # Reliable
+        label = f"Your second {noun}" if extra else what
         if hit:
             dice = weapon.type.properties["damage"]
             from game import talents
             from game import mastery
-            damage = max(1, sum(combat.roll(dice, rng) for _ in range(2 if aimed else 1))
+            damage = max(1, sum(combat.roll(dice, rng) for _ in range(2 if aimed and not extra else 1))
+                         + (talents.total(p, "sneak_shot_damage") if unaware else 0)          # Silent
+                         + (talents.total(p, "close_shot_damage") if dist <= 2 else 0)        # Point blank
                          + talents.total(p, "ranged_damage") + mastery.prey_bonus(p, creature)[1]
                          + gear.damage(weapon) - max(0, creature.armor - talents.total(p, "ranged_pierce") - ammo_pierce)
                          + (talents.total(p, "marked_shot_damage") if getattr(creature, "shot", False) else 0)
@@ -183,13 +204,13 @@ def fire(engine, tx: int, ty: int, rng: random.Random = random) -> bool:
             creature.take_damage(damage)
             sound.play("arrow_hit")
             if creature.is_dead:
-                engine.log(f"{what} kills the {creature.name}.")
+                engine.log(f"{label} kills the {creature.name}.")
                 engine.slay(creature)
             else:
-                engine.log(f"{what} hits the {creature.name} for {damage}.")
+                engine.log(f"{label} hits the {creature.name} for {damage}.")
                 shot_traits(engine, creature, rng)
         else:
-            engine.log(f"{what} misses the {creature.name}.")
+            engine.log(f"{label} misses the {creature.name}.")
         if skill:
             from game.skills import gain_for
             for message in add_practice(skill, p.skill(sk_id), gain_for(skill, p) * (2 if hit else 1)):
@@ -241,3 +262,10 @@ def shot_traits(engine, creature, rng) -> None:
     if pin and rng.randint(1, 100) <= pin:
         creature.staggered = max(creature.staggered, 2)
         engine.log(f"The arrow pins the {creature.name}.")
+    if talents.total(p, "shot_knockback") and not creature.type.ghost and not creature.burrowed:   # Kick
+        from game.actions import _away
+        dx, dy = (creature.x > p.x) - (creature.x < p.x), (creature.y > p.y) - (creature.y < p.y)
+        if not (dx and dy):
+            n, (creature.x, creature.y) = _away(engine, (creature.x, creature.y), dx, dy, talents.total(p, "shot_knockback"))
+            if n:
+                engine.log(f"The bolt knocks the {creature.name} back.")

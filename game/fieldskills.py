@@ -79,6 +79,9 @@ def on_area(engine, index: int) -> None:
     sensed.add(index)
     practise(engine, "tracking")
     r = rank(engine, "tracking")
+    from game import talents                     # Listening (a trait, v0.81.0): as Tracking 2
+    if talents.total(engine.player, "listen"):
+        r = max(r, SENSE_RANK)
     if r < SENSE_RANK:
         return
     n = sum(1 for m in engine.game_map.monsters if not m.type.ghost)

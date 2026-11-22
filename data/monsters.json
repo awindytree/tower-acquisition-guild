@@ -28,7 +28,8 @@
     1,
     1
    ]
-  ]
+  ],
+  "beast": true
  },
  "pale_lurker": {
   "description": "Something long and colourless that waits in the shadows.",
@@ -176,7 +177,8 @@
     1,
     1
    ]
-  ]
+  ],
+  "beast": true
  },
  "scavenger": {
   "description": "A hunched figure picking through the ruins for scraps.",
@@ -319,7 +321,8 @@
     1,
     1
    ]
-  ]
+  ],
+  "beast": true
  },
  "strangler_vine": {
   "description": "A knot of creeper that tightens around anything that comes close. It doesn't move.",
@@ -402,7 +405,8 @@
     1,
     1
    ]
-  ]
+  ],
+  "beast": true
  },
  "woodland_stalker": {
   "description": "Hard to see among the trees until it's already close.",
@@ -443,7 +447,8 @@
     1,
     1
    ]
-  ]
+  ],
+  "beast": true
  },
  "glasswing": {
   "name": "glasswing",
@@ -516,7 +521,8 @@
     1
    ]
   ],
-  "description": "A bloated, slow beast that booms before it moves. The sound alone can leave a Hunter reeling, and it hits hard."
+  "description": "A bloated, slow beast that booms before it moves. The sound alone can leave a Hunter reeling, and it hits hard.",
+  "beast": true
  },
  "hookjaw_eel": {
   "name": "hookjaw eel",
@@ -549,7 +555,8 @@
     1
    ]
   ],
-  "description": "A pale eel that waits in cave water and lunges out across the stone at anything that comes near."
+  "description": "A pale eel that waits in cave water and lunges out across the stone at anything that comes near.",
+  "beast": true
  },
  "lantern_tick": {
   "name": "lantern tick",
@@ -687,7 +694,8 @@
     1
    ]
   ],
-  "description": "A lean, fast hound whose coat is all barbed burrs. Strike it and the burrs bite back."
+  "description": "A lean, fast hound whose coat is all barbed burrs. Strike it and the burrs bite back.",
+  "beast": true
  },
  "hollow_elk": {
   "name": "hollow elk",
@@ -724,7 +732,8 @@
     2
    ]
   ],
-  "description": "A great elk with an empty ribcage and a crown of dead branches. It runs when it's losing."
+  "description": "A great elk with an empty ribcage and a crown of dead branches. It runs when it's losing.",
+  "beast": true
  },
  "gravel_wyrm": {
   "name": "gravel wyrm",
@@ -768,6 +777,7 @@
     1
    ]
   ],
-  "description": "A blind serpent that moves under the ground and surfaces to strike. Hit it while it's up: below, nothing reaches it."
+  "description": "A blind serpent that moves under the ground and surfaces to strike. Hit it while it's up: below, nothing reaches it.",
+  "beast": true
  }
 }

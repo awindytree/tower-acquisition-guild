@@ -153,6 +153,8 @@ def tick(player) -> None:
         player.tech_rest -= 1
     if getattr(player, "close_rest", 0) > 0:
         player.close_rest -= 1
+    if getattr(player, "frenzied", 0) > 0:
+        player.frenzied -= 1
 
 
 def sheet_lines(engine, skill_id: str) -> list[str]:
@@ -193,8 +195,14 @@ def reach_target(engine, dx: int, dy: int):
     in that line, with nothing between, that you can see. None if there isn't one."""
     p, gm = engine.player, engine.game_map
     r = reach_of(p)
+    from game import talents
+    past = talents.total(p, "reach_past")                 # Snaking (a trait): past one creature in the way
     for k in range(2, r + 1):
-        if not _clear(engine, p.x + dx * (k - 1), p.y + dy * (k - 1)):
+        cx, cy = p.x + dx * (k - 1), p.y + dy * (k - 1)
+        if not _clear(engine, cx, cy):
+            if past and gm.monster_at(cx, cy) and k > 2:
+                past -= 1
+                continue
             return None
         x, y = p.x + dx * k, p.y + dy * k
         if not gm.in_bounds(x, y):

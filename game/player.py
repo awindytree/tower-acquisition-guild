@@ -104,6 +104,16 @@ class Player(Entity):
     unloaded: bool = False           # a crossbow shot and not yet wound again (v0.78.0)
     frenzy: int = 0                  # Frenzy (Claws 5): blows left that take no time
     close_rest: int = 0              # turns before a bow's spring back or a crossbow's slam again (v0.80.0)
+    # traits (v0.81.0): streaks and once-an-area things (not saved; an area resets them)
+    missed_last: bool = False        # Measured
+    streak: int = 0                  # Momentum: hits in a row
+    area_kills: int = 0              # Notched
+    frenzied: int = 0                # Frenzied: turns of +accuracy after a kill
+    rhythm: int = 0                  # Rhythm: accuracy banked from misses against you
+    coil_used: bool = False          # Quick coil (this area)
+    kick_used: bool = False          # Kicking (this area)
+    bracing: int = 0                 # Bracing: armour against a creature that's just charged
+    daylight: bool = False           # Brimmed: in a daylit place
     stepped_now: bool = False        # this action was a step (Braced: did you step the turn before?)
     stepped_last: bool = False
     prey: dict = field(default_factory=dict)   # creature id -> kills by this Hunter (game/mastery.py)
@@ -254,7 +264,9 @@ class Player(Entity):
         tier = gear.accuracy(weapon) if weapon and not weapon.type.properties.get("bash_every") else 0
         return (self.stats["celerity"] + artifacts.bonus(self, "accuracy") + injuries.total(self, "accuracy")
                 + weaponskills.accuracy_bonus(self) + talents.total(self, "accuracy") + tier
-                + mastery.calling_bonus(self, "accuracy") - (2 if self.dazed else 0))
+                + mastery.calling_bonus(self, "accuracy") - (2 if self.dazed else 0)
+                + (talents.total(self, "day_accuracy") if self.daylight else 0)                    # Brimmed
+                + (talents.total(self, "kill_accuracy") if self.frenzied else 0))                  # Frenzied
 
     @property
     def evasion(self) -> int:
@@ -340,7 +352,8 @@ class Player(Entity):
     def armor(self) -> int:
         from game import talents
         return (gear.armour_total(self) + artifacts.bonus(self, "armor") + talents.total(self, "armor")
-                + (0 if self.stepped_now else talents.total(self, "still_armour")))        # Braced (legs)
+                + (0 if self.stepped_now else talents.total(self, "still_armour"))         # Braced (legs)
+                + self.bracing)                                                                # Bracing
 
     @property
     def is_dead(self) -> bool:

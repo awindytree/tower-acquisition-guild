@@ -255,10 +255,14 @@ class AttackAction(Action):
             else:
                 player.readied = None
         weapon = player.equipped.get("weapon")
-        quick = ((ws.has_passive(player, "brawling") or (weapon is not None and weapon.type.properties.get("quick_first")))
-                 and not target.touched)          # Quick hands; a knife's first cut (v0.78.0): no time
+        free_n = ((1 if ws.has_passive(player, "brawling") or (weapon is not None and weapon.type.properties.get("quick_first")) else 0)
+                  + talents.total(player, "free_blows"))       # Quick hands; a knife's first cut; the Quick hands trait
+        quick = target.blows < free_n
+        if self.reach and not player.coil_used and talents.total(player, "free_reach"):   # Quick coil
+            quick, player.coil_used = True, True
         first = not target.touched
         target.touched = True
+        target.blows += 1
         accuracy, rolls = (ws.LUNGE_ACCURACY, 2) if tech == "Lunge" else (0, 1)
         trait_dmg = (talents.total(player, f"damage_vs:{target.type.id}")              # traits (v0.77.0)
                      + (talents.total(player, "bounty_damage") if getattr(target, "bounty", None) else 0))
@@ -274,6 +278,23 @@ class AttackAction(Action):
         if target.hp >= target.type.hp:
             trait_dmg += talents.total(player, "full_hp_damage")                     # Opener
         trait_dmg += talents.total(player, "reach_damage" if self.reach else "close_damage")   # Stinging; Spiked butt
+        if player.missed_last and talents.total(player, "measured"):                  # Measured
+            accuracy += 50
+        trait_dmg += min(4, player.streak) * talents.total(player, "momentum")        # Momentum
+        trait_dmg += min(3, player.area_kills) * talents.total(player, "notched")     # Notched
+        if player.rhythm:                                                             # Rhythm
+            accuracy, player.rhythm = accuracy + player.rhythm, 0
+        if target.type.beast:
+            accuracy += talents.total(player, "beast_accuracy")                       # Herder's
+        if target.charged:
+            trait_dmg += talents.total(player, "charge_damage")                       # Ringing
+            if target.type.beast:
+                trait_dmg += talents.total(player, "charge_beast_damage")             # Boar-spear
+        if weapon is not None and talents.total(player, "paired_damage"):             # Paired: a second blade
+            from game import gear
+            kind = gear.gear_type(weapon.type)
+            if any(it.type.kind == "weapon" and gear.gear_type(it.type) == kind for it in player.inventory.items):
+                trait_dmg += talents.total(player, "paired_damage")
         from game import injuries as _inj
         if "bleeding" in _inj.bleeding(player):
             trait_dmg += talents.total(player, "bleeding_damage")                    # Feral
@@ -310,6 +331,12 @@ class AttackAction(Action):
             sound.play("crit" if result.crit else "hit")     # (a kill has its own sound: Engine.slay)
         if result.crit:
             engine.log("A telling blow!")
+        player.missed_last = not result.hit                                         # (Measured, Momentum)
+        player.streak = player.streak + 1 if result.hit else 0
+        if result.killed:
+            player.area_kills += 1                                                   # (Notched)
+            if talents.total(player, "kill_accuracy"):
+                player.frenzied = 3                                                  # (Frenzied)
         if not result.hit:
             engine.log(f"{how}misses the {name}." if tech else f"You miss the {name}{at}.")
         elif result.killed:
@@ -317,17 +344,22 @@ class AttackAction(Action):
             engine.slay(target)
             if ws.has_passive(player, "axes"):           # Cleave: the blow carries on
                 gm = engine.game_map
-                other = next((m for m in gm.monsters if abs(m.x - player.x) + abs(m.y - player.y) == 1
-                              and not m.type.ghost and not m.burrowed), None)
-                if other:
+                carries = 1 + talents.total(player, "cleave_extra")   # (Wide arc: one more)
+                for _ in range(carries):
+                    other = next((m for m in gm.monsters if abs(m.x - player.x) + abs(m.y - player.y) == 1
+                                  and not m.type.ghost and not m.burrowed), None)
+                    if not other:
+                        break
                     more = combat.resolve(player, other)
                     if not more.hit:
                         engine.log(f"Your swing carries on, but misses the {other.name}.")
+                        break
                     elif more.killed:
                         engine.log(f"Your swing carries on and kills the {other.name}.")
                         engine.slay(other)
                     else:
                         engine.log(f"Your swing carries on into the {other.name} ({more.damage}).")
+                        break
         else:
             engine.log(f"{how}hits the {name} for {result.damage}." if tech else f"You hit the {name}{at} for {result.damage}.")
             if tech == "Rend":
@@ -340,6 +372,8 @@ class AttackAction(Action):
                 if tech == "Snare":
                     target.held = ws.SNARE_TURNS
                     engine.log(f"The lash wraps the {name}: it can't move.")
+                    if talents.total(player, "snare_pull"):                          # Lash-and-pull
+                        pull(engine, target)
                 else:
                     target.staggered = max(target.staggered, 1 + talents.total(player, "impale_stagger"))
                     engine.log(f"The {name} reels.")
@@ -349,12 +383,24 @@ class AttackAction(Action):
                 gm = engine.game_map
                 if gm.in_bounds(nx, ny) and gm.is_walkable(nx, ny) and not gm.monster_at(nx, ny) and not gm.npc_at(nx, ny):
                     target.x, target.y = nx, ny
+                    if talents.total(player, "throw_far"):                           # Iron grip: two cells
+                        _, (target.x, target.y) = _away(engine, (nx, ny), dx, dy, talents.total(player, "throw_far"))
                 target.staggered = 1
                 engine.log(f"You throw the {name} off balance.")
         if result.hit:
-            gear_after_hit(engine, target, result)
+            gear_after_hit(engine, target, result, reach=self.reach)
             if not result.killed and ws.has_passive(player, "claws") and engine.rng.randint(1, 100) <= ws.RAKE_CHANCE:
                 bleed(engine, target)                                                 # Rake
+        if not player.kick_used and talents.total(player, "free_kick") and target in engine.game_map.monsters \
+                and not self.reach:                                                  # Kicking: once an area
+            player.kick_used = True
+            kick = combat.roll("1d3", engine.rng)
+            target.take_damage(kick)
+            if target.is_dead:
+                engine.log(f"A kick finishes the {name}.")
+                engine.slay(target)
+            else:
+                engine.log(f"You kick the {name} ({kick}).")
         twin = talents.total(player, "double_strike")
         if target in engine.game_map.monsters and (tech == "Flurry" or (twin and engine.rng.randint(1, 100) <= twin)):
             more = combat.resolve(player, target, engine.rng)                        # Flurry; Twin blades
@@ -446,7 +492,21 @@ def slam(engine, target, cells: int) -> bool:
     return True
 
 
-def gear_after_hit(engine, target, result) -> None:
+def pull(engine, target) -> bool:
+    """Drag a creature a cell toward the Hunter (Hooking, Lash-and-pull), if the cell is free."""
+    p, gm = engine.player, engine.game_map
+    dx, dy = (p.x > target.x) - (p.x < target.x), (p.y > target.y) - (p.y < target.y)
+    if dx and dy:
+        return False
+    nx, ny = target.x + dx, target.y + dy
+    if (nx, ny) == (p.x, p.y) or not gm.is_walkable(nx, ny) or gm.monster_at(nx, ny) or gm.npc_at(nx, ny):
+        return False
+    target.x, target.y = nx, ny
+    engine.log(f"You drag the {target.name} toward you.")
+    return True
+
+
+def gear_after_hit(engine, target, result, reach: bool = False) -> None:
     """Traits that act when a melee blow lands (v0.77.0): healing, bleeding, staggering."""
     from game import talents, weaponskills as ws
     p = engine.player
@@ -474,6 +534,48 @@ def gear_after_hit(engine, target, result) -> None:
     if pin and rng.randint(1, 100) <= pin:                                           # Pinning
         target.held = max(target.held, 2)
         engine.log(f"You pin the {target.name} where it stands.")
+    on_hit_states(engine, target, rng)
+    if result.crit and talents.total(p, "crit_quake"):                               # Earthshaker
+        for m in list(engine.game_map.monsters):
+            if m is not target and abs(m.x - target.x) + abs(m.y - target.y) == 1:
+                m.staggered = max(m.staggered, 1)
+        engine.log("The ground shakes under the blow.")
+    if reach and talents.total(p, "skewer"):                                         # Skewering: the one behind too
+        from game import combat
+        sx, sy = (target.x > p.x) - (target.x < p.x), (target.y > p.y) - (target.y < p.y)
+        behind = engine.game_map.monster_at(target.x + sx, target.y + sy)
+        if behind is not None and not behind.type.ghost and not behind.burrowed:
+            more = combat.resolve(p, behind, rng)
+            if more.killed:
+                engine.log(f"The point goes on through and kills the {behind.name}.")
+                engine.slay(behind)
+            elif more.hit:
+                engine.log(f"The point goes on through into the {behind.name} ({more.damage}).")
+    if reach and talents.total(p, "reach_pull") and target in engine.game_map.monsters:   # Hooking
+        pull(engine, target)
+
+
+def on_hit_states(engine, target, rng) -> None:
+    """Chances on a landed blow or shot (v0.81.0): poison, slowing, frightening, fumbling."""
+    from game import talents
+    p = engine.player
+    for key, what in (("poison_chance", "poison"), ("slow_chance", "slow"), ("frighten_chance", "fright"),
+                      ("fumble_chance", "fumble")):
+        n = talents.total(p, key)
+        if not n or rng.randint(1, 100) > n:
+            continue
+        if what == "poison":
+            target.poisoned = max(target.poisoned, 6)
+            engine.log(f"The {target.name} is poisoned.")
+        elif what == "slow":
+            target.slowed = max(target.slowed, 6)
+            engine.log(f"The {target.name} is slowed.")
+        elif what == "fright":
+            target.fleeing = max(target.fleeing, 3)
+            engine.log(f"The {target.name} panics and runs.")
+        else:
+            target.fumble = True
+            engine.log(f"You knock the {target.name}'s guard aside.")
 
 
 def bleed(engine, target) -> None:

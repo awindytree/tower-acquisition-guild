@@ -1,11 +1,14 @@
 {
- "_comment": "Gear traits (v0.77.0, more ready in v0.78.0; design: claude/design-equipment.md, the assistant's draft pools, 12 per type). Rolled when a piece reaches +5, +10, +15... from its type's pool (data/gear.json types), never twice on one piece. Only traits with \"ready\": true are rolled; the rest wait for their mechanics (reach, knockback and so on) or their weapon type (stage 4). effects use the talent keys (game/talents.py) plus the gear keys in game/gear.py; a key ending in /5 counts once for every 5 tiers of the piece. ALL PLACEHOLDERS.",
+ "_comment": "Gear traits (v0.77.0, more ready in v0.78.0 and v0.81.0; design: claude/design-equipment.md, the assistant's draft pools, 12 per type). Rolled when a piece reaches +5, +10, +15... from its type's pool (data/gear.json types), never twice on one piece. Only traits with \"ready\": true are rolled; the rest wait for their mechanics (reach, knockback and so on) or their weapon type (stage 4). effects use the talent keys (game/talents.py) plus the gear keys in game/gear.py; a key ending in /5 counts once for every 5 tiers of the piece. ALL PLACEHOLDERS.",
  "pools": {
   "knife": {
    "venom_groove": {
     "name": "Venom groove",
     "text": "10% chance to poison",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "poison_chance": 10
+    }
    },
    "shadowed": {
     "name": "Shadowed",
@@ -86,8 +89,11 @@
    },
    "paired": {
     "name": "Paired",
-    "text": "a second dagger in the bag adds +1 damage",
-    "ready": false
+    "text": "+1 damage while another knife is in your pack",
+    "ready": true,
+    "effects": {
+     "paired_damage": 1
+    }
    }
   },
   "sword": {
@@ -157,8 +163,11 @@
    },
    "measured": {
     "name": "Measured",
-    "text": "never misses twice in a row",
-    "ready": false
+    "text": "after a miss, your next blow almost never misses",
+    "ready": true,
+    "effects": {
+     "measured": 1
+    }
    },
    "heirloom": {
     "name": "Heirloom",
@@ -196,8 +205,11 @@
    },
    "bonebreaker": {
     "name": "Bonebreaker",
-    "text": "a hit can leave the creature slowed (acting every other turn) for 3 turns",
-    "ready": false
+    "text": "20% chance a hit leaves the creature slowed (it acts every other turn for 6 turns)",
+    "ready": true,
+    "effects": {
+     "slow_chance": 20
+    }
    },
    "sundering": {
     "name": "Sundering",
@@ -210,7 +222,10 @@
    "earthshaker": {
     "name": "Earthshaker",
     "text": "a critical hit staggers everything beside the target",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "crit_quake": 1
+    }
    },
    "weighty": {
     "name": "Weighty",
@@ -240,7 +255,10 @@
    "momentum": {
     "name": "Momentum",
     "text": "+1 damage for each hit in a row (up to +4)",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "momentum": 1
+    }
    },
    "stubborn": {
     "name": "Stubborn",
@@ -252,13 +270,20 @@
    },
    "ringing": {
     "name": "Ringing",
-    "text": "creatures within 6 cells notice you; +2 damage against those that charge you",
-    "ready": false
+    "text": "creatures within 6 cells hear you; +2 damage against one that's just closed in on you",
+    "ready": true,
+    "effects": {
+     "ringing": 1,
+     "charge_damage": 2
+    }
    },
    "pulping": {
     "name": "Pulping",
-    "text": "kills with it leave no corpse but double the materials",
-    "ready": false
+    "text": "kills with it leave no body, but twice the materials",
+    "ready": true,
+    "effects": {
+     "pulping": 1
+    }
    },
    "mountains": {
     "name": "Mountain's",
@@ -272,8 +297,11 @@
   "axe": {
    "hooked": {
     "name": "Hooked",
-    "text": "a hit pulls the creature one cell toward you",
-    "ready": false
+    "text": "15% chance a hit hooks the creature's guard aside (its next attack misses)",
+    "ready": true,
+    "effects": {
+     "fumble_chance": 15
+    }
    },
    "bearded": {
     "name": "Bearded",
@@ -286,7 +314,10 @@
    "wide_arc": {
     "name": "Wide arc",
     "text": "Cleave can carry on to a third creature",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "cleave_extra": 1
+    }
    },
    "woodsmans": {
     "name": "Woodsman's",
@@ -307,7 +338,10 @@
    "notched": {
     "name": "Notched",
     "text": "+1 damage for each creature killed this area (up to +3)",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "notched": 1
+    }
    },
    "splitting": {
     "name": "Splitting",
@@ -320,7 +354,10 @@
    "frenzied": {
     "name": "Frenzied",
     "text": "+2 accuracy for 3 turns after a kill",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "kill_accuracy": 2
+    }
    },
    "butchers": {
     "name": "Butcher's",
@@ -381,17 +418,26 @@
    "cracking": {
     "name": "Cracking",
     "text": "10% chance to frighten the creature (it flees for 3 turns)",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "frighten_chance": 10
+    }
    },
    "snaking": {
     "name": "Snaking",
-    "text": "reach attacks ignore one creature in the way",
-    "ready": false
+    "text": "a reach strike can pass one creature in the way (with reach 3)",
+    "ready": true,
+    "effects": {
+     "reach_past": 1
+    }
    },
    "lash_and_pull": {
     "name": "Lash-and-pull",
     "text": "Snare drags the creature a cell toward you",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "snare_pull": 1
+    }
    },
    "stinging": {
     "name": "Stinging",
@@ -404,17 +450,26 @@
    "disarming": {
     "name": "Disarming",
     "text": "10% chance a creature's next attack misses",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "fumble_chance": 10
+    }
    },
    "herders": {
     "name": "Herder's",
     "text": "+2 accuracy against beasts",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "beast_accuracy": 2
+    }
    },
    "quick_coil": {
     "name": "Quick coil",
     "text": "your first reach attack each area costs no turn",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "free_reach": 1
+    }
    },
    "flayed": {
     "name": "Flayed",
@@ -426,8 +481,11 @@
    },
    "tamers": {
     "name": "Tamer's",
-    "text": "creatures you've hit flee 50% sooner",
-    "ready": false
+    "text": "creatures you've hit run when they're down to a third of their health",
+    "ready": true,
+    "effects": {
+     "make_flee": 33
+    }
    }
   },
   "staff": {
@@ -511,7 +569,10 @@
    "rhythm": {
     "name": "Rhythm",
     "text": "each miss against you gives +1 accuracy on your next strike",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "rhythm": 1
+    }
    },
    "chorus_touched": {
     "name": "Chorus-touched",
@@ -546,8 +607,11 @@
    },
    "silent": {
     "name": "Silent",
-    "text": "shots don't wake other creatures",
-    "ready": false
+    "text": "+3 damage on shots at a creature that hasn't noticed you",
+    "ready": true,
+    "effects": {
+     "sneak_shot_damage": 3
+    }
    },
    "swift_string": {
     "name": "Swift string",
@@ -599,13 +663,19 @@
    },
    "point_blank": {
     "name": "Point blank",
-    "text": "no penalty for shooting a creature beside you",
-    "ready": false
+    "text": "+3 damage on shots at a creature within 2 cells",
+    "ready": true,
+    "effects": {
+     "close_shot_damage": 3
+    }
    },
    "volley": {
     "name": "Volley",
     "text": "Aimed shot fires a second arrow at another creature in view",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "volley": 1
+    }
    }
   },
   "crossbow": {
@@ -637,7 +707,10 @@
    "kick": {
     "name": "Kick",
     "text": "a hit knocks the creature back a cell",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "shot_knockback": 1
+    }
    },
    "scope": {
     "name": "Scope",
@@ -690,7 +763,10 @@
    "twin_string": {
     "name": "Twin string",
     "text": "10% chance to fire a second bolt",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "twin_shot": 10
+    }
    },
    "reliable": {
     "name": "Reliable",
@@ -761,12 +837,18 @@
    "hollow_point": {
     "name": "Hollow-point",
     "text": "10% chance to poison",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "poison_chance": 10
+    }
    },
    "bloodthirst": {
     "name": "Bloodthirst",
     "text": "heals 1 HP for each bleeding creature you kill",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "bleed_kill_heal": 1
+    }
    },
    "quickened": {
     "name": "Quickened",
@@ -805,7 +887,10 @@
    "iron_grip": {
     "name": "Iron grip",
     "text": "Throw sends the creature two cells",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "throw_far": 1
+    }
    },
    "pugilists": {
     "name": "Pugilist's",
@@ -833,8 +918,11 @@
    },
    "quick_hands": {
     "name": "Quick hands",
-    "text": "your first two blows at a creature cost no turn",
-    "ready": false
+    "text": "one more blow at each creature takes no time",
+    "ready": true,
+    "effects": {
+     "free_blows": 1
+    }
    },
    "pressure_points": {
     "name": "Pressure points",
@@ -904,18 +992,27 @@
    },
    "hooking": {
     "name": "Hooking",
-    "text": "a hit pulls the creature a cell toward you",
-    "ready": false
+    "text": "a reach strike pulls the creature a cell toward you",
+    "ready": true,
+    "effects": {
+     "reach_pull": 1
+    }
    },
    "bracing": {
     "name": "Bracing",
-    "text": "+2 armour against a creature that charges you",
-    "ready": false
+    "text": "+2 armour against a creature that's just closed in on you",
+    "ready": true,
+    "effects": {
+     "brace_armour": 2
+    }
    },
    "skewering": {
     "name": "Skewering",
-    "text": "a reach strike also hits a creature behind the target",
-    "ready": false
+    "text": "a reach strike also strikes a creature behind the target",
+    "ready": true,
+    "effects": {
+     "skewer": 1
+    }
    },
    "spiked_butt": {
     "name": "Spiked butt",
@@ -943,8 +1040,11 @@
    },
    "boar_spear": {
     "name": "Boar-spear",
-    "text": "+3 damage against beasts that charge",
-    "ready": false
+    "text": "+3 damage against a beast that's just closed in on you",
+    "ready": true,
+    "effects": {
+     "charge_beast_damage": 3
+    }
    },
    "line_holder": {
     "name": "Line-holder",
@@ -1007,13 +1107,19 @@
    },
    "listening": {
     "name": "Listening",
-    "text": "you hear creatures nearby (the panel counts them, like Tracking 2)",
-    "ready": false
+    "text": "entering an area, you hear roughly how many creatures are in it",
+    "ready": true,
+    "effects": {
+     "listen": 1
+    }
    },
    "fearsome": {
     "name": "Fearsome",
-    "text": "10% chance a creature that sees you hesitates a turn",
-    "ready": false
+    "text": "10% chance a creature hesitates a turn when you first see it",
+    "ready": true,
+    "effects": {
+     "fearsome": 10
+    }
    },
    "hooded": {
     "name": "Hooded",
@@ -1041,8 +1147,11 @@
    },
    "brimmed": {
     "name": "Brimmed",
-    "text": "daylight areas give +1 accuracy",
-    "ready": false
+    "text": "+1 accuracy in daylit places",
+    "ready": true,
+    "effects": {
+     "day_accuracy": 1
+    }
    },
    "sure_footed_crest": {
     "name": "Sure-footed (crest)",
@@ -1097,7 +1206,10 @@
    "antidote_lined": {
     "name": "Antidote-lined",
     "text": "poison does half damage",
-    "ready": false
+    "ready": true,
+    "effects": {
+     "poison_resist": 1
+    }
    },
    "second_wind": {
     "name": "Second wind",
@@ -1149,8 +1261,12 @@
    },
    "gleaming": {
     "name": "Gleaming",
-    "text": "creatures notice you more, but you take 1 less damage from each hit",
-    "ready": false
+    "text": "creatures notice you 20% more often, but +1 armour",
+    "ready": true,
+    "effects": {
+     "notice": -20,
+     "armor": 1
+    }
    }
   },
   "legs": {
@@ -1172,8 +1288,13 @@
    },
    "sure_footed": {
     "name": "Sure-footed",
-    "text": "can't be knocked down or pulled",
-    "ready": false
+    "text": "a hit can't leave you with a leg injury (twisted ankle, torn knee, gored thigh)",
+    "ready": true,
+    "effects": {
+     "no_injury:twisted_ankle": 1,
+     "no_injury:torn_knee": 1,
+     "no_injury:gored_thigh": 1
+    }
    },
    "long_strider": {
     "name": "Long-strider",
@@ -1208,8 +1329,11 @@
    },
    "kicking": {
     "name": "Kicking",
-    "text": "a free kick (1d3) at a creature beside you once per area",
-    "ready": false
+    "text": "once each area, your first blow comes with a free kick (1d3)",
+    "ready": true,
+    "effects": {
+     "free_kick": 1
+    }
    },
    "braced": {
     "name": "Braced",

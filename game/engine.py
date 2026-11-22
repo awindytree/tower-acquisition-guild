@@ -270,8 +270,14 @@ class Engine:
                     self.player_down(monster)
         from game import work
         work.on_kill(self, monster)
-        from game import trophies
-        trophies.leave_corpse(self, monster, self.rng)   # its body, not loose materials (user, v0.61.0)
+        from game import trophies, talents as _tal
+        if _tal.total(self.player, "pulping") and monster.type.drops:   # Pulping (a trait, v0.81.0)
+            from game.items import FloorItem, Item
+            for _ in range(2):
+                for item_id, n in trophies.materials(self, monster.type, self.rng):
+                    self.game_map.items.append(FloorItem(monster.x, monster.y, Item(self.catalogue[item_id], n)))
+        else:
+            trophies.leave_corpse(self, monster, self.rng)   # its body, not loose materials (user, v0.61.0)
         from game import archive, story
         archive.note_kill(self, monster)
         story.fire(self, "kill", monster=monster.type.id,
@@ -481,6 +487,11 @@ class Engine:
         gm, p = self.game_map, self.player
         if not gm.monsters:
             return
+        from game import talents as _tal
+        if _tal.total(p, "ringing") and self.hunt is not None:       # Ringing (a trait, v0.81.0): they all hear you
+            for m in gm.monsters:
+                if abs(m.x - p.x) + abs(m.y - p.y) <= 6:
+                    m.awake = True
         steps_to_player = None
         for m in list(gm.monsters):
             if self.game_map is not gm or p.is_dead:
@@ -493,6 +504,11 @@ class Engine:
                 from game import archive
                 archive.note_sighting(self, m)   # you saw it: a note for the Guild archive
             if self.visible is not None and self.visible[m.x, m.y] and not getattr(m, "spotted", False):
+                from game import talents as _tal
+                fear = _tal.total(p, "fearsome")              # Fearsome (a trait): it hesitates
+                if fear and self.rng.randint(1, 100) <= fear:
+                    m.staggered = max(m.staggered, 1)
+                    self.log(f"The {m.name} sees you and hesitates.")
                 m.spotted = True                 # the story hears of each creature the first time it's seen
                 from game import story
                 story.fire(self, "see", monster=m.type.id, marked=bool(getattr(m, "bounty", 0)))
@@ -531,6 +547,18 @@ class Engine:
                     self.log(f"The {m.name} bleeds out.")
                     self.slay(m)
                     continue
+            if getattr(m, "poisoned", 0):           # poison from a trait (v0.81.0): 1 every other turn
+                m.poisoned -= 1
+                if m.poisoned % 2 == 0:
+                    m.hp -= 1
+                    if m.is_dead:
+                        self.log(f"The {m.name} succumbs to the poison.")
+                        self.slay(m)
+                        continue
+            if getattr(m, "slowed", 0):             # slowed (Bonebreaker): it acts every other turn
+                m.slowed -= 1
+                if m.slowed % 2:
+                    continue
             if getattr(m, "held", 0):               # Snare: it can't move (it can still fight)
                 m.held -= 1
                 m.holding = True
@@ -549,6 +577,7 @@ class Engine:
                 before = (m.x, m.y)
                 self.monster_turn(m, steps_to_player)
                 if (m.x, m.y) != before:
+                    m.charged = abs(m.x - p.x) + abs(m.y - p.y) == 1     # it just closed in (v0.81.0)
                     self.set_strike(m)
 
     def monster_turn(self, m, steps_to_player) -> None:
@@ -584,7 +613,13 @@ class Engine:
                 m.burrowed, m.phase = True, 0
                 self.log(f"The {m.name} sinks back under the ground.")
                 return
-        if t.flees and m.awake and m.hp <= t.flees * t.hp and steps_to_player is not None:
+        from game import talents as _tal
+        flee_at = max(t.flees, _tal.total(p, "make_flee") / 100 if m.touched else 0)   # (Tamer's)
+        if getattr(m, "fleeing", 0) and steps_to_player is not None:
+            m.fleeing -= 1                           # frightened (Cracking): it runs
+            self.step_away(m, steps_to_player)
+            return
+        if flee_at and m.awake and m.hp <= flee_at * t.hp and steps_to_player is not None:
             self.step_away(m, steps_to_player)       # losing: it runs
             return
         if t.opens == "leap" and m.awake and not m.opened and steps_to_player is not None and 1 < near <= 4:
@@ -650,6 +685,8 @@ class Engine:
         p = self.player
         if talents.total(p, "heal_on_kill") and p.stats.hp < p.stats.max_hp:   # Bloodthirst
             p.stats.heal(talents.total(p, "heal_on_kill"))
+        if getattr(m, "bleeding", 0) and talents.total(p, "bleed_kill_heal"):   # Bloodthirst (the claw trait)
+            p.stats.heal(talents.total(p, "bleed_kill_heal"))
         xp = round(m.type.xp * (1 + talents.total(p, "xp") / 100))
         from game import sound
         sound.play("kill")
@@ -664,11 +701,19 @@ class Engine:
         if parry and self.rng.randint(1, 100) <= parry:
             self.log(f"You turn the {m.name}'s attack aside.")
             return
+        if m.fumble:                                         # Disarming, Hooked (traits, v0.81.0)
+            m.fumble = False
+            self.log(f"The {m.name}'s attack goes wide.")
+            return
+        self.player.bracing = talents.total(self.player, "brace_armour") if m.charged else 0   # Bracing
+        m.charged = False
         result = combat.resolve(m, self.player, self.rng)
+        self.player.bracing = 0
         from game import sound
         sound.play("hurt" if result.hit else "creature_miss")
         if not result.hit:
             self.log(f"The {m.name} misses you.")
+            self.player.rhythm += talents.total(self.player, "rhythm")      # Rhythm (a trait)
             counter = talents.total(self.player, "counter")              # Counterpunch (a trait, v0.78.0)
             if counter and not m.type.ghost and not m.burrowed and self.rng.randint(1, 100) <= counter:
                 back = combat.resolve(self.player, m, self.rng)
@@ -1121,6 +1166,9 @@ class Engine:
         self.explore_seen_items = set()
         self.player.x, self.player.y = x, y
         self.player.in_miasma = self.hunt is not None  # hunts lie out beyond the Chorus Winds
+        self.player.daylight = getattr(game_map, "light", "") == "day"     # (Brimmed)
+        p_ = self.player
+        p_.area_kills, p_.coil_used, p_.kick_used, p_.streak = 0, False, False, 0   # (once-an-area traits)
         if not self.player.in_miasma:
             from game.artifacts import refill
             refill(self.player)  # back in the Brisering: windcatchers fill up

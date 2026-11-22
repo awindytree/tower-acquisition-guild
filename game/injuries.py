@@ -196,7 +196,9 @@ def tick(player, in_city: bool) -> tuple[int, list[str]]:
         i.dot_count += 1
         if i.dot_count >= dot["every"]:
             i.dot_count = 0
-            lost += player.stats.take_damage(dot["damage"])
+            from game import talents                 # Antidote-lined (a trait): poison does half
+            dmg = dot["damage"] // 2 if dot["kind"] == "poisoned" and talents.total(player, "poison_resist") else dot["damage"]
+            lost += player.stats.take_damage(dmg)
         if i.dot_left == 0:
             messages.append(f"Your {t[i.id].name} has stopped {'bleeding' if dot['kind'] == 'bleeding' else 'burning'}.")
     return lost, messages

@@ -49,6 +49,7 @@ class MonsterType:
     thorns: int = 0
     flees: float = 0.0
     burrows: bool = False
+    beast: bool = False        # an animal (v0.81.0: Herder's, Boar-spear)
 
     def lives(self, style: str, light: str) -> bool:
         """Does it turn up in this kind of place, at this time? (night = torchlight only)"""
@@ -87,7 +88,7 @@ def load_monster_types(path: str | Path) -> dict[str, MonsterType]:
             when=when, speed=d.get("speed", "normal"), flies=d.get("flies", False), swims=d.get("swims", False),
             spawn_weight=d.get("spawn_weight", 1.0), opens=d.get("opens", ""), burst=d.get("burst", ""),
             ghost=d.get("ghost", False), trail=d.get("trail", ""), thorns=d.get("thorns", 0),
-            flees=d.get("flees", 0.0), burrows=d.get("burrows", False),
+            flees=d.get("flees", 0.0), burrows=d.get("burrows", False), beast=d.get("beast", False),
         )
     return types
 
@@ -108,6 +109,13 @@ class Monster(Entity):
     touched: bool = False      # have you struck at it yet (Quick hands)
     held: int = 0              # turns it can't move (Snare, v0.78.0); it can still fight
     set_done: bool = False     # a polearm's Set has struck it (once)
+    # traits (v0.81.0)
+    poisoned: int = 0          # turns of poison left (1 damage every other turn)
+    slowed: int = 0            # turns slowed (it acts every other turn)
+    fleeing: int = 0           # turns it runs from you (frightened)
+    fumble: bool = False       # its next attack misses (Disarming, Hooked)
+    charged: bool = False      # it just closed in on you (Bracing, Boar-spear, Ringing)
+    blows: int = 0             # your blows at it so far (Quick hands)
 
     @classmethod
     def spawn(cls, mtype: MonsterType, x: int, y: int) -> "Monster":

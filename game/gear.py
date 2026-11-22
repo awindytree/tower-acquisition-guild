@@ -279,6 +279,12 @@ def upgrade(engine, item, at: str, rng=None) -> tuple[str, str]:
 #     bleeding_damage, execute (%), double_strike (%), bleed_extra, hold_on_hit, pin_chance (%), crit_stagger,
 #     sweep_stagger, frenzy_extra, impale_stagger, set_rolls, counter (%), reach; worn still_evasion,
 #     still_armour; crossbows quick_reload, braced_damage, tier3_ranged_damage, sure_unnoticed.
+#   v0.81.0: melee poison_chance, slow_chance, frighten_chance, fumble_chance (%: on_hit_states), measured,
+#     momentum, notched, kill_accuracy, beast_accuracy, charge_damage, charge_beast_damage, paired_damage,
+#     cleave_extra, crit_quake, reach_pull, skewer, snare_pull, throw_far, free_blows, free_reach, free_kick,
+#     reach_past, pulping, make_flee (%), bleed_kill_heal; defence rhythm, brace_armour, ringing, fearsome (%);
+#     bows sneak_shot_damage, close_shot_damage, volley, twin_shot (%), shot_knockback; worn listen,
+#     day_accuracy, poison_resist.
 # A key ending in /5 counts once for every 5 tiers of the piece ("max_hp/5": 2 = +2 max HP per 5 tiers).
 TRAITS_DATA = Path(__file__).resolve().parent.parent / "data" / "traits.json"
 TRAIT_EVERY = 5
