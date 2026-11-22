@@ -247,12 +247,92 @@ def upgrade(engine, item, at: str, rng=None) -> tuple[str, str]:
         if at == "smith":
             engine.player.shards -= shard_cost(to)
         item.tier = to
+        extra = ""
+        if to % TRAIT_EVERY == 0:                       # a trait at +5, +10... (user)
+            tid = roll_trait(item, rng)
+            if tid:
+                extra = f" It takes on a trait: {trait_line(item, tid)}."
         engine.player.gear_changed()
         sound.play("pay")
-        return "up", f"The {item.type.name} is +{to} now: {step_gain(item.type, to)}."
+        return "up", f"The {item.type.name} is +{to} now: {step_gain(item.type, to)}.{extra}"
     if destroy_chance(to) and rng.randint(1, 100) <= destroy_chance(to):
         _discard(engine, item)
         return "destroyed", (f"The {item.type.name} gives way under the hammer and is ruined. "
                              "The materials are gone with it.")
     return "failed", (f"It doesn't take: the {item.type.name} stays +{item.tier}. The materials are spent"
                       + ("; the smith keeps no fee." if at == "smith" else "."))
+
+
+# ---- Traits (stage 3, v0.77.0) ----------------------------------------------------------------------
+# Rolled when a piece reaches +5, +10, +15... (user): one from its type's pool (data/traits.json), never
+# twice on one piece. Effects use the talent keys (talents.total adds every worn piece's traits) plus
+# these gear keys, read where they apply:
+#   melee: parry (%), bleed_chance (%), stagger_chance (%), bounty_damage, heal_on_hit, damage_vs:<creature>,
+#     armoured_rolls (dice rolls vs armour 2+), crit_bleed, rend_double, ghost_strike, riposte_accuracy,
+#     pierce; bows: ranged_pierce, arrow_survive (%), free_shot (%), marked_shot_damage, ranged_stagger (%),
+#     ranged_bleed_chance (%), steady; worn: light, daze_immune, no_injury:<injury>, thorns_back,
+#     quick_butcher, no_heavy, ash_immune.
+# A key ending in /5 counts once for every 5 tiers of the piece ("max_hp/5": 2 = +2 max HP per 5 tiers).
+TRAITS_DATA = Path(__file__).resolve().parent.parent / "data" / "traits.json"
+TRAIT_EVERY = 5
+WORN = ("weapon",) + ARMOUR_SLOTS
+
+
+@lru_cache(maxsize=1)
+def trait_pools() -> dict:
+    return json.loads(TRAITS_DATA.read_text(encoding="utf-8"))["pools"]
+
+
+def pool_of(item) -> dict:
+    return trait_pools().get(gear_type(item.type) or "", {})
+
+
+def trait(item, tid: str) -> dict:
+    return pool_of(item).get(tid, {"name": tid, "text": "", "effects": {}})
+
+
+def trait_line(item, tid: str) -> str:
+    t = trait(item, tid)
+    return f"{t['name']} ({t['text']})" if t.get("text") else t["name"]
+
+
+def trait_total(player, key: str) -> int:
+    """A key summed over the traits of everything worn and wielded."""
+    eq = getattr(player, "equipped", None)
+    if not eq:
+        return 0
+    total = 0
+    for slot in WORN:
+        item = eq.get(slot)
+        if item is None or not item.traits:
+            continue
+        pool = pool_of(item)
+        for tid in item.traits:
+            eff = pool.get(tid, {}).get("effects", {})
+            total += eff.get(key, 0) + eff.get(key + "/5", 0) * (item.tier // TRAIT_EVERY)
+    return total
+
+
+def trait_attrs(player) -> dict:
+    """Attribute changes from traits ("attr:<attribute>")."""
+    out: dict = {}
+    for slot in WORN:
+        item = (getattr(player, "equipped", None) or {}).get(slot)
+        if item is None:
+            continue
+        for tid in item.traits:
+            for k, v in pool_of(item).get(tid, {}).get("effects", {}).items():
+                if k.startswith("attr:"):
+                    out[k[5:]] = out.get(k[5:], 0) + v
+    return out
+
+
+def roll_trait(item, rng) -> str | None:
+    """A new trait for a piece that's reached a fifth tier: from the ready ones in its pool, not one it
+    has. None if there are none left."""
+    choices = sorted(tid for tid, t in pool_of(item).items() if t.get("ready") and tid not in item.traits)
+    if not choices:
+        return None
+    tid = choices[rng.randint(0, len(choices) - 1)]
+    item.traits.append(tid)
+    return tid

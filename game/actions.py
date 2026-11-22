@@ -217,7 +217,17 @@ class AttackAction(Action):
         target, player = self.target, engine.player
         player.note_weapon_use()
         name = target.name
+        from game import talents
         if target.type.ghost:              # (v0.49.0) nothing touches an ashmantle
+            if talents.total(player, "ghost_strike"):          # Ward-cut (a trait, v0.77.0): half a blow
+                dealt = max(1, (combat.roll(player.damage_dice, engine.rng) + player.damage_bonus) // 2)
+                target.take_damage(dealt)
+                if target.is_dead:
+                    engine.log(f"Your blade cuts the {name} apart.")
+                    engine.slay(target)
+                else:
+                    engine.log(f"Your blade bites into the {name} ({dealt}).")
+                return True
             engine.log(f"Your blow passes through the {name} like smoke.")
             return True
         if target.burrowed:
@@ -234,7 +244,10 @@ class AttackAction(Action):
         quick = ws.has_passive(player, "brawling") and not target.touched  # Quick hands: no time
         target.touched = True
         accuracy, rolls = (ws.LUNGE_ACCURACY, 2) if tech == "Lunge" else (0, 1)
-        from game import talents
+        trait_dmg = (talents.total(player, f"damage_vs:{target.type.id}")              # traits (v0.77.0)
+                     + (talents.total(player, "bounty_damage") if getattr(target, "bounty", None) else 0))
+        if talents.total(player, "armoured_rolls") and target.armor >= 2:            # Shell-cracker
+            rolls += talents.total(player, "armoured_rolls")
         if player.vengeance:                       # Vengeful (talent)
             accuracy += talents.total(player, "after_hit_accuracy")
             player.vengeance = False
@@ -246,7 +259,7 @@ class AttackAction(Action):
         from game import mastery
         prey_acc, prey_dmg = mastery.prey_bonus(player, target)        # knowing your prey (v0.59.0)
         result = combat.resolve(player, target, accuracy=accuracy + sneak_acc + prey_acc, rolls=rolls,
-                                damage=sneak_dmg + prey_dmg)
+                                damage=sneak_dmg + prey_dmg + trait_dmg)
         ws.practise(engine, result.hit)
         if not getattr(target, "awake", True):
             if result.hit:
@@ -284,7 +297,7 @@ class AttackAction(Action):
         else:
             engine.log(f"{how}hits the {name} for {result.damage}." if tech else f"You hit the {name} for {result.damage}.")
             if tech == "Rend":
-                target.bleeding = ws.REND_TURNS
+                target.bleeding = ws.REND_TURNS * (2 if talents.total(player, "rend_double") else 1)
                 engine.log(f"The {name} is bleeding.")
             elif tech == "Stagger":
                 target.staggered = ws.STAGGER_TURNS
@@ -297,12 +310,34 @@ class AttackAction(Action):
                     target.x, target.y = nx, ny
                 target.staggered = 1
                 engine.log(f"You throw the {name} off balance.")
+        if result.hit:
+            gear_after_hit(engine, target, result)
         if result.hit and target.type.thorns and not talents.total(player, "thorn_resist"):   # thistlehound's burrs
             player.stats.hp -= target.type.thorns
             engine.log(f"The {name}'s burrs bite into your hands ({target.type.thorns}).")
             if player.stats.hp <= 0:
                 engine.player_down(target)
         return not quick
+
+
+def gear_after_hit(engine, target, result) -> None:
+    """Traits that act when a melee blow lands (v0.77.0): healing, bleeding, staggering."""
+    from game import talents, weaponskills as ws
+    p = engine.player
+    if talents.total(p, "heal_on_hit") and p.stats.hp < p.stats.max_hp:            # Hungry
+        p.stats.heal(talents.total(p, "heal_on_hit"))
+    if result.killed:
+        return
+    rng = engine.rng
+    bleed = talents.total(p, "bleed_chance")
+    if (bleed and rng.randint(1, 100) <= bleed) or (result.crit and talents.total(p, "crit_bleed")):
+        if target.bleeding < ws.REND_TURNS:
+            target.bleeding = ws.REND_TURNS
+            engine.log(f"The {target.name} is bleeding.")
+    stagger = talents.total(p, "stagger_chance")
+    if stagger and rng.randint(1, 100) <= stagger:
+        target.staggered = max(target.staggered, 1)
+        engine.log(f"The {target.name} reels.")
 
 
 class EquipAction(Action):
@@ -537,5 +572,6 @@ class ButcherAction(Action):
     """b: butcher the corpse you're standing on, for materials (v0.61.0)."""
 
     def perform(self, engine: "Engine") -> bool:
-        from game import trophies
-        return trophies.butcher_here(engine)
+        from game import trophies, talents
+        took = trophies.butcher_here(engine)
+        return took and not talents.total(engine.player, "quick_butcher")      # Butcher's (a trait)

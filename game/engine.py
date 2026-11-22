@@ -83,6 +83,11 @@ class Wound:
         self.kills = "The poison kills you." if poison else "You bleed to death."
         self.epitaph = "{name} died of poison" if poison else "{name} bled to death"
 
+
+def talents_total(player, key: str) -> int:
+    from game import talents
+    return talents.total(player, key)
+
 class Engine:
     def __init__(self, game_map: GameMap, player: Player, catalogue: Catalogue,
                  regions: dict[str, Region] | None = None,
@@ -402,7 +407,10 @@ class Engine:
         (Gravity, v0.70.0: `Region.time`) lets that many turns pass, the extra ones counted too."""
         times = 1
         if getattr(self, "heavy_step", False) and self.hunt is not None:
+            from game import talents
             times = max(1, getattr(self.hunt.contract.region, "time", 1))
+            if talents.total(self.player, "no_heavy"):            # Tireless (a trait, v0.77.0)
+                times = 1
         self.heavy_step = False
         hunt, player = self.hunt, self.player
         for n in range(times):
@@ -500,6 +508,9 @@ class Engine:
                 if m.turns_unseen > MONSTER_PATIENCE:
                     m.awake = False
 
+            if sees and t_opens(m) == "daze" and not m.opened and talents_total(self.player, "daze_immune"):
+                m.opened = True                          # Stubborn (a trait, v0.77.0): you can't be dazed
+                self.log(f"The {m.name} lets out a booming bellow. You stand your ground.")
             if sees and t_opens(m) == "daze" and not m.opened:   # (v0.49.0) its opening: a bellow that dazes
                 m.opened = True
                 # Tenacity shakes it off sooner (v0.57.0): a turn less per point above 10, 3 at least
@@ -616,14 +627,19 @@ class Engine:
             talents.check(self)
 
     def monster_attacks(self, m) -> None:
-        from game import combat
+        from game import combat, talents
+        parry = talents.total(self.player, "parry")          # Parrying (a trait, v0.77.0)
+        if parry and self.rng.randint(1, 100) <= parry:
+            self.log(f"You turn the {m.name}'s attack aside.")
+            return
         result = combat.resolve(m, self.player, self.rng)
         from game import sound
         sound.play("hurt" if result.hit else "creature_miss")
         if not result.hit:
             self.log(f"The {m.name} misses you.")
             if weaponskills.has_passive(self.player, "blades") and not m.type.ghost and not m.burrowed:
-                back = combat.resolve(self.player, m, self.rng)      # Riposte: you strike back at once
+                back = combat.resolve(self.player, m, self.rng,          # Riposte: you strike back at once
+                                      accuracy=talents.total(self.player, "riposte_accuracy"))
                 weaponskills.practise(self, back.hit)
                 if not back.hit:
                     self.log(f"You riposte, but miss the {m.name}.")
@@ -643,6 +659,11 @@ class Engine:
         p = self.player
         if talents.total(p, "after_hit_accuracy"):
             p.vengeance = True                   # Vengeful: your next blow
+        if not result.killed and talents.total(p, "thorns_back") and m in self.game_map.monsters:   # Thorned
+            m.take_damage(talents.total(p, "thorns_back"))
+            if m.is_dead:
+                self.log(f"The {m.name} tears itself on your armour and dies.")
+                self.slay(m)
         if (not result.killed and talents.total(p, "second_wind") and not p.second_wind_used
                 and self.hunt is not None and p.stats.hp * 4 < p.stats.max_hp):
             p.second_wind_used = True            # Second Wind: once a hunt
@@ -1078,7 +1099,8 @@ class Engine:
             else:
                 self.gate_reached(gate_id, from_x, from_y)
             return
-        if (p.x, p.y) in gm.trails and self.hunt is not None:   # walking on an ashmantle's ash
+        from game import talents as _tal
+        if (p.x, p.y) in gm.trails and self.hunt is not None and not _tal.total(p, "ash_immune"):   # ash (Ash-walker: no)
             from game import combat
             burn = combat.roll(next((m.type.trail for m in gm.monsters if m.type.trail), "1d3"))
             p.stats.hp -= burn

@@ -40,11 +40,13 @@ def every() -> int:
 
 
 def total(player, key: str) -> int:
+    """A key summed over the Hunter's talents and, since v0.77.0, the traits of their worn gear
+    (game/gear.py), so a trait can use any talent key."""
+    from game import gear
     t = getattr(player, "talents", None)
-    if not t:
-        return 0
     p = pool()
-    return sum(p[tid]["effects"].get(key, 0) for tid in t if tid in p)
+    own = sum(p[tid]["effects"].get(key, 0) for tid in t if tid in p) if t else 0
+    return own + gear.trait_total(player, key)
 
 
 def has(player, key: str) -> bool:

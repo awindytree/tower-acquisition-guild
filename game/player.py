@@ -137,6 +137,7 @@ class Player(Entity):
     def gear_changed(self) -> None:
         """Call after the equipment changes: armour tiers give max HP (v0.75.0)."""
         self.stats.gear_hp = gear.hp_total(self)
+        injuries.apply_to_stats(self)              # (traits: attributes, max HP; v0.77.0)
         self.stats.hp = min(self.stats.hp, self.stats.max_hp)
 
     def earn(self, amount: int) -> None:
@@ -253,7 +254,9 @@ class Player(Entity):
     @property
     def light_bonus(self) -> int:
         """Extra light in dark places: the strongest of a lit torch and powered artifacts."""
-        return max(artifacts.light_bonus(self), self.torch_light if self.torch_turns > 0 else 0)
+        from game import talents                   # (+ the light traits on gear, v0.77.0)
+        return (max(artifacts.light_bonus(self), self.torch_light if self.torch_turns > 0 else 0)
+                + talents.total(self, "light"))
 
     def tick_supplies(self) -> list[str]:
         """Once per turn: torches burn down, meals mend. Returns messages."""
@@ -315,7 +318,9 @@ class Player(Entity):
     def pierce(self) -> int:
         """Armour your blows ignore (Crush, Hafted rank 3)."""
         from game import weaponskills, mastery
-        return (1 if weaponskills.has_passive(self, "hafted") else 0) + mastery.calling_bonus(self, "pierce")
+        from game import talents                   # (+ Sundering and Splitting, traits)
+        return ((1 if weaponskills.has_passive(self, "hafted") else 0) + mastery.calling_bonus(self, "pierce")
+                + talents.total(self, "pierce"))
 
     @property
     def armor(self) -> int:

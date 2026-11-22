@@ -73,7 +73,8 @@ def accuracy(player, dist: float) -> int:
     rank = player.skill(SKILL).rank
     from game import injuries
     from game import weaponskills
-    steady = rank >= weaponskills.PASSIVE_RANK          # Steady hand: no accuracy lost to distance
+    from game import talents
+    steady = rank >= weaponskills.PASSIVE_RANK or talents.total(player, "steady")   # Steady hand (or the trait)
     aimed = weaponskills.AIM_ACCURACY if player.readied == "Aimed shot" else 0
     from game import talents
     aimed += talents.total(player, "ranged_accuracy")          # (Eagle Eye)
@@ -155,7 +156,9 @@ def fire(engine, tx: int, ty: int, rng: random.Random = random) -> bool:
             from game import mastery
             damage = max(1, sum(combat.roll(dice, rng) for _ in range(2 if aimed else 1))
                          + talents.total(p, "ranged_damage") + mastery.prey_bonus(p, creature)[1]
-                         + gear.damage(weapon) - creature.armor)          # (Broadheads; knowing your prey)
+                         + gear.damage(weapon) - max(0, creature.armor - talents.total(p, "ranged_pierce"))
+                         + (talents.total(p, "marked_shot_damage") if getattr(creature, "shot", False) else 0))
+            creature.shot = True                                           # (Hunter's mark, a trait)
             creature.take_damage(damage)
             sound.play("arrow_hit")
             if creature.is_dead:
@@ -163,12 +166,29 @@ def fire(engine, tx: int, ty: int, rng: random.Random = random) -> bool:
                 engine.slay(creature)
             else:
                 engine.log(f"{what} hits the {creature.name} for {damage}.")
+                shot_traits(engine, creature, rng)
         else:
             engine.log(f"{what} misses the {creature.name}.")
         if skill:
             from game.skills import gain_for
             for message in add_practice(skill, p.skill(SKILL), gain_for(skill, p) * (2 if hit else 1)):
                 engine.log(message)
-    if path and rng.random() < ARROW_SURVIVES:
+    from game import talents
+    if path and rng.random() < ARROW_SURVIVES + talents.total(p, "arrow_survive") / 100:
         gm.items.append(FloorItem(*landed, Item(engine.catalogue[ammo_id])))
-    return True
+    free = talents.total(p, "free_shot")                    # Swift string (a trait): no turn, sometimes
+    return not (free and rng.randint(1, 100) <= free)
+
+
+def shot_traits(engine, creature, rng) -> None:
+    """Bow traits that act when a shot lands (v0.77.0): bleeding, pinning."""
+    from game import talents, weaponskills as ws
+    p = engine.player
+    bleed = talents.total(p, "ranged_bleed_chance")
+    if bleed and rng.randint(1, 100) <= bleed and creature.bleeding < ws.REND_TURNS:
+        creature.bleeding = ws.REND_TURNS
+        engine.log(f"The {creature.name} is bleeding.")
+    pin = talents.total(p, "ranged_stagger")
+    if pin and rng.randint(1, 100) <= pin:
+        creature.staggered = max(creature.staggered, 2)
+        engine.log(f"The arrow pins the {creature.name}.")

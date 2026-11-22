@@ -125,6 +125,9 @@ def apply_to_stats(player) -> None:
         for k, v in talents.pool().get(tid, {}).get("effects", {}).items():
             if k.startswith("attr:"):
                 mods[k[5:]] = mods.get(k[5:], 0) + v
+    from game import gear                        # traits on worn gear (v0.77.0)
+    for k, v in gear.trait_attrs(player).items():
+        mods[k] = mods.get(k, 0) + v
     player.stats.mods = mods
     player.stats.hp_mod = total(player, "max_hp") + talents.total(player, "max_hp")
     player.stats.hp = min(player.stats.hp, player.stats.max_hp)
@@ -151,8 +154,9 @@ def roll_injury(player, monster_type, damage: int, day: int, rng: random.Random)
     elif rng.random() >= (t.chance + t.per_tier * (monster_type.tier - 1)) * _resist(player):
         return None
     have = {i.id for i in player.injuries}
+    from game import talents                     # (a trait can ward off an injury, v0.77.0)
     pool = [it for it in t.types.values()
-            if it.id not in have and ((not it.creature_only and it.min_tier <= monster_type.tier)
+            if it.id not in have and not talents.total(player, f"no_injury:{it.id}") and ((not it.creature_only and it.min_tier <= monster_type.tier)
                                       or it.id in monster_type.injures)]
     if not pool:
         return None

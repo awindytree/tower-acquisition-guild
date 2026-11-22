@@ -5,6 +5,22 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.77.0: Traits (2026-11-21)
+Stage 3 of the equipment refactor (design: `claude/design-equipment.md`; the traits are the assistant's drafts).
+- **A trait at every fifth tier** (user): reaching +5, +10, +15... gives the piece a trait at random from its type's pool, never one it already has. The message says which. Traits work while the piece is worn or wielded. The item windows list them ("Traits: Keen (+5% critical chance); ..."); below +5 the windows say a trait comes at +5.
+- **The pools:** all 168 traits from the design are in `data/traits.json`, 12 for each weapon type and armour slot. **61 can roll now**: the ones whose mechanics exist, across sword, haft, axe, bow, head, chest and legs. The rest wait for their mechanics (reach, knockback, throwing...) or their weapon type (stage 4), and won't roll until then.
+  - Ready per pool: sword 11, haft 7, axe 7, bow 9, head 9, chest 10, legs 5.
+  - What they do, for example: crits, bleeding, staggering, parrying blows, Riposte accuracy, armour pierce, healing on a hit, damage against marked creatures or strangler vines, Ward-cut striking ashmantles, range, arrows kept, free shots, pinning, sight, light, noticing, carrying, attributes, max HP per 5 tiers, warding off head injuries, standing firm against dazes, ash and Gravity.
+- **Wording changed** so the effect is what the game does:
+  - Valiant works under a third of your health.
+  - Heirloom gives +10% XP.
+  - Concussive staggers.
+  - Riposte-ready gives +2 accuracy on ripostes.
+  - Steady-headed: dazes last 3 turns less.
+  - Bleed-proof: bleeding and poison run half as long.
+  - Tireless counts Gravity's steps as one turn.
+- **The upgrade window's wording** (user): "To +3: 100% chance of success", and the fee is "only on success".
+
 ## 0.76.0: Raising gear (2026-11-21)
 Stage 2 of the equipment refactor (design: `claude/design-equipment.md`; the numbers are drafts).
 - **The smith raises gear:** "Can you work on my gear?" opens a window listing what you wear, then what's in your pack. For the next tier it shows:

@@ -358,6 +358,12 @@ Windcatchers have no tier.
   home chest count too. The Bytorsskug house takes a **forge**, the Ingenfjel
   house a **workbench**; the Towerway stead has room for neither.
 
+**Traits (v0.77.0):** each time a piece reaches +5, +10, +15 and so on, it
+takes on a trait from its type's pool, never the same one twice: Keen (+5%
+critical chance), Bloodletting (10% chance to bleed), Hooded (creatures
+notice you less), Pocketed (+2 carrying slots) and so on. A trait only works
+while the piece is worn or wielded. The item windows list them.
+
 What it takes: the piece's two material families (see below), more of them
 with each tier, adding the uncommon kind from +7 and the rare from +14. A
 raised piece is worth more (the materials put into it); a shop that buys one

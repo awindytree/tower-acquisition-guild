@@ -169,7 +169,9 @@ def item_details(item, engine: "Engine") -> str:
         bonus = gear.tier_text(item)
         details += f" Tier +{item.tier}" + (f": {bonus}." if bonus else ".")
         if item.traits:
-            details += " Traits: " + ", ".join(item.traits) + "."
+            details += " Traits: " + "; ".join(gear.trait_line(item, t) for t in item.traits) + "."
+        elif item.tier < gear.TRAIT_EVERY:
+            details += f" At +{gear.TRAIT_EVERY} it takes on a trait."
     return details
 
 
@@ -2792,7 +2794,7 @@ class UpgradeScreen:
             risk = gear.destroy_chance(to)
             if risk:
                 engine.screen = ConfirmScreen(
-                    f"Raise the {item.label} to +{to}? {gear.chance(to)}% it takes. If it doesn't, "
+                    f"Raise the {item.label} to +{to}? {gear.chance(to)}% chance of success. If it fails, "
                     f"{risk}% of the time the piece is destroyed.", on_yes=go,
                     on_no=lambda e, back=self: setattr(e, "screen", back))
             else:
@@ -2812,7 +2814,7 @@ class UpgradeScreen:
             if self.at == "home" and to > gear.HOME_MAX:
                 extra += wrapped(f"Past +{gear.HOME_MAX} is the smith's work.", w - 4, DIM)
             else:
-                odds = f"To +{to}: {gear.chance(to)}% it takes"
+                odds = f"To +{to}: {gear.chance(to)}% chance of success"
                 risk = gear.destroy_chance(to)
                 extra.append((odds + (f"; a failure destroys it {risk}% of the time." if risk else "."),
                               CANT if risk else TEXT))
@@ -2821,7 +2823,7 @@ class UpgradeScreen:
                     extra.append((f"  {cat[mid].name}: {have}/{n}", TEXT if have >= n else CANT))
                 if self.at == "smith":
                     fee = gear.shard_cost(to)
-                    extra.append((f"  fee: {fee} shards, only if it takes", TEXT if p.shards >= fee else CANT))
+                    extra.append((f"  fee: {fee} shards, only on success", TEXT if p.shards >= fee else CANT))
                 else:
                     extra.append(("  no fee; materials in your home chest count", DIM))
                 extra += wrapped("If it fails, the materials are lost" + ("; the fee isn't taken." if self.at == "smith" else "."),
