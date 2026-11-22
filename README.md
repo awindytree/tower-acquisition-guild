@@ -503,6 +503,14 @@ in the first area to finish (the Guild doesn't pay for hunts; you keep what
 you find). Stepping onto the trail home without it asks whether to head back
 anyway; a contract stays yours to try again.
 
+**The hunt line** (v0.71.0) runs across the top of the map on a hunt:
+`≡ ═════♦═════♦─────♦───── ☼ L   / ██████░░░░`. The trail home, then one
+segment per area, split by shards: the areas you've reached fill in, the one
+you're in and those before it lit, deeper ones you've come back from half-lit.
+At the end is what you came for, dim until it's in your pack, then a mark for
+each bounty here, dim until it's done. On the right, while a torch burns, its
+bar burns down (torches no longer show in the info panel).
+
 ## The Brisering
 
 The **city gates** (`∩`) lead out into **the Brisering**, the land within 99 km

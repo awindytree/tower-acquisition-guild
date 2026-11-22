@@ -5,6 +5,13 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.71.0: The hunt line (2026-11-21)
+- **A line across the top of the map on a hunt** (user), above the map, so nothing is covered:
+  - **Progress:** the trail home (≡), then one segment per area, split by shards (♦) like the title cards' accents. The areas you've reached fill in (a lit double line); deeper areas you've come back from stay filled but half-lit; the rest are a thin dark line. A shard lights once you've crossed it.
+  - **What you came for:** the prize at the end of the line, in its own glyph and colour, dim until it's in your pack and bright once it is. Then a mark for each bounty here, dim until it's done.
+  - **Torch:** while one burns, its bar on the right burns down, turning orange-red near the end. **The info panel no longer shows torch turns**; the Jodebris bar stays in the panel.
+- The map view is one row shorter on hunts to make room. The city and the Brisering are unchanged.
+
 ## 0.70.1: The Wayfinder's carousel (2026-11-21)
 - **The Wayfinder's word columns are carousels** (user). Your three picks sit side by side on the middle row, and each column's words wheel round its pick, wrapping from the last word back to the first and fading the further they are. Each word shows once.
 - **Fixed:** with the new words, the columns ran past the bottom of the window on the laptop, so some words (Verdant, Tiresome, Sundering and others) could be picked but not seen.

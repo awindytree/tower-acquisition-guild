@@ -1286,8 +1286,13 @@ class Engine:
 
         # The info panel takes the right-hand side; the map gets the rest.
         view_w = console.width - SIDEBAR_WIDTH
+        from game import hud
+        top = hud.ROWS if self.hunt is not None else 0     # the hunt line takes the top row (v0.71.0)
         cam = camera.follow(*self.camera_focus(),
-                            gm.width, gm.height, view_w, console.height)
+                            gm.width, gm.height, view_w, console.height - top)
+        if top:
+            import dataclasses
+            cam = dataclasses.replace(cam, screen_y=cam.screen_y + top)
         self.cam = cam  # remembered for the look cursor
         view = console.rgb[cam.screen_x : cam.screen_x + cam.width,
                            cam.screen_y : cam.screen_y + cam.height]
@@ -1350,6 +1355,7 @@ class Engine:
         if spot:
             console.print(*spot, self.player.char, fg=self.player.color)
 
+        hud.draw(self, console, view_w)
         self.render_sidebar(console, view_w)
         if self.screen is not None:
             self.screen.render(console, self, view_w)
@@ -1449,11 +1455,7 @@ class Engine:
         if p.talent_offers:                 # (v0.58.0)
             console.print(left, y, "Talent to choose: n"[:width], fg=ACCENT_PANEL, bg=PANEL_BG)
             y += 1
-        if p.torch_turns:
-            console.print(left, y, "/", fg=TORCH, bg=PANEL_BG)
-            console.print(left + 2, y, f"Torch: {p.torch_turns} turns"[: width - 2],
-                          fg=HP_LOW if p.torch_turns <= 25 else DIM, bg=PANEL_BG)
-            y += 1
+        # (A burning torch shows on the hunt line now, v0.71.0: game/hud.py.)
         if p.meal_turns:
             console.print(left, y, "¥", fg=TORCH, bg=PANEL_BG)
             console.print(left + 2, y, f"Mending: {p.meal_turns} turns"[: width - 2], fg=DIM, bg=PANEL_BG)
