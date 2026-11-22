@@ -23,6 +23,7 @@ class StockLine:
     restock: int = 0      # Pulses per unit restocked
     since: int = 0        # the day the restock clock last started
     bundle: int = 1       # how many you get for one purchase (arrows come in bundles)
+    tier: int = 0         # a weapon or armour piece sold at a tier (v0.76.0): it's sold back at that tier
 
     def catch_up(self, day: int) -> None:
         """Restock for the Pulses that have passed."""
@@ -73,16 +74,17 @@ class Stock:
         if line.max <= 0 and line.count <= 0:
             self.lines.remove(line)
 
-    def add(self, item_id: str, price: int) -> None:
-        """Something sold (or consigned) to the vendor goes up for sale at full value."""
+    def add(self, item_id: str, price: int, tier: int = 0) -> None:
+        """Something sold (or consigned) to the vendor goes up for sale at full value (and its tier)."""
         for line in self.lines:
-            if line.item_id == item_id and line.max <= 0 and line.price == price:
+            if line.item_id == item_id and line.max <= 0 and line.price == price and line.tier == tier:
                 line.count += 1
                 return
-        self.lines.append(StockLine(item_id, price, 1))
+        self.lines.append(StockLine(item_id, price, 1, tier=tier))
 
     def to_list(self) -> list:
-        return [[l.item_id, l.price, l.count, l.max, l.restock, l.since, l.bundle] for l in self.lines]
+        return [[l.item_id, l.price, l.count, l.max, l.restock, l.since, l.bundle] + ([l.tier] if l.tier else [])
+                for l in self.lines]
 
     @classmethod
     def from_list(cls, data: list) -> "Stock":

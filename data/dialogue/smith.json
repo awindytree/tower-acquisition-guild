@@ -34,6 +34,12 @@
           ]
         },
         {
+          "text": "Can you work on my gear? Raise it a notch?",
+          "do": [
+            "upgrade"
+          ]
+        },
+        {
           "text": "Can you teach me to take more from a kill?",
           "do": [
             "train:harvesting"
@@ -68,6 +74,12 @@
           ]
         },
         {
+          "text": "Can you work on my gear? Raise it a notch?",
+          "do": [
+            "upgrade"
+          ]
+        },
+        {
           "text": "Can you teach me to take more from a kill?",
           "do": [
             "train:harvesting"
@@ -86,6 +98,12 @@
           "text": "What else can you make?",
           "do": [
             "craft:smith"
+          ]
+        },
+        {
+          "text": "Can you work on my gear? Raise it a notch?",
+          "do": [
+            "upgrade"
           ]
         },
         {

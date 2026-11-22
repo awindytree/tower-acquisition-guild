@@ -131,6 +131,10 @@ TILE_TYPES: list[TileType] = [
              glyphs="$", colors=((200, 160, 90),), bg=(34, 26, 16)),
     TileType("trophy shelves", "j", walkable=False, transparent=True,
              glyphs="Ω", colors=((200, 178, 140),)),
+    TileType("forge", "F", walkable=False, transparent=True,                     # (v0.76.0)
+             glyphs="▲", colors=((235, 120, 60),), bg=(44, 26, 18)),
+    TileType("workbench", "d", walkable=False, transparent=True,
+             glyphs="╦", colors=((190, 150, 100),)),
     TileType("training dummy", "U", walkable=False, transparent=True,
              glyphs="τ", colors=((190, 160, 110),)),
     TileType("cot", "Z", walkable=False, transparent=True,

@@ -5,6 +5,27 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.76.0: Raising gear (2026-11-21)
+Stage 2 of the equipment refactor (design: `claude/design-equipment.md`; the numbers are drafts).
+- **The smith raises gear:** "Can you work on my gear?" opens a window listing what you wear, then what's in your pack. For the next tier it shows:
+  - the chance it takes;
+  - the materials, have against need;
+  - the fee.
+
+  Enter tries. Nothing takes time.
+- **The rules (user), with draft numbers:**
+  - **Any tier, with no ceiling.** You pay materials and a fee of 25 × tier^1.5 shards: 200 for +4, 790 for +10, 2,235 for +20.
+  - **The fee is only taken if it works** (user: shards are returned). The materials are spent either way.
+  - **Chance:** 100% up to +3; 95% for +4, falling to 65% at +10, 35% at +20; then 2 less a tier, never below 10%.
+  - **Past +20, a failure can destroy the piece** (user): 5% of failures at +21, 5% more each tier after, at most 75%. The window asks before any try that could.
+- **At home, up to +3** (user): materials only, no fee; materials in your home chest count too.
+  - **The Bytorsskug house:** a **forge** (400).
+  - **Ingenfjel:** a **workbench** (300), which does both (user).
+  - **The stead:** neither (user).
+
+  Bytorsskug's own workbench, for artificy, comes with that (stage 5). Walk into the forge or workbench to use it.
+- **Worth:** a raised piece is worth its base value plus the materials put into its tiers, so shops pay more for it. A shop that buys one now sells it on at its tier ("arming sword +3"), where before it came back +0.
+
 ## 0.75.0: Gear tiers and armour slots (2026-11-21)
 Stage 1 of the equipment refactor (design: `claude/design-equipment.md`): what upgrading will build on. Nothing can be upgraded yet; that's stage 2.
 - **Armour by slot: head, chest, legs** (user: no armour classes). Your armour is the pieces added up. Everything worn before is **chest** armour, and old saves move it there. The equipment window has a row for each; the info panel shows your armour total, with a mark for each slot (∩ φ π), lit when something's in it.

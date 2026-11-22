@@ -182,6 +182,8 @@ def apply(engine, effects) -> str | None:
             opens = "jobs"
         elif kind == "craft":
             opens = effect   # "craft:smith"
+        elif kind == "upgrade":
+            opens = "upgrade"   # (v0.76.0: the smith raises gear)
         elif kind == "hand_in_writings":
             from game import library
             engine.log(library.hand_in(engine))

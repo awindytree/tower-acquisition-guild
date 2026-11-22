@@ -381,7 +381,8 @@ def item_worth(item, engine: "Engine") -> str:
         mark = (f"The record is {trophies.weight_text(rec['kg'])} ({rec['who']})." if rec
                 else "There's no record for one yet.")
         return f"{trophies.weight_text(item.trophy['kg'])}, {item.slots} slot{'s' if item.slots > 1 else ''}.{note} {mark}"
-    value = t.value
+    from game import gear
+    value = gear.value(item)
     return f"Worth {value} shard{'' if value == 1 else 's'}{' each' if item.count > 1 else ''}."
 
 
@@ -1139,7 +1140,8 @@ def buy_from(engine, vendor_id: str, index: int) -> tuple[bool, str]:
     if line.count <= 0:
         return False, "Sold out. More should come in before long."
     from game import bargaining
-    ok, msg = shops.buy(engine.player, engine.catalogue[line.item_id], bargaining.pay(engine.player, line.price), line.bundle)
+    ok, msg = shops.buy(engine.player, engine.catalogue[line.item_id], bargaining.pay(engine.player, line.price), line.bundle,
+                        line.tier)
     if ok:
         stock.take(line, engine.day)
         bargaining.practise(engine)
@@ -1162,15 +1164,16 @@ class ShopScreen:
             rows = []
             for line in engine.stock(self.shop.id).shown():
                 t = engine.catalogue[line.item_id]
-                what = t.label(line.bundle)
+                what = t.label(line.bundle) + (f" +{line.tier}" if line.tier else "")
                 label = f"{what}  x{line.count}" if line.count else f"{what}  (sold out)"
                 from game import bargaining
                 price = bargaining.pay(p, line.price)
                 rows.append((t.glyph, t.color, label, price, line.count > 0 and p.shards >= price))
             return rows
         rows = []
+        from game import gear
         for item in p.inventory.items:
-            price = self.shop.buy_price(item.type)
+            price = self.shop.buy_price(item.type, gear.value(item))
             if price is not None:
                 from game import bargaining
                 price = bargaining.paid(p, price)
@@ -2739,6 +2742,112 @@ class CraftScreen:
         keys = ("↑↓ choose  Enter commission  ←→ tab  Esc" if self.tab == "make"
                 else "↑↓ choose  Enter collect  ←→ tab  Esc")
         console.print(x + 2, y + h - 2, keys[: w - 4], fg=DIM, bg=BG)
+
+
+# ---- Raising gear (equipment stage 2, v0.76.0) ----------------------------------------------
+class UpgradeScreen:
+    """Raise a weapon or armour piece a tier: at the smith (materials and a fee, any tier; the fee is
+    only taken if it works) or at home on a forge or workbench (materials only, up to +3; materials
+    from the home chest count too). Lists what you wear, then what's in the pack. A try that could
+    destroy the piece asks first. Takes no time."""
+
+    def __init__(self, at: str = "smith", title: str = "Raise a piece") -> None:
+        self.at = at
+        self.title = title
+        self.selected = 0
+        self.notice = ""
+
+    @staticmethod
+    def rows(engine) -> list:
+        from game import gear
+        p = engine.player
+        worn = [p.equipped[s] for s in gear.SLOTS if p.equipped.get(s) is not None and gear.has_tier(p.equipped[s])]
+        return worn + [it for it in p.inventory.items if gear.has_tier(it)]
+
+    def handle(self, event, engine: "Engine") -> Action | None:
+        from game import gear
+        if not isinstance(event, tcod.event.KeyDown):
+            return None
+        rows = self.rows(engine)
+        if event.sym == KeySym.ESCAPE:
+            engine.screen = None
+        elif event.sym in UP_KEYS and rows:
+            self.selected = (self.selected - 1) % len(rows)
+            self.notice = ""
+        elif event.sym in DOWN_KEYS and rows:
+            self.selected = (self.selected + 1) % len(rows)
+            self.notice = ""
+        elif event.sym in CONFIRM_KEYS and rows:
+            item = rows[min(self.selected, len(rows) - 1)]
+            why = gear.blocked(engine, item, self.at)
+            if why:
+                self.notice = why
+                return None
+            to = item.tier + 1
+            def go(e, item=item, back=self):
+                outcome, msg = gear.upgrade(e, item, back.at)
+                e.log(msg)
+                back.notice = msg
+                e.screen = back
+            risk = gear.destroy_chance(to)
+            if risk:
+                engine.screen = ConfirmScreen(
+                    f"Raise the {item.label} to +{to}? {gear.chance(to)}% it takes. If it doesn't, "
+                    f"{risk}% of the time the piece is destroyed.", on_yes=go,
+                    on_no=lambda e, back=self: setattr(e, "screen", back))
+            else:
+                go(engine)
+        return None
+
+    def render(self, console, engine: "Engine", area_w: int) -> None:
+        from game import gear
+        cat, p = engine.catalogue, engine.player
+        w = min(area_w - 2, 58)
+        rows = self.rows(engine)
+        self.selected = max(0, min(self.selected, len(rows) - 1))
+        extra = []
+        if rows:
+            item = rows[self.selected]
+            to = item.tier + 1
+            if self.at == "home" and to > gear.HOME_MAX:
+                extra += wrapped(f"Past +{gear.HOME_MAX} is the smith's work.", w - 4, DIM)
+            else:
+                odds = f"To +{to}: {gear.chance(to)}% it takes"
+                risk = gear.destroy_chance(to)
+                extra.append((odds + (f"; a failure destroys it {risk}% of the time." if risk else "."),
+                              CANT if risk else TEXT))
+                for mid, n in gear.material_bill(item.type, to).items():
+                    have = gear.have(engine, mid, self.at)
+                    extra.append((f"  {cat[mid].name}: {have}/{n}", TEXT if have >= n else CANT))
+                if self.at == "smith":
+                    fee = gear.shard_cost(to)
+                    extra.append((f"  fee: {fee} shards, only if it takes", TEXT if p.shards >= fee else CANT))
+                else:
+                    extra.append(("  no fee; materials in your home chest count", DIM))
+                extra += wrapped("If it fails, the materials are lost" + ("; the fee isn't taken." if self.at == "smith" else "."),
+                                 w - 4, DIM)
+        else:
+            extra += wrapped("You have no weapon or armour to work on.", w - 4, DIM)
+        if self.notice:
+            extra += [("", DIM)] + wrapped(self.notice, w - 4, ACCENT)
+        h, visible, extra = fit_window(console, max(len(rows), 1), extra)
+        x, y = (area_w - w) // 2, (console.height - h) // 2
+        draw_box(console, x, y, w, h, self.title)
+        if self.at == "smith":
+            purse = f"♦ {p.shards} shards"
+            console.print(x + w - 2 - len(purse), y + 1, purse, fg=TEXT, bg=BG)
+        first = max(0, min(self.selected - visible // 2, len(rows) - visible))
+        for i, it in enumerate(rows[first : first + visible]):
+            row, bg = y + 3 + i, HIGHLIGHT if first + i == self.selected else BG
+            console.rgb["bg"][x + 1 : x + w - 1, row] = bg
+            ok = gear.blocked(engine, it, self.at) is None
+            tag = "worn" if p.is_equipped(it) else ""
+            console.print(x + 2, row, it.type.glyph, fg=it.type.color, bg=bg)
+            console.print(x + 4, row, it.label[: w - 14], fg=TEXT if ok else CANT, bg=bg)
+            console.print(x + w - 2 - len(tag), row, tag, fg=DIM, bg=bg)
+        for i, (text, color) in enumerate(extra):
+            console.print(x + 2, y + 4 + visible + i, text[: w - 4], fg=color, bg=BG)
+        console.print(x + 2, y + h - 2, "↑↓ choose  Enter raise it  Esc"[: w - 4], fg=DIM, bg=BG)
 
 
 # ---- The healer ------------------------------------------------------------------------------

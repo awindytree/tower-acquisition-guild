@@ -103,6 +103,9 @@ class Engine:
         if catalogue is not None and self.monster_types:
             from game import trophies
             trophies.register(catalogue, self.monster_types)   # a trophy for every body (v0.61.0)
+        if catalogue is not None:
+            from game import gear as _gear
+            _gear.set_catalogue(catalogue)               # (material values for gear worth, v0.76.0)
         self.trophies = {"records": {}, "curios": {}}   # the trophy wall (world state, v0.61.0)
         self.new_hunter = new_hunter     # makes a fresh Player, after a death
         self.rng = random.Random()
@@ -1018,6 +1021,9 @@ class Engine:
         elif kind == "craft":
             from game.screens import CraftScreen
             self.screen = CraftScreen(vid)
+        elif kind == "upgrade":
+            from game.screens import UpgradeScreen
+            self.screen = UpgradeScreen(at="smith", title="The smith: raise a piece")
         elif kind == "library":
             from game.screens import LibraryScreen
             self.screen = LibraryScreen()

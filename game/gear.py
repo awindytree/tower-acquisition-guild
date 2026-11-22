@@ -106,6 +106,13 @@ def tier_text(item) -> str:
     return ", ".join(f"+{n} {what}" for n, what in parts if n)
 
 
+def step_gain(item_type, tier: int) -> str:
+    """What reaching this tier adds: "+1 accuracy", "+1 damage", "+2 max HP" or "+1 armour"."""
+    if item_type.kind == "weapon":
+        return "+1 accuracy" if tier % 2 else "+1 damage"
+    return f"+{HP_PER_TIER} max HP" if tier % 2 else "+1 armour"
+
+
 # ---- Materials ----------------------------------------------------------------------------
 def material_bill(item_type, tier: int) -> dict[str, int]:
     """The materials going TO this tier takes (draft): {item id: count}.
@@ -122,3 +129,130 @@ def material_bill(item_type, tier: int) -> dict[str, int]:
     if tier >= 14:
         bill[first[2]] = 1 + (tier - 14) // 4
     return bill
+
+
+# ---- Upgrading (stage 2, v0.76.0) ------------------------------------------------------------------
+HOME_MAX = 3             # what you can do yourself at home (user)
+
+
+def chance(tier: int) -> int:
+    """% chance that going TO this tier works (draft): 100 to +3; 95 falling 5 a tier to 65 at +10;
+    62 falling 3 a tier to 35 at +20; then 33 falling 2 a tier, never below 10."""
+    if tier <= 3:
+        return 100
+    if tier <= 10:
+        return 95 - 5 * (tier - 4)
+    if tier <= 20:
+        return 62 - 3 * (tier - 11)
+    return max(10, 33 - 2 * (tier - 21))
+
+
+def destroy_chance(tier: int) -> int:
+    """% of failed attempts TO this tier that destroy the piece (draft): none to +20; 5 at +21,
+    5 more a tier after, at most 75."""
+    return 0 if tier <= 20 else min(75, 5 * (tier - 20))
+
+
+def shard_cost(tier: int) -> int:
+    """The smith's fee for going TO this tier: 25 × T^1.5, rounded to 5 (draft). Only paid if it works."""
+    return int(round(25 * tier ** 1.5 / 5)) * 5
+
+
+def value(item) -> int:
+    """What a piece is worth: its type's value plus the materials put into its tiers (shards aren't
+    counted: an upgrade is an investment, not a trade)."""
+    base = item.type.value
+    if not has_tier(item) or not item.tier:
+        return base
+    return base + sum(n * _material_value(mid) for t in range(1, item.tier + 1)
+                      for mid, n in material_bill(item.type, t).items())
+
+
+_VALUES: dict = {}
+
+
+def set_catalogue(catalogue) -> None:
+    """Material values for value() (set when the Engine starts)."""
+    _VALUES.clear()
+    for fam in families().values():
+        for mid in fam:
+            if mid in catalogue.types:
+                _VALUES[mid] = catalogue[mid].value
+
+
+def _material_value(mid: str) -> int:
+    return _VALUES.get(mid, 0)
+
+
+def stores(engine, at: str) -> list:
+    """Where materials are taken from: the pack, and at home the home chest too."""
+    out = [engine.player.inventory]
+    home = getattr(engine, "home", None)
+    if at == "home" and home is not None:
+        out.append(home["chest"])
+    return out
+
+
+def have(engine, item_id: str, at: str) -> int:
+    return sum(inv.count_of(item_id) for inv in stores(engine, at))
+
+
+def blocked(engine, item, at: str) -> str | None:
+    """Why this piece can't go up a tier here and now, or None."""
+    if not has_tier(item):
+        return "That can't be raised."
+    to = item.tier + 1
+    if at == "home" and to > HOME_MAX:
+        return f"Past +{HOME_MAX} is the smith's work."
+    short = [f"{n - have(engine, mid, at)} more {engine.catalogue[mid].label(2)[2:]}"
+             for mid, n in material_bill(item.type, to).items() if have(engine, mid, at) < n]
+    if short:
+        return "You need " + ", ".join(short) + "."
+    if at == "smith" and engine.player.shards < shard_cost(to):
+        return f"The smith's fee is {shard_cost(to)} shards."
+    return None
+
+
+def _take(engine, item_id: str, n: int, at: str) -> None:
+    for inv in stores(engine, at):
+        while n > 0 and inv.count_of(item_id):
+            i = next(k for k, it in enumerate(inv.items) if it.type.id == item_id)
+            got = min(n, inv.items[i].count)
+            inv.remove(i, got)
+            n -= got
+
+
+def _discard(engine, item) -> None:
+    p = engine.player
+    for slot, it in list(p.equipped.items()):
+        if it is item:
+            del p.equipped[slot]
+            p.gear_changed()
+            return
+    p.inventory.items = [it for it in p.inventory.items if it is not item]
+
+
+def upgrade(engine, item, at: str, rng=None) -> tuple[str, str]:
+    """Try to raise a piece one tier (at "smith" or "home"). Returns (outcome, message): outcome
+    "blocked", "up", "failed" (materials lost, no fee taken) or "destroyed" (the piece is gone)."""
+    why = blocked(engine, item, at)
+    if why:
+        return "blocked", why
+    rng = rng or engine.rng
+    to = item.tier + 1
+    for mid, n in material_bill(item.type, to).items():
+        _take(engine, mid, n, at)
+    from game import sound
+    if rng.randint(1, 100) <= chance(to):
+        if at == "smith":
+            engine.player.shards -= shard_cost(to)
+        item.tier = to
+        engine.player.gear_changed()
+        sound.play("pay")
+        return "up", f"The {item.type.name} is +{to} now: {step_gain(item.type, to)}."
+    if destroy_chance(to) and rng.randint(1, 100) <= destroy_chance(to):
+        _discard(engine, item)
+        return "destroyed", (f"The {item.type.name} gives way under the hammer and is ruined. "
+                             "The materials are gone with it.")
+    return "failed", (f"It doesn't take: the {item.type.name} stays +{item.tier}. The materials are spent"
+                      + ("; the smith keeps no fee." if at == "smith" else "."))

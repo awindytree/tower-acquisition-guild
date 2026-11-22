@@ -38,7 +38,7 @@ class Shelf(Inventory):
         return True
 
 DATA = Path(__file__).resolve().parent.parent / "data" / "homes.json"
-FURNITURE = {"bed": "n", "chest": "q", "shelves": "j"}
+FURNITURE = {"bed": "n", "chest": "q", "shelves": "j", "forge": "F", "workbench": "d"}
 _data: dict | None = None
 
 
@@ -94,7 +94,7 @@ def rooms(gm, door) -> list[tuple[int, int]]:
             if n in seen or not gm.in_bounds(*n):
                 continue
             seen.add(n)
-            if gm.tile_at(*n).symbol in "wnqj":           # (floor, or furniture on it)
+            if gm.tile_at(*n).symbol in "wnqjFd":         # (floor, or furniture on it)
                 out.append(n)
                 q.append(n)
     return out
@@ -127,7 +127,9 @@ def spots(gm, hid: str) -> dict:
                     q.append(n)
         return all(c in seen for c in rest)
     chosen, blocked = {}, set()
-    for key in ("bed", "shelves", "chest"):
+    for key in ("bed", "shelves", "chest", "forge", "workbench"):
+        if not most(hid, key):
+            continue                          # (forge and workbench: only where the home takes one)
         for c in sorted(floor, key=lambda c: (-dist[c], c[1], c[0])):
             if c in blocked or c == inside or not against_wall(c):
                 continue
@@ -252,8 +254,24 @@ def use(engine, x: int, y: int) -> bool:
     sym = engine.game_map.tile_at(x, y).symbol
     if sym not in FURNITURE.values() or owned(engine) is None:
         return False
-    {"n": rest, "q": open_chest, "j": open_shelves}[sym](engine)
+    {"n": rest, "q": open_chest, "j": open_shelves, "F": smithing, "d": smithing}[sym](engine)
     return True
+
+
+def smithing_key(engine) -> str | None:
+    """The improvement that raises gear at the owned home, if it's built (v0.76.0)."""
+    hid = owned(engine)
+    key = data()["homes"][hid].get("smithing") if hid else None
+    return key if key and tier(engine, key) else None
+
+
+def smithing(engine) -> None:
+    """The forge or workbench: raise gear to +3 with materials only (user, v0.76.0)."""
+    from game.screens import UpgradeScreen
+    key = smithing_key(engine)
+    if key is None:
+        return
+    engine.screen = UpgradeScreen(at="home", title=f"Your {data()['improvements'][key]['name'].lower()}")
 
 
 # ---- Saving ----------------------------------------------------------------------------------------------------

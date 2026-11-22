@@ -344,9 +344,24 @@ sword +4"); everything so far is +0. Each tier adds one point, alternating:
 - **Weapons:** odd tiers +1 accuracy, even tiers +1 damage (bows: for shots).
 - **Armour:** even tiers +1 armour, odd tiers +2 max HP.
 
-Windcatchers have no tier. **Raising a tier isn't in the game yet**: it
-comes next, at the smith and on a home forge or workbench (design:
-`claude/design-equipment.md`).
+Windcatchers have no tier.
+
+**Raising a tier (v0.76.0):**
+
+- **At the smith:** ask him to work on your gear. Any tier, for materials
+  from your pack and a fee in shards (25 × tier^1.5: 200 for +4, 790 for
+  +10). Up to +3 it always takes; after that the odds fall (95% for +4, 65%
+  for +10, 35% for +20, never below 10%). If it fails, the materials are
+  lost but the fee isn't taken. **Past +20 a failure can destroy the piece**
+  (5% at +21, 5% more each tier, up to 75%); the window asks first.
+- **At home, up to +3:** materials only, no fee, and the materials in your
+  home chest count too. The Bytorsskug house takes a **forge**, the Ingenfjel
+  house a **workbench**; the Towerway stead has room for neither.
+
+What it takes: the piece's two material families (see below), more of them
+with each tier, adding the uncommon kind from +7 and the rare from +14. A
+raised piece is worth more (the materials put into it); a shop that buys one
+sells it on at its tier.
 
 **Materials come in five families, each in three tiers** (common, uncommon,
 rare), the rarer from tougher creatures: hide (rough hide, thick hide, brute

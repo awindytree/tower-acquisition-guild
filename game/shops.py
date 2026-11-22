@@ -25,11 +25,12 @@ class Shop:
     buys: tuple[str, ...]                      # item kinds the shop buys
     sell_rate: float
 
-    def buy_price(self, item_type: ItemType) -> int | None:
-        """What the shop pays for one of these, or None if it won't buy them."""
+    def buy_price(self, item_type: ItemType, value: int | None = None) -> int | None:
+        """What the shop pays for one of these (worth `value`, if not the type's), or None if it won't
+        buy them."""
         if item_type.kind in NEVER_BOUGHT or item_type.kind not in self.buys or item_type.id == "shard":
             return None
-        return max(1, int(item_type.value * self.sell_rate))
+        return max(1, int((item_type.value if value is None else value) * self.sell_rate))
 
 
 def load_shops(path: str | Path, catalogue: Catalogue) -> dict[str, Shop]:
@@ -47,14 +48,14 @@ def load_shops(path: str | Path, catalogue: Catalogue) -> dict[str, Shop]:
 
 
 # ---- Trading: each returns a message for the log, and changes nothing if it fails ----
-def buy(player, item_type: ItemType, price: int, count: int = 1) -> tuple[bool, str]:
-    """Buy `count` of something (a bundle) for `price` in all."""
-    what = item_type.label(count) if count > 1 else item_type.name
+def buy(player, item_type: ItemType, price: int, count: int = 1, tier: int = 0) -> tuple[bool, str]:
+    """Buy `count` of something (a bundle) for `price` in all (a piece at a tier: `tier`)."""
+    what = item_type.label(count) if count > 1 else item_type.name + (f" +{tier}" if tier else "")
     if player.shards < price:
         return False, f"You can't afford the {what} ({price} shards)."
     if not player.inventory.can_add(Item(item_type, count)):
         return False, f"You have no room to carry the {what}."
-    player.inventory.add(Item(item_type, count))
+    player.inventory.add(Item(item_type, count, tier=tier))
     player.shards -= price
     from game import sound
     sound.play("pay")
@@ -65,7 +66,8 @@ def buy(player, item_type: ItemType, price: int, count: int = 1) -> tuple[bool, 
 def sell(player, shop: Shop, index: int, stock=None) -> tuple[bool, str]:
     """Sell one. If the shop's stock is given, the item goes up for sale there at full value."""
     item = player.inventory.items[index]
-    price = shop.buy_price(item.type)
+    from game import gear
+    price = shop.buy_price(item.type, gear.value(item))
     if price is not None:
         from game import bargaining                 # (v0.59.0)
         price = bargaining.paid(player, price)
@@ -80,8 +82,8 @@ def sell(player, shop: Shop, index: int, stock=None) -> tuple[bool, str]:
     from game import sound
     sound.play("pay")
     if stock is not None:
-        stock.add(item.type.id, item.type.value)
-    return True, f"You sell {_a(item.type.name)} for {price} shard{'s' if price != 1 else ''}."
+        stock.add(item.type.id, gear.value(item), item.tier)
+    return True, f"You sell {_a(item.label)} for {price} shard{'s' if price != 1 else ''}."
 
 
 def _a(name: str) -> str:
