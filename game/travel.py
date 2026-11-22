@@ -22,6 +22,15 @@ def destinations(engine) -> list[tuple[str, tuple[int, int], bool]]:
     beside: stop next to it (a person, the stash) rather than on it."""
     gm, p = engine.game_map, engine.player
     out = []
+    from game import sites, homes
+    mine = homes.owned(engine)
+    home_door = homes.door_of(gm, mine) if mine else None
+    if sites.here(engine):                                 # Ingenfjel or the stead (v0.74.0)
+        if home_door:
+            out.append(("your home", home_door, False))
+        for (x, y) in gm.gates:
+            out.append(("back out to the Brisering", (x, y), False))
+        return out
     if engine.hunt is None and gm is not engine.city:     # the Brisering: back to the gates
         for (x, y), gate_id in sorted(gm.gates.items(), key=lambda g: g[1]):
             out.append((f"Bytorsskug: the {engine.gate_info.get(gate_id, {}).get('name', gate_id)}", (x, y), False))
@@ -32,6 +41,8 @@ def destinations(engine) -> list[tuple[str, tuple[int, int], bool]]:
         out += [(name, spot, True) for name, spot in named.items()]
     elif engine.hunt is None:
         out.append(("the guild hall", engine.city_start, False))
+        if home_door:
+            out.append(("your home", home_door, False))
         for x in range(gm.width):
             for y in range(gm.height):
                 if gm.tile_at(x, y).symbol == "C":

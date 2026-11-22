@@ -124,6 +124,13 @@ TILE_TYPES: list[TileType] = [
     # ";monument=x,y id" in the map file). Walk into one to read it.
     TileType("statue", "S", walkable=False, transparent=True,
              glyphs="♀", colors=((176, 150, 104),), bg=(40, 36, 30)),
+    # A Hunter's home (v0.74.0): furniture appears as it's bought. Walk into it to use it.
+    TileType("bed", "n", walkable=False, transparent=True,
+             glyphs="╥", colors=((206, 150, 110),)),
+    TileType("chest", "q", walkable=False, transparent=True,
+             glyphs="$", colors=((200, 160, 90),), bg=(34, 26, 16)),
+    TileType("trophy shelves", "j", walkable=False, transparent=True,
+             glyphs="Ω", colors=((200, 178, 140),)),
     TileType("training dummy", "U", walkable=False, transparent=True,
              glyphs="τ", colors=((190, 160, 110),)),
     TileType("cot", "Z", walkable=False, transparent=True,

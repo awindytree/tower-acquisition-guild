@@ -1,0 +1,47 @@
+{
+  "_comment": "A Hunter's home (user, 2026-11-21): bought from the property dealer, one at a time; bare when bought and improved over time; it passes to the next Hunter (world state). Three places (user): a house in Bytorsskug (dearest, takes everything, a step from the guild hall and the Wayfinder), a house in Ingenfjel (middling, takes everything, by the boga circuit and stables), a stead along the Towerway (cheapest, takes the least). Buying another means moving: what's in the chest and on the shelves comes too (what won't fit goes to the guild stash), the old place is sold back for half what was paid, and its improvements stay with it. ALL PRICES, SIZES AND NAMES ARE PLACEHOLDERS (the assistant's), for a balance pass. improvements: each has tiers (bought in order); a home's 'most' caps how far each goes there.",
+  "homes": {
+    "bytorsskug": {
+      "name": "the house in Bytorsskug",
+      "short": "Bytorsskug",
+      "price": 3000,
+      "where": "city",
+      "description": "A narrow house a few streets from the guild hall: the Wayfinder and the boards are a short walk away.",
+      "most": {"bed": 1, "chest": 3, "shelves": 3}
+    },
+    "ingenfjel": {
+      "name": "the house in Ingenfjel",
+      "short": "Ingenfjel",
+      "price": 1500,
+      "where": "ingenfjel",
+      "description": "A village house in Ingenfjel, south-west of the city, within sight of the stables and the great boga circuit.",
+      "most": {"bed": 1, "chest": 3, "shelves": 3}
+    },
+    "stead": {
+      "name": "the Towerway stead",
+      "short": "the Towerway stead",
+      "price": 600,
+      "where": "stead",
+      "description": "A one-room stead by the Towerway, a short walk west of the city's west gate. Room for a bed, a chest and a shelf, and little else.",
+      "most": {"bed": 1, "chest": 1, "shelves": 1}
+    }
+  },
+  "improvements": {
+    "bed": {
+      "name": "Bed",
+      "description": "Sleep it off: a Pulse's rest that heals you fully and mends every minor injury. (Serious ones still need the healer.)",
+      "tiers": [{"cost": 60}]
+    },
+    "chest": {
+      "name": "Chest",
+      "description": "Your own chest, apart from the guild stash.",
+      "tiers": [{"cost": 80, "slots": 10}, {"cost": 220, "slots": 20}, {"cost": 450, "slots": 30}]
+    },
+    "shelves": {
+      "name": "Trophy shelves",
+      "description": "Shelves for any trophy you want to keep, record or not.",
+      "tiers": [{"cost": 100, "slots": 4}, {"cost": 260, "slots": 8}, {"cost": 520, "slots": 12}]
+    }
+  },
+  "sell_back": 0.5
+}

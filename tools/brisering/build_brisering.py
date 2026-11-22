@@ -243,6 +243,17 @@ for y in range(H):
 lost = sum(1 for y in range(H) for x in range(W) if g[y][x] in WALK and (x, y) not in seen)
 assert lost == 0
 
+# The Towerway stead (v0.74.0): a Hunter's home for sale (data/homes.json), just off the Towerway
+# about 3 km west of the west gate, on its north side. Added last, so nothing else moves.
+STEAD = None
+for x, y in towerway:
+    if x <= GATES["west"][0] - 3 * KM_X and g[y - 1][x] in ",f^" and g[y - 2][x] in ",f^":
+        STEAD = (x, y - 1)
+        break
+assert STEAD, "no room for the stead by the Towerway"
+g[STEAD[1]][STEAD[0]] = "V"
+LANDMARKS[STEAD] = "the Towerway stead"
+
 # Arrive just outside each gate; the city-side "gate" in the city map leads here.
 arrive = {gid: (x + OUTWARD[gid][0], y + OUTWARD[gid][1]) for gid, (x, y) in GATES.items()}
 for gid, (x, y) in arrive.items():

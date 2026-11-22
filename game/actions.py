@@ -98,6 +98,12 @@ class MoveAction(Action):
             from game import sound
             sound.play("bump", gap=0.4)
             place = engine.game_map.landmarks.get((nx, ny))
+            from game import sites, homes
+            if place and engine.in_brisering() and sites.for_landmark(place):   # Ingenfjel, the stead (v0.74.0)
+                sites.enter(engine, sites.for_landmark(place), (player.x, player.y))
+                return False
+            if homes.use(engine, nx, ny):                  # your bed, chest or shelves (v0.74.0)
+                return False
             if place:      # a village on the Brisering (lore, user): not open yet
                 engine.log(f"{place}. You can't go in yet.")
             else:

@@ -1,0 +1,62 @@
+{
+  "_comment": "The property dealer (v0.74.0). PLACEHOLDER lines by the assistant, for the user to rewrite.",
+  "start": [
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "hello": {
+      "text": {
+        "variants": [
+          "A Hunter with an eye on a roof of their own? Sit, sit.",
+          "Houses, land, a bed that isn't the Guild's. What can I do for you, {calling}?",
+          "Back again. Still sleeping in the guild hall?"
+        ]
+      },
+      "choices": [
+        {
+          "text": "I'm looking for a place of my own.",
+          "if": [
+            "!home"
+          ],
+          "do": [
+            "homes"
+          ]
+        },
+        {
+          "text": "About my home.",
+          "if": [
+            "home"
+          ],
+          "do": [
+            "homes"
+          ]
+        },
+        {
+          "text": "What have you got?",
+          "goto": "what"
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "what": {
+      "text": "Three places, three prices. A house here in Bytorsskug, a few streets from the guild hall: dearest, but you're never far from the Wayfinder. A house out in Ingenfjel, by the stables and the great circuit. Or a stead along the Towerway, west of the gate: cheap, and small. You get the walls; what you put in them is up to you, and I can sell you that too. One place at a time, mind: if you move, I'll buy the old one back for half.",
+      "choices": [
+        {
+          "text": "Let me see.",
+          "do": [
+            "homes"
+          ]
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    }
+  }
+}

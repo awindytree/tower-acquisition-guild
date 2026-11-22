@@ -1522,13 +1522,21 @@ class StashScreen:
     Enter moves the selected thing (a whole stack) across. Takes no time.
     The stash belongs to the guild hall: the next Hunter inherits it."""
 
-    def __init__(self) -> None:
+    def __init__(self, store=None, title: str = "Guild stash", name: str = "Stash", only=None,
+                 only_why: str = "") -> None:
+        # (v0.74.0: also a home's chest and trophy shelves: `store` gives the Inventory, `only`
+        # says what may go into it from the pack)
         self.side = "pack"
         self.selected = {"pack": 0, "stash": 0}
         self.notice = ""
+        self.store = store
+        self.title = title
+        self.name = name
+        self.only = only
+        self.only_why = only_why
 
     def lists(self, engine):
-        return {"pack": engine.player.inventory, "stash": engine.stash}
+        return {"pack": engine.player.inventory, "stash": self.store(engine) if self.store else engine.stash}
 
     def handle(self, event, engine: "Engine") -> Action | None:
         if not isinstance(event, tcod.event.KeyDown):
@@ -1557,8 +1565,11 @@ class StashScreen:
         if self.side == "pack" and p.is_equipped(item):
             self.notice = f"Take off the {item.type.name} before stashing it."
             return
+        if self.side == "pack" and self.only is not None and not self.only(item):
+            self.notice = self.only_why or "That doesn't go there."
+            return
         if not dst.can_add(item):
-            self.notice = ("The stash is full." if self.side == "pack"
+            self.notice = (f"The {self.name.lower()} is full." if self.side == "pack"
                            else f"You have no room in your pack for {article(item.label)}.")
             return
         src.remove(i)
@@ -1573,14 +1584,14 @@ class StashScreen:
         w = min(area_w - 2, 60)
         h = console.height - 2
         x, y = (area_w - w) // 2, 1
-        draw_box(console, x, y, w, h, "Guild stash")
+        draw_box(console, x, y, w, h, self.title)
         col_w = (w - 3) // 2
         visible = h - 8
         for c, side in enumerate(("pack", "stash")):
             inv = lists[side]
             cx = x + 1 + c * (col_w + 1)
             active = self.side == side
-            title = f" Pack {inv.used}/{inv.capacity} " if side == "pack" else f" Stash {inv.used}/{inv.capacity} "
+            title = f" Pack {inv.used}/{inv.capacity} " if side == "pack" else f" {self.name} {inv.used}/{inv.capacity} "
             console.print(cx + 1, y + 1, title, fg=BG if active else DIM, bg=ACCENT if active else BG)
             items = inv.items
             sel = min(self.selected[side], max(0, len(items) - 1))
@@ -1593,7 +1604,7 @@ class StashScreen:
                 bg = HIGHLIGHT if active and i == sel else BG
                 console.rgb["bg"][cx : cx + col_w, row] = bg
                 console.print(cx + 1, row, item.type.glyph, fg=item.type.color, bg=bg)
-                equipped = side == "pack" and p.is_equipped(item)
+                equipped = side == "pack" and (p.is_equipped(item) or (self.only is not None and not self.only(item)))
                 console.print(cx + 3, row, item.label[: col_w - 4], fg=CANT if equipped else TEXT, bg=bg)
         for row in range(y + 1, y + h - 4):
             console.print(x + 1 + col_w, row, "│", fg=FRAME, bg=BG)
@@ -3506,3 +3517,129 @@ class SoundScreen:
             console.print(x + 2, row, text, fg=color, bg=BG)
             row += 1
         console.print(x + 2, y + h - 2, "↑↓ choose  ←→ change  Enter  Esc back"[: w - 4], fg=DIM, bg=BG)
+
+
+# ---- A Hunter's home: the property dealer (v0.74.0) -------------------------------------------------
+class HomesScreen:
+    """The property dealer: Homes (the three places: price, what each takes; Enter buys, asking
+    first) and Improvements (for the home you own: bed, chest, trophy shelves; Enter buys the next
+    step). ←→ or Tab switch. Takes no time."""
+
+    TABS = ("homes", "improve")
+
+    def __init__(self, engine) -> None:
+        from game import homes
+        self.tab = "improve" if homes.owned(engine) else "homes"
+        self.selected = {"homes": 0, "improve": 0}
+        self.notice = ""
+
+    def rows(self, engine):
+        from game import homes
+        if self.tab == "homes":
+            return list(homes.data()["homes"])
+        return list(homes.data()["improvements"])
+
+    def handle(self, event, engine: "Engine") -> Action | None:
+        from game import homes
+        if not isinstance(event, tcod.event.KeyDown):
+            return None
+        rows = self.rows(engine)
+        sel = self.selected[self.tab]
+        if event.sym == KeySym.ESCAPE:
+            engine.screen = None
+        elif event.sym in TAB_KEYS:
+            self.tab = "improve" if self.tab == "homes" else "homes"
+            self.notice = ""
+        elif event.sym in UP_KEYS:
+            self.selected[self.tab] = (sel - 1) % len(rows)
+            self.notice = ""
+        elif event.sym in DOWN_KEYS:
+            self.selected[self.tab] = (sel + 1) % len(rows)
+            self.notice = ""
+        elif event.sym in CONFIRM_KEYS:
+            key = rows[sel]
+            if self.tab == "homes":
+                why = homes.can_buy(engine, key)
+                if why:
+                    self.notice = why
+                    return None
+                h = homes.data()["homes"][key]
+                old = homes.owned(engine)
+                extra = (f" You'd sell {homes.data()['homes'][old]['name']} back for {homes.refund(engine)}; "
+                         "its improvements stay with it, and your things come with you.") if old else ""
+                def yes(e, key=key, back=self):
+                    ok, msg = homes.buy(e, key)
+                    e.log(msg)
+                    back.notice = msg
+                    back.tab = "improve" if ok else back.tab
+                    e.screen = back
+                engine.screen = ConfirmScreen(f"Buy {h['name']} for {h['price']} shards?{extra}",
+                                              on_yes=yes, on_no=lambda e, back=self: setattr(e, "screen", back))
+            else:
+                ok, msg = homes.improve(engine, key)
+                self.notice = msg
+                if ok:
+                    engine.log(msg)
+        return None
+
+    def render(self, console, engine: "Engine", area_w: int) -> None:
+        from game import homes
+        d = homes.data()
+        mine = homes.owned(engine)
+        rows = self.rows(engine)
+        w = min(area_w - 2, 60)
+        sel = min(self.selected[self.tab], len(rows) - 1)
+        lines = []          # (text, colour, enabled)
+        if self.tab == "homes":
+            for hid in rows:
+                h = d["homes"][hid]
+                state = "yours" if hid == mine else f"♦ {h['price']}"
+                lines.append((f"{h['name'][0].upper() + h['name'][1:]}", state, hid == mine or not homes.can_buy(engine, hid)))
+            h = d["homes"][rows[sel]]
+            takes = ", ".join(f"{d['improvements'][k]['name'].lower()} (up to {n})" if n > 1 else d['improvements'][k]['name'].lower()
+                              for k, n in h["most"].items() if n)
+            extra = wrapped(f"{h['description']} Takes: {takes}.", w - 4, DIM)
+        else:
+            if not mine:
+                extra = wrapped("You don't have a home yet. Buy one first (←→ for the homes).", w - 4, DIM)
+            for key in rows:
+                imp = d["improvements"][key]
+                t = homes.tier(engine, key)
+                top = homes.most(mine, key) if mine else 0
+                if not mine or top == 0:
+                    state, ok = "-", False
+                elif t >= top:
+                    state, ok = "done", False
+                else:
+                    cost = imp["tiers"][t]["cost"]
+                    state, ok = f"♦ {cost}", engine.player.shards >= cost
+                size = ""
+                if t and imp["tiers"][t - 1].get("slots"):
+                    size = f" ({imp['tiers'][t - 1]['slots']})"
+                lines.append((f"{imp['name']}{size}" + (f"  {t}/{top}" if mine and top > 1 else ""), state, ok))
+            if mine:
+                key = rows[sel]
+                imp = d["improvements"][key]
+                t = homes.tier(engine, key)
+                nxt = imp["tiers"][t] if t < len(imp["tiers"]) else None
+                more = f" Next: room for {nxt['slots']}." if nxt and nxt.get("slots") else ""
+                extra = wrapped(imp["description"] + more, w - 4, DIM)
+        if self.notice:
+            extra = [(self.notice, ACCENT)] + extra
+        h_, list_rows, extra = fit_window(console, len(lines), extra, top=3)
+        x, y = (area_w - w) // 2, (console.height - h_) // 2
+        draw_box(console, x, y, w, h_, "Homes" + (f": {d['homes'][mine]['short']} is yours" if mine else ""))
+        tx = x + 2
+        for tab, label in (("homes", " Homes "), ("improve", " Improvements ")):
+            active = tab == self.tab
+            console.print(tx, y + 1, label, fg=BG if active else DIM, bg=ACCENT if active else BG)
+            tx += len(label) + 1
+        for r, (text, state, ok) in enumerate(lines[:list_rows]):
+            row = y + 3 + r
+            bg = HIGHLIGHT if r == sel else BG
+            console.rgb["bg"][x + 1 : x + w - 1, row] = bg
+            console.print(x + 2, row, text[: w - 14], fg=TEXT if ok else DIM, bg=bg)
+            console.print(x + w - 2 - len(state), row, state, fg=ACCENT if ok and state.startswith("♦") else DIM, bg=bg)
+        for r, (text, color) in enumerate(extra):
+            console.print(x + 2, y + 3 + list_rows + 1 + r, text, fg=color, bg=BG)
+        console.print(x + 2, y + h_ - 2, "↑↓ choose  Enter buy  ←→ tab  Esc"[: w - 4], fg=DIM, bg=BG)

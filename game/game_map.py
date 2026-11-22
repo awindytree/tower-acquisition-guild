@@ -55,6 +55,7 @@ class GameMap:
         self.arrivals: dict[str, tuple[int, int]] = {}  # gate id -> where you come out (the Brisering)
         self.trails: dict[tuple[int, int], int] = {}
         self.style = ""        # a hunt area's terrain (v0.70.0; "" elsewhere)
+        self.home_doors: dict[tuple[int, int], str] = {}   # door -> home id (data/homes.json, v0.74.0)
         self.monuments: dict[tuple[int, int], str] = {}  # statues and the like: cell -> id (data/monuments.json)
         self.landmarks: dict[tuple[int, int], str] = {}  # named places (the Brisering): cell -> name
         self.windows: dict[tuple[int, int], str] = {}    # service windows: cell -> folk id behind it
@@ -93,6 +94,7 @@ class GameMap:
         landmarks: dict[tuple[int, int], str] = {}
         windows: dict[tuple[int, int], str] = {}
         monuments: dict[tuple[int, int], str] = {}
+        home_doors: dict[tuple[int, int], str] = {}
         hall = None
         npcs: list[tuple[int, int, str]] = []
         rows: list[str] = []
@@ -116,6 +118,9 @@ class GameMap:
                 elif key == "window":    # ;window=x,y folk_id: a service window (v0.54.0)
                     pos, folk = value.split()
                     windows[tuple(int(n) for n in pos.split(","))] = folk
+                elif key == "home":      # ;home=x,y id: the door of a house that can be a Hunter's home (v0.74.0)
+                    pos, hid = value.split()
+                    home_doors[tuple(int(n) for n in pos.split(","))] = hid
                 elif key == "monument":  # ;monument=x,y id: a statue and its story (data/monuments.json, v0.68.0)
                     pos, mid = value.split()
                     monuments[tuple(int(n) for n in pos.split(","))] = mid
@@ -136,6 +141,7 @@ class GameMap:
         game_map.landmarks = landmarks
         game_map.windows = windows
         game_map.monuments = monuments
+        game_map.home_doors = home_doors
         game_map.hall = hall
         game_map.npc_spawns = npcs
         if "title" in settings:

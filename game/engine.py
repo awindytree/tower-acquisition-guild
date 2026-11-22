@@ -158,6 +158,8 @@ class Engine:
         self.reset_stocks()
         self.started = False             # becomes True once a game is begun or loaded
         self.stash = Inventory(STASH_SLOTS)  # the guild stash: belongs to the hall, passes to the next Hunter
+        self.home = None                     # a Hunter's home (v0.74.0, game/homes.py): world state too
+        self.sites, self.site, self.site_return, self.site_items = {}, None, None, {}   # (game/sites.py)
         self.stocks: dict = {}               # vendor id -> Stock (shops and workshops); world state
         self.world_flags: set = set()        # conversation flags that belong to the city (outlive Hunters)
         self.explore_seen_items: set = set() # spots auto-explore has already walked to (this area)
@@ -842,6 +844,8 @@ class Engine:
         self.day, self.turn = 1, 0
         self.city.items = [FloorItem(x, y, Item(self.catalogue[i], n)) for x, y, i, n in self.city_items_at_start]
         self.stash = Inventory(STASH_SLOTS)
+        self.home = None
+        self.sites, self.site, self.site_return, self.site_items = {}, None, None, {}
         self.reset_stocks()
         self.world_flags = set()
         self.words = set(self.regions.keywords.start)
@@ -860,6 +864,8 @@ class Engine:
         from game import trophies
         self.trophies = trophies.fresh()           # the trophy wall (v0.61.0)
         works.apply(self)
+        from game import homes
+        homes.furnish_all(self)
         from game import story
         self.story, self.scene_queue = story.empty(), []
         self.rivals = []
@@ -979,6 +985,9 @@ class Engine:
             from game import trophies
             from game.screens import ScrollScreen
             self.screen = ScrollScreen.of_lines("The trophy wall", trophies.wall_lines(self))
+        elif kind == "homes":                  # the property dealer (v0.74.0)
+            from game.screens import HomesScreen
+            self.screen = HomesScreen(self)
         elif kind == "works":                  # the Guild's works (v0.60.0)
             from game.screens import WorksScreen
             self.screen = WorksScreen()
@@ -1057,7 +1066,11 @@ class Engine:
         p, gm = self.player, self.game_map
         gate_id = gm.gates.get((p.x, p.y))
         if gate_id is not None:
-            self.gate_reached(gate_id, from_x, from_y)
+            from game import sites
+            if sites.here(self):            # out of Ingenfjel or the stead, back onto the Brisering (v0.74.0)
+                sites.leave(self)
+            else:
+                self.gate_reached(gate_id, from_x, from_y)
             return
         if (p.x, p.y) in gm.trails and self.hunt is not None:   # walking on an ashmantle's ash
             from game import combat

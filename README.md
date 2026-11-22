@@ -511,6 +511,36 @@ At the end is what you came for, dim until it's in your pack, then a mark for
 each bounty here, dim until it's done. On the right, while a torch burns, its
 bar burns down (torches no longer show in the info panel).
 
+## A home of your own
+
+A Hunter can buy **a home**, one at a time, from **the property dealer**
+(Nalka Broker, a placeholder, in an office east of the plaza):
+
+| Home | Price | Takes | Its draw |
+|---|---|---|---|
+| The house in Bytorsskug | 3000 | bed, chest ×3, trophy shelves ×3 | a few streets from the guild hall and the Wayfinder |
+| The house in Ingenfjel | 1500 | bed, chest ×3, trophy shelves ×3 | out in the village, by the stables and the great boga circuit |
+| The Towerway stead | 600 | bed, chest, trophy shelves | cheap; a short walk west of the west gate |
+
+A home starts bare. Buy improvements from the dealer (the Improvements tab):
+- **Bed** (walk into it): sleep a Pulse, heal fully and mend every minor
+  injury. Serious ones still need the healer.
+- **Chest**: your own storage, apart from the guild stash (10, then 20, then 30).
+- **Trophy shelves**: any trophy you want to keep, record or not, counted one
+  each however big (4, 8, 12).
+
+Moving: buying another home sells the old one back for half what you paid;
+its improvements stay with it, and what's in your chest and on your shelves
+comes with you (boxed up until the new place has a chest and shelves with room).
+Your home belongs to the world, like the stash: the next Hunter moves in.
+
+**Ingenfjel and the stead** are walkable places on the Brisering: walk into
+their landmark (Ingenfjel's village, or the stead just north of the Towerway)
+to go in, and onto the gate to come back out. Ingenfjel is only a piece of the
+village for now; its stables and circuit are for later. Travel-to (`t`) knows
+"your home". Prices and sizes are placeholders. A workbench (repairing Common
+artifacts) and a small forge (minor smithing) are planned.
+
 ## The Brisering
 
 The **city gates** (`∩`) lead out into **the Brisering**, the land within 99 km

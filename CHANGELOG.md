@@ -5,6 +5,22 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.74.0: A home of your own (2026-11-21)
+The user's design: a place of the Hunter's own, bought, bare at first and improved, small versions of the city's services. One home at a time; it passes to the next Hunter.
+- **Three homes**, from a new **property dealer** east of the plaza (placeholder name and lines):
+  - **A house in Bytorsskug** (3000): the dearest, takes everything, a few streets from the guild hall and the Wayfinder.
+  - **A house in Ingenfjel** (1500): takes everything, out in the village.
+  - **The Towerway stead** (600): the cheapest, a short walk west of the gate, with room for one of each improvement.
+- **Improvements:**
+  - **Bed:** sleep a Pulse; heal fully; every minor injury mends.
+  - **Chest:** your own storage, in three sizes.
+  - **Trophy shelves:** any trophy you keep, record or not, counted one each however big.
+  Each piece appears in the house as you buy it; walk into it to use it.
+- **Moving:** buying another home sells the old one back for half. Its improvements stay with it; your chest's and shelves' contents come with you.
+- **Ingenfjel and the stead are places you can walk into from the Brisering** (bump their landmark; the gate takes you back out). Ingenfjel is a piece of the village: houses, the stables (not open yet) and the great boga circuit, seen from outside. The stead is a one-room cabin by the Towerway, now a landmark on the Brisering. What you leave in either stays.
+- Travel-to (`t`) knows "your home"; the look command tells you which house is for sale and which is yours.
+- Every price and size is a placeholder for a balance pass. A workbench (repairing Common artifacts) and a small forge (minor smithing) come later.
+
 ## 0.73.0: The info panel (2026-11-21)
 - **What you're working on** (off a hunt): your contract's words, as far as you know them (`[?]` for any you don't yet), and each bounty you hold (the creature's letter, the thing to find, or "scout to area 3"). Each turns green when it's done (a √ for a bounty); a contract turns green once its prize is in hand. When room is short, the block shrinks to one line ("contract + 2 bounties") so the messages keep at least four lines; `q` has the details. On a hunt the hunt line shows these instead.
 - **Your rank beside your level** in gold, with XP on the same line when it fits ("Lv 2 Recruit   XP 40/120"), on the next when it doesn't.

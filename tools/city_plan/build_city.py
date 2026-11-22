@@ -654,6 +654,24 @@ STATUE = min((c for c in plaza if c not in taken and c not in near_art and c != 
 g[STATUE[1]][STATUE[0]] = "S"
 monument_lines = [f";monument={STATUE[0]},{STATUE[1]} whisper_poet"]
 
+# ---- A Hunter's home (v0.74.0, data/homes.json): the property dealer, and the house for sale ----
+# Added last, so nothing else moves. The dealer: the next roomy house to the plaza after the trophy
+# lodge. The house: the nearest roomy house to the guild hall's front (3 x 3 inside at least), free.
+used += [lodge]
+dealing = min((h for h in built if all(h is not u for u in used) and len(h[1]) >= 8
+               and IN[h[2][1]][h[2][0]]), key=plaza_dist)
+used.append(dealing)
+door = dealing[2]
+DEALER = max(dealing[1], key=lambda c: abs(c[0] - door[0]) + 2 * abs(c[1] - door[1]))
+npc_lines.append(f";npc={DEALER[0]},{DEALER[1]} dealer")
+hall_front = (GX + len(GUILD[0]) // 2, GY - 1)
+def wide(h):
+    xs, ys = {x for x, _ in h[1]}, {y for _, y in h[1]}
+    return len(h[1]) >= 9 and max(xs) - min(xs) >= 2 and max(ys) - min(ys) >= 2
+HOME = min((h for h in built if all(h is not u for u in used) and wide(h) and IN[h[2][1]][h[2][0]]),
+           key=lambda h: abs(h[2][0] - hall_front[0]) + 2 * abs(h[2][1] - hall_front[1]))
+home_lines = [f";home={HOME[2][0]},{HOME[2][1]} bytorsskug"]
+
 items = []   # (v0.54.0, user: the example items that littered the guild hall are gone)
 header = [
     "; Bytorsskug. Laid out after the city plan (tools/city_plan/), then free to edit by hand.",
@@ -669,6 +687,8 @@ header = [
     *window_lines,
     "; Monuments (data/monuments.json): walking into one reads it.",
     *monument_lines,
+    "; The house that can be a Hunter's home (data/homes.json).",
+    *home_lines,
     *[f";item={x},{y} {item} {n}" for (x, y), item, n in items],
 ]
 with open(OUT, "w", encoding="utf-8") as f:

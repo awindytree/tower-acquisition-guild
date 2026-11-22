@@ -1,0 +1,89 @@
+; Ingenfjel (tools/sites/build_sites.py).
+;title=Ingenfjel
+;light=day
+;safe=yes
+; The way back out to the Brisering.
+;gate=1,14 out
+; A house that can be a Hunter's home (data/homes.json).
+;home=31,11 ingenfjel
+; Named things you can't go into yet.
+;landmark=31,17 the Ingenfjel stables
+;landmark=32,17 the Ingenfjel stables
+;landmark=33,17 the Ingenfjel stables
+;landmark=34,17 the Ingenfjel stables
+;landmark=35,17 the Ingenfjel stables
+;landmark=36,17 the Ingenfjel stables
+;landmark=37,17 the Ingenfjel stables
+;landmark=38,17 the Ingenfjel stables
+;landmark=39,17 the Ingenfjel stables
+;landmark=40,17 the Ingenfjel stables
+;landmark=41,17 the Ingenfjel stables
+;landmark=42,17 the Ingenfjel stables
+;landmark=43,17 the Ingenfjel stables
+;landmark=44,17 the Ingenfjel stables
+;landmark=45,17 the Ingenfjel stables
+;landmark=46,17 the Ingenfjel stables
+;landmark=31,18 the Ingenfjel stables
+;landmark=33,18 the Ingenfjel stables
+;landmark=36,18 the Ingenfjel stables
+;landmark=39,18 the Ingenfjel stables
+;landmark=42,18 the Ingenfjel stables
+;landmark=45,18 the Ingenfjel stables
+;landmark=46,18 the Ingenfjel stables
+;landmark=31,19 the Ingenfjel stables
+;landmark=46,19 the Ingenfjel stables
+;landmark=31,20 the Ingenfjel stables
+;landmark=46,20 the Ingenfjel stables
+;landmark=31,21 the Ingenfjel stables
+;landmark=33,21 the Ingenfjel stables
+;landmark=36,21 the Ingenfjel stables
+;landmark=39,21 the Ingenfjel stables
+;landmark=42,21 the Ingenfjel stables
+;landmark=45,21 the Ingenfjel stables
+;landmark=46,21 the Ingenfjel stables
+;landmark=31,22 the Ingenfjel stables
+;landmark=32,22 the Ingenfjel stables
+;landmark=33,22 the Ingenfjel stables
+;landmark=34,22 the Ingenfjel stables
+;landmark=35,22 the Ingenfjel stables
+;landmark=36,22 the Ingenfjel stables
+;landmark=37,22 the Ingenfjel stables
+;landmark=38,22 the Ingenfjel stables
+;landmark=39,22 the Ingenfjel stables
+;landmark=40,22 the Ingenfjel stables
+;landmark=41,22 the Ingenfjel stables
+;landmark=42,22 the Ingenfjel stables
+;landmark=43,22 the Ingenfjel stables
+;landmark=44,22 the Ingenfjel stables
+;landmark=45,22 the Ingenfjel stables
+;landmark=46,22 the Ingenfjel stables
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+T,,,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,T
+T,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,T
+T,,T,,,,,,,,,T,,,,,,,T,,,,,,,,,,,,,,,,,T,,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T
+T,,,,,,,,,,,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,Q,,,,,,,,,,,,,T
+T,,,,,,,,,,,,,,,,,hhhhhh,,,,,,,,T,,,T,,,,,,,,,,,T,,,,,,,QQQQQQQQQQQ,,,,,,,,T
+T,T,,,,,hhhhhhh,,,hwwwwh,,,hhhhhhhh,,,,,,,,,,,,,,T,T,,QQQQ,,,,,,,QQQQ,,,,,,T
+T,,T,,,,hwwwwwh,,,hwwwwh,,,hwwwwwwh,,,,,,,,,,,,,,,,,,QQQ,,,,,,T,,,,QQQ,,,,TT
+T,,,,,,,hwwwwwh,,,hwwwwh,,,hwwwwwwh,,T,,,,TT,,,,,,,,QQ,,,,,,,,,,,,,,,QQ,T,,T
+T,,,T,,,hwwwwwh,,,hwwwwh,,,hwwwwwwhT,T,,,,,,,,,,,,,QQT,,,,,,,,,,,,,,,,QQ,,,T
+T,,,,,,,hhh+hhhT,,hhh+hh,,,hwwwwwwh,,,,,,,,,,,,,,,,QQ,,,,,,,,,,,,,,,,,QQ,T,T
+T,,T,,,,,,,-,,,,,,,,,-,,,,,hhhh+hhh,,,,,,,,,,,,,,,QQ,,,,,,,,,,T,,,,,,,,QQ,,T
+T,,,,,,,,,,-,,,,,,T,,-,,,,,,,T,-,,TT,,,,,,,,,,,,,,QQ,,,,,,,,,,,,,,,,,,,QQ,,T
+T,,,,,,,,,,-,,,,T,,,,-,,,,,,,,,-,,,,,,,,,,,,,,,,,,Q,,,,,,,,,,,,,,,T,,,,,Q,,T
+TG-----------------------------------------------QQ,,,,,,,,,,,,,,,,,,,,,QQ,T
+T,,,,,,,,TT,,-,,,,T,,,,,-,,,,,,,,,,,,,,-,,,,,,,,,,Q,,,,,,T,,,,,,,,,,,,,,Q,,T
+T,,,,,,,,,,,,-,,,,,,,,,,-,,,,,,,,,,T,,,-,,,,,,,,,,QQ,,,,,,,,,,,,,,,,,,,QQ,,T
+T,,,,,,,,,hhh+hhh,,,,,,,-,,,,,,hhhhhhhhhhhhhhhh,,,QQ,,,,,,,,,,,,,,,,,,,QQ,TT
+T,,,,,,,,,hwwwwwh,,,,hhh+hh,,,,hwhwwhwwhwwhwwhh,,,,QQ,,,,,,,,,,,,,,,,,QQ,,,T
+T,,,,,,,,,hwwwwwh,,,,hwwwwh,,,Thwwwwwwwwwwwwwwh,,,TQQ,,,,,,,,,,,,,,,,,QQ,,,T
+T,,,,,,,,,hwwwwwh,,,,hwwwwh,,,,hwwwwwwwwwwwwwwh,,,,,QQ,,T,,,,,,,,,,,,QQ,,,,T
+T,T,,,,,,,hhhhhhh,,,,hwwwwh,,,,hwhwwhwwhwwhwwhh,,T,,,QQQT,,,T,,,,,,QQQ,,,,,T
+T,,,,,T,,,,,,,,,,,,,,hhhhhh,,,,hhhhhhhhhhhhhhhh,,,,,,,QQQQ,,T,,,,QQQQ,,,,,,T
+TT,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,QQQQQQQQQQQ,,,,,,,,T
+T,T,,,,,,,,,,,,,,,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Q,,,,,,,,,T,,,T
+T,,,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,T,,,,,,,,,,,,T,T,,,,,,,,,,,,,,,,,,,,,,,,,,T
+T,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,T,,,,,T,,,,,,,,,T
+T,,,,,,,T,,,,,,,T,,,,,,,,,,,,,,,,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T
+T,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,T
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT

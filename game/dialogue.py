@@ -122,6 +122,8 @@ def holds(engine, condition: str) -> bool:
         result = archive.has_notes(p)
     elif kind == "injured":
         result = bool(p.injuries)
+    elif kind == "home":                    # owns a home (v0.74.0)
+        result = getattr(engine, "home", None) is not None
     elif kind == "trophies":                # carrying a trophy (v0.61.0)
         result = any(i.trophy is not None for i in p.inventory.items)
     elif kind == "orders_ready":
@@ -190,7 +192,7 @@ def apply(engine, effects) -> str | None:
             from game import works
             engine.log(works.word_lesson(engine))
         elif kind in ("library", "archive", "mentor", "hall", "retire", "sit_rank", "labour", "works",
-                      "trophies", "butcher", "trophy_wall"):
+                      "trophies", "butcher", "trophy_wall", "homes"):
             opens = kind
         elif kind == "treat":
             opens = effect   # "treat:healer"

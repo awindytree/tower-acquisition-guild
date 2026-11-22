@@ -119,6 +119,18 @@ def describe(engine: "Engine", x: int, y: int) -> tuple[str, list[tuple[str, tup
         who = next((n for n in gm.npcs if n.folk_id == gm.windows[(x, y)]), None)
         heading = f"{who.name}'s window" if who else "A service window"
         lines.insert(0, ((f"Walk into it to talk to {who.name}." if who else "No one's behind it just now."), TEXT))
+    from game import homes
+    if (x, y) in getattr(gm, "home_doors", {}):            # a house that can be a Hunter's home (v0.74.0)
+        hid = gm.home_doors[(x, y)]
+        h = homes.data()["homes"][hid]
+        mine = homes.owned(engine) == hid
+        heading = "Your home" if mine else h["name"][0].upper() + h["name"][1:]
+        lines.insert(0, (("Your own place." if mine else f"For sale, for {h['price']} shards: see the property dealer."), TEXT))
+    sym_here = gm.tile_at(x, y).symbol
+    if sym_here in "nqj" and homes.owned(engine):
+        lines.insert(0, ({"n": "Your bed: walk into it to sleep a Pulse, heal, and mend minor injuries.",
+                          "q": "Your chest: walk into it to put things in or take them out.",
+                          "j": "Your trophy shelves: walk into them to put a trophy up or take one down."}[sym_here], TEXT))
     from game import monuments
     mon = monuments.at(gm, x, y)
     if mon:                               # a statue and its story (v0.68.0)

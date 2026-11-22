@@ -1,0 +1,26 @@
+; The Towerway stead (tools/sites/build_sites.py).
+;title=The Towerway stead
+;light=day
+;safe=yes
+; The way back out to the Brisering (the Towerway).
+;gate=44,4 out
+; The stead: a Hunter's home if bought (data/homes.json).
+;home=21,8 stead
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+T,,,,,,,,,,,,T,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,T
+TT,,,,,,,,,,,,,,,,,,,,,T,T,,,,,,,,,,,,,,,,,,,T
+T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,T
+T-------------------------------------------GT
+T,,,,,,,,,,,,,,,,,,,,-,,,,,,,,,,,,,,,,,,,,,,,T
+T,,,,,,,T,,,,,,,,,,,,-,,,,,T,,,,,,,,,,,,,,,,,T
+T,,,,,,,,,,,,,,,,T,,,-,,,T,,,,,,,,,,,,,,,,,,,T
+T,,T,,,TT,,,,,,,,Thhh+hh,,,,T,,,,,,,,,,,,,,,,T
+T,,T,,,,,,,,,,,,,,hwwwwh,,,,,,,,,,,,,,,,,T,,,T
+TT,,,,,,,,,,,,,,,,hwwwwh,,,,,,,,,,,,,,,,,,,,,T
+T,,,,,,,,,,,,,,,,,hwwwwh,,,T,,,,,,,,,T,,,,,,,T
+T,,,,,,,,,,T,,,,,,hhhhhh,,,,,,,,,,,,,,,,,,,,TT
+T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T,,,,T,,,,T
+T,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,,,T,,,,,,,,,,,T
+T,,,,,T,,,,,,,,,,,,,,T,,,T,,T,,,,,,,,,,,,,,,,T
+T,,,,TT,T,,,T,,,T,,,,,,,,,,,,,,,,,,,,T,,,,,,,T
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT

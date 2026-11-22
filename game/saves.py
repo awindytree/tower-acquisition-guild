@@ -159,6 +159,8 @@ def capture(engine: "Engine") -> dict:
             "messages": engine.messages[-KEEP_MESSAGES:],
             "city_return": list(engine.city_return),
             "city_items": _items(engine.city),
+            "home": __import__("game.homes", fromlist=["x"]).to_save(engine),      # (v0.74.0)
+            "sites": __import__("game.sites", fromlist=["x"]).to_save(engine),
             "stash": engine.stash.to_list(),   # the guild stash outlives Hunters
             "stocks": {vid: st.to_list() for vid, st in engine.stocks.items()},
             "flags": sorted(engine.world_flags),
@@ -281,6 +283,10 @@ def restore(engine: "Engine", data: dict) -> None:
     engine.next_rival_id = rv.get("next_id", len(engine.rivals))
     engine.rival_taken = rv.get("taken", {"day": 0, "taken": {}})
     engine.mentor = world.get("mentor")
+    from game import homes, sites
+    homes.from_save(engine, world.get("home"))             # (v0.74.0)
+    site_here = sites.from_save(engine, world.get("sites"))
+    homes.furnish_all(engine)
     engine.passing = False
     engine.update_mentor()
     from game import rivals
@@ -308,6 +314,9 @@ def restore(engine: "Engine", data: dict) -> None:
         engine.reveal_landmarks()
     where = engine.brisering if (bd and bd.get("here") and not hunt) else None
     engine.change_map(hunt.areas[hunt.current] if hunt else where or engine.city, player.x, player.y)
+    if site_here and not hunt and site_here in sites.SITES:   # in Ingenfjel or the stead (v0.74.0)
+        engine.site = site_here
+        engine.change_map(sites.get(engine, site_here), player.x, player.y)
     if stale_hunt:
         engine.log("That hunt was saved by an older version of the game, and its areas can't be rebuilt. "
                    "You've made your way back to Bytorsskug; the contract is lost.")

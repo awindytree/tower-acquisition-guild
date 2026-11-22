@@ -305,5 +305,21 @@
       "served_judgments": 18
     },
     "off": 0.2
+  },
+  "dealer": {
+    "name": [
+      "Nalka",
+      "Broker",
+      ""
+    ],
+    "glyph": "@",
+    "color": [
+      200,
+      186,
+      150
+    ],
+    "description": "Deals in houses and land: a house in the city, one out in Ingenfjel, a stead along the Towerway. Sells improvements for them too. (Placeholder.)",
+    "dialogue": "dealer",
+    "wander": 0
   }
 }
