@@ -14,9 +14,11 @@ from __future__ import annotations
 
 import random
 
+from game import gear
 from game.look import can_see
 
 SKILL = "marksmanship"
+
 RANK_BONUS = 2            # accuracy per Marksmanship rank above 1
 DISTANCE_PENALTY = 3      # -1 accuracy for every this many cells away
 ARROW_SURVIVES = 0.5      # chance a shot arrow can be picked up again
@@ -77,7 +79,7 @@ def accuracy(player, dist: float) -> int:
     aimed += talents.total(player, "ranged_accuracy")          # (Eagle Eye)
     return (player.stats["celerity"] + artifacts.bonus(player, "accuracy") + injuries.total(player, "ranged")
             + RANK_BONUS * (rank - 1) - (0 if steady else int(dist // DISTANCE_PENALTY)) + aimed
-            - (2 if player.dazed else 0))
+            - (2 if player.dazed else 0) + gear.accuracy(bow(player)))     # (the bow's tier, v0.75.0)
 
 
 def hit_chance(player, creature, dist: float) -> int:
@@ -153,7 +155,7 @@ def fire(engine, tx: int, ty: int, rng: random.Random = random) -> bool:
             from game import mastery
             damage = max(1, sum(combat.roll(dice, rng) for _ in range(2 if aimed else 1))
                          + talents.total(p, "ranged_damage") + mastery.prey_bonus(p, creature)[1]
-                         - creature.armor)          # (Broadheads; knowing your prey)
+                         + gear.damage(weapon) - creature.armor)          # (Broadheads; knowing your prey)
             creature.take_damage(damage)
             sound.play("arrow_hit")
             if creature.is_dead:

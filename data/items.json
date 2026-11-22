@@ -123,6 +123,75 @@
     "value": 15, "stackable": true
   },
 
+  "_materials_v075": "Materials added with gear tiers (v0.75.0; data/gear.json has the families). PLACEHOLDERS.",
+  "bone": {
+    "name": "bone", "glyph": "⌐", "color": [225, 215, 190], "kind": "material",
+    "description": "A clean length of bone. Most beasts leave one.",
+    "value": 3, "stackable": true
+  },
+  "tusk_antler": {
+    "name": "tusk and antler", "glyph": "τ", "color": [230, 210, 160], "kind": "material",
+    "description": "Tusk, horn and antler: hard, curved, and worth more than plain bone.",
+    "plural": "tusk and antler", "value": 9, "stackable": true
+  },
+  "wyrm_fang": {
+    "name": "wyrm fang", "glyph": "τ", "color": [200, 200, 215], "kind": "material",
+    "description": "A gravel wyrm's tooth, as long as a hand and hard as the rock it chews.",
+    "value": 22, "stackable": true
+  },
+  "brute_hide": {
+    "name": "brute hide", "glyph": "~", "color": [130, 95, 75], "kind": "material",
+    "description": "A hollow brute's hide, thick as a door and scarred all over.",
+    "value": 20, "stackable": true
+  },
+  "crawler_carapace": {
+    "name": "crawler carapace", "glyph": "∟", "color": [120, 150, 110], "kind": "material",
+    "description": "A whole section of a crawler's back, jointed and stiff.",
+    "value": 10, "stackable": true
+  },
+  "horror_plate": {
+    "name": "horror plate", "glyph": "∟", "color": [110, 100, 140], "kind": "material",
+    "description": "A shell plate from something deep. It's colder than the air around it.",
+    "value": 24, "stackable": true
+  },
+  "black_iron": {
+    "name": "black iron", "glyph": "§", "color": [95, 95, 110], "kind": "material",
+    "description": "Old dark iron, hardly rusted. Nobody makes it like this any more.",
+    "plural": "black iron", "value": 10, "stackable": true
+  },
+  "vinewood": {
+    "name": "vinewood", "glyph": "√", "color": [120, 160, 90], "kind": "material",
+    "description": "A coil of strangler vine or mire reed, dried hard and springy.",
+    "plural": "vinewood", "value": 8, "stackable": true
+  },
+  "wyrm_sinew": {
+    "name": "wyrm sinew", "glyph": "ε", "color": [215, 175, 150], "kind": "material",
+    "description": "Cord from a gravel wyrm. It hums when you pull it tight.",
+    "plural": "wyrm sinew", "value": 20, "stackable": true
+  },
+
+  "_head_legs": "Head and leg armour (v0.75.0). Names are drafts. PLACEHOLDERS.",
+  "leather_cap": {
+    "name": "leather cap", "glyph": "∩", "color": [150, 105, 60], "kind": "armor",
+    "description": "A boiled-leather cap with ear flaps.",
+    "value": 10, "properties": {"armor": 1, "slot": "head"}
+  },
+  "iron_helm": {
+    "name": "iron helm", "glyph": "∩", "color": [175, 180, 190], "kind": "armor",
+    "description": "A plain iron helm. It rings when something hits it, which is the point.",
+    "value": 45, "properties": {"armor": 2, "slot": "head"}
+  },
+  "hide_leggings": {
+    "name": "hide leggings", "glyph": "π", "color": [150, 105, 60], "kind": "armor",
+    "description": "Hide leggings, double-stitched at the knee.",
+    "value": 10, "properties": {"armor": 1, "slot": "legs"}
+  },
+  "iron_greaves": {
+    "name": "iron greaves", "glyph": "π", "color": [175, 180, 190], "kind": "armor",
+    "description": "Iron shin plates on leather straps.",
+    "value": 45, "properties": {"armor": 2, "slot": "legs"}
+  },
+
   "_crafted": "Gear a smith makes to order (data/recipes.json). PLACEHOLDERS.",
   "hide_jerkin": {
     "name": "hide jerkin", "glyph": "φ", "color": [170, 125, 80], "kind": "armor",

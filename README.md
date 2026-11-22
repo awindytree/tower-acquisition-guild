@@ -44,7 +44,7 @@ python main.py
 | (workshop) | Workshop: `r` repair, `b` sell (broken or repaired), `c` consign; `←→`/Tab: Buy, Training |
 | `x` | Look: move the cursor (movement keys) or `Tab` between things in view; the view follows the cursor, as far as you can see (less in the dark); `Esc` done |
 | `i` | Inventory (the bag): `↑↓` select, `e` wield/wear/equip (weapon, armour, windcatcher or artifact), `u` use (drink, use an artifact, or study a broken one), `d` drop, `Tab` the equipment window, `Esc` close |
-| `e` | Equipment: weapon, armour, windcatcher (its Jodebris bar) and artifact slots. `↑↓` select, `e` take off, `u` use an artifact, `Enter` pick something from the bag for that slot (swapping), `Tab` the bag, `Esc` close |
+| `e` | Equipment: weapon, head, chest, legs, windcatcher (its Jodebris bar) and artifact slots. `↑↓` select, `e` take off, `u` use an artifact, `Enter` pick something from the bag for that slot (swapping), `Tab` the bag, `Esc` close |
 | `t` | Travel to a known place (walks there, stopping if anything comes up) |
 | `o` | Auto-explore (hunts): walk to unexplored ground until something comes up (a creature, an item, the way deeper) |
 | `f` | Aim and shoot a wielded bow: Tab next target, move keys to aim, Enter/`f` shoot, Esc |
@@ -332,6 +332,29 @@ board; hand over the whole amount at once.
 Recipes are in `data/recipes.json`; what each creature leaves is under
 `drops` in `data/monsters.json`.
 
+## Gear tiers and armour slots (v0.75.0)
+
+**Armour goes by slot: head, chest and legs**, with no armour classes. Your
+armour is the three pieces added up. Everything worn before is chest armour;
+the supplier now sells caps, helms, leggings and greaves too.
+
+**Every weapon and armour piece has a tier**, shown after its name ("arming
+sword +4"); everything so far is +0. Each tier adds one point, alternating:
+
+- **Weapons:** odd tiers +1 accuracy, even tiers +1 damage (bows: for shots).
+- **Armour:** even tiers +1 armour, odd tiers +2 max HP.
+
+Windcatchers have no tier. **Raising a tier isn't in the game yet**: it
+comes next, at the smith and on a home forge or workbench (design:
+`claude/design-equipment.md`).
+
+**Materials come in five families, each in three tiers** (common, uncommon,
+rare), the rarer from tougher creatures: hide (rough hide, thick hide, brute
+hide), bone (bone, tusk and antler, wyrm fang), chitin (chitin plate, crawler
+carapace, horror plate), metal (iron scrap, black iron, sentinel stone) and
+fibre (sinew, vinewood, wyrm sinew). Each weapon type and armour slot is made
+from two families (`data/gear.json`).
+
 ## Bounties, scouting and requests
 
 Two more ways to earn shards:
@@ -414,7 +437,7 @@ have three, separate from your bag: equipping (`e` in the inventory) takes the
 artifact out of the bag and into a slot, so the bag limit and the slots are
 two separate limits. The equipment window (`e`) shows them; on a slot, `e`
 takes it off, `u` uses it, and `Enter` picks one from the bag. **Since v0.69.0
-your weapon, armour and windcatcher are out of the bag too**, in their own
+your weapon, armour (head, chest, legs) and windcatcher are out of the bag too**, in their own
 slots, so they don't take bag room. Equipped artifacts give
 more light in dark places, armour, accuracy or evasion, or can be used (heal,
 or map the area you're in). Used ones recover before each hunt.

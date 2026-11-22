@@ -1,0 +1,26 @@
+{
+  "_comment": "Gear tiers (v0.75.0; design: claude/design-equipment.md). families: the five material families, each in three tiers (common, uncommon, rare), by item id. types: every weapon type and armour slot, with the two families it's made from (first, second); weapons are matched by their skill (or by firing arrows: a bow), armour by its slot. Windcatchers have no tier. ALL NUMBERS ARE DRAFTS.",
+  "families": {
+    "hide": ["rough_hide", "thick_hide", "brute_hide"],
+    "bone": ["bone", "tusk_antler", "wyrm_fang"],
+    "chitin": ["chitin_plate", "crawler_carapace", "horror_plate"],
+    "metal": ["iron_scrap", "black_iron", "sentinel_stone"],
+    "fibre": ["sinew", "vinewood", "wyrm_sinew"]
+  },
+  "types": {
+    "knife": {"name": "Dagger/Knife", "families": ["metal", "bone"]},
+    "sword": {"name": "Sword", "families": ["metal", "hide"], "skill": "blades"},
+    "haft": {"name": "Haft", "families": ["metal", "bone"], "skill": "hafted"},
+    "axe": {"name": "Axe", "families": ["metal", "fibre"], "skill": "axes"},
+    "whip": {"name": "Whip", "families": ["hide", "fibre"]},
+    "staff": {"name": "Staff", "families": ["fibre", "bone"]},
+    "bow": {"name": "Bow", "families": ["fibre", "bone"], "ammo": "arrow"},
+    "crossbow": {"name": "Crossbow", "families": ["metal", "fibre"]},
+    "claw": {"name": "Claw/Katara", "families": ["bone", "metal"]},
+    "gloves": {"name": "Gloves/Unarmed", "families": ["hide", "chitin"], "skill": "brawling"},
+    "polearm": {"name": "Polearm", "families": ["fibre", "metal"]},
+    "head": {"name": "Head", "families": ["hide", "chitin"]},
+    "chest": {"name": "Chest", "families": ["hide", "metal"]},
+    "legs": {"name": "Legs", "families": ["hide", "chitin"]}
+  }
+}

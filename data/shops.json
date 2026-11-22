@@ -56,7 +56,27 @@
         "restock": 243
       },
       {
+        "id": "leather_cap",
+        "max": 1,
+        "restock": 243
+      },
+      {
+        "id": "hide_leggings",
+        "max": 1,
+        "restock": 243
+      },
+      {
         "id": "mail_shirt",
+        "max": 1,
+        "restock": 729
+      },
+      {
+        "id": "iron_helm",
+        "max": 1,
+        "restock": 729
+      },
+      {
+        "id": "iron_greaves",
         "max": 1,
         "restock": 729
       },

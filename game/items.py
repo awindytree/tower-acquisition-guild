@@ -183,6 +183,8 @@ class Item:
     count: int = 1
     charge: int | None = None  # windcatchers: Jodebris stored (None = full)
     trophy: dict | None = None  # trophies (v0.61.0): {"kg": weight, "quirk": quirk id or ""}
+    tier: int = 0               # weapons and armour (v0.75.0, game/gear.py): +0 and up, no ceiling
+    traits: list = field(default_factory=list)   # trait ids, rolled at +5, +10... (stage 3)
 
     @property
     def slots(self) -> int:
@@ -210,23 +212,34 @@ class Item:
         if self.trophy is not None:
             from game import trophies
             return trophies.label(self)
-        return self.type.label(self.count)
+        text = self.type.label(self.count)
+        return f"{text} +{self.tier}" if self.tier else text
 
     # ---- Saving ---------------------------------------------------------
     def to_entry(self) -> list:
-        """[id, count], then the charge (or None) and trophy data when there are any."""
+        """[id, count], then the charge (or None), the trophy data (or None) and the gear
+        {"tier", "traits"} (v0.75.0), as far as there are any."""
         e = [self.type.id, self.count]
-        if self.charge is not None or self.trophy is not None:
+        gear = {}
+        if self.tier:
+            gear["tier"] = self.tier
+        if self.traits:
+            gear["traits"] = list(self.traits)
+        if self.charge is not None or self.trophy is not None or gear:
             e.append(self.charge)
-        if self.trophy is not None:
+        if self.trophy is not None or gear:
             e.append(self.trophy)
+        if gear:
+            e.append(gear)
         return e
 
     @classmethod
     def from_entry(cls, entry, catalogue: "Catalogue") -> "Item":
         entry = [entry, 1] if isinstance(entry, str) else list(entry)
+        gear = entry[4] if len(entry) > 4 and entry[4] else {}
         return cls(catalogue[entry[0]], entry[1], entry[2] if len(entry) > 2 else None,
-                   dict(entry[3]) if len(entry) > 3 and entry[3] is not None else None)
+                   dict(entry[3]) if len(entry) > 3 and entry[3] is not None else None,
+                   gear.get("tier", 0), list(gear.get("traits", [])))
 
 
 @dataclass
@@ -272,7 +285,7 @@ class Inventory:
         if count is None or count >= item.count:
             return self.items.pop(index)
         item.count -= count
-        return Item(item.type, count, item.charge, item.trophy)
+        return Item(item.type, count, item.charge, item.trophy, item.tier, list(item.traits))
 
     def count_of(self, item_id: str) -> int:
         return sum(i.count for i in self.items if i.type.id == item_id)
@@ -280,7 +293,7 @@ class Inventory:
     def _stack_for(self, item: Item) -> Item | None:
         if not item.type.stackable:
             return None
-        return next((i for i in self.items if i.type.id == item.type.id), None)
+        return next((i for i in self.items if i.type.id == item.type.id and i.tier == item.tier), None)
 
     # ---- Saving ---------------------------------------------------------
     def to_list(self) -> list:

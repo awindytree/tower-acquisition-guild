@@ -39,6 +39,7 @@ class Stats:
     hp: int = -1  # -1 means "start at full health"
     mods: dict = field(default_factory=dict)  # attribute changes from injuries (not saved: worked out from them)
     hp_mod: int = 0                           # max-HP change from injuries
+    gear_hp: int = 0                          # max HP from armour tiers (v0.75.0; not saved: worked out)
 
     def __post_init__(self) -> None:
         unknown = set(self.attributes) - set(ATTRIBUTE_KEYS)
@@ -56,7 +57,7 @@ class Stats:
     # ---- Derived values -------------------------------------------------
     @property
     def max_hp(self) -> int:
-        return max(1, max_hp(self["fortitude"], self.level) + self.hp_mod)
+        return max(1, max_hp(self["fortitude"], self.level) + self.hp_mod + self.gear_hp)
 
     @property
     def xp_to_next(self) -> int:

@@ -246,7 +246,7 @@ def lend(engine) -> None:
     cat = engine.catalogue
     weapon = p.equipped.get("weapon")
     better_weapon = "longbow" if weapon and weapon.type.properties.get("ammo") else "arming_sword"
-    for item_id, slot in ((better_weapon, "weapon"), ("studded_jerkin", "armor")):
+    for item_id, slot in ((better_weapon, "weapon"), ("studded_jerkin", "chest")):
         if item_id not in cat.types:
             continue
         old = p.equipped.get(slot)
@@ -254,6 +254,7 @@ def lend(engine) -> None:
         if old is not None and old.type.value >= new.value:
             continue
         p.equipped[slot] = Item(new)     # (in place of the old one, as before)
+    p.gear_changed()
     engine.log("The Guild's armoury lends you better gear to start with.")
 
 

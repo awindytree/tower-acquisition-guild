@@ -1506,13 +1506,25 @@ class Engine:
         # (Attributes are on the character sheet, c.)
 
         # Equipment and purse.
-        for slot, empty in (("weapon", "bare hands"), ("armor", "no armour")):
-            item = p.equipped.get(slot)
-            glyph, color = (item.type.glyph, item.type.color) if item else ("·", DIM)
-            console.print(left, y, glyph, fg=color, bg=PANEL_BG)
-            console.print(left + 2, y, (item.type.name if item else empty)[: width - 2],
-                          fg=TEXT if item else DIM, bg=PANEL_BG)
-            y += 1
+        item = p.equipped.get("weapon")
+        glyph, color = (item.type.glyph, item.type.color) if item else ("·", DIM)
+        console.print(left, y, glyph, fg=color, bg=PANEL_BG)
+        console.print(left + 2, y, (item.label if item else "bare hands")[: width - 2],
+                      fg=TEXT if item else DIM, bg=PANEL_BG)
+        y += 1
+        # Armour (v0.75.0): the total, then a mark for each slot (head, chest, legs), lit when worn.
+        from game import gear
+        worn = gear.worn_armour(p)
+        chest = p.equipped.get("chest") or (worn[0] if worn else None)
+        console.print(left, y, chest.type.glyph if chest else "·", fg=chest.type.color if chest else DIM,
+                      bg=PANEL_BG)
+        console.print(left + 2, y, f"armour {p.armor}" if worn or p.armor else "no armour", fg=TEXT if worn else DIM,
+                      bg=PANEL_BG)
+        for n, (slot, mark) in enumerate(zip(gear.ARMOUR_SLOTS, "∩φπ")):
+            piece = p.equipped.get(slot)
+            console.print(left + width - 5 + 2 * n, y, piece.type.glyph if piece else mark,
+                          fg=piece.type.color if piece else (70, 64, 56), bg=PANEL_BG)
+        y += 1
         console.print(left, y, "♦", fg=SHARD, bg=PANEL_BG)
         console.print(left + 2, y, f"{p.shards} shard{'' if p.shards == 1 else 's'}", fg=TEXT, bg=PANEL_BG)
         y += 1

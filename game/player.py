@@ -19,10 +19,11 @@ from game.items import Catalogue, Inventory, Item
 from game.names import NameMaker, full_name
 from game.work import jobs_from_list as work_jobs_from_list, jobs_to_list as work_jobs_to_list
 from game.skills import SkillState
+from game import gear
 from game.stats import ATTRIBUTES, Stats, carry_slots, regen_turns
 
-# Which kinds of item go in which equipment slot.
-SLOT_FOR_KIND = {"weapon": "weapon", "armor": "armor"}
+# Which kinds of item go in which equipment slot (armour: its own slot, game/gear.py, v0.75.0).
+SLOT_FOR_KIND = {"weapon": "weapon"}
 UNARMED = "1d3"
 
 PLAYER_GLYPH = "@"   # people are @ (user, v0.52.1; ☺ from v0.42.0)
@@ -129,7 +130,14 @@ class Player(Entity):
     def slot_for(self, item: Item) -> str | None:
         if item.type.properties.get("windcatcher"):
             return "windcatcher"
+        if item.type.kind == "armor":
+            return gear.armour_slot(item.type)
         return SLOT_FOR_KIND.get(item.type.kind)
+
+    def gear_changed(self) -> None:
+        """Call after the equipment changes: armour tiers give max HP (v0.75.0)."""
+        self.stats.gear_hp = gear.hp_total(self)
+        self.stats.hp = min(self.stats.hp, self.stats.max_hp)
 
     def earn(self, amount: int) -> None:
         """Shards earned (found, or from selling and consigning): the Guild takes its share as dues."""
@@ -206,6 +214,7 @@ class Player(Entity):
                 self.inventory.items.insert(idx, item)
             raise ValueError(f"No room in your pack for the {old.type.name}")
         self.equipped[slot] = item
+        self.gear_changed()
         return old
 
     def unequip_slot(self, slot: str) -> tuple[bool, str]:
@@ -216,6 +225,7 @@ class Player(Entity):
         if not self.inventory.add(item):
             return False, f"You have no room in your pack for the {item.type.name}."
         del self.equipped[slot]
+        self.gear_changed()
         off = {"weapon": "put away", "windcatcher": "unhook"}.get(slot, "take off")
         return True, f"You {off} the {item.type.name}."
 
@@ -228,8 +238,10 @@ class Player(Entity):
     def accuracy(self) -> int:
         from game import weaponskills
         from game import talents, mastery
+        weapon = self.equipped.get("weapon")
+        tier = gear.accuracy(weapon) if weapon and not weapon.type.properties.get("bash_every") else 0
         return (self.stats["celerity"] + artifacts.bonus(self, "accuracy") + injuries.total(self, "accuracy")
-                + weaponskills.accuracy_bonus(self) + talents.total(self, "accuracy")
+                + weaponskills.accuracy_bonus(self) + talents.total(self, "accuracy") + tier
                 + mastery.calling_bonus(self, "accuracy") - (2 if self.dazed else 0))
 
     @property
@@ -284,7 +296,7 @@ class Player(Entity):
         low = talents.total(self, "low_hp_damage") if self.stats.hp * 3 < self.stats.max_hp else 0   # Last Stand
         from game import mastery
         return (attribute_bonus(self.stats["physicality"]) + injuries.total(self, "damage")
-                + weaponskills.damage_bonus(self) + talents.total(self, "damage") + low
+                + weaponskills.damage_bonus(self) + talents.total(self, "damage") + low + gear.damage(weapon)
                 + mastery.calling_bonus(self, "damage"))
 
     @property
@@ -307,10 +319,8 @@ class Player(Entity):
 
     @property
     def armor(self) -> int:
-        worn = self.equipped.get("armor")
         from game import talents
-        return ((worn.type.properties.get("armor", 0) if worn else 0) + artifacts.bonus(self, "armor")
-                + talents.total(self, "armor"))
+        return gear.armour_total(self) + artifacts.bonus(self, "armor") + talents.total(self, "armor")
 
     @property
     def is_dead(self) -> bool:
@@ -441,10 +451,16 @@ class Player(Entity):
             player.hunter_id = data["hunter_id"]
         if "equipment" in data:                    # v0.69.0: equipment out of the bag
             for slot, entry in data["equipment"].items():
-                player.equipped[slot] = Item.from_entry(entry, catalogue)
+                item = Item.from_entry(entry, catalogue)
+                if slot == "armor":                # v0.75.0: armour by slot; what was "armour" is chest
+                    slot = player.slot_for(item)
+                player.equipped[slot] = item
         for item_id in data.get("equipped", []):   # older saves and player.json: equipped things are in the bag
             item = next((i for i in inventory.items if i.type.id == item_id and not player.is_equipped(i)), None)
             if item is None:
                 raise ValueError(f"Equipped {item_id!r} isn't in the inventory")
             player.equip(item)                      # (moves it out of the bag)
+        hp = stats.hp
+        player.gear_changed()                       # (armour tiers' max HP; v0.75.0)
+        stats.hp = min(hp, stats.max_hp)
         return player

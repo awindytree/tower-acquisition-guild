@@ -160,14 +160,21 @@ def item_details(item, engine: "Engine") -> str:
     if "damage" in props:
         details += f" Damage {props['damage']}."
     if "armor" in props and not item.type.rarity:
-        details += f" Armour {props['armor']}."
+        from game import gear
+        details += f" {gear.SLOT_NAMES[gear.armour_slot(item.type)]} armour {props['armor']}."
     if "heal" in props and not item.type.rarity:
         details += f" Heals {props['heal']}."
+    from game import gear
+    if gear.has_tier(item):                       # (v0.75.0)
+        bonus = gear.tier_text(item)
+        details += f" Tier +{item.tier}" + (f": {bonus}." if bonus else ".")
+        if item.traits:
+            details += " Traits: " + ", ".join(item.traits) + "."
     return details
 
 
-GEAR_SLOTS = (("weapon", "Weapon", "bare hands"), ("armor", "Armour", "no armour"),
-              ("windcatcher", "Windcatcher", "none"))
+GEAR_SLOTS = (("weapon", "Weapon", "bare hands"), ("head", "Head", "nothing"), ("chest", "Chest", "nothing"),
+              ("legs", "Legs", "nothing"), ("windcatcher", "Windcatcher", "none"))   # (head and legs: v0.75.0)
 
 
 def gear_stat(item, engine: "Engine") -> list[tuple[str, tuple]]:
@@ -180,13 +187,19 @@ def gear_stat(item, engine: "Engine") -> list[tuple[str, tuple]]:
         fill = round(share * 10)
         low = share <= 0.25
         return [("█" * fill, JODEBRIS_LOW if low else JODEBRIS), ("░" * (10 - fill), (100, 90, 78))]
+    from game import gear
     if t.kind == "weapon":
         text = props.get("damage", "")
+        if gear.damage(item):
+            text += f"+{gear.damage(item)}"
         if "range" in props:
             text += f", range {props['range']}"
         return [(text, DIM)]
     if t.kind == "armor":
-        return [(f"armour {props.get('armor', 0)}", DIM)]
+        text = f"armour {props.get('armor', 0) + gear.armour(item)}"
+        if gear.max_hp(item):
+            text += f", +{gear.max_hp(item)} HP"
+        return [(text, DIM)]
     if t.working:
         parts = [f"{label} +{props[k]}" for k, label in (("light", "light"), ("armor", "armour"),
                                                         ("accuracy", "accuracy"), ("evasion", "evasion")) if k in props]
@@ -290,7 +303,7 @@ class EquipmentScreen:
                 if item is None:
                     lines.append((r, label, "·", DIM, empty, DIM, []))
                 else:
-                    lines.append((r, label, item.type.glyph, item.type.color, item.type.name, TEXT,
+                    lines.append((r, label, item.type.glyph, item.type.color, item.label, TEXT,
                                   gear_stat(item, engine)))
             sel_item = self.held(engine, rows[self.selected])
             title = "Equipment"

@@ -5,6 +5,27 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.75.0: Gear tiers and armour slots (2026-11-21)
+Stage 1 of the equipment refactor (design: `claude/design-equipment.md`): what upgrading will build on. Nothing can be upgraded yet; that's stage 2.
+- **Armour by slot: head, chest, legs** (user: no armour classes). Your armour is the pieces added up. Everything worn before is **chest** armour, and old saves move it there. The equipment window has a row for each; the info panel shows your armour total, with a mark for each slot (∩ φ π), lit when something's in it.
+- **New head and leg pieces** at the supplier (draft names): **leather cap** and **iron helm** (∩), **hide leggings** and **iron greaves** (π).
+- **Every weapon and armour piece has a tier**, shown after its name ("longbow +3"); everything today is +0. Each tier adds a point, alternating (draft numbers):
+  - **Weapons:** odd tiers +1 accuracy, even tiers +1 damage. A bow's tier counts for its shots, not its bash.
+  - **Armour:** even tiers +1 armour, odd tiers +2 max HP.
+  Windcatchers have no tier (user). The item windows show what a tier gives ("Tier +3: +2 accuracy, +1 damage").
+- **Traits** are kept on a piece and saved (the pools and their effects come in stage 3).
+- **Materials: five families, three tiers each** (`data/gear.json`): hide, bone, chitin, metal and fibre. Nine are new, with drops from the creatures they come from:
+  - **Bone** (wild dogs, boars, pale lurkers).
+  - **Tusk and antler** (thornback boars, hollow elk).
+  - **Wyrm fang** and **wyrm sinew** (gravel wyrms).
+  - **Brute hide** (hollow brutes).
+  - **Crawler carapace** (crawlers).
+  - **Horror plate** (deep horrors).
+  - **Black iron** (stone sentinels, ruin stalkers).
+  - **Vinewood** (strangler vines, mirebellows).
+
+  Some creatures leave more than before: woodland stalkers and thistlehounds now leave thick hide too, and glasswings chitin plate. Each weapon type and armour slot is made from two families. What an upgrade will take is worked out already, for stage 2.
+
 ## 0.74.0: A home of your own (2026-11-21)
 The user's design: a place of the Hunter's own, bought, bare at first and improved, small versions of the city's services. One home at a time; it passes to the next Hunter.
 - **Three homes**, from a new **property dealer** east of the plaza (placeholder name and lines):
