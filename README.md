@@ -665,6 +665,16 @@ biggest whole-number zoom (1×, 2×, 3×…) that still fits at least 64×20
 cells (40 for the map plus 24 for the info panel on the right), so the pixel font stays sharp and correctly shaped. Resize the window
 any time; it adapts. To change the zoom rules, edit `MIN_COLUMNS` and `MIN_ROWS` in `main.py`.
 
+**The info panel** (right): your name, HP and Jodebris bars, level with your
+rank beside it (gold) and XP, weapon, armour and shards; where you are (the
+date in town, the place's words on a hunt) and anything pressing (faints left,
+dues owed, a talent to choose, mending, injuries); then, off a hunt, **what
+you're working on**: your contract's words (as far as you know them) and each
+bounty, ticked and green when done (a contract turns green once its prize is in
+hand). When the messages would be squeezed to fewer than four lines, that block
+shrinks to one line ("contract + 2 bounties"); `q` has the details. Then the
+newest messages (or the minimap, `v`).
+
 ## How it's organised
 
 ```

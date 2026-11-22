@@ -5,6 +5,11 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.73.0: The info panel (2026-11-21)
+- **What you're working on** (off a hunt): your contract's words, as far as you know them (`[?]` for any you don't yet), and each bounty you hold (the creature's letter, the thing to find, or "scout to area 3"). Each turns green when it's done (a √ for a bounty); a contract turns green once its prize is in hand. When room is short, the block shrinks to one line ("contract + 2 bounties") so the messages keep at least four lines; `q` has the details. On a hunt the hunt line shows these instead.
+- **Your rank beside your level** in gold, with XP on the same line when it fits ("Lv 2 Recruit   XP 40/120"), on the next when it doesn't.
+- **No more ground-underfoot line in town** ("Flagstone", "Cobblestones"): the look command (`x`) has it, and the messages get the room.
+
 ## 0.72.0: The character sheet in tabs (2026-11-21)
 The sheet was one long scrolling page (about three screens on the laptop). It's now three tabs, each fitting one screen. `←→` or Tab switches between them.
 - **Hunter:** your level, rank, gender and age; HP and XP bars side by side; your windcatcher's Jodebris. Your attributes sit in a grid with what's changing them ("+1 age", "-1 injury"). `↑↓` picks one, and only that one's description shows, not all five. Beside them are your fighting numbers, and under those your **condition**: injuries and how they mend, faints left on a hunt, dues owed, a talent waiting, skills ready to train.

@@ -63,6 +63,9 @@ MONSTER_TRACKING = 40   # how many steps away a creature can follow you
 # screen than a step sideways. This keeps the light round on screen.
 CELL_ASPECT = 2.0
 ACCENT_PANEL = (230, 160, 80)
+RANK_COLOR = (232, 196, 100)      # the rank beside the level (v0.73.0)
+WORK_DONE = (140, 205, 120)       # a bounty done, a contract's prize in hand
+MIN_LOG_ROWS = 4                  # the panel keeps at least this many rows for messages (v0.73.0)
 TRACK_GLYPH, TRACK_COLOR = "\"", (200, 140, 80)   # a creature's tracks (Tracking)
 MARKED_FG, MARKED_BG = (255, 214, 90), (120, 26, 26)   # a bounty's marked creature
 STASH_SLOTS = 60   # the guild stash (a stack takes one slot)
@@ -1375,6 +1378,72 @@ class Engine:
         view["ch"][unseen] = ord(" ")
         view["bg"][unseen] = VOID
 
+    @staticmethod
+    def split_words(place: str, width: int) -> list[str]:
+        """A place's words over as few lines as fit, breaking only between words."""
+        rows_: list[str] = []
+        for word in place.replace("][", "]\n[").split("\n"):
+            if rows_ and len(rows_[-1]) + len(word) <= width:
+                rows_[-1] += word
+            else:
+                rows_.append(word)
+        return rows_
+
+    def work_lines(self, width: int) -> list[list]:
+        """What the Hunter is working on (v0.73.0, off a hunt): the contract (its words, as known),
+        then each bounty, √ and green once it's done or the prize is in hand. Lines of (text, colour)."""
+        from game import story
+        p = self.player
+        out = []
+        c = p.contract
+        if c is not None:
+            have = c.artifact_id and any(it.type.id == c.artifact_id for it in p.all_items())
+            words = self.split_words(story.words_shown(self, c), width - 2)
+            for i, line in enumerate(words):
+                out.append([("☼ " if i == 0 else "  ", WORK_DONE if have else ACCENT_PANEL),
+                            (line, WORK_DONE if have else TEXT)])
+        for job in p.jobs:
+            done = job.done
+            if job.kind == "kill" and job.want in self.monster_types:
+                mt = self.monster_types[job.want]
+                glyph, gcol, what = mt.glyph, mt.color, mt.name
+            elif job.kind in ("find", "errand") and job.want in self.catalogue.types:
+                t = self.catalogue[job.want]
+                glyph, gcol, what = t.glyph, t.color, t.name
+            elif job.kind == "scout":
+                glyph, gcol, what = "»", ACCENT_PANEL, f"scout to area {job.target}"
+            else:
+                glyph, gcol, what = "·", DIM, job.short()
+            mark = " √" if done else ""
+            room = width - 2 - len(mark)
+            out.append([(glyph + " ", gcol), (what[:room], WORK_DONE if done else TEXT), (mark, WORK_DONE)])
+        return out
+
+    def render_work(self, console, x0: int, left: int, width: int, y: int, bottom: int) -> int:
+        if self.hunt is not None:           # (on a hunt, the hunt line shows what's here)
+            return y
+        lines = self.work_lines(width)
+        if not lines:
+            return y
+        if bottom - (y + len(lines) + 1) < MIN_LOG_ROWS:    # no room: one line instead (details in q)
+            p = self.player
+            bits = []
+            if p.contract is not None:
+                bits.append("contract")
+            if p.jobs:
+                bits.append(f"{len(p.jobs)} bount{'y' if len(p.jobs) == 1 else 'ies'}")
+            text = " + ".join(bits)
+            done = sum(1 for j in p.jobs if j.done)
+            lines = [[(text[:width], TEXT)] + ([(" √", WORK_DONE)] if done and len(text) + 2 <= width else [])]
+        for pieces in lines:
+            cx = left
+            for t, color in pieces:
+                console.print(cx, y, t, fg=color, bg=PANEL_BG)
+                cx += len(t)
+            y += 1
+        console.print(x0, y, "├" + "─" * (SIDEBAR_WIDTH - 1), fg=RULE, bg=PANEL_BG)
+        return y + 1
+
     def render_sidebar(self, console, x0: int) -> None:
         """Location and turn at the top, then the message log down the rest."""
         console.rgb["bg"][x0:, :] = PANEL_BG
@@ -1407,37 +1476,45 @@ class Engine:
             console.print(left, 3, "JB", fg=DIM, bg=PANEL_BG)
             console.print(left + 3, 3, "█" * jb_fill, fg=JODEBRIS_LOW if low else JODEBRIS, bg=PANEL_BG)
             console.print(left + 3 + jb_fill, 3, "░" * (jb_w - jb_fill), fg=RULE, bg=PANEL_BG)
-        console.print(left, 3 + o, f"Lv {st.level}  XP {st.xp}/{st.xp_to_next}", fg=DIM, bg=PANEL_BG)
+        # Level, rank and XP (v0.73.0: the rank beside the level; XP on its own line if both won't fit)
+        from game import ranks
+        y = 3 + o
+        lv = f"Lv {st.level} "
+        rank = ranks.of(p)["name"]
+        xp = f"XP {st.xp}/{st.xp_to_next}"
+        console.print(left, y, lv, fg=DIM, bg=PANEL_BG)
+        console.print(left + len(lv), y, rank[: width - len(lv)], fg=RANK_COLOR, bg=PANEL_BG)
+        if len(lv) + len(rank) + 1 + len(xp) <= width:
+            console.print(left + width - len(xp), y, xp, fg=DIM, bg=PANEL_BG)
+        else:
+            y += 1
+            console.print(left, y, xp[:width], fg=DIM, bg=PANEL_BG)
+        y += 1
         # (Attributes are on the character sheet, c.)
-        o -= 2
 
         # Equipment and purse.
-        for row, slot, empty in ((6 + o, "weapon", "bare hands"), (7 + o, "armor", "no armour")):
+        for slot, empty in (("weapon", "bare hands"), ("armor", "no armour")):
             item = p.equipped.get(slot)
             glyph, color = (item.type.glyph, item.type.color) if item else ("·", DIM)
-            console.print(left, row, glyph, fg=color, bg=PANEL_BG)
-            console.print(left + 2, row, (item.type.name if item else empty)[: width - 2],
+            console.print(left, y, glyph, fg=color, bg=PANEL_BG)
+            console.print(left + 2, y, (item.type.name if item else empty)[: width - 2],
                           fg=TEXT if item else DIM, bg=PANEL_BG)
-        console.print(left, 8 + o, "♦", fg=SHARD, bg=PANEL_BG)
-        console.print(left + 2, 8 + o, f"{p.shards} shard{'' if p.shards == 1 else 's'}", fg=TEXT, bg=PANEL_BG)
-        console.print(x0, 9 + o, "├" + "─" * (SIDEBAR_WIDTH - 1), fg=RULE, bg=PANEL_BG)
+            y += 1
+        console.print(left, y, "♦", fg=SHARD, bg=PANEL_BG)
+        console.print(left + 2, y, f"{p.shards} shard{'' if p.shards == 1 else 's'}", fg=TEXT, bg=PANEL_BG)
+        y += 1
+        console.print(x0, y, "├" + "─" * (SIDEBAR_WIDTH - 1), fg=RULE, bg=PANEL_BG)
+        y += 1
 
-        # Where you are.
+        # Where you are: the map, and on a hunt the place's words (split between words if they don't
+        # fit, v0.54.1). The ground under you is left to the look command (v0.73.0).
         gm = self.game_map
-        tile = gm.tile_at(p.x, p.y)
-        console.print(left, 10 + o, gm.title[:width], fg=TEXT, bg=PANEL_BG)
-        if self.hunt:     # the place's words, as written; split between words if they don't fit (v0.54.1)
-            place, rows_ = self.hunt.contract.region.name, []
-            for word in place.replace("][", "]\n[").split("\n"):
-                if rows_ and len(rows_[-1]) + len(word) <= width:
-                    rows_[-1] += word
-                else:
-                    rows_.append(word)
-        else:
-            rows_ = [tile.name.capitalize()]
-        for i, line in enumerate(rows_):
-            console.print(left, 11 + o + i, line[:width], fg=DIM, bg=PANEL_BG)
-        y = 11 + o + len(rows_)
+        console.print(left, y, gm.title[:width], fg=TEXT, bg=PANEL_BG)
+        y += 1
+        if self.hunt:
+            for line in self.split_words(self.hunt.contract.region.name, width):
+                console.print(left, y, line[:width], fg=DIM, bg=PANEL_BG)
+                y += 1
         # When: the date on the calendar (see game/calendar.py). Not on a hunt (v0.64.0, user): the
         # panel needs the room for messages there, and time only moves between areas.
         if not self.hunt:
@@ -1472,6 +1549,7 @@ class Engine:
                 y += 1
         console.print(x0, y, "├" + "─" * (SIDEBAR_WIDTH - 1), fg=RULE, bg=PANEL_BG)
         y += 1
+        y = self.render_work(console, x0, left, width, y, console.height - 1)
 
         # The version, in the bottom corner; the log stops above it.
         version = f"v{VERSION}"
