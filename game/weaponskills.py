@@ -145,9 +145,14 @@ def spend(player) -> str | None:
     return used
 
 
+CLOSE_REST = 5            # turns between a bow's spring back or a crossbow's slam (v0.80.0; my number)
+
+
 def tick(player) -> None:
     if player.tech_rest > 0:
         player.tech_rest -= 1
+    if getattr(player, "close_rest", 0) > 0:
+        player.close_rest -= 1
 
 
 def sheet_lines(engine, skill_id: str) -> list[str]:

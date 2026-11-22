@@ -154,8 +154,11 @@ def destroy_chance(tier: int) -> int:
 
 
 def shard_cost(tier: int) -> int:
-    """The smith's fee for going TO this tier: 25 × T^1.5, rounded to 5 (draft). Only paid if it works."""
-    return int(round(25 * tier ** 1.5 / 5)) * 5
+    """The smith's fee for going TO this tier: FEE × T^1.5, rounded to 5. Only paid if it works."""
+    return int(round(FEE * tier ** 1.5 / 5)) * 5
+
+
+FEE = 15        # (balance pass 4, user: was 25)
 
 
 def value(item) -> int:

@@ -240,6 +240,13 @@ class AttackAction(Action):
             engine.log(f"The {name} is under the ground: your blow strikes only gravel.")
             return True
         from game import weaponskills as ws
+        weapon = player.equipped.get("weapon")
+        if weapon is not None and player.close_rest == 0 and not self.reach:     # (v0.80.0: making room to shoot)
+            props = weapon.type.properties
+            if props.get("disengage") and spring_back(engine, target, props["disengage"]):
+                return True
+            if props.get("knockback") and slam(engine, target, props["knockback"]):
+                return True
         skill = ws.melee_skill(player)
         tech = None
         if player.readied:                 # a readied technique, if it's this weapon's (game/weaponskills.py)
@@ -382,6 +389,61 @@ class AttackAction(Action):
             player.frenzy -= 1
             return False
         return not quick
+
+
+def _away(engine, start, dx, dy, most) -> tuple:
+    """How far one can go from start in (dx, dy), up to most cells: (cells, end)."""
+    gm = engine.game_map
+    x, y = start
+    n = 0
+    while n < most:
+        nx, ny = x + dx, y + dy
+        if (not gm.in_bounds(nx, ny) or not gm.is_walkable(nx, ny) or gm.monster_at(nx, ny) or gm.npc_at(nx, ny)
+                or gm.tile_at(nx, ny).symbol in "<>HG" or (nx, ny) == (engine.player.x, engine.player.y)):
+            break
+        x, y, n = nx, ny, n + 1
+    return n, (x, y)
+
+
+def spring_back(engine, target, cells: int) -> bool:
+    """A bow up close (user, v0.80.0): spring back out of the creature's reach, up to `cells` away from
+    it, to shoot again. A few turns before you can again. False (nothing done) if there's no room."""
+    from game import weaponskills as ws
+    p = engine.player
+    dx, dy = p.x - target.x, p.y - target.y
+    n, (x, y) = _away(engine, (p.x, p.y), dx, dy, cells)
+    if n == 0:
+        return False
+    from_x, from_y = p.x, p.y
+    p.x, p.y = x, y
+    p.close_rest = ws.CLOSE_REST
+    p.stepped_now = True
+    engine.log(f"You spring back from the {target.name}, out of its reach.")
+    engine.on_step(from_x, from_y)
+    return True
+
+
+def slam(engine, target, cells: int) -> bool:
+    """A crossbow up close (user, v0.80.0): slam the creature with the stock: 1 damage, and it's
+    knocked back up to `cells`. A few turns before you can again. False if it can't be moved."""
+    from game import weaponskills as ws
+    p = engine.player
+    if target.type.ghost or target.burrowed:
+        return False
+    dx, dy = target.x - p.x, target.y - p.y
+    n, (x, y) = _away(engine, (target.x, target.y), dx, dy, cells)
+    if n == 0:
+        return False
+    target.x, target.y = x, y
+    target.awake, target.touched = True, True
+    p.close_rest = ws.CLOSE_REST
+    target.take_damage(1)
+    if target.is_dead:
+        engine.log(f"You slam the {target.name} with the stock, and it doesn't get up.")
+        engine.slay(target)
+    else:
+        engine.log(f"You slam the {target.name} with the stock and knock it back.")
+    return True
 
 
 def gear_after_hit(engine, target, result) -> None:

@@ -256,16 +256,29 @@ class Inventory:
     items: list[Item] = field(default_factory=list)
 
     @property
+    def pouch(self) -> int:
+        """Kinds of material a materials pouch here carries without taking slots (v0.80.0)."""
+        return max((i.type.properties.get("pouch", 0) for i in self.items), default=0)
+
+    @property
     def used(self) -> int:
-        """Slots taken: one a thing (a stack counts once), more for a big trophy (v0.61.0)."""
-        return sum(i.slots for i in self.items)
+        """Slots taken: one a thing (a stack counts once), more for a big trophy (v0.61.0). Materials
+        in a pouch (up to its kinds) take none (v0.80.0)."""
+        mats = sum(1 for i in self.items if i.type.kind == "material")
+        return sum(i.slots for i in self.items if i.type.kind != "material") + max(0, mats - self.pouch)
+
+    def cost(self, item) -> int:
+        """Slots adding this (a new stack) would take."""
+        if item.type.kind == "material" and sum(1 for i in self.items if i.type.kind == "material") < self.pouch:
+            return 0
+        return item.slots
 
     @property
     def is_full(self) -> bool:
         return self.used >= self.capacity
 
     def can_add(self, item: Item) -> bool:
-        return self._stack_for(item) is not None or self.used + item.slots <= self.capacity
+        return self._stack_for(item) is not None or self.used + self.cost(item) <= self.capacity
 
     def add(self, item: Item) -> bool:
         """Put an item in. Stackable items join an existing stack.
@@ -274,7 +287,7 @@ class Inventory:
         if stack:
             stack.count += item.count
             return True
-        if self.used + item.slots > self.capacity:
+        if self.used + self.cost(item) > self.capacity:
             return False
         self.items.append(item)
         return True

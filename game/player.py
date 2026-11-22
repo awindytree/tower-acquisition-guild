@@ -103,6 +103,7 @@ class Player(Entity):
     vengeance: bool = False          # (Vengeful: a creature hit you; your next blow gets more accuracy)
     unloaded: bool = False           # a crossbow shot and not yet wound again (v0.78.0)
     frenzy: int = 0                  # Frenzy (Claws 5): blows left that take no time
+    close_rest: int = 0              # turns before a bow's spring back or a crossbow's slam again (v0.80.0)
     stepped_now: bool = False        # this action was a step (Braced: did you step the turn before?)
     stepped_last: bool = False
     prey: dict = field(default_factory=dict)   # creature id -> kills by this Hunter (game/mastery.py)
@@ -331,8 +332,9 @@ class Player(Entity):
         """Armour your blows ignore (Crush, Hafted rank 3)."""
         from game import weaponskills, mastery
         from game import talents                   # (+ Sundering and Splitting, traits)
+        weapon = self.equipped.get("weapon")           # (knives and claws find the gaps: v0.80.0)
         return ((1 if weaponskills.has_passive(self, "hafted") else 0) + mastery.calling_bonus(self, "pierce")
-                + talents.total(self, "pierce"))
+                + talents.total(self, "pierce") + (weapon.type.properties.get("pierce", 0) if weapon else 0))
 
     @property
     def armor(self) -> int:

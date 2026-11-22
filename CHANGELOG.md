@@ -5,6 +5,19 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.80.0: Balance pass 4, the equipment (2026-11-22)
+Stage 6 of the equipment refactor. Findings and runs: `claude/balance-report.md` (pass 4). The user's choices:
+- **Knives and claws find the gaps in armour:** every knife and claw ignores 1 armour. **The leather whip is 1d6** (from 1d4), and the smith's sinew lash 1d7.
+- **The boar spear costs 50** (from 30).
+- **Smith's fees are lower:** 15 × tier^1.5 (from 25 ×): 15 for +1, 120 for +4, 170 for +5, 475 for +10, 1,340 for +20. Reaching +5 costs 425 in fees all told (was 705); reaching +10, 2,140 (was 3,565).
+- **A materials pouch** (new, at the supplier, 25): it takes one slot in the pack, and up to eight kinds of material ride in it without taking any more.
+- **Making room for ranged fighters** (user):
+  - With a **bow**, walking into a creature beside you **springs you back** out of its reach, up to two cells, so you can shoot again.
+  - With a **crossbow**, it **slams** the creature with the stock: 1 damage, and it's knocked back two cells.
+  - Then it's five turns before you can do it again (my number), and walking into a creature is the old bash meanwhile. With no room behind you (or behind it), it's a bash too.
+- **The balance bot** raises its gear at the smith (only where a failure can't destroy it), keeps the materials its gear needs (in a pouch), and buys head, chest and leg pieces by slot. Since v0.75.0 it had been rebuying chest armour after almost every hunt.
+- **`--sell-all`** runs the old way. **New:** `tools/balance/duels.py` pits one Hunter against one creature, many times over, to compare weapons, tiers and ranks.
+
 ## 0.79.0: Repairs at home (2026-11-22)
 Stage 5 of the equipment refactor (design: `claude/design-equipment.md`).
 

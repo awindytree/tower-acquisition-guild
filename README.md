@@ -139,9 +139,13 @@ The cursor starts on the nearest creature in range; Tab moves to the next,
 or move the aim yourself. The arrow's path is shaded, and the panel shows
 your chance to hit, or warns you if something is in the way. Enter or `f`
 shoots. Arrows fly straight, strike the first creature in their path, and
-stop at walls; about half can be picked up again. Up close, a bow is only
-good for a bash: 1d2, plus 1 for every 6 Physicality. (Or swap to a melee
-weapon from your pack: that takes a turn.)
+stop at walls; about half can be picked up again. **Up close** (v0.80.0),
+walk into a creature to **spring back** out of its reach, up to two cells,
+and shoot again; then it's five turns before you can again, and walking into
+it is only a bash (1d2, plus 1 for every 6 Physicality). A crossbow instead
+**slams** a creature with the stock: 1 damage, and it's knocked back two
+cells (the same five turns' rest). (Or swap to a melee weapon from your
+pack: that takes a turn.)
 
 **Marksmanship** is your aim: each rank above 1 adds 2 to your accuracy with a
 bow, and every 3 cells of distance takes 1 away. Every shot at a creature is
@@ -172,7 +176,8 @@ at rank 5:
 - **Reach:** whips and polearms strike a creature **two cells away in a
   straight line** with nothing between. Walk toward it to strike instead of
   stepping. A creature beside you is struck as usual.
-- **Knives:** the first cut at each creature takes no time.
+- **Knives:** the first cut at each creature takes no time. Knives and claws
+  find the gaps in armour: 1 armour ignored.
 - **Crossbows:** shoot with `f` like a bow, using **bolts** (bundles of 10 at
   the supplier). After each shot the crossbow needs winding: `f` winds it, a
   turn.
@@ -381,7 +386,7 @@ Windcatchers have no tier.
 **Raising a tier (v0.76.0):**
 
 - **At the smith:** ask him to work on your gear. Any tier, for materials
-  from your pack and a fee in shards (25 × tier^1.5: 200 for +4, 790 for
+  from your pack and a fee in shards (15 × tier^1.5: 120 for +4, 475 for
   +10). Up to +3 it always takes; after that the odds fall (95% for +4, 65%
   for +10, 35% for +20, never below 10%). If it fails, the materials are
   lost but the fee isn't taken. **Past +20 a failure can destroy the piece**
@@ -395,6 +400,9 @@ takes on a trait from its type's pool, never the same one twice: Keen (+5%
 critical chance), Bloodletting (10% chance to bleed), Hooded (creatures
 notice you less), Pocketed (+2 carrying slots) and so on. A trait only works
 while the piece is worn or wielded. The item windows list them.
+
+**The materials pouch** (the supplier, 25): one slot in your pack, and up to
+eight kinds of material ride in it without taking any more.
 
 What it takes: the piece's two material families (see below), more of them
 with each tier, adding the uncommon kind from +7 and the rare from +14. A

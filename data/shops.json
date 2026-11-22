@@ -41,6 +41,11 @@
         "restock": 81
       },
       {
+        "id": "materials_pouch",
+        "max": 2,
+        "restock": 243
+      },
+      {
         "id": "arming_sword",
         "max": 1,
         "restock": 243

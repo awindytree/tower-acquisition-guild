@@ -71,6 +71,7 @@ from game import combat  # noqa: E402
 
 DATA = ROOT / "data"
 LADDER = [(1, 1), (3, 2), (5, 3), (7, 4), (9, 5)]   # (from level, danger) since v0.44.0
+SELL_ALL = False        # --sell-all: sell every material and never raise gear (the bot before v0.80.0)
 PLAIN = False           # --plain: the pre-stage-7 bot (trips only, no bounties, trophies or training)
 TRAIN_ORDER = ["survival", "stealth", "harvesting", "tracking", "medicine"]   # after the weapon's skill
 TRAIN_RESERVE = 60      # shards kept back (beyond the next dues) when training
@@ -369,9 +370,23 @@ def city_phase(e, rec) -> None:
         if not ok:
             artifacts.sell_broken(p, i)
         inc["artifacts"] += p.shards - s0
+    # Materials it's gathered this hunt, by kind (equipment stage 6), before anything's sold or used.
+    from game import gear
+    rec["mats"] = {it.type.id: it.count - rec["mats0"].get(it.type.id, 0) for it in p.inventory.items
+                   if it.type.kind == "material" and it.count > rec["mats0"].get(it.type.id, 0)}
+    # Materials its own gear is made from are kept for raising it (unless --sell-all).
+    keep_mats = set()
+    if not SELL_ALL:
+        for slot in gear.WORN:
+            worn = p.equipped.get(slot)
+            if worn is not None and gear.gear_type(worn.type):
+                for fam in gear.data()["types"][gear.gear_type(worn.type)]["families"]:
+                    keep_mats.update(gear.families()[fam])
     # Materials (and spare weapons, armour) to the supplier.
     for i in reversed(range(len(p.inventory.items))):
         it = p.inventory.items[i]
+        if it.type.id in keep_mats:
+            continue
         if (it.type.kind == "material" or (it.type.kind in ("weapon", "armor") and not p.is_equipped(it)
                                             and it.type.id not in ("arrow",))):
             for _ in range(it.count):
@@ -408,7 +423,9 @@ def city_phase(e, rec) -> None:
     stock = e.stock("supplier")
     want = dict(WANT)
     if ranged.bow(p):
-        want["arrow"] = 30
+        want[ranged.bow(p).type.properties.get("ammo", "arrow")] = 30
+    if not SELL_ALL:
+        want["materials_pouch"] = 1             # (v0.80.0: kept materials ride in it)
     for item_id, n in want.items():
         while p.inventory.count_of(item_id) < n:
             line = next((l for l in stock.shown() if l.item_id == item_id), None)
@@ -426,6 +443,25 @@ def city_phase(e, rec) -> None:
         cost["rank"] = cost.get("rank", 0) + nxt["fee"]
         ranks.sit(e)
         rec["ranked_up"] = ranks.of(p)["name"]
+    if not PLAIN and not SELL_ALL:
+        # Raising gear at the smith (equipment stage 6): the weapon, then chest, legs, head, while the
+        # materials and fee allow, and only where a failure can't destroy the piece.
+        tried = True
+        while tried:
+            tried = False
+            for slot in ("weapon", "chest", "legs", "head"):
+                worn = p.equipped.get(slot)
+                if worn is None or not gear.has_tier(worn):
+                    continue
+                to = worn.tier + 1
+                if gear.destroy_chance(to) or gear.blocked(e, worn, "smith") or not spend(gear.shard_cost(to) + TRAIN_RESERVE):
+                    continue
+                s0 = p.shards
+                out, _ = gear.upgrade(e, worn, "smith")
+                cost["upgrades"] = cost.get("upgrades", 0) + s0 - p.shards
+                rec.setdefault("upgrades", []).append(f"{slot} +{to} {out}")
+                tried = True
+        rec["tiers"] = {s: p.equipped[s].tier for s in gear.WORN if p.equipped.get(s) is not None}
     if not PLAIN:
         # Training: the weapon's skill first, then the field skills, with what's spare.
         from game import skills, weaponskills
@@ -449,17 +485,23 @@ def city_phase(e, rec) -> None:
             ok, _ = work.take_job(e, max(options, key=lambda j: j.reward))
             if not ok:
                 break
-    # Upgrades: better armour or weapon, keeping a reserve.
+    # Better armour or weapon from the shop, keeping a reserve. (v0.80.0: armour by slot, head, chest
+    # and legs, and a piece's tier counts; before, the old "armor" slot was gone and it rebought chest
+    # armour every hunt.)
     reserve = 40
-    for slot, score in (("armor", lambda t: t.properties.get("armor", 0)),
-                        ("weapon", lambda t: combat.average(t.properties.get("damage", "1d2")))):
+    armour_score = lambda t, tier=0: t.properties.get("armor", 0) + tier // 2
+    weapon_score = lambda t, tier=0: combat.average(t.properties.get("damage", "1d2")) + tier // 2
+    for slot, score in (("chest", armour_score), ("legs", armour_score), ("head", armour_score), ("weapon", weapon_score)):
         cur = p.equipped.get(slot)
-        cur_score = score(cur.type) if cur else 0
+        cur_score = score(cur.type, cur.tier) if cur else 0
         if slot == "weapon" and cur and ranged.bow(p):
             continue  # an archer keeps their bow
-        options = [l for l in stock.shown() if cat[l.item_id].kind == ("armor" if slot == "armor" else "weapon")
+        kind = "weapon" if slot == "weapon" else "armor"
+        options = [l for l in stock.shown() if cat[l.item_id].kind == kind
+                   and (kind == "weapon" or gear.armour_slot(cat[l.item_id]) == slot)
                    and cat[l.item_id].properties.get("range") is None and l.item_id != "arrow"
-                   and score(cat[l.item_id]) > cur_score and p.shards - l.price >= reserve + keep]
+                   and not cat[l.item_id].properties.get("reach")       # (the bot doesn't strike at reach)
+                   and score(cat[l.item_id], l.tier) > cur_score and p.shards - l.price >= reserve + keep]
         if options:
             line = max(options, key=lambda l: score(cat[l.item_id]))
             ok, _ = shops_mod.buy(p, cat[line.item_id], line.price, line.bundle)
@@ -541,6 +583,7 @@ def run(hunters: int, hunts: int, seed: int, region: str | None) -> dict:
             logged0 = e.logged
             kills0 = dict(p.notes.get("kills", {}))
             mats0 = sum(it.count for it in p.inventory.items if it.type.kind == "material")
+            rec["mats0"] = {it.type.id: it.count for it in p.inventory.items if it.type.kind == "material"}
             shards_before = p.shards
             outcome = run_hunt(e, c, rec)
             rec["jobs_done"] = sum(1 for j in p.jobs if j.done)
@@ -575,6 +618,7 @@ def run(hunters: int, hunts: int, seed: int, region: str | None) -> dict:
             rec["injuries"] = [m for m in new_msgs if m.startswith("The blow leaves you with")]
             rec["writings"] = sum(1 for it in p.inventory.items if it.type.writing)
             city_phase(e, rec)
+            rec.pop("mats0", None)
             rec["shards1"] = p.shards
             rec["level1"] = p.stats.level
             career["hunts"].append(rec)
@@ -595,8 +639,10 @@ if __name__ == "__main__":
     ap.add_argument("--region", default=None)
     ap.add_argument("--out", default="sim.json")
     ap.add_argument("--plain", action="store_true", help="the bot as it was before stage 7")
+    ap.add_argument("--sell-all", action="store_true", help="sell every material; never raise gear (as before v0.80.0)")
     a = ap.parse_args()
     PLAIN = a.plain
+    SELL_ALL = a.sell_all
     t0 = time.time()
     result = run(a.hunters, a.hunts, a.seed, a.region)
     result["seconds"] = round(time.time() - t0, 1)
