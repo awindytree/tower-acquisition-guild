@@ -782,18 +782,25 @@ class ArtifactScreen:
         h = min(console.height - 2, rows + 7 + len(info))
         x, y = (area_w - w) // 2, max(0, (console.height - h) // 2)
         draw_box(console, x, y, w, h, "The Wayfinder")
+        room = max(1, (y + h - 2 - len(info)) - (y + 2))      # word rows that fit
+        mid = y + 2 + (room - 1) // 2                          # the picks' row, the same in every column
         for i, slot in enumerate(self.cols):
             cx = x + 2 + i * colw
             console.print(cx, y + 1, keywords.SLOT_NAMES[slot], fg=ACCENT if i == self.col else DIM, bg=BG)
-            for j, (wid, label, ok) in enumerate(lists[i]):
-                row = y + 2 + j
-                if row >= y + h - 2 - len(info):
-                    break
-                sel = j == self.picks[slot]
+            # A carousel (user, v0.70.1): the pick sits on the middle row and the words wheel round
+            # it, wrapping from the last to the first, fading with distance. Each word shows once.
+            n = len(lists[i])
+            above, below = min((room - 1) // 2, (n - 1) // 2), min(room // 2, n // 2)
+            for k in range(-above, below + 1):
+                j = (self.picks[slot] + k) % n
+                wid, label, ok = lists[i][j]
+                row = mid + k
+                sel = k == 0
                 bg = HIGHLIGHT if sel and i == self.col else BG
                 if sel:
                     console.rgb["bg"][cx - 1 : cx - 1 + colw, row] = bg
-                fg = (TEXT if sel else DIM) if ok and self.fits(engine, slot, wid) else (82, 74, 66)   # (well dimmed)
+                near = TEXT if sel else (DIM if abs(k) <= 2 else (118, 108, 96))
+                fg = near if ok and self.fits(engine, slot, wid) else (82, 74, 66)   # (unfit: well dimmed)
                 console.print(cx, row, (("►" if sel else " ") + label)[: colw - 1], fg=fg, bg=bg)
         top = y + h - 2 - len(info)
         for k, (line, color) in enumerate(info):

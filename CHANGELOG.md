@@ -5,6 +5,11 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.70.1: The Wayfinder's carousel (2026-11-21)
+- **The Wayfinder's word columns are carousels** (user). Your three picks sit side by side on the middle row, and each column's words wheel round its pick, wrapping from the last word back to the first and fading the further they are. Each word shows once.
+- **Fixed:** with the new words, the columns ran past the bottom of the window on the laptop, so some words (Verdant, Tiresome, Sundering and others) could be picked but not seen.
+- Design note (user): words that do exactly the same thing are welcome. Each one leads to its own place with the same character (`claude/design-brisering-keywords.md`).
+
 ## 0.70.0: New words, new terrains (2026-11-21)
 Nineteen new Wayfinder words from the user, and the terrain rework they needed. Where the user named a word without an effect, the effect is the assistant's.
 - **Danger:** **Sundering** (danger 5, 3 areas), **Critical** (danger 4, 3 areas), **Combative** (danger 3, 3 areas; creatures start awake and always notice you), **Trifling** (danger 1, one area).
