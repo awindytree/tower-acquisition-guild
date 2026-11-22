@@ -138,7 +138,7 @@ Wield a bow (the short bow reaches 8, the longbow 12) and press `f` to aim.
 The cursor starts on the nearest creature in range; Tab moves to the next,
 or move the aim yourself. The arrow's path is shaded, and the panel shows
 your chance to hit, or warns you if something is in the way. Enter or `f`
-shoots. Arrows fly straight, strike the first creature in their path, and
+shoots. Arrows ignore 2 armour (v0.80.2). They fly straight, strike the first creature in their path, and
 stop at walls; about half can be picked up again. **Up close** (v0.80.0),
 walk into a creature to **spring back** out of its reach, up to two cells,
 and shoot again; then it's five turns before you can again, and walking into

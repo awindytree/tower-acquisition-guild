@@ -33,8 +33,8 @@
   },
   "arrow": {
     "name": "arrow", "glyph": "|", "color": [200, 190, 170], "kind": "consumable",
-    "description": "A fletched arrow. Shot, it may survive to be picked up again.",
-    "value": 1, "stackable": true
+    "description": "A fletched arrow with a narrow bodkin head: it finds the gaps in armour (2 armour ignored). Shot, it may survive to be picked up again.",
+    "value": 1, "stackable": true, "properties": {"pierce": 2}
   },
   "leather_jerkin": {
     "name": "leather jerkin", "glyph": "φ", "color": [150, 105, 60], "kind": "armor",
@@ -226,7 +226,7 @@
   "studded_gloves": {
     "name": "studded gloves", "glyph": "↓", "color": [150, 110, 70], "kind": "weapon",
     "description": "Leather gloves with iron studs over the knuckles.",
-    "value": 8, "properties": {"damage": "1d4", "skill": "brawling", "calling": "Brawler"}
+    "value": 8, "properties": {"damage": "1d5", "skill": "brawling", "calling": "Brawler"}
   },
   "bone_knife": {
     "name": "bone knife", "glyph": "↓", "color": [225, 215, 190], "kind": "weapon",
@@ -261,7 +261,7 @@
   "chitin_knuckles": {
     "name": "chitin knuckles", "glyph": "↓", "color": [150, 160, 120], "kind": "weapon",
     "description": "Gloves faced with plates of shell.",
-    "value": 30, "properties": {"damage": "1d5", "skill": "brawling", "calling": "Brawler"}
+    "value": 30, "properties": {"damage": "1d6", "skill": "brawling", "calling": "Brawler"}
   },
   "materials_pouch": {
     "name": "materials pouch", "glyph": "&", "color": [170, 130, 90], "kind": "misc",

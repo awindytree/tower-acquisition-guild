@@ -145,6 +145,7 @@ def fire(engine, tx: int, ty: int, rng: random.Random = random) -> bool:
     p.inventory.remove(i, 1)
     p.note_weapon_use()   # every shot counts towards the Hunter's calling
     sk_id = skill_of(weapon)
+    ammo_pierce = engine.catalogue[ammo_id].properties.get("pierce", 0)    # (arrows ignore 2 armour: v0.80.2, user)
     from game import weaponskills
     path, creature = flight(engine, tx, ty)
     piercing = creature is not None and p.readied == "Piercing bolt" and weaponskills.spend(p)
@@ -174,7 +175,7 @@ def fire(engine, tx: int, ty: int, rng: random.Random = random) -> bool:
             from game import mastery
             damage = max(1, sum(combat.roll(dice, rng) for _ in range(2 if aimed else 1))
                          + talents.total(p, "ranged_damage") + mastery.prey_bonus(p, creature)[1]
-                         + gear.damage(weapon) - max(0, creature.armor - talents.total(p, "ranged_pierce"))
+                         + gear.damage(weapon) - max(0, creature.armor - talents.total(p, "ranged_pierce") - ammo_pierce)
                          + (talents.total(p, "marked_shot_damage") if getattr(creature, "shot", False) else 0)
                          + (talents.total(p, "braced_damage") if braced else 0)                # Braced stock
                          + (talents.total(p, "tier3_ranged_damage") if creature.type.tier >= 3 else 0))   # Siege-made

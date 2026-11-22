@@ -5,6 +5,13 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.80.2: Arrows and gloves (2026-11-22)
+User:
+- **Arrows ignore 2 armour** (the arrow's own `pierce`; bolts don't). Against a crawler (armour 3), a longbow Hunter now loses about half the HP (6–7% a fight instead of 14–15%).
+- **Studded gloves are 1d5** (from 1d4). The smith's chitin knuckles are 1d6, to stay one better.
+
+Duels: bows still lose a stand-up fight with a hollow brute from 4 cells (10% wins at rank 3, 35% at rank 5). Gloves gain a little against armour.
+
 ## 0.80.1: Duel tool fix (2026-11-22)
 - `tools/balance/duels.py`: a Hunter's calling followed the weapon used most over all its fights, so weapons fought later inherited earlier weapons' calling bonuses. It's cleared for every fight now. The before-and-after numbers in the balance report (pass 4) were rerun with the fix. No change to the game.
 
