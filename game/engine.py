@@ -42,7 +42,7 @@ INJURY = (220, 150, 110)
 LIGHT_RADIUS = 12.0
 DARKEST = 0.5
 # How far you can see in fog-of-war areas (in columns; rows count double).
-FOV_RADIUS = {"torch": LIGHT_RADIUS, "day": 30.0}
+FOV_RADIUS = {"dark": LIGHT_RADIUS, "lit": 30.0}
 # Remembered (seen before, not in view now) cells: dim and cool.
 MEMORY_TINT = np.array([0.42, 0.45, 0.55])
 # Creatures.
@@ -124,6 +124,8 @@ class Engine:
         self.rng = random.Random()
         self.turn = 0
         self.day = 1                     # moves on after every hunt
+        from game import sky
+        sky.watch(self)                  # the Duel decides which places under the open sky are lit (v0.93.0)
         self.messages: list[str] = []
         self.logged = 0                      # messages logged so far (a running count)
         self.screen = None               # a screen open over the map, like the inventory
@@ -251,7 +253,7 @@ class Engine:
             aging.refresh(self)
             if self.passing:
                 break
-            story.fire(self, "day")
+            story.fire(self, "pulse")
             from game import rivals
             rivals.day(self)
 
@@ -355,10 +357,10 @@ class Engine:
     @property
     def vision_range(self) -> float:
         """How far you can see, in cells (rows count double): light in dark places,
-        daylight elsewhere, less any injury that hurts sight. Field of view uses it,
+        full sight in lit places, less any injury that hurts sight. Field of view uses it,
         and the look and aim cursors can't go beyond it."""
         gm = self.game_map
-        base = self.light_radius if gm.light == "torch" else FOV_RADIUS.get(gm.light, FOV_RADIUS["day"])
+        base = self.light_radius if gm.light == "dark" else FOV_RADIUS.get(gm.light, FOV_RADIUS["lit"])
         from game import injuries
         from game import talents
         if self.hunt is not None and gm is not self.city:      # a place where light reaches less far (v0.67.0)
@@ -1299,7 +1301,7 @@ class Engine:
         self.player.x, self.player.y = x, y
         self.player.in_miasma = (self.hunt is not None        # hunts lie out beyond the Chorus Winds
                                  or str(getattr(self, "site", None) or "").startswith("lost:"))   # and Lost Grounds (v0.87.0)
-        self.player.daylight = getattr(game_map, "light", "") == "day"     # (Brimmed)
+        self.player.in_light = getattr(game_map, "light", "") == "lit"     # (Brimmed)
         p_ = self.player
         p_.area_kills, p_.coil_used, p_.kick_used, p_.streak = 0, False, False, 0   # (once-an-area traits)
         p_.vault_used = False                                                       # (Pole-vault, v0.86.0)
@@ -1656,7 +1658,7 @@ class Engine:
 
         original = view.copy()  # before any dimming, for remembered cells
 
-        if gm.light == "torch":
+        if gm.light == "dark":
             # Dim each cell by its distance from the player.
             xs, ys = np.indices((cam.width, cam.height))
             dist = np.hypot(xs + cam.map_x - self.player.x,

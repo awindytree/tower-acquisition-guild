@@ -321,7 +321,7 @@
         "!knows:specters"
       ],
       "text": "Heard anything about Selda Fencer Hunters?",
-      "reply": "Saw her at the well the morning she went. Talking to herself, the way old Hunters do. 'Specter's,' she said, twice, like she was trying the word out. Then she went off towards the Wayfinder.",
+      "reply": "Saw her at the well the Pulse she went. Talking to herself, the way old Hunters do. 'Specter's,' she said, twice, like she was trying the word out. Then she went off towards the Wayfinder.",
       "do": [
         "learn:specters"
       ]

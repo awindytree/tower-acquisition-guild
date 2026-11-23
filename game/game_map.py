@@ -5,7 +5,7 @@ Procedural dungeons will later fill the same kind of grid from code.
 
 Map file format:
     ; lines starting with a semicolon are comments or settings
-    ;light=day          (or torch, the default)
+    ;light=lit          (or dark, the default; old maps may say day or torch)
     ;item=44,20 shard 12 (an item lying at x=44, y=20; the count is optional)
     ;gate=59,4 north     (a city gate at x=59, y=4, leading to the "north" region)
     ;title=The City      (name shown in the side panel)
@@ -39,11 +39,12 @@ JOINED_LINES = {
 
 
 class GameMap:
-    def __init__(self, kinds: np.ndarray, name: str = "", light: str = "torch") -> None:
+    def __init__(self, kinds: np.ndarray, name: str = "", light: str = "dark") -> None:
         # kinds[x, y] is an index into TILE_TYPES. Indexed [x, y] to match tcod.
         self.kinds = kinds
         self.name = name
-        self.light = light  # "torch": dark beyond the player's light; "day": all lit
+        from game import sky
+        self.light = sky.norm(light)  # "dark": dark beyond the player's light; "lit": all lit
         # Items to place when the map loads, from ";item=" lines: (x, y, item id, count).
         self.item_spawns: list[tuple[int, int, str, int]] = []
         self.items: list = []  # FloorItems lying on the map
@@ -136,7 +137,7 @@ class GameMap:
                     settings[key] = value
             elif line.strip():
                 rows.append(line.rstrip())
-        game_map, start = cls.from_rows(rows, name, settings.get("light", "torch"))
+        game_map, start = cls.from_rows(rows, name, settings.get("light", "dark"))
         game_map.item_spawns = spawns
         game_map.gates = gates
         game_map.arrivals = arrivals
@@ -153,7 +154,7 @@ class GameMap:
         return game_map, start
 
     @classmethod
-    def from_rows(cls, rows: list[str], name: str = "", light: str = "torch") -> tuple["GameMap", tuple[int, int]]:
+    def from_rows(cls, rows: list[str], name: str = "", light: str = "dark") -> tuple["GameMap", tuple[int, int]]:
         """Build a map from rows of map symbols (used for files and generated maps)."""
         width = max(len(r) for r in rows)
         kinds = np.full((width, len(rows)), WALL_INDEX, dtype=np.int8)
@@ -166,8 +167,10 @@ class GameMap:
                 if ch not in SYMBOL_TO_INDEX:
                     raise ValueError(f"Unknown map symbol {ch!r} at {x},{y} in {name or 'map'}")
                 kinds[x, y] = SYMBOL_TO_INDEX[ch]
-        if light not in ("torch", "day"):
-            raise ValueError(f"light must be 'torch' or 'day', not {light!r}, in {name or 'map'}")
+        from game import sky
+        light = sky.norm(light)
+        if light not in (sky.LIT, sky.DARK):
+            raise ValueError(f"light must be 'lit' or 'dark', not {light!r}, in {name or 'map'}")
         return cls(kinds, name, light), start
 
     @classmethod

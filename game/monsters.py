@@ -10,7 +10,7 @@ import random
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from game import combat
+from game import combat, sky
 from game.entity import Entity
 from game.tiles import Color
 
@@ -37,7 +37,7 @@ class MonsterType:
     drops: tuple = ()   # ((item id, chance, least, most), ...): materials left where it dies
     injures: tuple = ()  # extra lasting injuries its big hits can cause (data/injuries.json)
     # v0.49.0 (the user's creatures; data/monsters.json _comment):
-    when: tuple = ()     # ((style, "day"/"night"/"any"), ...): where and when it lives
+    when: tuple = ()     # ((style, "lit"/"dark"/"any"), ...): where it lives, and in what light
     speed: str = "normal"
     flies: bool = False
     swims: bool = False
@@ -55,11 +55,11 @@ class MonsterType:
     person: bool = False       # people on the road (data/road.json, v0.90.0): no corpse, no bestiary, never on hunts
 
     def lives(self, style: str, light: str) -> bool:
-        """Does it turn up in this kind of place, at this time? (night = torchlight only)"""
+        """Does it turn up in this kind of place, in this light (lit or dark)?"""
         times = dict(self.when)
         if style not in times:
             return False
-        return times[style] in ("any", "night" if light == "torch" else "day")
+        return times[style] in ("any", sky.norm(light))
 
 
 def load_monster_types(path: str | Path) -> dict[str, MonsterType]:
@@ -80,10 +80,11 @@ def type_from_dict(mid: str, d: dict) -> "MonsterType":
             raise ValueError(f"Monster {mid!r}: behaviour must be one of {BEHAVIOURS}")
         combat.roll(d["damage"])  # fail early on badly written dice
         hab = d["habitats"]
-        when = tuple(hab.items()) if isinstance(hab, dict) else tuple((h, "any") for h in hab)
+        when = (tuple((h, "any" if t == "any" else sky.norm(t)) for h, t in hab.items()) if isinstance(hab, dict)
+                else tuple((h, "any") for h in hab))
         for _, t in when:
-            if t not in ("day", "night", "any"):
-                raise ValueError(f"Monster {mid!r}: a habitat's time must be day, night or any")
+            if t not in (sky.LIT, sky.DARK, "any"):
+                raise ValueError(f"Monster {mid!r}: a habitat's light must be lit, dark or any")
         for key in ("burst", "trail"):
             if d.get(key):
                 combat.roll(d[key])
@@ -185,7 +186,7 @@ def spawn_count(danger: int, area_index: int) -> int:
 
 def choose_spawns(types: dict[str, MonsterType], habitat: str, danger: int, area_index: int,
                   spots: list[tuple[int, int]], rng: random.Random,
-                  more: float = 1.0, favour: str = "", light: str = "day",
+                  more: float = 1.0, favour: str = "", light: str = "lit",
                   water: list[tuple[int, int]] | None = None, only: str = "") -> list[Monster]:
     """Pick creatures for an area and place them on the given spots. `more` scales how
     many; `favour` is a creature that turns up far more often, wherever it lives, if

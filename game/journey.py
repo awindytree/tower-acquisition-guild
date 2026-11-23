@@ -77,7 +77,8 @@ def direction_of(region) -> float:
 
 def edge_for(engine, region, seed_text: str) -> tuple[int, int]:
     """Where a Hunter comes out from this place: the land's direction, jittered by the place."""
-    want = (direction_of(region) + (zlib.crc32(seed_text.encode()) % (2 * SPREAD + 1)) - SPREAD) % 360
+    from game import sky
+    want = sky.place_bearing(getattr(region, "style", ""), seed_text)
     cells = _edge_cells(engine)
     best = min(cells, key=lambda c: (min(abs(c[2] - want), 360 - abs(c[2] - want)), c[0], c[1]))
     return best[0], best[1]

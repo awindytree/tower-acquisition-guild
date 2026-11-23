@@ -1,6 +1,6 @@
 ; An example Lost Ground (tests only; not loaded by the game). Draw your own the same way.
 ;title=The Example Hollow
-;light=torch
+;light=dark
 ;fog=on
 ; The way back: walk onto it to return through the Wayfinder.
 ;gate=1,7 out

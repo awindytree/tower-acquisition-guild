@@ -10,7 +10,7 @@ or leaves there stays taken or left for every Hunter after. They're for lore and
    story decides how a Hunter learns them. The danger word still has to be one the Hunter's rank
    allows at the Wayfinder.
 2. Draw the map, `data/lost_grounds/<id>.txt`, in the usual map format (see `examples/hollow.txt`):
-   - `;title=` the name shown on the map; `;light=day` or `;light=torch`; `;fog=on` to explore it.
+   - `;title=` the name shown on the map; `;light=lit` or `;light=dark`; `;fog=on` to explore it.
    - `;gate=x,y out` **(required)** on the way back (draw an `H` there): walking onto it brings the
      Hunter out at the edge of the Brisering (on the land word's side), to walk home. They arrive
      on the walkable cell beside it.

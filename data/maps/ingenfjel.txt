@@ -1,6 +1,6 @@
 ; Ingenfjel (tools/sites/build_sites.py).
 ;title=Ingenfjel
-;light=day
+;light=lit
 ;safe=yes
 ; The way back out to the Brisering.
 ;gate=1,14 out

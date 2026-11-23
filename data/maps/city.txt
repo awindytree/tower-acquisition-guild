@@ -1,6 +1,6 @@
 ; Bytorsskug. Laid out after the city plan (tools/city_plan/), then free to edit by hand.
 ;title=Bytorsskug
-;light=day
+;light=lit
 ;safe=yes
 ; The four city gates (data/gates.json). They lead out into the Brisering (not built yet).
 ;gate=158,24 north

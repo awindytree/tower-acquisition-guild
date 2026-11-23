@@ -274,8 +274,8 @@ def place_key(engine) -> str:
     gm = engine.game_map
     if engine.hunt is not None:
         style = getattr(gm, "style", "") or engine.hunt.contract.region.style   # (this area's terrain, v0.70.0)
-        night = gm.light == "torch"
-        return f"{style}_night" if night and f"{style}_night" in table()["ambience"] else style
+        dark = gm.light == "dark"
+        return f"{style}_dark" if dark and f"{style}_dark" in table()["ambience"] else style
     if getattr(engine, "in_brisering", None) and engine.in_brisering():
         return "brisering"
     from game import lost_grounds
@@ -286,8 +286,8 @@ def place_key(engine) -> str:
         if not key and engine.regions is not None and g["place"] in engine.regions:
             key = engine.regions[g["place"]].style
         key = key or "caves"
-        night = f"{key}_night"
-        return night if gm.light == "torch" and night in table()["ambience"] else key
+        dark = f"{key}_dark"
+        return dark if gm.light == "dark" and dark in table()["ambience"] else key
     p = engine.player
     hall = getattr(gm, "hall", None)
     if hall and hall[0] <= p.x < hall[0] + 20 and hall[1] <= p.y < hall[1] + 11:

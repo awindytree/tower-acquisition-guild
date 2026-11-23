@@ -172,8 +172,8 @@ def slow_lfo(n: int, rng, rate: float = 0.15, depth: float = 0.5) -> np.ndarray:
 
 AMBIENCE_RMS = 0.09   # ambience loops are matched by loudness, not by peak
 # (v0.64.0, user: the wind was loud next to everything else) some are quieter than the rest
-AMBIENCE_LEVEL = {"amb_brisering": 0.045, "amb_caves": 0.06, "amb_forest": 0.055, "amb_forest_night": 0.055,
-                  "amb_ruins": 0.055, "amb_mountains": 0.055, "amb_plains": 0.05, "amb_plains_night": 0.05}
+AMBIENCE_LEVEL = {"amb_brisering": 0.045, "amb_caves": 0.06, "amb_forest": 0.055, "amb_forest_dark": 0.055,
+                  "amb_ruins": 0.055, "amb_mountains": 0.055, "amb_plains": 0.05, "amb_plains_dark": 0.05}
 
 
 def write(name: str, x: np.ndarray, peak: float = 0.8) -> None:
@@ -667,7 +667,7 @@ def _insects(n, r):
     return out
 
 
-def _forest_night():
+def _forest_dark():
     r = rng_for("forest_night")
     n = int((LOOP + 1.5) * RATE)
     return seamless(mix(miasma(n, "forest_night"), _insects(n, r), sparse(n, r, 6, creak) * 0.4))
@@ -698,7 +698,7 @@ def _plains():
     return seamless(mix(miasma(n, "plains"), sparse(n, r, 6, chirp) * 0.35, _insects(n, r) * 0.25))
 
 
-def _plains_night():
+def _plains_dark():
     r = rng_for("plains_night")
     n = int((LOOP + 1.5) * RATE)
     return seamless(mix(miasma(n, "plains_night"), _insects(n, r) * 0.8))
@@ -719,9 +719,9 @@ def _wayfinder_hum():
 
 
 for _name, _fn in (("amb_city", _city), ("amb_interior", _interior), ("amb_hall", _hall), ("amb_brisering", _brisering),
-                   ("amb_caves", _caves), ("amb_forest", _forest), ("amb_forest_night", _forest_night),
+                   ("amb_caves", _caves), ("amb_forest", _forest), ("amb_forest_dark", _forest_dark),
                    ("amb_ruins", _ruins), ("amb_mountains", _mountains), ("amb_plains", _plains),
-                   ("amb_plains_night", _plains_night), ("loop_wayfinder", _wayfinder_hum)):
+                   ("amb_plains_dark", _plains_dark), ("loop_wayfinder", _wayfinder_hum)):
     ambience(_name, _fn)
 
 

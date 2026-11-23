@@ -1,6 +1,6 @@
 ; The Brisering (tools/brisering/build_brisering.py). A cell is 0.5 km across and 1 km down.
 ;title=The Brisering
-;light=day
+;light=lit
 ;safe=yes
 ;fog=on
 ; Bytorsskug's gates (data/gates.json). Walking onto one goes back into the city.

@@ -726,7 +726,7 @@ class UseAction(Action):
 
     def light_torch(self, engine: "Engine", item) -> bool:
         player = engine.player
-        if engine.game_map.light != "torch":
+        if engine.game_map.light != "dark":
             engine.log("It's light enough here. Save the torch for somewhere dark.")
             return False
         if player.torch_turns > 0:

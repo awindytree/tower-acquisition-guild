@@ -17,7 +17,7 @@ Conditions and effects are shared with conversations (game/dialogue.py), so a di
 choice can start a quest and a scene can check a flag. The story adds:
   conditions: quest:Q (active)  quest:Q:STAGE  done:Q  started:Q  failed:Q  seen:SCENE
               count:NAME>=N (also > < <= = !=)  on_hunt  region:PLACE  word:ID  knows:ID  event:KEY=VALUE (scenes)
-              (v0.66.0) date:turning_day  date:holiday  date:duel=light|dark  date:pulse=NAME  date:cycle=N
+              (v0.66.0) date:turning_pulse  date:holiday  date:duel=light|dark  date:pulse=NAME  date:cycle=N
               date:reckon=N  date:judgment=N; calling:NAME  gender:NAME  sensitive  age>=N (Judgments)
               hall>=N (Hunters remembered)  fallen:CALLING (a Hunter of that calling has died)
   effects:    start:Q  advance:Q  stage:Q:STAGE  finish:Q  fail:Q  note:Q:TEXT
@@ -30,7 +30,7 @@ import re
 from pathlib import Path
 
 DATA = Path(__file__).resolve().parent.parent / "data" / "story"
-EVENTS = ("new_game", "new_hunter", "set_out", "area", "kill", "pickup", "home", "day", "retire", "death",
+EVENTS = ("new_game", "new_hunter", "set_out", "area", "kill", "pickup", "home", "pulse", "retire", "death",
           "contract_done", "contract_failed",
           "talk", "wayfinder", "see", "bounty_paid", "load",   # v0.67.0: load (a save was loaded)
           "lost_ground",   # v0.87.0: arriving at a Lost Ground (ground=ID, first=True/False)
@@ -47,7 +47,7 @@ KINDS = {   # kind -> (heading, order in the quest log, scope by default)
     "quest": ("{title}", 6, "world"),
 }
 # Dates that come round less often than once a Cycle: never allowed to hold a story step back (user).
-RARE_DATES = ("date:turning_day", "date:holiday", "date:duel=", "date:cycle=", "date:reckon=", "date:judgment=")
+RARE_DATES = ("date:turning_pulse", "date:turning_day", "date:holiday", "date:duel=", "date:cycle=", "date:reckon=", "date:judgment=")
 MOVES = ("advance:", "stage:", "finish:", "fail:", "post:", "bounty:")
 
 
@@ -105,6 +105,8 @@ class StoryData:
                     check_dates(f"{path.name}: quest {qid!r}, stage {st['id']!r} (until)", st.get("until"))
                 self.quests[qid] = q
             for sid, sc in raw.get("scenes", {}).items():
+                if sc.get("on") == "day":          # the old name (v0.93.0: the Overland says Pulse)
+                    sc["on"] = "pulse"
                 if sc.get("on") not in EVENTS:
                     raise ValueError(f"{path.name}: scene {sid!r}: 'on' must be one of {EVENTS}")
                 check_dates(f"{path.name}: scene {sid!r}", sc.get("if"), sc.get("do") or [])
@@ -259,6 +261,7 @@ def fire(engine, event: str, **ctx) -> None:
     from game.dialogue import all_hold
     if not engine.story_data.scenes and not engine.story_data.quests:
         return
+    event = "pulse" if event == "day" else event     # the old name (v0.93.0)
     engine.story_event = {"event": event, **{k: str(v) for k, v in ctx.items()}}
     try:
         for sid, sc in engine.story_data.scenes.items():
@@ -417,10 +420,10 @@ def holds(engine, kind: str, rest: str) -> bool | None:
 
 
 def date_holds(engine, rest: str) -> bool:
-    """date:turning_day (the first Pulse of a Turn), date:holiday (the holiday Pulses after a Duel),
+    """date:turning_pulse (the first Pulse of a Turn; the old date:turning_day still works), date:holiday (the holiday Pulses after a Duel),
     date:duel=light|dark, date:pulse=NAME, date:cycle=N, date:reckon=N, date:judgment=N."""
     d = engine.date
-    if rest == "turning_day":
+    if rest in ("turning_pulse", "turning_day"):
         return (d.intercalary == 0 and d.duel.lower().startswith("light") and d.judgment == 1 and d.reckon == 1
                 and d.cycle == 1 and d.pulse_number == 1)
     if rest == "holiday":

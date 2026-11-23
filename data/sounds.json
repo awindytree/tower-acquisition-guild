@@ -1,5 +1,5 @@
 {
- "_comment": "Sounds (v0.63.0; game/sound.py). events: a game event -> a sound file in data/sounds/ (no .wav), or several (one is picked at random each time), with an optional volume (0-1, on top of the player's settings). steps: map symbol -> footstep kind (step_<kind> in events). ambience: where the Hunter is -> a looping sound (title: the title screen; city: Bytorsskug's streets; interior: inside any other building; hall: the guild hall; brisering; and each land out in the miasma, with _night variants for torch-lit places). music: where -> a WAV file in data/music/ (no .wav), the user's; none yet. Keys for music are the same as ambience. To swap a sound, put a WAV in data/sounds/ and point the event at it. The sounds themselves are made by tools/sound/make_sounds.py (placeholders).",
+ "_comment": "Sounds (v0.63.0; game/sound.py). events: a game event -> a sound file in data/sounds/ (no .wav), or several (one is picked at random each time), with an optional volume (0-1, on top of the player's settings). steps: map symbol -> footstep kind (step_<kind> in events). ambience: where the Hunter is -> a looping sound (title: the title screen; city: Bytorsskug's streets; interior: inside any other building; hall: the guild hall; brisering; and each land out in the miasma, with _dark variants for dark places (v0.93.0; was _night)). music: where -> a WAV file in data/music/ (no .wav), the user's; none yet. Keys for music are the same as ambience. To swap a sound, put a WAV in data/sounds/ and point the event at it. The sounds themselves are made by tools/sound/make_sounds.py (placeholders).",
  "events": {
   "ui_move": {
    "files": "ui_move",
@@ -119,15 +119,15 @@
   "brisering": "amb_brisering",
   "caves": "amb_caves",
   "forest": "amb_forest",
-  "forest_night": "amb_forest_night",
+  "forest_dark": "amb_forest_dark",
   "ruins": "amb_ruins",
   "mountains": "amb_mountains",
   "plains": "amb_plains",
-  "plains_night": "amb_plains_night",
+  "plains_dark": "amb_plains_dark",
   "grassland": "amb_plains",
-  "grassland_night": "amb_plains_night",
-  "marsh": "amb_plains_night",
-  "marsh_night": "amb_plains_night"
+  "grassland_dark": "amb_plains_dark",
+  "marsh": "amb_plains_dark",
+  "marsh_dark": "amb_plains_dark"
  },
  "music": {}
 }

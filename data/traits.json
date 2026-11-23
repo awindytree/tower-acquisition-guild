@@ -1156,10 +1156,10 @@
    },
    "brimmed": {
     "name": "Brimmed",
-    "text": "+1 accuracy in daylit places",
+    "text": "+1 accuracy in lit places",
     "ready": true,
     "effects": {
-     "day_accuracy": 1
+     "lit_accuracy": 1
     }
    },
    "sure_footed_crest": {

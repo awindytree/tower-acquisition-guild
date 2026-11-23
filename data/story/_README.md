@@ -84,7 +84,7 @@ no pages is a silent trigger (handy for counting things).
 | `kill` | the Hunter kills a creature | `monster`, `region` |
 | `pickup` | the Hunter picks something up | `item` |
 | `home` | back in the city from a hunt (after the rest) | `success` (True/False), `region`, `free` (True for a trip without a contract) |
-| `day` | each new Pulse | |
+| `pulse` | each new Pulse (the old name `day` still works) | |
 | `retire` | the Hunter retires | |
 | `death` | the Hunter dies (killed, or of old age) | |
 | `contract_done` | a key hunt is brought home | `contract` |
@@ -229,8 +229,8 @@ The user's frame (design in `claude/design-story-presentation.md`): the world is
 - `fallen:Hewer`: a Hunter of that calling has died.
 
 **Dates:**
-- **Conditions:** `date:turning_day` (the first Pulse of a Turn), `date:holiday` (the holiday Pulses after a Duel), `date:duel=light|dark`, `date:pulse=Emu`, `date:cycle=N`, `date:reckon=N`, `date:judgment=N`. Use them in scenes `"on": "day"` (fired every Pulse).
-- **The rule (user):** a date may **start** a story or **add colour**. It may never hold a story step back for longer than a Cycle. A quest stage's `until`, or a scene or talk line that advances, stages, finishes, fails or posts something, can't wait on `turning_day`, `holiday`, `duel`, `cycle`, `reckon` or `judgment`; the game refuses to load it. `date:pulse=...` (every Cycle) is fine.
+- **Conditions:** `date:turning_pulse` (the first Pulse of a Turn), `date:holiday` (the holiday Pulses after a Duel), `date:duel=light|dark`, `date:pulse=Emu`, `date:cycle=N`, `date:reckon=N`, `date:judgment=N`. Use them in scenes `"on": "pulse"` (fired every Pulse).
+- **The rule (user):** a date may **start** a story or **add colour**. It may never hold a story step back for longer than a Cycle. A quest stage's `until`, or a scene or talk line that advances, stages, finishes, fails or posts something, can't wait on `turning_pulse`, `holiday`, `duel`, `cycle`, `reckon` or `judgment`; the game refuses to load it. `date:pulse=...` (every Cycle) is fine.
 
 **The Story So Far.** When a new Hunter joins (not on a new game), a card recaps the main story:
 - Each finished chapter's `recap`.

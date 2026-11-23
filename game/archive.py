@@ -143,7 +143,7 @@ def region_lines(engine, region_id: str) -> list[str]:
     deepest = engine.archive["regions"].get(region_id, 0)
     lo, hi = r.danger
     lines = [f"Danger {lo}, {r.depth or '?'} areas deep, {r.style_text()}. "
-             + ("Hunted by day." if r.light == "day" else "Dark: bring light."),
+             + ("Lit." if r.light == "lit" else "Dark: bring light."),
              f"Deepest reported: area {deepest}." if deepest else "No Hunter has reported scouting it yet."]
     filed = engine.archive.get("maps", {}).get(region_id)
     if filed:

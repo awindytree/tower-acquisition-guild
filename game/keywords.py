@@ -16,6 +16,7 @@ import random
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
+from game import sky
 
 SLOTS = ("danger", "land", "feature")
 SLOT_NAMES = {"danger": "Danger", "land": "Land", "feature": "Feature"}
@@ -107,7 +108,9 @@ def make_place(kw: Keywords, d: str, l: str, f: str):
     return Region(
         id=place_id(d, l, f), name=f"{dw.shown}{lw.shown}{fw.shown}", gate="Wayfinder",
         style=lw.data.get("style") or max(styles, key=styles.get),
-        light=fw.data.get("light", lw.data.get("light", "torch")),
+        land_light=sky.norm(lw.data.get("light"), sky.DARK).replace(sky.LIT, sky.SKY),
+        feature_light=sky.norm(fw.data.get("light"), ""),
+        bearing=sky.place_bearing(lw.data.get("style") or max(styles, key=styles.get), f"out:{place_id(d, l, f)}"),
         danger=(danger, danger), area_size=tuple(lw.data.get("area_size", (72, 40))), artifacts=(),
         place=(d, l, f), depth=int(dw.data.get("depth", min(5, 2 + danger))),
         creatures=product("creatures"), favour=next((wd["favour"] for wd in reversed(words) if wd.get("favour")), ""),

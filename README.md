@@ -119,11 +119,19 @@ name, or remove `random_attributes` to use the attributes as written.
 
 ## The calendar
 
-A day is a **Pulse**. Nine Pulses make a **Cycle**: Emu, Lagau, Erku, Maforu,
-Nusu, Senu, Riu, Dymiu, Neu ("Firstday" to "Ninthday"). Nine Cycles make a
+The Overland counts in **Pulses**: there are no days. Nine Pulses make a
+**Cycle**: Emu, Lagau, Erku, Maforu, Nusu, Senu, Riu, Dymiu, Neu (ordinals:
+"First" to "Ninth"). Nine Cycles make a
 **Reckon**, twelve Reckons a **Judgment**, four Judgments a **Duel**. A
 **Turn** is the Light Duel, four holiday (intercalary) Pulses, the Dark Duel,
 and four more holiday Pulses.
+
+**Light.** The Overland has no sunrise within a Pulse. Its axial tilt is 110°,
+so through a Duel one pole faces the star and the other is dark: the Light
+Duel and the Dark Duel are the Overland's light and dark. Myligast stands on
+the equator, and Bytorsskug, just south of it, is lit in the Light Duel. Even
+then the world is dim, and the cities live by lamplight. A place is **lit** or
+**dark**: see Hunts.
 
 Time passes as you travel: a Pulse for every move from one area to another
 (setting out, going deeper, coming back, walking home), and a whole Cycle
@@ -131,8 +139,8 @@ when you complete a hunt. A new Hunter after a death arrives a Pulse later.
 The game begins at the start of Turn 211. The date is in the side panel,
 written compactly: "Light Duel: Emu, C1, R1, J1, T211" (Cycle, Reckon,
 Judgment, Turn). The pulse names, sizes and starting
-date are in `data/calendar.json`; `game/calendar.py` turns the game's day
-count into a date.
+date are in `data/calendar.json`; `game/calendar.py` turns the game's count
+of Pulses into a date.
 
 ## Bows and Marksmanship
 
@@ -328,7 +336,7 @@ Sound effects and ambience (v0.63.0): soft interface sounds, footsteps by
 ground, combat, the world, and moments like stepping into the Wayfinder or a
 hunt coming home. Every place has its own soundscape (the city's streets,
 indoors, the guild hall, the Brisering, each kind of land out in the miasma,
-by day or night), and the Wayfinder hums when you're near it.
+lit or dark), and the Wayfinder hums when you're near it.
 
 - **Sound** in the title menu or the Esc menu: volumes for everything, effects,
   ambience and music; mute; a test sound; and a line saying whether sound is
@@ -569,7 +577,7 @@ Hunts leave from **the Wayfinder**, the great artifact in the plaza (`▓`).
 Walk into it and choose **three words**: a **danger** word (how dangerous, how
 many areas deep), a **land** word (caves, ruins, forest, mountains, plains,
 grassland or marsh; some lands roll a different terrain for each area) and a
-**feature** word, a noun (daybreak or midnight, a swarm or silence, a hoard,
+**feature** word, a noun (Daybreak or Midnight, a swarm or silence, a hoard,
 letters, a favoured creature, and more). **The same three words always lead to the same place**:
 the same layout every time, though what's in it is new each trip. `←→`
 choose the slot, `↑↓` the word, `Enter` go. A slot left on "(anything)" lets
@@ -584,6 +592,17 @@ the notice board (they name a place, and you learn its words), and now and
 then from a rumour in the plaza (ask "Heard anything lately?").
 Words belong to the city: a new Hunter keeps them. Your rank limits how
 dangerous a danger word the Wayfinder will take.
+
+**Lit or dark** (v0.93.0). A place lies out beyond the Brisering in its land's
+direction from Myligast (the way you come out when you leave it). Under the
+open sky it's **lit** when its half of the Overland faces the star: south of
+Myligast in the Light Duel, north of it in the Dark Duel. So in a Light Duel
+the northern mountains are dark and the southern forests lit, and some places
+east and west lie either side of the line. Sheltered lands (caves, tangled
+woods, sickly bogs, the Broken ruins) are always dark, and a few feature words
+fix the light whatever the Duel (Daybreak lit, Midnight dark). In the dark you
+see only as far as your light; some creatures turn up only in the dark, some
+only where it's lit. The Wayfinder's screen tells you which a place is now.
 
 **Contracts** are posted on the **contracts board** (`¶`) in the guild hall:
 "Go to [Restless][Green][Daybreak] and retrieve the broken brass device…". Take
@@ -898,7 +917,8 @@ game/
   artifacts.py        Tower Artifacts: identifying, the workshop, what working ones do
   skills.py           skills, practice and training
   names.py            Hunters' names
-  calendar.py         the calendar: day number -> date
+  calendar.py         the calendar: Pulse count -> date
+  sky.py              light: lit or dark, by the Duel and where a place lies
   font.py             the extra letters (þ, Þ) and the font's charmap
   version.py          the version number
   camera.py           which part of the map is on screen
@@ -985,8 +1005,8 @@ player, so maps can be any size.
 
 Lines starting with `;` are comments or settings. Settings so far:
 
-- `;light=day`: everything is fully lit (the city).
-- `;light=torch`: dark beyond the player's light (the default; for dungeons and cellars).
+- `;light=lit`: everything is fully lit (the city). (Old maps' `day` still works.)
+- `;light=dark`: dark beyond the player's light (the default; for dungeons and cellars). (Old maps' `torch` still works.)
 - `;title=The City`: the name shown in the side panel.
 - `;fog=on`: fog of war (off unless set; hunt areas always have it).
 - `;safe=yes`: a safe zone, where manual saving is allowed.

@@ -28,7 +28,7 @@
    "title": "A toll on the road",
    "who": ["highwayman"], "count": [2, 3], "weight": 3, "road_only": true,
    "text": ["Figures step out where the road narrows. One leans on a cudgel. \"Toll road, Hunter. {demand} shards and you walk on.\"",
-            "Someone has dragged a cart across the road. The people behind it aren't traders. \"Road's ours today. {demand} shards to pass.\""]
+            "Someone has dragged a cart across the road. The people behind it aren't traders. \"Road's ours this Pulse. {demand} shards to pass.\""]
   },
   "robbery": {
    "title": "Waylaid",

@@ -781,7 +781,7 @@ class ArtifactScreen:
             info.append((f"{chosen[0][1]}{chosen[1][1]}{chosen[2][1]}", CANT))
         elif all(wid != keywords.ANY for wid, _, _ in chosen):
             place = engine.regions.place(*(wid for wid, _, _ in chosen))
-            light = "by day" if place.light == "day" else "dark"
+            light = "lit" if place.light == "lit" else "dark"
             info.append((f"{place.name}", ACCENT))
             info.append((f"Danger {danger_pips(place.danger[0])}  {place.depth} areas  {place.style_text()}, {light}", TEXT))
             if postings.matches(engine, place):
@@ -909,7 +909,7 @@ def describe(info: dict | None) -> str:
     if info.get("damaged"):
         return "damaged"
     where = "on a hunt" if info.get("on_hunt") else info.get("where", "")
-    when = info.get("date") or f"day {info['day']}"
+    when = info.get("date") or f"Pulse {info['day']}"
     return f"{info['name']}, Lv {info['level']}, {when}, {where}"
 
 
@@ -1193,7 +1193,7 @@ class MapsScreen:
 def region_text_lines(r) -> list[str]:
     lo = r.danger[0]
     return [f"Danger {lo}, {r.depth or '?'} areas, {r.style_text()}.",
-            "Hunted by day." if r.light == "day" else "Dark: bring light."]
+            "Lit." if r.light == "lit" else "Dark: bring light."]
 
 
 class SlotScreen(MenuScreen):
@@ -1266,7 +1266,7 @@ class SlotScreen(MenuScreen):
         notice = textwrap.wrap(self.notice, w - 4) if self.notice else []
         # The selected slot's date, under the list.
         info = engine.saves.summary(self.slots()[min(self.selected, len(opts) - 1)])
-        detail = (info.get("date") or f"Day {info['day']}") if info and not info.get("damaged") else ""
+        detail = (info.get("date") or f"Pulse {info['day']}") if info and not info.get("damaged") else ""
         notice = ([detail] if detail else []) + ([""] if detail and notice else []) + notice
         h = len(opts) + 6 + (len(notice) + 1 if notice else 0)
         x, y = (width - w) // 2, (console.height - h) // 2

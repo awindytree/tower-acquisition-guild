@@ -1,6 +1,6 @@
 ; The Towerway stead (tools/sites/build_sites.py).
 ;title=The Towerway stead
-;light=day
+;light=lit
 ;safe=yes
 ; The way back out to the Brisering (the Towerway).
 ;gate=44,4 out

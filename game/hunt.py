@@ -26,7 +26,7 @@ class Region:
     name: str
     gate: str
     style: str
-    light: str
+    land_light: str               # v0.93.0: "sky" (open, follows the Duel) or "dark" (sheltered); game/sky.py
     danger: tuple[int, int]
     area_size: tuple[int, int]
     artifacts: tuple[str, ...]
@@ -45,6 +45,14 @@ class Region:
     time: int = 1                 # turns that pass for each step (Gravity: 2)
     alert: bool = False           # creatures start awake and always notice you (Combative)
     only: str = ""                # the only creature here, wherever it lives (Ashfall: ashmantles)
+    feature_light: str = ""       # v0.93.0: "lit" or "dark" fixed by the feature (Daybreak, Midnight)
+    bearing: float = 180.0        # compass degrees from Myligast: where the place lies (north or south)
+
+    @property
+    def light(self) -> str:
+        """Lit or dark, now: by the words, and by the Duel for a place under the open sky."""
+        from game import sky
+        return sky.light_for(self.land_light, self.feature_light or None, self.bearing)
 
     def style_for(self, index: int) -> str:
         """The terrain of area `index`. Fixed by the words (same words, same place: user), so a

@@ -5,6 +5,31 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.93.0: Lit or dark, by the Duel (2026-11-23)
+The user's lore: the Overland has no day within a Pulse. Its axial tilt is 110°, so the Light Duel and the Dark Duel are its light and dark. Myligast stands on the equator and Bytorsskug is in the southern hemisphere, so the south is lit in the Light Duel and the north in the Dark Duel. A place is **lit** or **dark**, never day or night, and the word "day" is gone from the game.
+
+**Hunts** (new `game/sky.py`):
+- A place lies out beyond the Brisering in its land's direction from Myligast, the way you come out when you leave it.
+- **Under the open sky, a place is lit when its half of the Overland faces the star.** In the Light Duel, the northern mountains are dark and the southern forests and plains are lit. Places to the east and west fall on one side of the line or the other, place by place.
+- **Sheltered lands are always dark:** Hollow, Dripping, Broken, Tangled, Deeply Ill, Understated, Ordinal and Specter's.
+- **Daybreak and Midnight still fix the light,** as the miasma's doing: Daybreak lit, Midnight dark.
+- When the Duel turns, the light of every open-sky place turns with it, and so do the creatures living there.
+- The Wayfinder's screen and the archive say "lit" or "dark".
+
+**Words:**
+- Data uses lit and dark:
+  - maps: `;light=lit` and `;light=dark`;
+  - land words: `sky` or `dark`;
+  - feature words: `lit` or `dark`;
+  - creatures' habitats: `lit`, `dark` or `any`.
+  - The old values (day, torch, night) still load.
+- Brimmed now gives "+1 accuracy in lit places".
+- The ambience for dark places is renamed to `_dark` (forest and plains).
+- The glasswing "flies only in the dark".
+- Story authors use `"on": "pulse"` and `date:turning_pulse`; the old `day` and `turning_day` still work.
+- The last "today", "tonight", "morning" and "everyday" in game text are reworded. "Day" in a fallback date now reads "Pulse".
+- The README has the light lore.
+
 ## 0.92.1: Pulses, not days (2026-11-23)
 On the Overland time is counted in Pulses (user: "What is a day, sir?"). Game text that said "day" now says Pulse, or is reworded:
 - The first jobs' tip on coming out of the miasma: "a few Pulses' walk", and "the rest you owe goes down as the Pulses pass".

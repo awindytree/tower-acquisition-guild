@@ -114,7 +114,7 @@ class Player(Entity):
     coil_used: bool = False          # Quick coil (this area)
     kick_used: bool = False          # Kicking (this area)
     bracing: int = 0                 # Bracing: armour against a creature that's just charged
-    daylight: bool = False           # Brimmed: in a daylit place
+    in_light: bool = False           # Brimmed: in a lit place
     venom: int = 0                   # a Venomous creature's poison: turns left (v0.83.0)
     stepped_now: bool = False        # this action was a step (Braced: did you step the turn before?)
     stepped_last: bool = False
@@ -279,7 +279,7 @@ class Player(Entity):
                 + weaponskills.accuracy_bonus(self) + talents.total(self, "accuracy") + tier
                 + mastery.calling_bonus(self, "accuracy") - (2 if self.dazed else 0)
                 - round(__import__("game.rest", fromlist=["x"]).WEARY_ACCURACY * self.weary)
-                + (talents.total(self, "day_accuracy") if self.daylight else 0)                    # Brimmed
+                + (talents.total(self, "lit_accuracy") if self.in_light else 0)                    # Brimmed
                 + (talents.total(self, "kill_accuracy") if self.frenzied else 0))                  # Frenzied
 
     @property

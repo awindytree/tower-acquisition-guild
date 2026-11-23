@@ -1,5 +1,5 @@
 {
- "_comment": "Creatures found on hunts. ALL PLACEHOLDERS for the real lore. description is shown by the look command (x). habitats: which area styles they appear in (caves, ruins, forest). tier 1-4: how dangerous; deeper and more dangerous hunts allow higher tiers. accuracy and evasion are on the same scale as the Hunter's Celerity (10 = average). damage is dice like 1d6+1. armor is subtracted from each hit taken. sight: how far away they notice you (columns; rows count double). behaviour: hunt (notices and chases you) or still (never moves; attacks anything next to it). drops: [[item id, chance, least, most], ...] left where it dies (materials; PLACEHOLDERS). injures: extra lasting injuries its big hits can cause (data/injuries.json; PLACEHOLDERS). New in v0.49.0 (the user's creatures): habitats can be a list (any time) or {style: \"day\"|\"night\"|\"any\"} (night = a dark place, torchlight only); styles also include mountains and plains. Optional: speed (slow: acts every other turn; quick: twice a turn), flies (can cross water), swims (lives in water; spawns there), spawn_weight (how often it's picked, x), opens (daze: dazes you when it first notices you; leap: jumps up to 3 cells to your side when you come near), burst (dice: on death, hurts everything beside it), ghost (can't hit or be hit; keeps its distance), trail (dice: the ash it leaves hurts you when you walk on it), thorns (HP you lose when your blow lands), flees (runs when its HP falls to this share), burrows (moves underground, surfaces to fight, burrows again). Balance pass 3 (user, v0.62.0): every tier 3-4 creature (not the ashmantle, which can't fight) got +25% HP (rounded up) and +1 accuracy.",
+ "_comment": "Creatures found on hunts. ALL PLACEHOLDERS for the real lore. description is shown by the look command (x). habitats: which area styles they appear in (caves, ruins, forest). tier 1-4: how dangerous; deeper and more dangerous hunts allow higher tiers. accuracy and evasion are on the same scale as the Hunter's Celerity (10 = average). damage is dice like 1d6+1. armor is subtracted from each hit taken. sight: how far away they notice you (columns; rows count double). behaviour: hunt (notices and chases you) or still (never moves; attacks anything next to it). drops: [[item id, chance, least, most], ...] left where it dies (materials; PLACEHOLDERS). injures: extra lasting injuries its big hits can cause (data/injuries.json; PLACEHOLDERS). New in v0.49.0 (the user's creatures): habitats can be a list (any time) or {style: \"lit\"|\"dark\"|\"any\"} (the light of the place: dark places are seen by torchlight only; v0.93.0, was day/night); styles also include mountains and plains. Optional: speed (slow: acts every other turn; quick: twice a turn), flies (can cross water), swims (lives in water; spawns there), spawn_weight (how often it's picked, x), opens (daze: dazes you when it first notices you; leap: jumps up to 3 cells to your side when you come near), burst (dice: on death, hurts everything beside it), ghost (can't hit or be hit; keeps its distance), trail (dice: the ash it leaves hurts you when you walk on it), thorns (HP you lose when your blow lands), flees (runs when its HP falls to this share), burrows (moves underground, surfaces to fight, burrows again). Balance pass 3 (user, v0.62.0): every tier 3-4 creature (not the ashmantle, which can't fight) got +25% HP (rounded up) and +1 accuracy.",
  "cave_bat": {
   "description": "A leathery flutter in the dark. Quick and hard to hit, but frail.",
   "name": "cave bat",
@@ -470,14 +470,14 @@
   "xp": 4,
   "sight": 10,
   "habitats": {
-   "forest": "night",
-   "plains": "night",
-   "mountains": "night",
-   "marsh": "night",
-   "grassland": "night"
+   "forest": "dark",
+   "plains": "dark",
+   "mountains": "dark",
+   "marsh": "dark",
+   "grassland": "dark"
   },
   "flies": true,
-  "description": "A moth the size of a hand, its wings gone hard and clear as windcatcher glass. It flies by night, never under a roof.",
+  "description": "A moth the size of a hand, its wings gone hard and clear as windcatcher glass. It flies only in the dark, never under a roof.",
   "drops": [
    [
     "chitin_plate",
@@ -646,13 +646,13 @@
   "xp": 0,
   "sight": 12,
   "habitats": {
-   "caves": "night",
-   "ruins": "night",
-   "forest": "night",
-   "plains": "night",
-   "mountains": "night",
-   "marsh": "night",
-   "grassland": "night"
+   "caves": "dark",
+   "ruins": "dark",
+   "forest": "dark",
+   "plains": "dark",
+   "mountains": "dark",
+   "marsh": "dark",
+   "grassland": "dark"
   },
   "speed": "slow",
   "ghost": true,
@@ -676,10 +676,10 @@
   "xp": 22,
   "sight": 12,
   "habitats": {
-   "forest": "night",
-   "mountains": "day",
-   "marsh": "night",
-   "grassland": "day"
+   "forest": "dark",
+   "mountains": "lit",
+   "marsh": "dark",
+   "grassland": "lit"
   },
   "speed": "quick",
   "thorns": 1,
@@ -719,8 +719,8 @@
   "xp": 14,
   "sight": 12,
   "habitats": {
-   "forest": "night",
-   "grassland": "night"
+   "forest": "dark",
+   "grassland": "dark"
   },
   "flees": 0.3,
   "drops": [

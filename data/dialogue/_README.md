@@ -29,7 +29,7 @@ followed by **choices** for the Hunter.
 - **do** (on a node or a choice): effects, applied when the node is shown or
   the choice is picked.
 - **rumor** (on a node, `true`): instead of its text, the person says what
-  they've heard today (`data/rumors.json`): now and then one of the
+  they've heard this Pulse (`data/rumors.json`): now and then one of the
   Wayfinder's words you don't know yet, which you learn; otherwise small talk.
   The plaza folk (porter, washer, carter) have it behind "Heard anything lately?".
 - **choices**: each has `text`, and `goto` (another node), or `end: true`,
@@ -52,7 +52,7 @@ screen).
 are lost when they die; `world` flags belong to Bytorsskug and outlive Hunters.
 
 **In text**: `{given}` (the Hunter's given name), `{name}` (full name),
-`{calling}` (their middle name), `{date}`, `{pulse}` (today's Pulse name),
+`{calling}` (their middle name), `{date}`, `{pulse}` (the current Pulse's name),
 `{dues}` (dues owed), `{earned}` (shards earned since the last dues).
 
 **Requests** need no writing: when someone has a request up on the plaza

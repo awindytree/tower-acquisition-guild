@@ -31,8 +31,8 @@
     }
   },
   "scenes": {
-    "frame_turning": {"on": "day", "if": ["date:turning_day"], "do": ["start:frame_para"],
-                      "style": "popup", "title": "Turning Day", "pages": ["Bells across Bytorsskug: a new Turn."]},
+    "frame_turning": {"on": "pulse", "if": ["date:turning_pulse"], "do": ["start:frame_para"],
+                      "style": "popup", "title": "The Turning Pulse", "pages": ["Bells across Bytorsskug: a new Turn."]},
     "frame_hewer_start": {"on": "new_hunter", "if": ["calling:Hewer"], "do": ["start:frame_hewer"]},
     "frame_sense_start": {"on": "new_hunter", "if": ["sensitive"], "do": ["start:frame_sense"]},
     "frame_tip": {"on": "manual", "style": "tip", "pages": ["Press q for your quest log."]},
