@@ -5,6 +5,16 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.92.1: Pulses, not days (2026-11-23)
+On the Overland time is counted in Pulses (user: "What is a day, sir?"). Game text that said "day" now says Pulse, or is reworded:
+- The first jobs' tip on coming out of the miasma: "a few Pulses' walk", and "the rest you owe goes down as the Pulses pass".
+- The road: running "costs you some time"; going round "takes the better part of a Pulse".
+- Retiring: "Their hunting is over".
+- The carter, the washer and the rumours: no more "today", "yesterday", "all day" or "a clear day".
+- A writing's "four days with no names" is now four Pulses.
+- The README too.
+- Day and night as light (hunting by day or by night, daylight areas) are unchanged.
+
 ## 0.92.0: Caravans on the Towerway (2026-11-23)
 Stage 4 of the journey-home design, part 2, which completes it. User: caravans on the Towerway that trade or ask for an escort. Everything else is my draft, in `data/caravans.json`.
 

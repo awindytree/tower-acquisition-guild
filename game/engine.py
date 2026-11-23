@@ -1245,7 +1245,7 @@ class Engine:
                                         on_yes=lambda e: e.log(ranks.labour(e)))
         elif kind == "retire":
             from game.screens import ConfirmScreen
-            self.screen = ConfirmScreen(f"Retire {self.player.full_name}? Their hunting days end; a new Hunter "
+            self.screen = ConfirmScreen(f"Retire {self.player.full_name}? Their hunting is over; a new Hunter "
                                         "takes their place.", on_yes=lambda e: e.retire())
         elif kind == "jobs":
             from game.screens import JobBoardScreen

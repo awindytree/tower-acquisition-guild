@@ -588,7 +588,7 @@ dangerous a danger word the Wayfinder will take.
 **Contracts** are posted on the **contracts board** (`¶`) in the guild hall:
 "Go to [Restless][Green][Daybreak] and retrieve the broken brass device…". Take
 one (one at a time); then, at the Wayfinder, its words are chosen for you (or
-press `c`). The board changes every day.
+press `c`). The board changes every Pulse.
 
 A hunt is a chain of generated areas. Find the way deeper (`»`) to go on,
 or the way back (`«`) to return; areas stay as you left them while you're
@@ -783,7 +783,7 @@ on their turn, one next to you attacks.
   ask a toll on the roads, deserters and Hunters gone bad waylay anyone coming in
   rich from the edge, and hungry people ask for food. Pay, talk them down, stand
   your ground, run, go round, or fight. The roads are quicker than open
-  country (where every step counts half again toward the day) but watched more,
+  country (where every step counts half again toward the next Pulse) but watched more,
   and a full pack draws them.
 - **The walk home** (v0.89.0): the Wayfinder sends you out but can't bring you
   back. The trail home brings you out at the edge of the Brisering, on the side

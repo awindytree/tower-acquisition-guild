@@ -307,12 +307,12 @@ def choose(engine, enc, key: str) -> tuple[list[str], bool]:
         if roll <= run_chance(engine, enc):
             note(engine, k, key, ok=True)
             engine.next_day()
-            return ["You're off the road and away before they can close. It costs you some of the day."], True
+            return ["You're off the road and away before they can close. It costs you some time."], True
         return start_fight(engine, enc, "You don't get far. They're on you.")
     if key == "around":
         note(engine, k, key)
         engine.next_day()
-        return ["You turn back and find another way round. It takes the better part of a day."], True
+        return ["You turn back and find another way round. It takes the better part of a Pulse."], True
     return start_fight(engine, enc, "So be it.")
 
 
