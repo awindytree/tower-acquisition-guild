@@ -121,7 +121,8 @@ def _set_items(game_map, items: list, catalogue) -> None:
 def contract_to_dict(c) -> dict:
     return {"region": c.region.id, "artifact": c.artifact_id, "danger": c.danger, "job": c.job,
             "story": c.story, "story_title": c.story_title, "guardian": c.guardian, "min_rank": c.min_rank,
-            "depth": c.depth, "seed": c.seed, "free": c.free, "prize_folk": c.prize_folk, "guardians": c.guardians}
+            "depth": c.depth, "seed": c.seed, "free": c.free, "prize_folk": c.prize_folk, "guardians": c.guardians,
+            "recover": c.recover}
 
 
 def contract_from_dict(engine, d: dict):
@@ -131,7 +132,8 @@ def contract_from_dict(engine, d: dict):
     from game.hunt import Contract
     return Contract(engine.regions[d["region"]], d["artifact"], d["danger"], d["depth"], d["seed"],
                     d.get("job", ""), d.get("story", ""), d.get("story_title", ""), d.get("guardian", ""),
-                    d.get("min_rank", 0), d.get("free", False), d.get("prize_folk", ""), d.get("guardians", 1))
+                    d.get("min_rank", 0), d.get("free", False), d.get("prize_folk", ""), d.get("guardians", 1),
+                    d.get("recover"))
 
 
 def capture(engine: "Engine") -> dict:
@@ -172,6 +174,7 @@ def capture(engine: "Engine") -> dict:
             "library": list(engine.library),
             "archive": engine.archive,
             "hall": engine.hall,
+            "lost": getattr(engine, "lost", []),          # lost Hunters' packs (v0.85.0)
             "works": getattr(engine, "works", None),
             "trophies": getattr(engine, "trophies", None),   # the trophy wall (v0.61.0)
             "story": engine.story,
@@ -277,6 +280,7 @@ def restore(engine: "Engine", data: dict) -> None:
     engine.archive = world.get("archive") or archive.empty()
     engine.archive["regions"] = {r: n for r, n in engine.archive.get("regions", {}).items() if r in engine.regions}
     engine.hall = list(world.get("hall", []))
+    engine.lost = [r for r in world.get("lost", []) if r.get("place") in engine.regions]
     from game import works
     engine.works = world.get("works") or works.fresh()
     from game import trophies

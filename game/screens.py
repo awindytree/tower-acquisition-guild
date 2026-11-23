@@ -462,6 +462,8 @@ class ContractBoardScreen:
             head = [(engine.story_data.contracts.get(c.story, {}).get("heading", "☼ A key hunt"), ACCENT)]
         elif c.job:
             head = [("Odd job", ACCENT)]
+        elif c.recover:
+            head = [("A recovery", ACCENT)]
         else:
             head = [(cat[c.artifact_id].name.capitalize(), TEXT)]
         desc = wrapped(self.blurb(cat, c, engine), w - 4, DIM)
@@ -3326,7 +3328,7 @@ class HallScreen(ScrollScreen):
         return "↑↓ scroll  Esc close"
 
     def lines(self, engine, width: int):
-        from game import aging
+        from game import aging, recovery
         if not engine.hall:
             return wrapped("No names here yet. Every Hunter who retires or falls is remembered in the hall.", width, DIM)
         out = []
@@ -3335,7 +3337,8 @@ class HallScreen(ScrollScreen):
             out.append((entry["name"], ACCENT))
             rank = f"{entry['rank']}, l" if entry.get("rank") else "L"
             out += wrapped(f"{rank}evel {entry['level']}, {entry['hunts']} hunt{'s' if entry['hunts'] != 1 else ''} completed; "
-                           f"{entry['cause']} on {date}, having seen {aging.describe(entry['age'])}.", width, TEXT)
+                           f"{entry['cause']} on {date}, having seen {aging.describe(entry['age'])}."
+                           + recovery.hall_line(entry, engine), width, TEXT)
             out.append(("", TEXT))
         return out[:-1]
 

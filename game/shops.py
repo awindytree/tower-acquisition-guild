@@ -28,7 +28,8 @@ class Shop:
     def buy_price(self, item_type: ItemType, value: int | None = None) -> int | None:
         """What the shop pays for one of these (worth `value`, if not the type's), or None if it won't
         buy them."""
-        if item_type.kind in NEVER_BOUGHT or item_type.kind not in self.buys or item_type.id == "shard":
+        if item_type.kind in NEVER_BOUGHT or item_type.kind not in self.buys or item_type.id == "shard" \
+                or item_type.properties.get("lost_pack"):
             return None
         return max(1, int((item_type.value if value is None else value) * self.sell_rate))
 

@@ -117,6 +117,7 @@ class Contract:
     free: bool = False     # no contract: a trip of your own through the Wayfinder (v0.44.0)
     prize_folk: str = ""   # a person waiting at the far end instead of the prize lying there (v0.67.0)
     guardians: int = 1     # how many of the guardian
+    recover: dict | None = None   # a recovery contract (v0.85.0): the lost Hunter's record (game/recovery.py)
 
     def title(self, catalogue: Catalogue) -> str:
         if self.story_title:
@@ -125,6 +126,9 @@ class Contract:
             return f"Odd job: {self.job}"
         if self.free:
             return f"A trip to {self.region.name}"
+        if self.recover:
+            from game import recovery
+            return recovery.title(self.recover)
         t = catalogue[self.artifact_id]
         rarity = f" ({t.rarity.name})" if t.rarity else ""
         return f"Recover the {t.name}{rarity}"

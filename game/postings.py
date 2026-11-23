@@ -47,13 +47,17 @@ def generated(engine, day: int) -> list[Contract]:
 def board(engine) -> list[Contract]:
     """Everything on the contracts board today: key hunts first."""
     from game import story
-    return story.posted_contracts(engine) + generated(engine, engine.day)
+    from game import recovery
+    return story.posted_contracts(engine) + generated(engine, engine.day) + recovery.postings(engine)
 
 
 def describe(engine, c: Contract) -> str:
     """The posting's wording."""
     if c.story:
         return ""
+    if c.recover:
+        from game import recovery
+        return recovery.describe(engine, c)
     t = engine.catalogue[c.artifact_id]
     return (f"Go to {c.region.name} and retrieve the {t.name}"
             f"{f' ({t.rarity.name})' if t.rarity else ''} reported in our most recent scouting report.")

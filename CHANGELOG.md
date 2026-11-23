@@ -5,6 +5,26 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.85.0: Recovery contracts (2026-11-22)
+Roadmap step 4, part 2 (user's design): go out and bring home a lost Hunter's pack, and they're remembered in the Hall of Hunters.
+
+**Three kinds of lost Hunter** (user: all three):
+- **One of your own.** When your Hunter falls out on a hunt, their pack stays in the area where they fell, with everything they carried: bag, gear, artifacts and shards. Story items still go to the stash, as before.
+- **A rival from the cast** who died out there. Their pack lies in the deepest area of the place they went to.
+- **A Hunter you never met**, invented for the contract. Some Cycles have one posted.
+
+**On the contracts board**, as "Bring home [name]", below the day's postings:
+- The two oldest packs nobody has brought home stay posted until someone does.
+- An invented one stays up for its Cycle.
+- The contract runs as deep as the area where they fell. The pack (Θ) lies at its far end.
+- Rank limits apply as for any contract. Rivals never race you for one.
+
+**Bringing it home:**
+- The Guild puts what was in the pack in the guild stash. Anything that doesn't fit goes in your pack.
+- The Guild pays 15 + 10 × danger shards, plus any shards that were in the pack, all as Guild pay (no dues).
+- The Hall of Hunters notes who brought the pack home, and an invented Hunter gets their own entry.
+- Shops won't buy a lost pack.
+
 ## 0.84.1: The study moves to the hall's NE corner (2026-11-22)
 - The Cartographer's Study now juts north from the guild hall's north-east corner (user), not the north-west one, where it sat in the lane to the hall's door. His window opens into the front hall beside the bounty board.
 - Halls already built in a saved game move it when the game loads.

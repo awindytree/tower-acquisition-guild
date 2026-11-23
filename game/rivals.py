@@ -193,6 +193,8 @@ def come_home(engine, r: dict, won: bool | None = None) -> None:
     success, death = odds(r, trip["danger"])
     if won is None and engine.rng.random() < death:
         gone(engine, r, f"killed in {region}")
+        from game import recovery
+        recovery.rival_lost(engine, r, trip)          # their pack lies out there (v0.85.0)
         return
     ok = won if won is not None else engine.rng.random() < success
     r["status"], r["trip"] = "home", None
@@ -294,7 +296,8 @@ def _first_person(text: str) -> str:
 def maybe_race(engine, contract) -> None:
     """You've taken a contract: a rival at home may go after the same prize."""
     s = settings()
-    if not contract.artifact_id or contract.story or contract.free or engine.rng.random() >= s["race_chance"]:
+    if (not contract.artifact_id or contract.story or contract.free or contract.recover
+            or engine.rng.random() >= s["race_chance"]):
         return
     ready = [r for r in home(engine)]
     if not ready:

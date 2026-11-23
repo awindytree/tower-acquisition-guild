@@ -278,6 +278,11 @@
     "description": "A bundle of offal and musk. Throw it (h): for a while, creatures that haven't seen you, or have lost you, go to it instead.",
     "value": 6, "stackable": true, "properties": {"throw": "lure"}
   },
+  "lost_pack": {
+    "name": "Hunter's pack", "glyph": "Θ", "color": [160, 120, 80], "kind": "misc",
+    "description": "A Hunter's pack, left out in the miasma when its owner fell, the strap stiff with old weather. The Guild wants it home: what's in it, and the name of who carried it.",
+    "value": 0, "properties": {"lost_pack": true, "slots": 2}
+  },
   "materials_pouch": {
     "name": "materials pouch", "glyph": "&", "color": [170, 130, 90], "kind": "misc",
     "description": "A many-pocketed leather pouch for hides, bone, shell and the like. It takes one slot in your pack, and up to eight kinds of material ride in it without taking any more.",

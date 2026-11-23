@@ -88,6 +88,11 @@ def talents_total(player, key: str) -> int:
     from game import talents
     return talents.total(player, key)
 
+def recovery_owner(c) -> str:
+    from game import recovery
+    return recovery.owner(c.recover["name"])
+
+
 class Engine:
     def __init__(self, game_map: GameMap, player: Player, catalogue: Catalogue,
                  regions: dict[str, Region] | None = None,
@@ -112,6 +117,7 @@ class Engine:
             from game import gear as _gear
             _gear.set_catalogue(catalogue)               # (material values for gear worth, v0.76.0)
         self.trophies = {"records": {}, "curios": {}}   # the trophy wall (world state, v0.61.0)
+        self.lost = []          # lost Hunters' packs, for recovery contracts (world state, v0.85.0)
         self.new_hunter = new_hunter     # makes a fresh Player, after a death
         self.rng = random.Random()
         self.turn = 0
@@ -893,6 +899,8 @@ class Engine:
         aging.record(self, p, getattr(killer, "cause", f"killed by a {killer.name} in {where}"))
         from game import story
         story.rescue(self)
+        from game import recovery
+        recovery.on_death(self, hunt)        # their pack stays where they fell (v0.85.0)
         story.end_hunt(self, hunt)
         if hunt and hunt.contract.story:
             story.contract_over(self, hunt.contract, False)
@@ -919,6 +927,8 @@ class Engine:
         aging.record(self, p, "died of old age " + ("on a hunt" if self.hunt else "at home"))
         from game import story
         story.rescue(self)
+        from game import recovery
+        recovery.on_death(self, self.hunt)
         story.end_hunt(self, self.hunt)
         if self.hunt and self.hunt.contract.story:
             story.contract_over(self, self.hunt.contract, False)
@@ -1041,6 +1051,7 @@ class Engine:
         self.works = works.fresh()                 # the Guild's works (v0.60.0)
         from game import trophies
         self.trophies = trophies.fresh()           # the trophy wall (v0.61.0)
+        self.lost = []                             # lost Hunters' packs (v0.85.0)
         works.apply(self)
         from game import homes
         homes.furnish_all(self)
@@ -1473,21 +1484,27 @@ class Engine:
         done_jobs = [(f"Done: {j.text(self)}", TEXT) for j in self.player.jobs if j.done]
         if success:
             the = "" if getattr(c, "prize_folk", "") else "the "      # (a person, v0.67.0)
-            self.log(f"You return to the city with {the}{artifact.name}.")
-            lines = [(f"{'Brought home' if the == '' else 'Recovered'}: {artifact.name}", TEXT), ("", TEXT)]
+            if not c.recover:                    # (a recovery logs its own line)
+                self.log(f"You return to the city with {the}{artifact.name}.")
+            lines = ([] if c.recover else
+                     [(f"{'Brought home' if the == '' else 'Recovered'}: {artifact.name}", TEXT), ("", TEXT)])
             if not c.free and self.player.contract is not None and self.player.contract.seed == c.seed:
                 self.player.contract = None      # the contract is done
             told = story.contract_over(self, c, True) if c.story else []
+            if c.recover:
+                from game import recovery
+                told = recovery.complete(self, c)
             lines += [(t, TEXT) for t in told] + ([("", TEXT)] if told else [])
             lines += done_jobs + ([("", TEXT)] if done_jobs else [])
             lines += [(rested, DIM), (f"{self.date.short} begins", DIM)]
             heading = (self.story_data.contracts.get(c.story, {}).get("card_heading", "Key hunt complete") if c.story
-                       else ("Trip complete" if c.free else "Contract complete"))
+                       else ("Trip complete" if c.free else "Recovery complete" if c.recover else "Contract complete"))
             self.screen = TitleCardScreen(heading, lines)
         else:
             self.log("You return to the city without what lies deepest out there.")
             lines = ([("You come back without the find.", TEXT)] if c.free
-                     else [(f"The {artifact.name} remains out there.", TEXT)]) + [("", TEXT)]
+                     else [(f"{recovery_owner(c)} pack remains out there." if c.recover
+                            else f"The {artifact.name} remains out there.", TEXT)]) + [("", TEXT)]
             if c.story:
                 story.contract_over(self, c, False)
                 lines += [("The key hunt stays posted on the Guild's board.", DIM), ("", TEXT)]
