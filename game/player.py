@@ -92,6 +92,8 @@ class Player(Entity):
     earned: int = 0      # shards earned since the last dues were assessed (pickups, sales, consignments)
     earned_free: int = 0 # ...and Guild pay since then, which owes no dues (bounties, jobs, notes; v0.52.0)
     income: dict = field(default_factory=dict)   # shards earned over a career, by how (v0.94.0): hunting, fishing
+    ledger: list = field(default_factory=list)   # the last shards earned, [[how, n], ...] (game/livings.py, v0.95.0)
+    living: str = "hunting"                      # how they make their living now: the middle name follows it
     dues_owed: int = 0   # Guild dues not yet paid
     jobs: list = field(default_factory=list)  # odd jobs taken (game/work.py)
     contract: object = None    # the Guild contract taken (game/postings.py; a hunt.Contract)
@@ -181,12 +183,16 @@ class Player(Entity):
         self.shards += amount
         self.earned += amount
         self.income[source] = self.income.get(source, 0) + amount
+        from game import livings
+        livings.note(self, source, amount)
 
     def guild_pay(self, amount: int) -> None:
         """Paid by the Guild (bounties, scouting, field notes): no dues are taken from it."""
         self.shards += amount
         self.earned_free += amount
         self.income["hunting"] = self.income.get("hunting", 0) + amount
+        from game import livings
+        livings.note(self, "hunting", amount)
 
     # ---- Artifact slots: separate from the bag ------------------------------------
     @staticmethod
@@ -448,6 +454,8 @@ class Player(Entity):
             "flags": sorted(self.flags),
             "dues": [self.earned, self.dues_owed, self.earned_free],
             "income": dict(self.income),
+            "ledger": [list(e) for e in self.ledger],
+            "living": self.living,
             "rest": [round(self.rest_owed, 3), self.weary],
             "fed": self.fed,
             "jobs": work_jobs_to_list(self.jobs),
@@ -489,6 +497,8 @@ class Player(Entity):
         dues = list(data.get("dues", [0, 0])) + [0]
         player.earned, player.dues_owed, player.earned_free = dues[0], dues[1], dues[2]
         player.income = {k: int(v) for k, v in dict(data.get("income", {})).items()}
+        player.ledger = [[str(s), int(n)] for s, n in data.get("ledger", [])]
+        player.living = str(data.get("living", "hunting"))
         player.jobs = work_jobs_from_list(data.get("jobs", []))
         player.rest_owed, player.weary = data.get("rest", [0.0, 0.0])
         player.fed = data.get("fed", 0)

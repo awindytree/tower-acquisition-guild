@@ -5,6 +5,17 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.95.0: The middle name follows the living (2026-11-23)
+The user's rule. A middle name is how a Hunter makes their living, judged on what they've earned lately rather than over a whole career, and rather than on which tool they've held most.
+- **The rule:** when more than half of the last 1,000 shards came from one kind of work, that becomes the Hunter's living (`game/livings.py`).
+  - Fishing makes an **Angler**.
+  - Hunting gives the weapon calling as before. For now, hunting is everything else: hunts, bounties, selling artifacts and materials, trophies, caravan pay.
+  - Until one kind of work passes half, the living stays as it was. A new Hunter is a hunter, and a near-even split doesn't flip the name back and forth.
+  - Later callings join the same pool: a source passed to `earn` and a name in `LIVINGS`.
+- **Saved:** `Player.ledger` (the last 1,000 shards earned, by source, oldest falling out first) and `Player.living`.
+- **The character sheet:** the Calling tab says how you make your living and how your last shards split.
+- README updated.
+
 ## 0.94.1: The middle name stays with the weapon (2026-11-23)
 - **The user:** an automatic "Angler" would change a Hunter's calling almost at once, with no way to choose something else. So the middle name comes from the weapon used most again, as before 0.94.0.
 - `Player.income` still counts what fishing earns against everything else, in case a chosen calling comes later.

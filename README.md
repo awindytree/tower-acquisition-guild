@@ -107,10 +107,13 @@ Every new Hunter is random: a starting kit (a sword, an axe, or a bow and
 arrows; perhaps a jerkin; some supplies and shards), a given name, a gender, and attributes (each
 starts at 8, then 10 points go to random attributes, none above 14). Their
 full name is **Given Calling Hunters**: every Hunter's surname is Hunters,
-after the Guild, and the middle name comes from the kind of weapon they've
-used most (swords make a Fencer, an axe a Hewer, a war pick a Breaker, a bow
-an Archer; bare hands, a Brawler), counted by attacks and shots. Before their
-first fight, it's the weapon they hold.
+after the Guild, and the middle name is how they make their living. When
+more than half of the last 1,000 shards they earned came from one kind of
+work, that's their living: fishing makes an **Angler**. Hunting (everything
+else, for now) gives the kind of weapon they've used most (swords make a
+Fencer, an axe a Hewer, a war pick a Breaker, a bow an Archer; bare hands, a
+Brawler), counted by attacks and shots; before their first fight, it's the
+weapon they hold. The character sheet's Calling tab shows the split.
 
 Given names are built from the sound rules in `data/names.json`: sound
 classes, syllable patterns, and the consonant pairs allowed side by side.
@@ -705,7 +708,8 @@ lakes and ponds. (The miasma's waters need tackle you can't get yet.)
    the other way. Fish of a tier up to your **Angling** rank show what they're
    about to do; from rank 3, every fish does. `c` cuts it loose.
 4. **Landed:** keep it (Enter) or let it go (`x`). A fish weighs what it weighs:
-   sell it to the tackleman (by the kilo), or keep it.
+   sell it to the tackleman (by the kilo), or keep it. Live by it (more than
+   half of your last 1,000 shards) and you're an **Angler**.
 
 **What bites** depends on the water, the depth, the bait, and the light: a
 water's light follows the Duel (south of Myligast is lit in the Light Duel,

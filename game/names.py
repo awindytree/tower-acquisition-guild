@@ -61,11 +61,14 @@ def wielded_calling(player) -> str:
 
 
 def calling(player) -> str:
-    """The occupational middle name: from the kind of weapon the Hunter has used most (user),
-    counted by attacks and shots. Before their first fight, from the weapon in hand; a tie
-    goes to the weapon in hand if it's one of them. (v0.94.0 made a Hunter who earned most of their
-    shards from fishing an Angler; v0.94.1 took it out, user: it would flip a Hunter's calling almost
-    at once, with no way to choose. `Player.income` still counts the shards by how they were made.)"""
+    """The occupational middle name: how the Hunter makes their living (user; game/livings.py, v0.95.0):
+    more than half of the last 1,000 shards from fishing makes an Angler. Hunting gives the kind of weapon
+    they've used most (user), counted by attacks and shots; before their first fight, from the weapon in
+    hand; a tie goes to the weapon in hand if it's one of them."""
+    from game import livings
+    other = livings.calling(player)
+    if other:
+        return other
     use = getattr(player, "weapon_use", None)
     if not use:
         return wielded_calling(player)

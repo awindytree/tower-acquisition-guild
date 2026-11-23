@@ -22,7 +22,8 @@ is its distance to the bank: shore 1, shallow 2, deep 3+. A water's light follow
 side of Myligast it lies (game/sky.py); the city is south.
 
 World state `engine.angling` (saved as `world.angling`): {"dug": {"x,y": day}} (worm digging).
-Hunter state: `Player.income` {"hunting", "fishing"} for the middle name (game/names.py).
+Hunter state: `Player.income` {"hunting", "fishing"}; the middle name follows the last 1,000 shards
+(game/livings.py).
 """
 from __future__ import annotations
 
@@ -54,7 +55,6 @@ START_TENSION = 20
 STRIKE_SPOOK = 3         # turns the water's put down by a strike at nothing
 DIG_REGROW = 9           # Pulses before dug ground has worms again
 SOFT = set(",ef")        # grass, mud, woods: ground you can dig (by water)
-INCOME_MIN = 50          # shards earned before the middle name can follow the money
 
 
 def data() -> dict:
@@ -685,15 +685,6 @@ def dig(engine) -> str | None:
     if not p.inventory.add(item):
         return "You find worms, but there's no room in your pack for them."
     return f"You dig in the soft ground by the water and turn up {n} worm{'s' if n > 1 else ''}."
-
-
-# ---- Income --------------------------------------------------------------------------------------
-def angler(player) -> bool:
-    """Has this Hunter made most of their living from fishing? (Not used for the middle name since
-    v0.94.1: the user didn't want the calling to change on its own.)"""
-    inc = getattr(player, "income", None) or {}
-    total = sum(inc.values())
-    return total >= INCOME_MIN and inc.get("fishing", 0) * 2 > total
 
 
 # ---- The tackleman's word on what's biting --------------------------------------------------------

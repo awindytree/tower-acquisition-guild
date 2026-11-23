@@ -2704,6 +2704,9 @@ class CharacterScreen(ScrollScreen):
         L.append(self.heading("Calling", width))
         for line, c in wrapped(mastery.calling_line(p), width, TEXT):
             L.append([(line, c)])
+        from game import livings                     # (v0.95.0) the living the middle name follows
+        for line, c in wrapped(livings.sheet_line(p), width, DIM):
+            L.append([(line, c)])
         L.append([("", TEXT)])
         L.append(self.heading("Prey", width))
         prey = mastery.prey_lines(engine)
