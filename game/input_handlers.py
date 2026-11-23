@@ -42,6 +42,7 @@ LOOK_KEY = _key("x")
 CHARACTER_KEY = _key("c")
 FIRE_KEY = _key("f")
 VAULT_KEY = _key("j")       # Pole-vault (a staff trait, v0.86.0): j then a direction
+FISH_KEY = _key("r")        # cast a line (v0.94.0, game/fishing.py)
 THROW_KEY = _key("h")       # throw (hurl) something: a pot, a jar, a lure, a weapon that can be thrown (v0.82.0)
 EXPLORE_KEY = _key("o")
 TECHNIQUE_KEY = _key("z")   # ready the weapon's rank-5 technique (v0.55.0; no turn)
@@ -148,6 +149,15 @@ def action_for_event(event: tcod.event.Event, engine: "Engine") -> Action | None
             else:
                 engine.screen = ChoiceScreen("Throw what?", [
                     (label, lambda e, it=it, r=r: setattr(e, "screen", ThrowScreen(e, it, r))) for label, it, r in things])
+            return None
+        if event.sym == FISH_KEY:
+            from game import fishing
+            from game.screens import CastScreen
+            why = fishing.can_start(engine)
+            if why:
+                engine.log(why)
+            else:
+                engine.screen = CastScreen(engine)
             return None
         if event.sym == TRAVEL_KEY:
             from game.screens import TravelScreen

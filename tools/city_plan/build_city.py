@@ -672,11 +672,24 @@ HOME = min((h for h in built if all(h is not u for u in used) and wide(h) and IN
            key=lambda h: abs(h[2][0] - hall_front[0]) + 2 * abs(h[2][1] - hall_front[1]))
 home_lines = [f";home={HOME[2][0]},{HOME[2][1]} bytorsskug"]
 
+# ---- The Watermen and Anglers' Guild's tackleman (v0.94.0, user): in the free house nearest the river ----
+# Added last, so nothing else moves: the roomy house whose door is closest to the water.
+used.append(HOME)
+river = [(x, y) for y in range(H) for x in range(W) if g[y][x] == "~"]
+def to_river(h):
+    dx, dy = h[2]
+    return min(abs(dx - x) + 2 * abs(dy - y) for x, y in river)
+tackle_shop = min((h for h in built if all(h is not u for u in used) and len(h[1]) >= 8 and IN[h[2][1]][h[2][0]]),
+                  key=lambda h: (to_river(h), h[2]))
+door = tackle_shop[2]
+TACKLEMAN = max(tackle_shop[1], key=lambda c: abs(c[0] - door[0]) + 2 * abs(c[1] - door[1]))
+npc_lines.append(f";npc={TACKLEMAN[0]},{TACKLEMAN[1]} tackleman")
+
 items = []   # (v0.54.0, user: the example items that littered the guild hall are gone)
 header = [
     "; Bytorsskug. Laid out after the city plan (tools/city_plan/), then free to edit by hand.",
     ";title=Bytorsskug",
-    ";light=day",
+    ";light=lit",
     ";safe=yes",
     "; The four city gates (data/gates.json). They lead out into the Brisering (not built yet).",
     *gate_lines,

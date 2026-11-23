@@ -337,5 +337,6 @@
     "description": "The Guild's cartographer, in his study behind a window off the front hall. He turns Hunters' scouting reports into proper maps. (Placeholder name; there once the Guild's works build the Cartographer's Study.)",
     "dialogue": "cartographer",
     "wander": 0
-  }
+  },
+  "tackleman": {"name": ["Toful", "Tackleman", "Waters"], "glyph": "@", "color": [120, 170, 200], "description": "The tackleman of the Watermen and Anglers' Guild: rods, line, bait and lures, and he buys fish by the weight. His shop is the nearest to the river. (The Guild and the surname Waters are the user's; the name, the shop and every line are placeholders.)", "dialogue": "tackleman", "wander": 0}
 }

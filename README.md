@@ -38,6 +38,7 @@ python main.py
 | (walking) | Auto-explore (`o`) and travel-to (`t`) walk a step at a time; any key stops them |
 | `g` or `,` | Pick up what's here (a corpse only when nothing else is: it goes in your pack as a trophy) |
 | `b` | Butcher the corpse you're standing on, for materials (takes a turn) |
+| `r` | Fish: with a rod and bait, cast into water within reach (see Fishing) |
 | Walk into a creature | Attack it |
 | Walk into someone | Talk: `↑↓` or `1`-`9` to choose, Enter, Esc to leave |
 | (shop) | Trade (`←→`/Tab: Buy or Sell, Enter, Esc) |
@@ -106,10 +107,11 @@ Every new Hunter is random: a starting kit (a sword, an axe, or a bow and
 arrows; perhaps a jerkin; some supplies and shards), a given name, a gender, and attributes (each
 starts at 8, then 10 points go to random attributes, none above 14). Their
 full name is **Given Calling Hunters**: every Hunter's surname is Hunters,
-after the Guild, and the middle name comes from the kind of weapon they've
-used most (swords make a Fencer, an axe a Hewer, a war pick a Breaker, a bow
-an Archer; bare hands, a Brawler), counted by attacks and shots. Before their
-first fight, it's the weapon they hold.
+after the Guild, and the middle name is how they make their living. A Hunter
+who earns most of their shards from fishing is an **Angler**. Otherwise it
+comes from the kind of weapon they've used most (swords make a Fencer, an axe
+a Hewer, a war pick a Breaker, a bow an Archer; bare hands, a Brawler),
+counted by attacks and shots. Before their first fight, it's the weapon they hold.
 
 Given names are built from the sound rules in `data/names.json`: sound
 classes, syllable patterns, and the consonant pairs allowed side by side.
@@ -681,6 +683,42 @@ travel-to (`t`). There's nothing else out there yet.
 The map is built by `tools/brisering/build_brisering.py` (it overwrites
 `data/maps/brisering.txt`).
 
+## Fishing (v0.94.0)
+
+**The Watermen and Anglers' Guild** keeps a **tackleman** in the house nearest
+the river, west of the plaza: rods, bait and lures, Angling lessons, and he
+buys fish by weight. Fish in the city river, or out on the Brisering's river,
+lakes and ponds. (The miasma's waters need tackle you can't get yet.)
+
+1. **Cast** (`r`): with a rod or hand line and some bait in your pack. Aim at
+   water within your rod's reach (`Tab` cycles the water you can reach, `b`
+   changes the bait), Enter. Look (`x`) at water to see what it is: the
+   kind of water, how deep (shore, shallow, deep), and lit or dark.
+2. **Wait** (`.`). Watch the log for tells. Some mean nothing. When the float
+   goes under, **strike** (Enter or space) within a turn or two, or it's gone,
+   perhaps with your bait. Strike at nothing and you put the fish down for a while.
+3. **The fight.** Each turn: **reel** (`r`) to bring it in, **hold** (`h`)
+   to tire it, **give line** (`g`) to ease the strain, or **steer** (`a`/`d`
+   or the arrows) away from a snag. Watch the **tension**: past what your rod
+   can take, the line snaps (a lure goes with it). Give line too long and the
+   hook falls out. Let it run too far and it strips your line. Reeling into a
+   thrash can tear the hook free; a fish veering toward a snag must be steered
+   the other way. Fish of a tier up to your **Angling** rank show what they're
+   about to do; from rank 3, every fish does. `c` cuts it loose.
+4. **Landed:** keep it (Enter) or let it go (`x`). A fish weighs what it weighs:
+   sell it to the tackleman (by the kilo), or keep it.
+
+**What bites** depends on the water, the depth, the bait, and the light: a
+water's light follows the Duel (south of Myligast is lit in the Light Duel,
+north in the Dark Duel), so the northern lakes hold different fish from the
+southern ones, and swap when the Duel turns. Ask the tackleman what's biting.
+**Bait:** worms (dig them with `g` in soft ground by the water, or buy them),
+grubs, dough, and a spinner lure that isn't used up. **Rods:** hand line,
+cane, ash and lacquered: longer reach, more strain before the line goes, and
+more line. Angling teaches itself to rank 2; the tackleman trains beyond.
+The fish, the numbers and the tackleman's lines are placeholders
+(`data/fish.json`; design: `claude/design-fishing.md`).
+
 ## Combat
 
 **Weapon skills** (v0.55.0): Blades (swords), Axes, Hafted (picks, mauls),
@@ -919,6 +957,7 @@ game/
   names.py            Hunters' names
   calendar.py         the calendar: Pulse count -> date
   sky.py              light: lit or dark, by the Duel and where a place lies
+  fishing.py          fishing: waters, the cast, the wait, the fight, the catch
   font.py             the extra letters (þ, Þ) and the font's charmap
   version.py          the version number
   camera.py           which part of the map is on screen

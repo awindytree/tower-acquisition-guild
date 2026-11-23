@@ -177,6 +177,7 @@ def capture(engine: "Engine") -> dict:
             "lost": getattr(engine, "lost", []),          # lost Hunters' packs (v0.85.0)
             "road": getattr(engine, "road", {}),          # people met on the road (v0.90.0)
             "wilds": getattr(engine, "wilds", {}),        # foraging and camps (v0.91.0)
+            "angling": getattr(engine, "angling", {}),    # fishing (v0.94.0)
             "caravans": getattr(engine, "caravans", {}),  # the Towerway's caravans (v0.92.0)
             "works": getattr(engine, "works", None),
             "trophies": getattr(engine, "trophies", None),   # the trophy wall (v0.61.0)
@@ -286,6 +287,7 @@ def restore(engine: "Engine", data: dict) -> None:
     engine.lost = [r for r in world.get("lost", []) if r.get("place") in engine.regions]
     engine.road = dict(world.get("road", {}))
     engine.wilds = dict(world.get("wilds", {}))
+    engine.angling = dict(world.get("angling", {}))
     from game import works
     engine.works = world.get("works") or works.fresh()
     from game import trophies

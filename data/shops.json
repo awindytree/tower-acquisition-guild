@@ -223,5 +223,23 @@
       "material"
     ],
     "sell_rate": 0.5
+  },
+  "tackle": {
+    "name": "The Tackleman",
+    "keeper": "the tackleman",
+    "greeting": "",
+    "_comment": "The Watermen and Anglers' Guild's tackleman (v0.94.0). Stock, prices and rates are placeholders.",
+    "stock": [
+      {"id": "hand_line", "max": 3, "restock": 27},
+      {"id": "cane_rod", "max": 2, "restock": 81},
+      {"id": "ash_rod", "max": 1, "restock": 162},
+      {"id": "lacquered_rod", "max": 1, "restock": 729},
+      {"id": "worms", "max": 6, "restock": 9, "bundle": 10, "price": 3},
+      {"id": "grubs", "max": 4, "restock": 9, "bundle": 10, "price": 5},
+      {"id": "dough_balls", "max": 4, "restock": 9, "bundle": 10, "price": 4},
+      {"id": "spinner", "max": 4, "restock": 27}
+    ],
+    "buys": ["fish", "tackle"],
+    "sell_rate": 0.5
   }
 }

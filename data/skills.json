@@ -120,6 +120,21 @@
     "attribute": "physicality",
     "practice_base": 1
   },
+  "angling": {
+    "name": "Angling",
+    "description": "Fishing. At rank 2 a bite gives you a turn longer to strike and wary fish don't slip the hook so easily; fish of a tier up to your rank show what they're about to do on the line, and from rank 3 every fish does. Practice: bites, fights, catches (bigger fish teach more). Trained by the tackleman. Placeholders (v0.94.0).",
+    "max_rank": 6,
+    "self_taught_to": 2,
+    "practice_per_rank": 14,
+    "training_cost": {
+      "3": 100,
+      "4": 300,
+      "5": 800,
+      "6": 2000
+    },
+    "attribute": "tenacity",
+    "practice_base": 1
+  },
   "tracking": {
     "name": "Tracking",
     "description": "Reading the ground. Creatures leave tracks you can see, longer with rank; at rank 2 you sense what an area holds as you enter it; at 3 a marked bounty shows on your minimap; at 4 and up, creatures near you do. Practice: new areas. Trained by the trainer. Placeholders (v0.56.0).",

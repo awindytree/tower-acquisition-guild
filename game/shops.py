@@ -79,10 +79,10 @@ def sell(player, shop: Shop, index: int, stock=None) -> tuple[bool, str]:
     if player.is_equipped(item):
         return False, f"Take off the {item.type.name} before selling it."
     player.inventory.remove(index, 1)
-    player.earn(price)
+    player.earn(price, "fishing" if item.catch is not None else "hunting")
     from game import sound
     sound.play("pay")
-    if stock is not None:
+    if stock is not None and item.catch is None:       # (fish go to the table, not back on sale)
         stock.add(item.type.id, gear.value(item), item.tier)
     return True, f"You sell {_a(item.label)} for {price} shard{'s' if price != 1 else ''}."
 

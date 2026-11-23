@@ -114,6 +114,12 @@ class Engine:
             from game import trophies
             trophies.register(catalogue, self.monster_types)   # a trophy for every body (v0.61.0)
         if catalogue is not None:
+            from game import fishing as _fishing
+            _fishing.bind(catalogue)                     # a fish item for every kind of fish (v0.94.0)
+        self.fishing = None                              # a line in the water (game/fishing.py)
+        self.fishing_last = None                         # (x, y, bait) of the last cast
+        self.angling = {}                                # world state: worm digging (v0.94.0)
+        if catalogue is not None:
             from game import gear as _gear
             _gear.set_catalogue(catalogue)               # (material values for gear worth, v0.76.0)
         self.trophies = {"records": {}, "curios": {}}   # the trophy wall (world state, v0.61.0)
@@ -1094,6 +1100,7 @@ class Engine:
         self.trophies = trophies.fresh()           # the trophy wall (v0.61.0)
         self.lost = []                             # lost Hunters' packs (v0.85.0)
         self.wilds = {}                            # what's been foraged, and heard at camps (v0.91.0)
+        self.angling = {}                          # fishing's world state (v0.94.0)
         self.caravans = {}                         # the Towerway's caravans (v0.92.0)
         self.road = {}                             # people met on the road (v0.90.0)
         works.apply(self)
@@ -1296,6 +1303,7 @@ class Engine:
 
     # ---- Places and hunts -------------------------------------------------
     def change_map(self, game_map: GameMap, x: int, y: int) -> None:
+        self.fishing = None                       # (a line in the water stays behind)
         self.game_map = game_map
         self.explore_seen_items = set()
         self.player.x, self.player.y = x, y

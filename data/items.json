@@ -530,5 +530,45 @@
   "selda_relic": {"name": "nameless thing", "kind": "artifact", "rarity": "unique", "appearance": "stone", "value": 0,
     "description": "Nobody can say what this is.", "repairs_to": "selda_relic_working", "properties": {"locked": true}},
   "selda_relic_working": {"name": "nameless thing (restored)", "kind": "artifact", "rarity": "unique", "working": true, "value": 0,
-    "description": "Not yet: a later chapter.", "properties": {}}
+    "description": "Not yet: a later chapter.", "properties": {}},
+  "hand_line": {
+    "name": "hand line", "glyph": "/", "color": [180, 170, 140], "kind": "tackle",
+    "description": "A wooden spool of line with a hook and a float. No rod: you throw it out by hand and pull it in the same way. It won't reach far or hold much.",
+    "value": 4, "properties": {"rod": true, "reach": 2, "power": 60, "line": 24}
+  },
+  "cane_rod": {
+    "name": "cane rod", "glyph": "/", "color": [200, 180, 110], "kind": "tackle",
+    "description": "A jointed cane rod with a plain reel. The rod most of the city's anglers learned on.",
+    "value": 20, "properties": {"rod": true, "reach": 4, "power": 85, "line": 32}
+  },
+  "ash_rod": {
+    "name": "ash rod", "glyph": "/", "color": [210, 190, 150], "kind": "tackle",
+    "description": "A springy ash rod and a geared reel. It casts well out and takes a fair strain.",
+    "value": 60, "properties": {"rod": true, "reach": 6, "power": 110, "line": 40}
+  },
+  "lacquered_rod": {
+    "name": "lacquered rod", "glyph": "/", "color": [190, 90, 70], "kind": "tackle",
+    "description": "Red-lacquered and whipped with silk, a waterman's rod. Long, strong and quick to answer.",
+    "value": 160, "properties": {"rod": true, "reach": 7, "power": 140, "line": 48}
+  },
+  "worms": {
+    "name": "worm", "plural": "worms", "glyph": "∞", "color": [190, 120, 120], "kind": "tackle",
+    "description": "Bait. Most fish will take a worm. Dig for them in soft ground by the water (g), or buy them from the tackleman.",
+    "value": 0, "stackable": true, "properties": {"bait": "worms"}
+  },
+  "grubs": {
+    "name": "grub", "plural": "grubs", "glyph": "°", "color": [230, 220, 180], "kind": "tackle",
+    "description": "Bait: fat white grubs. The fish that hunt take them more readily than worms.",
+    "value": 1, "stackable": true, "properties": {"bait": "grubs"}
+  },
+  "dough_balls": {
+    "name": "dough ball", "plural": "dough balls", "glyph": "°", "color": [210, 180, 120], "kind": "tackle",
+    "description": "Bait: flour, fat and something that smells. The bottom feeders love it.",
+    "value": 0, "stackable": true, "properties": {"bait": "dough"}
+  },
+  "spinner": {
+    "name": "spinner", "glyph": "♪", "color": [200, 210, 220], "kind": "tackle",
+    "description": "A lure: a spoon of bright metal that turns as it's drawn through the water. Fish that hunt take it; others don't. It isn't used up, but a snapped line takes it with it.",
+    "value": 15, "stackable": true, "properties": {"bait": "spinner", "lure": true}
+  }
 }

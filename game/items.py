@@ -12,7 +12,7 @@ from pathlib import Path
 from game.tiles import Color
 
 ITEM_KINDS = ("weapon", "armor", "consumable", "material", "treasure", "key", "artifact", "misc", "writing",
-              "trophy")   # trophy (v0.61.0): a creature's corpse, hauled whole (game/trophies.py)
+              "trophy", "tackle", "fish")   # trophy (v0.61.0): a corpse hauled whole; tackle and fish (v0.94.0)
 ARTIFACT_GLYPH = "☼"
 
 # What the current Hunter knows: the broken artifacts they've identified and the
@@ -185,10 +185,14 @@ class Item:
     trophy: dict | None = None  # trophies (v0.61.0): {"kg": weight, "quirk": quirk id or ""}
     tier: int = 0               # weapons and armour (v0.75.0, game/gear.py): +0 and up, no ceiling
     traits: list = field(default_factory=list)   # trait ids, rolled at +5, +10... (stage 3)
+    catch: dict | None = None   # a fish (v0.94.0, game/fishing.py): {"kg", "quirk", "water", "day"}
 
     @property
     def slots(self) -> int:
-        """Pack slots it takes: one, or more for a big trophy (v0.61.0)."""
+        """Pack slots it takes: one, or more for a big trophy (v0.61.0) or a big fish (v0.94.0)."""
+        if self.catch is not None:
+            from game import fishing
+            return fishing.slots(self.catch.get("kg", 0))
         return max(1, self.type.properties.get("slots", 1))
 
     @property
@@ -209,6 +213,9 @@ class Item:
 
     @property
     def label(self) -> str:
+        if self.catch is not None:
+            from game import fishing
+            return fishing.label(self)
         if self.trophy is not None:
             from game import trophies
             return trophies.label(self)
@@ -217,20 +224,23 @@ class Item:
 
     # ---- Saving ---------------------------------------------------------
     def to_entry(self) -> list:
-        """[id, count], then the charge (or None), the trophy data (or None) and the gear
-        {"tier", "traits"} (v0.75.0), as far as there are any."""
+        """[id, count], then the charge (or None), the trophy data (or None), the gear
+        {"tier", "traits"} (v0.75.0) and a fish's catch (v0.94.0), as far as there are any."""
         e = [self.type.id, self.count]
         gear = {}
         if self.tier:
             gear["tier"] = self.tier
         if self.traits:
             gear["traits"] = list(self.traits)
-        if self.charge is not None or self.trophy is not None or gear:
+        catch = self.catch
+        if self.charge is not None or self.trophy is not None or gear or catch:
             e.append(self.charge)
-        if self.trophy is not None or gear:
+        if self.trophy is not None or gear or catch:
             e.append(self.trophy)
-        if gear:
+        if gear or catch:
             e.append(gear)
+        if catch:
+            e.append(dict(catch))
         return e
 
     @classmethod
@@ -239,7 +249,8 @@ class Item:
         gear = entry[4] if len(entry) > 4 and entry[4] else {}
         return cls(catalogue[entry[0]], entry[1], entry[2] if len(entry) > 2 else None,
                    dict(entry[3]) if len(entry) > 3 and entry[3] is not None else None,
-                   gear.get("tier", 0), list(gear.get("traits", [])))
+                   gear.get("tier", 0), list(gear.get("traits", [])),
+                   dict(entry[5]) if len(entry) > 5 and entry[5] else None)
 
 
 @dataclass
@@ -298,7 +309,7 @@ class Inventory:
         if count is None or count >= item.count:
             return self.items.pop(index)
         item.count -= count
-        return Item(item.type, count, item.charge, item.trophy, item.tier, list(item.traits))
+        return Item(item.type, count, item.charge, item.trophy, item.tier, list(item.traits), item.catch)
 
     def count_of(self, item_id: str) -> int:
         return sum(i.count for i in self.items if i.type.id == item_id)

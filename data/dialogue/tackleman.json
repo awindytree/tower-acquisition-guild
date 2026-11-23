@@ -1,0 +1,43 @@
+{
+  "_comment": "The tackleman of the Watermen and Anglers' Guild (v0.94.0). The Guild and its surname, Waters, are the user's; every line here is a PLACEHOLDER by the assistant. {fish_tip} is a fish, where and how it's biting this Duel (game/fishing.py: tip).",
+  "start": [
+    {"node": "hello"}
+  ],
+  "nodes": {
+    "hello": {
+      "text": {
+        "variants": [
+          "Mind the bait tubs. Fishing, are we, {calling}?",
+          "A Hunter at a tackle shop. The miasma's lost its shine, has it?",
+          "Back again. They biting for you?"
+        ]
+      },
+      "choices": [
+        {"text": "Show me your tackle.", "do": ["shop:tackle"]},
+        {"text": "What's biting?", "goto": "biting"},
+        {"text": "Can you teach me to fish better?", "do": ["train:angling"]},
+        {"text": "Who are the Watermen and Anglers?", "goto": "guild"},
+        {"text": "How do I go about it?", "goto": "how"}
+      ]
+    },
+    "biting": {
+      "text": "{fish_tip}",
+      "choices": [
+        {"text": "Anything else?", "goto": "biting"},
+        {"text": "Thanks.", "goto": "hello"}
+      ]
+    },
+    "guild": {
+      "text": "The Watermen and Anglers' Guild. Boatmen, fishers, the people who keep the river clear under the bridges. Waters, every one of us, same as you lot are Hunters. We don't go out into the miasma for artifacts. We go out on the water for supper, mostly.",
+      "choices": [
+        {"text": "Back.", "goto": "hello"}
+      ]
+    },
+    "how": {
+      "text": "Rod and bait, and stand by the water. Cast (r), and wait. When the float goes, strike, and not before. Then it's you and the fish: reel when it's tired, give it line when it runs, steer it off the snags. Too much strain and the line goes. Too little and the hook falls out. You'll learn. Worms you can dig yourself, in soft ground by the water.",
+      "choices": [
+        {"text": "Back.", "goto": "hello"}
+      ]
+    }
+  }
+}

@@ -112,6 +112,10 @@ def describe(engine: "Engine", x: int, y: int) -> tuple[str, list[tuple[str, tup
     if wl:
         heading = wl[0]
         lines.insert(0, (wl[1], TEXT))
+    from game import fishing               # (v0.94.0) water you could fish
+    where = fishing.place(engine)
+    if where in ("city", "brisering") and gm.tile_at(x, y).symbol == "~" and (gm.explored[x, y] or not gm.fog):
+        lines.append((fishing.describe_spot(engine, x, y) + " With a rod and bait, fish it (r).", TEXT))
     # Items lying here (remembered ones too).
     here = gm.items_at(x, y)
     if here:

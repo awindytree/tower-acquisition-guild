@@ -293,6 +293,9 @@ class Talk:
         elif self.speaker.id.startswith("caravan:"):
             from game import caravans
             extra = caravans.values(self.engine, self.speaker.id)
+        elif self.speaker.id == "tackleman":
+            from game import fishing
+            extra = {"fish_tip": fishing.tip(self.engine, self.rng)}
         self.text = fill(self.engine, text, extra)
         if node.get("rumor"):          # small talk that may pass on a word (game/rumors.py)
             from game import rumors

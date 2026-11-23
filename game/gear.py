@@ -164,6 +164,9 @@ FEE = 15        # (balance pass 4, user: was 25)
 def value(item) -> int:
     """What a piece is worth: its type's value plus the materials put into its tiers (shards aren't
     counted: an upgrade is an investment, not a trade)."""
+    if getattr(item, "catch", None) is not None:      # a fish: by weight (v0.94.0)
+        from game import fishing
+        return fishing.value(item)
     base = item.type.value
     if not has_tier(item) or not item.tier:
         return base

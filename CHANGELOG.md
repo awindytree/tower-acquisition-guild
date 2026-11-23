@@ -5,6 +5,56 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.94.0: Fishing, stage 1 (2026-11-23)
+The user asked for fishing deep enough to be almost its own game. This is stage 1 of `claude/design-fishing.md`: the cast, the wait, the fight and the catch.
+
+**From the user:**
+- **The Watermen and Anglers' Guild**, surname **Waters**, with its **tackleman**.
+- Miasma fishing exists, with its own vibes and challenges: not in this stage.
+- The tension fight, to be judged in play.
+- **A middle name is how a person makes their living.** A Hunter who earns most of their shards from fishing is an Angler.
+
+The rest is the assistant's draft and placeholders.
+
+**Waters** (`game/fishing.py`):
+- Every body of water is found by flood fill: the city river, and the Brisering's river, 20 lakes and about a hundred ponds.
+- Each water cell has a depth band (shore, shallow, deep) from its distance to the bank. The Brisering's river is all shallow, running water.
+- A water is lit or dark by the Duel and which side of Myligast it lies on. The city is south, so it's lit in the Light Duel.
+- Look (`x`) at water to see all of this.
+
+**The act:**
+- **Cast** (`r`): aim at water in your rod's reach. Tab cycles the water you can reach; `b` changes the bait.
+- **Wait** (`.`): bites depend on the water, the depth band, the light and the bait. There are tells, some of them false. Strike (Enter) within a turn or two; striking at nothing puts the fish down for three turns.
+- **The fight**, turn by turn:
+  - reel, hold, give line, or steer left or right;
+  - tension keeps 40% from turn to turn, and past the rod's power the line snaps;
+  - giving line too long goes slack, and the hook falls free;
+  - a running fish can strip the line;
+  - reeling into a thrash can tear the hook out, and an unsteered veer can snag;
+  - fish have six temperaments: calm, runner, thrasher, sulker, diver, biter;
+  - heavier fish come in slower;
+  - fish of a tier up to your Angling rank (all fish from rank 3) show what they'll do next.
+- **Landed:** keep it or let it go. Either way you learn.
+
+**Fish** (`data/fish.json`): 15 kinds in five tiers, from the silt minnow to the great lakeback. Each has its waters, depth, light, baits, temperament and weight. Each catch is an item with its own weight, sometimes a quirk (scarred, pale, old, runt), and where it was caught. Big fish take 2 or 3 pack slots.
+
+**Tackle** (new item kinds `tackle` and `fish`):
+- Rods: hand line, cane, ash and lacquered, for reach, power (strain) and line.
+- Bait: worms, grubs and dough balls, used up when taken. The spinner lure is kept, unless the line goes.
+- **Digging for worms:** `g` on soft ground beside water.
+
+**Angling:** a new skill (Tenacity). It teaches itself to rank 2 (a longer strike window, wary fish easier to hook) and the tackleman trains it further. It's practised by bites, fights and catches.
+
+**The tackleman:** Toful Tackleman Waters, in the free house nearest the river west of the plaza. He sells tackle, buys fish by weight (half its worth) and tackle, trains Angling, tells you what's biting this Duel and where, and explains the Guild and how to fish.
+
+**The middle name** now follows the living. `Player.income` counts the shards earned from fishing and from everything else. Once a Hunter has earned 50 shards, if more than half came from fishing they're "Given Angler Hunters".
+
+**Also:**
+- Item entries gain a sixth field, the catch, so fish keep their weight in saves.
+- `world.angling` keeps where you've dug.
+- Sounds: cast, a bite and landing a fish, borrowed from existing sounds for now.
+- README: a Fishing section, the `r` key and the middle-name rule.
+
 ## 0.93.2: Wayfinder crash fixed (2026-11-23)
 The user's crash.log: the game crashed with a contract in hand and a word slot on "(anything)" in the Wayfinder.
 - The window checks whether the chosen words make your contract's place. With an "anything" slot there is no place yet, and asking the list of places about "no place" crashed.

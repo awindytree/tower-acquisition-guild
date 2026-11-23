@@ -61,9 +61,13 @@ def wielded_calling(player) -> str:
 
 
 def calling(player) -> str:
-    """The occupational middle name: from the kind of weapon the Hunter has used most (user),
-    counted by attacks and shots. Before their first fight, from the weapon in hand; a tie
+    """The occupational middle name: how the Hunter makes their living (user). Mostly from fishing
+    (v0.94.0, user: "Joden Angler Hunters"): Angler. Otherwise from the kind of weapon they've used
+    most (user), counted by attacks and shots; before their first fight, from the weapon in hand; a tie
     goes to the weapon in hand if it's one of them."""
+    from game import fishing
+    if fishing.angler(player):
+        return "Angler"
     use = getattr(player, "weapon_use", None)
     if not use:
         return wielded_calling(player)

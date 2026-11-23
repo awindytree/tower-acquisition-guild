@@ -83,7 +83,10 @@
   "hunt_return": "hunt_return",
   "bounty_done": "bounty_done",
   "record": "record",
-  "pay": "pay"
+  "pay": "pay",
+  "cast": {"files": "rope", "volume": 0.6},
+  "fish_bite": {"files": "ui_popup", "volume": 0.8},
+  "fish_landed": "record"
  },
  "steps": {
   ".": "stone",

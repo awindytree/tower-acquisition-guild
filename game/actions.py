@@ -156,6 +156,11 @@ class PickUpAction(Action):
             from game import wilds
             if wilds.spot_here(engine):                # a foraging spot on the Brisering (v0.91.0)
                 return wilds.gather(engine)
+            from game import fishing
+            dug = fishing.dig(engine)                  # soft ground by water: worms (v0.94.0)
+            if dug is not None:
+                engine.log(dug)
+                return not dug.startswith("You've dug here lately")
             engine.log("There's nothing here to pick up.")
             return False
         took_any = False
@@ -873,3 +878,35 @@ class ButcherAction(Action):
         from game import trophies, talents
         took = trophies.butcher_here(engine)
         return took and not talents.total(engine.player, "quick_butcher")      # Butcher's (a trait)
+
+
+class CastAction(Action):
+    """Cast a line (v0.94.0, game/fishing.py): a turn; then the fishing window."""
+
+    def __init__(self, x: int, y: int, bait: str) -> None:
+        self.x, self.y, self.bait = x, y, bait
+
+    def perform(self, engine: "Engine") -> bool:
+        from game import fishing
+        ok, why = fishing.cast(engine, self.x, self.y, self.bait)
+        if not ok:
+            engine.log(why)
+            return False
+        from game.screens import FishScreen
+        engine.screen = FishScreen()
+        return True
+
+
+class FishAction(Action):
+    """One choice at the water: wait, strike, reel, hold, give, left, right, cut, keep, release, stop."""
+
+    def __init__(self, cmd: str) -> None:
+        self.cmd = cmd
+
+    def perform(self, engine: "Engine") -> bool:
+        from game import fishing
+        took = fishing.step(engine, self.cmd)
+        from game.screens import FishScreen
+        if engine.fishing is None and isinstance(engine.screen, FishScreen):
+            engine.screen = None
+        return took

@@ -91,6 +91,7 @@ class Player(Entity):
     flags: set = field(default_factory=set)   # conversation flags that belong to this Hunter
     earned: int = 0      # shards earned since the last dues were assessed (pickups, sales, consignments)
     earned_free: int = 0 # ...and Guild pay since then, which owes no dues (bounties, jobs, notes; v0.52.0)
+    income: dict = field(default_factory=dict)   # shards earned over a career, by how (v0.94.0): hunting, fishing
     dues_owed: int = 0   # Guild dues not yet paid
     jobs: list = field(default_factory=list)  # odd jobs taken (game/work.py)
     contract: object = None    # the Guild contract taken (game/postings.py; a hunt.Contract)
@@ -174,15 +175,18 @@ class Player(Entity):
         injuries.apply_to_stats(self)              # (traits: attributes, max HP; v0.77.0)
         self.stats.hp = min(self.stats.hp, self.stats.max_hp)
 
-    def earn(self, amount: int) -> None:
-        """Shards earned (found, or from selling and consigning): the Guild takes its share as dues."""
+    def earn(self, amount: int, source: str = "hunting") -> None:
+        """Shards earned (found, or from selling and consigning): the Guild takes its share as dues.
+        `source`: how it was made, for the middle name (v0.94.0: fishing, or hunting for the rest)."""
         self.shards += amount
         self.earned += amount
+        self.income[source] = self.income.get(source, 0) + amount
 
     def guild_pay(self, amount: int) -> None:
         """Paid by the Guild (bounties, scouting, field notes): no dues are taken from it."""
         self.shards += amount
         self.earned_free += amount
+        self.income["hunting"] = self.income.get("hunting", 0) + amount
 
     # ---- Artifact slots: separate from the bag ------------------------------------
     @staticmethod
@@ -443,6 +447,7 @@ class Player(Entity):
             "artifact_slots": [i.type.id if i else None for i in self.artifact_slots],
             "flags": sorted(self.flags),
             "dues": [self.earned, self.dues_owed, self.earned_free],
+            "income": dict(self.income),
             "rest": [round(self.rest_owed, 3), self.weary],
             "fed": self.fed,
             "jobs": work_jobs_to_list(self.jobs),
@@ -483,6 +488,7 @@ class Player(Entity):
         player.flags = set(data.get("flags", []))
         dues = list(data.get("dues", [0, 0])) + [0]
         player.earned, player.dues_owed, player.earned_free = dues[0], dues[1], dues[2]
+        player.income = {k: int(v) for k, v in dict(data.get("income", {})).items()}
         player.jobs = work_jobs_from_list(data.get("jobs", []))
         player.rest_owed, player.weary = data.get("rest", [0.0, 0.0])
         player.fed = data.get("fed", 0)

@@ -377,6 +377,14 @@ def item_worth(item, engine: "Engine") -> str:
     if t.writing:
         from game import library
         return f"The Academy librarian would pay {library.payment(engine, t)} shards for it."
+    if item.catch is not None:                  # (v0.94.0)
+        from game import fishing
+        c = item.catch
+        q = fishing.data()["quirks"].get(c.get("quirk", ""), {}).get("note", "")
+        water = fishing.data()["waters"].get(c.get("water", ""), {}).get("name", "")
+        return (f"{fishing.weight_text(c['kg'])}, {item.slots} slot{'s' if item.slots > 1 else ''}."
+                + (f" {q}" if q else "") + (f" From {water}." if water else "")
+                + f" Worth {fishing.value(item)} shards; the tackleman pays half that.")
     if item.trophy is not None:                 # (v0.61.0)
         from game import trophies
         rec = trophies.state(engine)["records"].get(t.properties["monster"])
@@ -2332,6 +2340,7 @@ KEY_REFERENCE = [
         ("b", "butcher the corpse here, for materials"),
         ("f", "aim and shoot a bow or crossbow"),
         ("h", "throw a pot, jar, lure or throwable weapon"),
+        ("r", "fish: cast a line into water in reach (rod and bait)"),
         ("j + direction", "pole-vault two cells (a staff trait)"),
         ("x", "look (Tab: next thing in view)"),
     ]),
@@ -2765,7 +2774,7 @@ class CharacterScreen(ScrollScreen):
 SKILL_GROUPS = [   # (heading, skill ids) for the skills window; anything not listed goes under "Other"
     ("Weapons", ["blades", "knives", "axes", "hafted", "brawling", "claws", "whips", "staves", "polearms",
                  "marksmanship", "crossbows"]),
-    ("In the field", ["tracking", "stealth", "harvesting", "survival", "medicine"]),
+    ("In the field", ["tracking", "stealth", "harvesting", "survival", "medicine", "angling"]),
     ("Knowledge and trade", ["identification", "scholarship", "bargaining"]),
     ("Jodebris", ["attunement"]),
 ]
@@ -4120,3 +4129,182 @@ class HomesScreen:
         for r, (text, color) in enumerate(extra):
             console.print(x + 2, y + 3 + list_rows + 1 + r, text, fg=color, bg=BG)
         console.print(x + 2, y + h_ - 2, "↑↓ choose  Enter buy  ←→ tab  Esc"[: w - 4], fg=DIM, bg=BG)
+
+
+# ---- Fishing (v0.94.0, game/fishing.py) ------------------------------------------------------------
+FISH_FRAME = (90, 150, 190)
+
+
+class CastScreen(LookScreen):
+    """Aim a cast: the cursor starts on your last spot, or the deepest water in reach; Tab cycles the
+    water you can reach; b changes the bait. Enter or r casts (a turn); Esc puts the rod away."""
+
+    def __init__(self, engine: "Engine") -> None:
+        super().__init__(engine)
+        from game import fishing
+        p = engine.player
+        self.baits = [it.type.id for it in fishing.baits(p)]
+        last = engine.fishing_last
+        self.bait = 0
+        if last and last[2] in self.baits:
+            self.bait = self.baits.index(last[2])
+        spots = fishing.spots(engine)
+        if last and (last[0], last[1]) in spots:
+            self.x, self.y = last[0], last[1]
+        elif spots:
+            self.x, self.y = spots[0]
+
+    def handle(self, event, engine: "Engine") -> Action | None:
+        from game.input_handlers import FISH_KEY, MOVE_KEYS
+        from game.actions import CastAction
+        from game import fishing
+        if not isinstance(event, tcod.event.KeyDown):
+            return None
+        if event.sym == KeySym.ESCAPE:
+            engine.screen = None
+        elif event.sym in CONFIRM_KEYS or event.sym == FISH_KEY:
+            if not self.baits:
+                return None
+            if fishing.why_not(engine, self.x, self.y):
+                return None
+            engine.screen = None
+            return CastAction(self.x, self.y, self.baits[self.bait])
+        elif event.sym == KeySym.TAB:
+            spots = fishing.spots(engine)
+            if spots:
+                self.cycle = (self.cycle + 1) % len(spots)
+                self.x, self.y = spots[self.cycle]
+        elif event.sym == _key("b") and self.baits:
+            self.bait = (self.bait + 1) % len(self.baits)
+        elif event.sym in MOVE_KEYS:
+            dx, dy = MOVE_KEYS[event.sym]
+            nx, ny = self.x + dx, self.y + dy
+            if engine.game_map.in_bounds(nx, ny) and engine.in_vision(nx, ny):
+                self.x, self.y = nx, ny
+        return None
+
+    def render(self, console, engine: "Engine", area_w: int) -> None:
+        from game import fishing
+        p = engine.player
+        spot = engine.cam.to_screen(self.x, self.y)
+        if spot:
+            console.rgb["bg"][spot] = CURSOR_BG
+            console.rgb["fg"][spot] = CURSOR_FG
+        rod = fishing.rod(p)
+        why = fishing.why_not(engine, self.x, self.y)
+        lines = [(why, WARN)] if why else [(fishing.describe_spot(engine, self.x, self.y), TEXT)]
+        lines.append((f"{rod.type.name.capitalize()}: casts {rod.type.properties.get('reach', 2)}.", DIM))
+        if self.baits:
+            bt = engine.catalogue[self.baits[self.bait]]
+            n = p.inventory.count_of(bt.id)
+            kind = "lure" if bt.properties.get("lure") else "bait"
+            more = f" (b: {len(self.baits)} kinds)" if len(self.baits) > 1 else ""
+            lines.append((f"{kind.capitalize()}: {bt.label(n)}{more}.", DIM))
+        w = min(area_w - 2, 52)
+        body = []
+        for text, color in lines:
+            body += wrapped(text, w - 4, color)
+        h = len(body) + 4
+        low = spot is not None and spot[1] > console.height // 2
+        x = (area_w - w) // 2
+        y = 1 if low else console.height - h - 1
+        draw_box(console, x, y, w, h, "Cast where?", frame=FISH_FRAME)
+        for i, (text, color) in enumerate(body):
+            console.print(x + 2, y + 1 + i, text, fg=color, bg=BG)
+        console.print(x + 2, y + h - 2, "Enter/r cast  Tab water  b bait  Esc"[: w - 4], fg=DIM, bg=BG)
+
+
+def _bar(console, x: int, y: int, width: int, share: float, color, empty=(60, 54, 48)) -> None:
+    share = max(0.0, min(1.0, share))
+    fill = round(share * width)
+    console.print(x, y, "█" * fill, fg=color, bg=BG)
+    console.print(x + fill, y, "░" * (width - fill), fg=empty, bg=BG)
+
+
+class FishScreen:
+    """A line in the water (v0.94.0). Waiting: . wait, Enter or space strike, Esc reel in. On the line:
+    r reel, h hold, g give line, a/← and d/→ steer, c cut it loose. Landed: Enter keep, x let it go.
+    Every choice but reeling in or keeping is a turn."""
+
+    WAIT_KEYS = {_key("PERIOD"), KeySym.KP_5}
+
+    def handle(self, event, engine: "Engine") -> Action | None:
+        from game.actions import FishAction
+        if not isinstance(event, tcod.event.KeyDown):
+            return None
+        s = engine.fishing
+        if s is None:
+            engine.screen = None
+            return None
+        k = event.sym
+        if s.phase == "landed":
+            if k in CONFIRM_KEYS or k == _key("k"):
+                return FishAction("keep")
+            if k == _key("x"):
+                return FishAction("release")
+            return None
+        if s.phase == "fight":
+            cmd = {_key("r"): "reel", _key("h"): "hold", _key("g"): "give", KeySym.LEFT: "left", _key("a"): "left",
+                   KeySym.KP_4: "left", KeySym.RIGHT: "right", _key("d"): "right", KeySym.KP_6: "right",
+                   _key("c"): "cut"}.get(k)
+            return FishAction(cmd) if cmd else None
+        if k == KeySym.ESCAPE:
+            return FishAction("stop")
+        if k in CONFIRM_KEYS or k == KeySym.SPACE:
+            return FishAction("strike")
+        if k in self.WAIT_KEYS:
+            return FishAction("wait")
+        return None
+
+    def render(self, console, engine: "Engine", area_w: int) -> None:
+        from game import fishing
+        s = engine.fishing
+        if s is None:
+            return
+        p = engine.player
+        w = min(area_w - 2, 56)
+        body: list = []
+        if s.phase == "landed":
+            item = s.caught
+            title = "Landed!"
+            body.append((item.label.capitalize(), ACCENT))
+            body += wrapped(fishing.species()[s.fish]["description"], w - 4, TEXT)
+            body += wrapped(item_worth(item, engine), w - 4, DIM)
+            keys = "Enter keep  x let it go"
+        elif s.phase == "fight":
+            title = "On the line!"
+            bw = w - 16
+            rows = [("Tension", s.tension / fishing.power(s),
+                     (230, 90, 70) if s.tension > 0.8 * fishing.power(s) else (230, 190, 90)
+                     if s.tension > 0.55 * fishing.power(s) else (110, 190, 120) if s.tension >= fishing.SLACK
+                     else (120, 140, 170)),
+                    ("Line out", s.line / fishing.max_line(s), (150, 180, 210)),
+                    ("Fish", s.stamina / s.max_stamina if s.max_stamina else 0, (200, 170, 120))]
+            body += [("", None)] * len(rows)
+            body.append(("", None))
+            if fishing.shows_coming(engine, s):
+                body += wrapped("Next: " + fishing.data()["moves"][s.coming]["coming"], w - 4, ACCENT)
+            else:
+                body.append(("Next: you can't read this one yet.", DIM))
+            keys = "r reel  h hold  g give  a/d steer  c cut"
+        else:
+            title = f"Fishing: {fishing.data()['waters'][s.kind]['short']}, {s.band}"
+            bt = engine.catalogue[s.bait]
+            body.append((f"{s.rod.type.name.capitalize()}, {bt.label(max(1, p.inventory.count_of(bt.id)))}.", DIM))
+            if s.phase == "bite":
+                body.append(("A bite! Strike now (Enter), or it's gone.", ACCENT))
+            keys = ". wait  Enter strike  Esc reel in"
+        log = [line for text in s.log[-4:] for line in wrapped(text, w - 4, TEXT)]
+        body += [("", None)] + log[-4:]
+        h = len(body) + 4
+        x = (area_w - w) // 2
+        y = console.height - h - 1
+        draw_box(console, x, y, w, h, title, frame=FISH_FRAME)
+        for i, (text, color) in enumerate(body):
+            if color is not None:
+                console.print(x + 2, y + 1 + i, text[: w - 4], fg=color, bg=BG)
+        if s.phase == "fight":
+            for i, (name, share, color) in enumerate(rows):
+                console.print(x + 2, y + 1 + i, name, fg=DIM, bg=BG)
+                _bar(console, x + 12, y + 1 + i, bw, share, color)
+        console.print(x + 2, y + h - 2, keys[: w - 4], fg=DIM, bg=BG)
