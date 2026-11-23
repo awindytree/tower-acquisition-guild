@@ -5,6 +5,10 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.81.1: A reckless bot (2026-11-22)
+- **`tools/balance/sim.py --profile reckless`** (user's idea): drinks and eats later, rests less, turns back only near death, and climbs to harder places two levels sooner. It gives a rough idea of where people will die. The careful profile is the bot as it always was.
+- First run (balance report): still no deaths in 115 reckless hunts. It faints 5–10 times as often, but a death takes a second knockout in the same hunt. Danger 5 got its first real sample. No change to the game.
+
 ## 0.81.0: The rest of the traits (2026-11-22)
 **40 more traits can roll: 160 of 168.** Eight wait for mechanics that don't exist yet: the two thrown weapons (Wrist-flick, Throwing balance), Pole-vault, Wading, Mud-boots, Runner's, Pathfinder's, and Chorus-touched (kept for Chorus magic).
 

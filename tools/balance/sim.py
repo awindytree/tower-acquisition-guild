@@ -71,6 +71,16 @@ from game import combat  # noqa: E402
 
 DATA = ROOT / "data"
 LADDER = [(1, 1), (3, 2), (5, 3), (7, 4), (9, 5)]   # (from level, danger) since v0.44.0
+# How careful the bot is (v0.81.1). "careful" is the bot as it always was; "reckless" (--profile reckless)
+# drinks and eats later, rests less, turns back only at the edge, and climbs the ladder two levels sooner:
+# closer to how a person plays, to see where Hunters die.
+PROFILES = {
+    "careful": {"drink": 0.4, "eat": 0.7, "rest_below": 0.6, "rest_to": 0.9, "turn_back": 0.3,
+                "ladder": [(1, 1), (3, 2), (5, 3), (7, 4), (9, 5)]},
+    "reckless": {"drink": 0.2, "eat": 0.4, "rest_below": 0.3, "rest_to": 0.6, "turn_back": 0.1,
+                 "ladder": [(1, 1), (2, 2), (3, 3), (5, 4), (7, 5)]},
+}
+PROFILE = PROFILES["careful"]
 SELL_ALL = False        # --sell-all: sell every material and never raise gear (the bot before v0.80.0)
 PLAIN = False           # --plain: the pre-stage-7 bot (trips only, no bounties, trophies or training)
 TRAIN_ORDER = ["survival", "stealth", "harvesting", "tracking", "medicine"]   # after the weapon's skill
@@ -136,13 +146,13 @@ def look_after_self(e, rec) -> bool:
             rec["used"][item] = rec["used"].get(item, 0) + 1
             act(e, UseAction(index_of(p, item)))
             return True
-    if st.hp < st.max_hp * 0.4:
+    if st.hp < st.max_hp * PROFILE["drink"]:
         for item in ("healing_tonic", "healing_draught"):
             if index_of(p, item) is not None:
                 rec["used"][item] = rec["used"].get(item, 0) + 1
                 act(e, UseAction(index_of(p, item)))
                 return True
-    if st.hp < st.max_hp * 0.7 and p.meal_turns == 0 and index_of(p, "ration") is not None:
+    if st.hp < st.max_hp * PROFILE["eat"] and p.meal_turns == 0 and index_of(p, "ration") is not None:
         rec["used"]["ration"] = rec["used"].get("ration", 0) + 1
         act(e, UseAction(index_of(p, "ration")))
         return True
@@ -192,7 +202,7 @@ def hunt_turn(e, rec, state) -> None:
         rec["turned_back"] = True
     seen = visible_monsters(e)
     adjacent = [m for m in seen if abs(m.x - p.x) + abs(m.y - p.y) == 1]   # four-way: side by side only
-    low = p.stats.hp < p.stats.max_hp * 0.3 and not can_heal(p)
+    low = p.stats.hp < p.stats.max_hp * PROFILE["turn_back"] and not can_heal(p)
     if low and not state["retreat"]:
         state["retreat"] = True
         rec["turned_back"] = True
@@ -204,9 +214,9 @@ def hunt_turn(e, rec, state) -> None:
                and state.setdefault("waited", {}).get(id(m), 0) < 30]
     # Rest when nothing's about: natural healing (stopped while bleeding).
     if not hunting and not injuries.bleeding(p):
-        if p.stats.hp < p.stats.max_hp * 0.6:
+        if p.stats.hp < p.stats.max_hp * PROFILE["rest_below"]:
             state["resting"] = True
-        if state.get("resting") and p.stats.hp < p.stats.max_hp * 0.9:
+        if state.get("resting") and p.stats.hp < p.stats.max_hp * PROFILE["rest_to"]:
             rec["rested"] = rec.get("rested", 0) + 1
             act(e, WaitAction())
             return
@@ -514,7 +524,7 @@ def city_phase(e, rec) -> None:
 
 
 def ladder_danger(p) -> int:
-    return max(d for lv, d in LADDER if p.stats.level >= lv)
+    return max(d for lv, d in PROFILE["ladder"] if p.stats.level >= lv)
 
 
 def pick_contract(e, region_id=None):
@@ -640,7 +650,10 @@ if __name__ == "__main__":
     ap.add_argument("--out", default="sim.json")
     ap.add_argument("--plain", action="store_true", help="the bot as it was before stage 7")
     ap.add_argument("--sell-all", action="store_true", help="sell every material; never raise gear (as before v0.80.0)")
+    ap.add_argument("--profile", choices=sorted(PROFILES), default="careful",
+                    help="careful (the bot as it always was) or reckless (closer to a person: see PROFILES)")
     a = ap.parse_args()
+    PROFILE = PROFILES[a.profile]
     PLAIN = a.plain
     SELL_ALL = a.sell_all
     t0 = time.time()
