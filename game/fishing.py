@@ -687,9 +687,10 @@ def dig(engine) -> str | None:
     return f"You dig in the soft ground by the water and turn up {n} worm{'s' if n > 1 else ''}."
 
 
-# ---- Income and the middle name -------------------------------------------------------------------
+# ---- Income --------------------------------------------------------------------------------------
 def angler(player) -> bool:
-    """Does this Hunter make their living mostly from fishing? (user, 2026-11-23)"""
+    """Has this Hunter made most of their living from fishing? (Not used for the middle name since
+    v0.94.1: the user didn't want the calling to change on its own.)"""
     inc = getattr(player, "income", None) or {}
     total = sum(inc.values())
     return total >= INCOME_MIN and inc.get("fishing", 0) * 2 > total

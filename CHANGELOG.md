@@ -5,6 +5,11 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.94.1: The middle name stays with the weapon (2026-11-23)
+- **The user:** an automatic "Angler" would change a Hunter's calling almost at once, with no way to choose something else. So the middle name comes from the weapon used most again, as before 0.94.0.
+- `Player.income` still counts what fishing earns against everything else, in case a chosen calling comes later.
+- **Lore:** "BAG" was a slip for the Watermen and Anglers' Guild (the user first wrote "Boatmen").
+
 ## 0.94.0: Fishing, stage 1 (2026-11-23)
 The user asked for fishing deep enough to be almost its own game. This is stage 1 of `claude/design-fishing.md`: the cast, the wait, the fight and the catch.
 

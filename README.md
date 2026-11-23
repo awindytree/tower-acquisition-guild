@@ -107,11 +107,10 @@ Every new Hunter is random: a starting kit (a sword, an axe, or a bow and
 arrows; perhaps a jerkin; some supplies and shards), a given name, a gender, and attributes (each
 starts at 8, then 10 points go to random attributes, none above 14). Their
 full name is **Given Calling Hunters**: every Hunter's surname is Hunters,
-after the Guild, and the middle name is how they make their living. A Hunter
-who earns most of their shards from fishing is an **Angler**. Otherwise it
-comes from the kind of weapon they've used most (swords make a Fencer, an axe
-a Hewer, a war pick a Breaker, a bow an Archer; bare hands, a Brawler),
-counted by attacks and shots. Before their first fight, it's the weapon they hold.
+after the Guild, and the middle name comes from the kind of weapon they've
+used most (swords make a Fencer, an axe a Hewer, a war pick a Breaker, a bow
+an Archer; bare hands, a Brawler), counted by attacks and shots. Before their
+first fight, it's the weapon they hold.
 
 Given names are built from the sound rules in `data/names.json`: sound
 classes, syllable patterns, and the consonant pairs allowed side by side.
