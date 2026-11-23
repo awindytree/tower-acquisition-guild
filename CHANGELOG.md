@@ -5,6 +5,44 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.98.0: Fishing, stage 4: the miasma (2026-11-23)
+Stage 4 of `claude/design-fishing.md`, as the user agreed: the miasma's fishing with its own feel and challenges. Every fish, number and line is a placeholder.
+
+**Fishing on a hunt:**
+- An area's water is marsh water (marsh lands), a cave pool (caves), or a miasma pool (everything else).
+- Its light is the area's own.
+- Fish come up to a tier above the place's danger, so deeper danger means bigger fish.
+- There's no stock: a hunt's waters are made fresh.
+- Lost Grounds count as the miasma too.
+
+**13 miasma fish (53 in all):**
+- twice-eyed perch, ashgill, leechmouth, white blindfin (tier 1);
+- glasscale, mire lamprey, stoneskin (tier 2);
+- humming carp (it hums like the Wayfinder), drowned lantern, the hookjaw eel (tier 3);
+- mirrorfish, deepwhisper (tier 4);
+- the mire king (tier 5).
+
+**What makes it different:**
+- **Warped fish:** a new temperament whose **lurch** pulls hard and jumps the line by 3 either way.
+- **Nothing waits:** an awake creature within 3 steps makes you drop the line. Each fight turn can wake the nearest sleeping creature within 16 steps: 5%, and more at higher danger.
+- **Draggers:** the hookjaw eel and the mire king. Hold or reel on a run or dive with the tension past 70% of the strain, and it pulls you in: you lose the fish and take some damage, though never the last of your HP.
+- **A landed hookjaw** tears free half the time and comes for you as the creature, awake, in the water at your feet.
+
+**Gutting:** `g` on a landed fish, anywhere.
+- Miasma fish: a message in a bottle naming an unknown Wayfinder word (5%), a broken Tower Artifact picked for the place (6%), or shards, 5 to 20 per point of danger (18%).
+- Brisering and city fish: now and then a few shards.
+- Shards found this way count as fishing income.
+- Gutting a fish from a persistent water takes it from the stock, like keeping it.
+
+**Artifact tackle:**
+- The split bobber (Uncommon) mends into the humming bobber: +1 turn to strike, and false tells show for what they are.
+- The bent spool (Rare) mends into the stillwater spool: +25% drag and +10 line.
+- They're worn in artifact slots like any working artifact, so out in the miasma they need a windcatcher. Their effects add into the rig.
+
+**The tackleman** passes on what Hunters tell him about the miasma's fish.
+
+**Tests:** `test_miasma_fishing.py` is new; `test_fishing` and `test_artifacts` follow.
+
 ## 0.97.0: Fishing, stage 3: the world's waters (2026-11-23)
 Stage 3 of `claude/design-fishing.md`. Everything is a placeholder: the fish, the lake names, the numbers.
 

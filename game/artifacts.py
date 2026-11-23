@@ -335,6 +335,8 @@ def effect_text(t: ItemType) -> str:
     for stat, label in (("armor", "Armour"), ("accuracy", "Accuracy"), ("evasion", "Evasion")):
         if stat in p:
             parts.append(f"{label} +{p[stat]}")
+    if p.get("effect"):                          # anything else it does, in words (v0.98.0: fishing artifacts)
+        parts.append(p["effect"])
     lasting = bool(parts)
     if p.get("use") == "heal":
         parts.append(f"Use: heal {p.get('heal', 0)}, {p.get('uses_per_hunt', 1)}/hunt")

@@ -645,5 +645,25 @@
     "name": "tackle box", "glyph": "■", "color": [150, 110, 80], "kind": "misc",
     "description": "A wooden box of little drawers. Carries up to 6 kinds of bait and lures without taking room in your pack.",
     "value": 25, "properties": {"tackle_box": 6}
+  },
+  "split_bobber": {
+    "name": "split bobber", "kind": "artifact", "rarity": "uncommon", "appearance": "glass",
+    "description": "A glass bead the size of a plum, split down one side. Something inside it ticks against the glass.",
+    "value": 120, "repairs_to": "humming_bobber"
+  },
+  "humming_bobber": {
+    "name": "humming bobber", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "The bead, mended. On a line it hums when anything comes near the bait, and it hums differently for the current.",
+    "value": 120, "properties": {"fish_window": 1, "fish_true_tells": 1, "effect": "Fishing: +1 turn to strike, and false tells show for what they are"}
+  },
+  "bent_spool": {
+    "name": "bent spool", "kind": "artifact", "rarity": "rare", "appearance": "brass",
+    "description": "A spool of some bright metal, bent out of true. The thread on it is finer than hair and won't cut.",
+    "value": 280, "repairs_to": "stillwater_spool"
+  },
+  "stillwater_spool": {
+    "name": "stillwater spool", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "The spool, true again. Fished with, the line goes slack and still whenever a fish pulls hardest, then takes up the strain again.",
+    "value": 280, "properties": {"fish_drag": 25, "fish_capacity": 10, "effect": "Fishing: +25% drag and +10 line"}
   }
 }

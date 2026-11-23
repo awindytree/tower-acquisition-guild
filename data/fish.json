@@ -1,5 +1,5 @@
 {
-  "_comment": "Fishing (v0.94.0, stage 1 of claude/design-fishing.md). PLACEHOLDERS by the assistant: every fish, number and line; the user has fishing, the Watermen and Anglers' Guild (surname Waters) and its tackleman. waters: city_river (Bytorsskug's river), river (the Brisering's river), lake (Brisering waters of 25+ cells), pond (smaller). depth: shore, shallow, deep (cells from the bank: 1, 2, 3+). light: lit, dark or any (a water's light follows the Duel: south of Myligast is lit in the Light Duel). baits: bait id -> how much it likes it (0-1). temper: calm, runner, thrasher, sulker, diver, biter (see game/fishing.py). kg: [usual, spread]. per_kg: shards a kilo before the tackleman's cut. wary: a shorter bite and a harder strike. Stage 3 (v0.97.0): where (north/south/east/west of Myligast: only those waters), share (only that share of the lakes or ponds hold it, picked per water), pulses (only on those Pulses), holiday (only in the holiday Pulses between the Duels); lake_names (placeholder patterns with Starsong given names); stock.",
+  "_comment": "Fishing (v0.94.0, stage 1 of claude/design-fishing.md). PLACEHOLDERS by the assistant: every fish, number and line; the user has fishing, the Watermen and Anglers' Guild (surname Waters) and its tackleman. waters: city_river (Bytorsskug's river), river (the Brisering's river), lake (Brisering waters of 25+ cells), pond (smaller). depth: shore, shallow, deep (cells from the bank: 1, 2, 3+). light: lit, dark or any (a water's light follows the Duel: south of Myligast is lit in the Light Duel). baits: bait id -> how much it likes it (0-1). temper: calm, runner, thrasher, sulker, diver, biter (see game/fishing.py). kg: [usual, spread]. per_kg: shards a kilo before the tackleman's cut. wary: a shorter bite and a harder strike. Stage 3 (v0.97.0): where (north/south/east/west of Myligast: only those waters), share (only that share of the lakes or ponds hold it, picked per water), pulses (only on those Pulses), holiday (only in the holiday Pulses between the Duels); lake_names (placeholder patterns with Starsong given names); stock. Stage 4 (v0.98.0): the miasma's waters (marsh, cave_pool, miasma_pond; the area's own light; fish up to tier danger + 1; no stock: a hunt is made fresh), miasma: true, drags (can pull you in), temper warped (lurch), guts.",
   "waters": {
     "city_river": {
       "name": "the city river",
@@ -16,6 +16,18 @@
     "pond": {
       "name": "a Brisering pond",
       "short": "pond"
+    },
+    "marsh": {
+      "name": "miasma marsh water",
+      "short": "marsh water"
+    },
+    "cave_pool": {
+      "name": "a cave pool in the miasma",
+      "short": "cave pool"
+    },
+    "miasma_pond": {
+      "name": "a pool in the miasma",
+      "short": "miasma pool"
     }
   },
   "glyph": "α",
@@ -445,7 +457,7 @@
         0.3
       ],
       "per_kg": 30,
-      "description": "A whiskered little bottom-dweller of every pond and puddle on the Brisering."
+      "description": "A whiskered little bottom dweller of every pond and puddle on the Brisering."
     },
     "sluice_dace": {
       "name": "sluice dace",
@@ -1164,6 +1176,386 @@
       "pulses": [
         "Emu"
       ]
+    },
+    "twice_eyed_perch": {
+      "name": "twice-eyed perch",
+      "tier": 1,
+      "color": [
+        170,
+        180,
+        120
+      ],
+      "waters": [
+        "miasma_pond",
+        "marsh"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "any",
+      "baits": {
+        "worms": 1.0,
+        "grubs": 0.8
+      },
+      "temper": "calm",
+      "kg": [
+        0.4,
+        0.3
+      ],
+      "per_kg": 14,
+      "description": "A perch with two eyes on each side of its head, all of them watching you. The miasma does this to things.",
+      "miasma": true
+    },
+    "ashgill": {
+      "name": "ashgill",
+      "tier": 1,
+      "color": [
+        150,
+        140,
+        130
+      ],
+      "waters": [
+        "miasma_pond",
+        "cave_pool"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "any",
+      "baits": {
+        "worms": 1.0,
+        "dough": 0.7
+      },
+      "temper": "calm",
+      "kg": [
+        0.3,
+        0.3
+      ],
+      "per_kg": 16,
+      "description": "Grey gills that crumble like ash when it breathes out of the water.",
+      "miasma": true
+    },
+    "glasscale": {
+      "name": "glasscale",
+      "tier": 2,
+      "color": [
+        200,
+        230,
+        235
+      ],
+      "waters": [
+        "miasma_pond"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "lit",
+      "baits": {
+        "spinner": 1.0,
+        "grubs": 0.6
+      },
+      "temper": "warped",
+      "kg": [
+        1.5,
+        0.3
+      ],
+      "per_kg": 14,
+      "description": "Its scales are glass: clear, cold and sharp at the edges. Windcatcher glass, some say.",
+      "miasma": true
+    },
+    "leechmouth": {
+      "name": "leechmouth",
+      "tier": 1,
+      "color": [
+        110,
+        90,
+        90
+      ],
+      "waters": [
+        "marsh"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "dark",
+      "baits": {
+        "worms": 1.0
+      },
+      "temper": "thrasher",
+      "kg": [
+        0.5,
+        0.3
+      ],
+      "per_kg": 12,
+      "description": "A marsh fish with a mouth like a leech's. It holds on long after it's dead.",
+      "miasma": true
+    },
+    "mire_lamprey": {
+      "name": "mire lamprey",
+      "tier": 2,
+      "color": [
+        90,
+        80,
+        90
+      ],
+      "waters": [
+        "marsh"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "dark",
+      "baits": {
+        "worms": 1.0,
+        "grubs": 0.7
+      },
+      "temper": "thrasher",
+      "kg": [
+        1.8,
+        0.35
+      ],
+      "per_kg": 9,
+      "description": "A grey, jawless thing that comes up out of the marsh mud.",
+      "miasma": true
+    },
+    "blindfin": {
+      "name": "white blindfin",
+      "tier": 1,
+      "color": [
+        235,
+        235,
+        225
+      ],
+      "waters": [
+        "cave_pool"
+      ],
+      "depth": [
+        "shore",
+        "shallow",
+        "deep"
+      ],
+      "light": "any",
+      "baits": {
+        "grubs": 1.0,
+        "worms": 0.8
+      },
+      "temper": "calm",
+      "kg": [
+        0.3,
+        0.3
+      ],
+      "per_kg": 18,
+      "description": "A cave fish with no eyes at all, white as bone. It finds the bait by the trembling of the water.",
+      "miasma": true
+    },
+    "stoneskin": {
+      "name": "stoneskin",
+      "tier": 2,
+      "color": [
+        130,
+        125,
+        120
+      ],
+      "waters": [
+        "cave_pool"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "any",
+      "baits": {
+        "worms": 1.0,
+        "dough": 0.6
+      },
+      "temper": "sulker",
+      "kg": [
+        2.2,
+        0.3
+      ],
+      "per_kg": 8,
+      "description": "Its skin is rough and grey as the cave walls. Hooked, it lies like a stone.",
+      "miasma": true
+    },
+    "humming_carp": {
+      "name": "humming carp",
+      "tier": 3,
+      "color": [
+        200,
+        180,
+        140
+      ],
+      "waters": [
+        "miasma_pond",
+        "marsh"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "any",
+      "baits": {
+        "dough": 1.0,
+        "grubs": 0.6
+      },
+      "temper": "warped",
+      "kg": [
+        5.0,
+        0.35
+      ],
+      "per_kg": 10,
+      "description": "A carp that hums. Out of the water the sound is unmistakable: it's the Wayfinder's hum.",
+      "miasma": true
+    },
+    "drowned_lantern": {
+      "name": "drowned lantern",
+      "tier": 3,
+      "color": [
+        230,
+        200,
+        120
+      ],
+      "waters": [
+        "miasma_pond",
+        "cave_pool"
+      ],
+      "depth": [
+        "deep"
+      ],
+      "light": "dark",
+      "baits": {
+        "grubs": 1.0,
+        "spinner": 0.7
+      },
+      "temper": "diver",
+      "kg": [
+        3.5,
+        0.3
+      ],
+      "per_kg": 12,
+      "description": "A deep fish with a lure of its own: a glowing knob above its jaws that draws anything that sees it.",
+      "miasma": true
+    },
+    "hookjaw": {
+      "name": "hookjaw eel",
+      "tier": 3,
+      "color": [
+        110,
+        140,
+        120
+      ],
+      "waters": [
+        "marsh"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "any",
+      "baits": {
+        "worms": 1.0,
+        "grubs": 0.8
+      },
+      "temper": "thrasher",
+      "kg": [
+        4.0,
+        0.35
+      ],
+      "per_kg": 7,
+      "description": "The marsh's hookjaw, on a line. If it gets the chance it'll pull you in after it.",
+      "miasma": true,
+      "drags": true
+    },
+    "mirrorfish": {
+      "name": "mirrorfish",
+      "tier": 4,
+      "color": [
+        220,
+        220,
+        235
+      ],
+      "waters": [
+        "miasma_pond"
+      ],
+      "depth": [
+        "deep"
+      ],
+      "light": "any",
+      "baits": {
+        "spinner": 1.0
+      },
+      "temper": "warped",
+      "kg": [
+        6.0,
+        0.3
+      ],
+      "per_kg": 14,
+      "description": "Its sides are a mirror. Looking down at it, you see yourself looking up.",
+      "miasma": true,
+      "wary": true
+    },
+    "deepwhisper": {
+      "name": "deepwhisper",
+      "tier": 4,
+      "color": [
+        100,
+        100,
+        140
+      ],
+      "waters": [
+        "cave_pool"
+      ],
+      "depth": [
+        "deep"
+      ],
+      "light": "dark",
+      "baits": {
+        "grubs": 1.0
+      },
+      "temper": "diver",
+      "kg": [
+        9.0,
+        0.3
+      ],
+      "per_kg": 9,
+      "description": "A long fish of the deepest cave pools. The water whispers when it moves.",
+      "miasma": true,
+      "wary": true
+    },
+    "mire_king": {
+      "name": "mire king",
+      "tier": 5,
+      "color": [
+        120,
+        130,
+        80
+      ],
+      "waters": [
+        "marsh"
+      ],
+      "depth": [
+        "deep"
+      ],
+      "light": "any",
+      "baits": {
+        "worms": 1.0,
+        "grubs": 0.8
+      },
+      "temper": "warped",
+      "kg": [
+        35.0,
+        0.35
+      ],
+      "per_kg": 5,
+      "description": "A marsh fish as big as a boga, with a crown of horn and a mouth that could take a Hunter's arm. Few have landed one.",
+      "miasma": true,
+      "wary": true,
+      "drags": true
     }
   },
   "tells": {
@@ -1183,7 +1575,8 @@
       "thrasher": "The float jerks and jerks!",
       "sulker": "The float slides slowly under.",
       "diver": "The float plunges straight down!",
-      "biter": "Something hits the lure hard!"
+      "biter": "Something hits the lure hard!",
+      "warped": "The float shivers, sinks, and comes up somewhere else!"
     }
   },
   "moves": {
@@ -1226,6 +1619,11 @@
       "pull": 0.2,
       "text": "It's spent, coming in on its side.",
       "coming": "It's spent."
+    },
+    "lurch": {
+      "pull": 2.0,
+      "text": "It lurches, and for a moment it's somewhere it can't be!",
+      "coming": "Something's wrong with the way it moves."
     }
   },
   "tempers": {
@@ -1267,6 +1665,14 @@
       "thrash": 2,
       "run": 2,
       "swim": 2,
+      "left": 1,
+      "right": 1
+    },
+    "warped": {
+      "lurch": 3,
+      "swim": 2,
+      "run": 2,
+      "dive": 1,
       "left": 1,
       "right": 1
     }
@@ -1315,6 +1721,17 @@
       "3": 12,
       "4": 27,
       "5": 81
+    }
+  },
+  "guts": {
+    "_comment": "What a gutted fish may hold (v0.98.0). Miasma fish: shards (per danger), a broken Tower Artifact, a message in a bottle naming a Wayfinder word. Brisering and city fish: a few shards.",
+    "miasma": {
+      "shards": 0.18,
+      "artifact": 0.06,
+      "bottle": 0.05
+    },
+    "home": {
+      "shards": 0.05
     }
   }
 }

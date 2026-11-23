@@ -54,6 +54,10 @@ REPEAT = 0.4             # a fish's chance to do again what it just did
 START_TENSION = 20
 STRIKE_SPOOK = 3         # turns the water's put down by a strike at nothing
 DIG_REGROW = 9           # Pulses before dug ground has worms again
+THREAT = 3               # in the miasma, an awake creature this close ends your fishing (v0.98.0)
+SPLASH = 0.05            # a fight's turn in the miasma draws a creature, by this a turn (+ per danger)
+DRAG_AT = 0.7            # a dragger on a run pulls you in when tension is past this share of the strain
+HOOKJAW_LIVES = 0.5      # a landed hookjaw tears free and comes for you
 SOFT = set(",ef")        # grass, mud, woods: ground you can dig (by water)
 
 
@@ -183,7 +187,7 @@ def waters(gm, where: str) -> Waters:
                     if 0 <= nx < gm.width and 0 <= ny < gm.height and wet[nx, ny] and (nx, ny) not in out.body:
                         out.body[(nx, ny)] = idx
                         q.append((nx, ny))
-            kind = _kind(cells, where)
+            kind = _kind(cells, where, gm)
             out.kinds.append(kind)
             out.sizes.append(len(cells))
             corner = min(cells, key=lambda c: (c[1], c[0]))
@@ -233,11 +237,12 @@ def _lake_name(key: str) -> str:
     return r.choice(data()["lake_names"]).format(n=named.maker().given_name(r))
 
 
-def _kind(cells: list, where: str) -> str:
+def _kind(cells: list, where: str, gm=None) -> str:
     if where == "city":
         return "city_river"
-    if where != "brisering":
-        return "miasma"
+    if where != "brisering":                     # the miasma (v0.98.0): by the area's land
+        style = getattr(gm, "style", "") or ""
+        return {"marsh": "marsh", "caves": "cave_pool"}.get(style, "miasma_pond")
     xs, ys = [c[0] for c in cells], [c[1] for c in cells]
     fill = len(cells) / ((max(xs) - min(xs) + 1) * (max(ys) - min(ys) + 1))
     if len(cells) >= 100 and fill < 0.3:
@@ -248,6 +253,8 @@ def _kind(cells: list, where: str) -> str:
 def light_at(engine, x: int, y: int, where: str) -> str:
     """Lit or dark: the water's half of the Overland, by the Duel (the city is south of Myligast)."""
     from game import sky
+    if where == "miasma":                        # a hunt area is lit or dark as a whole (game/sky.py)
+        return "lit" if getattr(engine.game_map, "light", "dark") == "lit" else "dark"
     if where == "brisering":
         from game import journey
         b = journey.bearing(engine.game_map, x, y)
@@ -281,8 +288,8 @@ SIZE_NAMES = {1: "small", 2: "middling", 3: "large"}
 
 def tackle_total(player, key: str) -> float:
     """A fish_* key summed over the traits of the tackle you've rigged."""
-    from game import gear
-    total = 0
+    from game import gear, artifacts
+    total = sum(t.properties.get(key, 0) for t in artifacts.carried(player))   # fishing artifacts (v0.98.0)
     for slot in TACKLE_SLOTS:
         item = (getattr(player, "equipped", None) or {}).get(slot)
         if item is None or not item.traits:
@@ -430,8 +437,8 @@ def why_not(engine, x: int, y: int) -> str:
     where = place(engine)
     if r is None:
         return "You have no rod or line. The tackleman sells them."
-    if where in (None, "miasma"):
-        return "These waters are the miasma's. Not with this tackle."
+    if where is None:
+        return "There's no water here to fish."
     w = waters(gm, where)
     if (x, y) not in w.body:
         return "That isn't water."
@@ -449,8 +456,6 @@ def can_start(engine) -> str:
     if rod(p) is None:
         return "You have no rod or line. The tackleman by the river sells them."
     where = place(engine)
-    if where == "miasma":
-        return "These waters are the miasma's. Not with this tackle."
     if where is None:
         return "There's no water here to fish."
     if not baits(p):
@@ -465,7 +470,7 @@ def spots(engine) -> list:
     from game import ranged
     p, gm = engine.player, engine.game_map
     r, where = rod(p), place(engine)
-    if r is None or where in (None, "miasma"):
+    if r is None or where is None:
         return []
     w = waters(gm, where)
     reach = kit(p)["reach"]
@@ -509,6 +514,8 @@ def present(fid: str, ctx: dict | None) -> bool:
     if f.get("pulses") and (ctx.get("holiday") or ctx.get("pulse") not in f["pulses"]):
         return False
     if f.get("holiday") and not ctx.get("holiday"):
+        return False
+    if ctx.get("max_tier") and f["tier"] > ctx["max_tier"]:
         return False
     return True
 
@@ -598,6 +605,7 @@ class Session:
     kit: dict = field(default_factory=dict)   # the rig as cast (v0.96.0)
     water_band: str = ""            # the water's own depth (band is where the bait sits)
     key: str = ""                   # the water's stock key (v0.97.0)
+    miasma: bool = False            # a hunt's water (v0.98.0)
     size: int = 0
     side: str = "south"
     wname: str = ""
@@ -645,7 +653,7 @@ def cast(engine, x: int, y: int, bait_type: str) -> tuple[bool, str]:
     b = w.body[(x, y)]
     s = Session(x, y, (p.x, p.y), w.kinds[b], bait_band(k, water_band), light_at(engine, x, y, where),
                 rod(p), bait_type, bait.type.properties.get("bait", ""), kit=k, water_band=water_band,
-                key=w.keys[b], size=w.sizes[b], side=w.sides[b], wname=w.names[b])
+                key=w.keys[b], size=w.sizes[b], side=w.sides[b], wname=w.names[b], miasma=(where == "miasma"))
     engine.fishing = s
     engine.fishing_last = (x, y, bait_type)
     note(s, f"You cast your {bait.type.name} into {s.wname or data()['waters'][s.kind]['name']}, {s.water_band} water"
@@ -670,10 +678,16 @@ def still_on(engine) -> bool:
     if s is None:
         return False
     p = engine.player
-    if (p.x, p.y) != s.stand or p.stats.is_dead or place(engine) in (None, "miasma") \
+    if (p.x, p.y) != s.stand or p.stats.is_dead or place(engine) is None \
             or not any(it is s.rod for it in p.all_items()):
         engine.fishing = None
         return False
+    if place(engine) == "miasma":                # out there, nothing waits while you fish (v0.98.0)
+        near = [m for m in engine.game_map.monsters if getattr(m, "awake", False)
+                and abs(m.x - p.x) + abs(m.y - p.y) <= THREAT and not getattr(m, "burrowed", False)]
+        if near:
+            end(engine, f"The {near[0].name} is coming for you. You drop the line.")
+            return False
     return True
 
 
@@ -739,8 +753,12 @@ def step(engine, cmd: str) -> bool:
         return True
     d = engine.date
     ctx = {"side": s.side, "key": s.key, "pulse": d.pulse, "holiday": bool(d.intercalary)}
-    cands = candidates(s.kind, s.band, s.light, s.bait_key, s.kit, ctx,
-                       lambda fid: level(engine, s.key, fid, cap(fid, s.kind, s.size)) / cap(fid, s.kind, s.size))
+    if s.miasma:                       # the miasma: the danger word decides how big; no stock (made fresh)
+        ctx["max_tier"] = danger(engine) + 1
+        stock = None
+    else:
+        stock = lambda fid: level(engine, s.key, fid, cap(fid, s.kind, s.size)) / cap(fid, s.kind, s.size)
+    cands = candidates(s.kind, s.band, s.light, s.bait_key, s.kit, ctx, stock)
     roll = rng.random()
     total = 0.0
     for fid, chance in cands:
@@ -866,12 +884,24 @@ def _fight(engine, s: Session, cmd: str, rng) -> bool:
         gain = -2
     if move == "run":
         gain -= max(0, 2 - k.get("run_line", 0))
+    if move == "lurch":                       # the miasma's fish aren't always where they are (v0.98.0)
+        gain += rng.choice((-3, 3))
     s.line -= gain
     s.stamina = max(0.0, s.stamina - TIRE[cmd] - (k.get("tire", 0) if cmd == "hold" else 0)
                     - (1 if move in ("run", "thrash", "dive") else 0))
     s.move = move
     note(s, m["text"])
     lost = ""
+    if s.miasma:
+        splash(engine, s, rng)
+    f = species()[s.fish]
+    if f.get("drags") and move in ("run", "dive") and cmd != "give" and s.tension > DRAG_AT * power(s):
+        hurt = min(engine.player.stats.hp - 1, rng.randint(2, 4) + f["tier"])
+        if hurt > 0:
+            engine.player.stats.hp -= hurt
+        end(engine, f"The {f['name']} drags you off your feet and into the water! You let go of it and "
+                    f"haul yourself out ({hurt} HP).")
+        return True
     if move == "thrash" and cmd == "reel" and rng.random() < hold_chance(s, TEAR):
         lost = "The hook tears free as you haul into its thrashing."
     elif move == "run" and rng.random() < hold_chance(s, 0.0):
@@ -905,6 +935,11 @@ def _fight(engine, s: Session, cmd: str, rng) -> bool:
 def _land(engine, s: Session, rng) -> bool:
     from game import fieldskills, sound
     f = species()[s.fish]
+    if s.fish == "hookjaw" and s.miasma and rng.random() < HOOKJAW_LIVES:
+        if _eel_comes(engine, s):
+            fieldskills.practise(engine, "angling", f["tier"])
+            end(engine, "You haul the hookjaw up to the bank, and it tears free of the hook and comes for you!")
+            return True
     from game.items import Item
     item = Item(_catalogue_type(s.fish), catch={"kg": s.kg, "quirk": s.quirk, "water": s.kind, "day": engine.day})
     s.caught, s.phase = item, "landed"
@@ -917,7 +952,8 @@ def _land(engine, s: Session, rng) -> bool:
 def _landed(engine, s: Session, cmd: str) -> bool:
     item = s.caught
     if cmd == "keep":
-        take(engine, s.key, s.fish, cap(s.fish, s.kind, s.size))     # it's out of the water now (v0.97.0)
+        if not s.miasma:
+            take(engine, s.key, s.fish, cap(s.fish, s.kind, s.size))   # it's out of the water now (v0.97.0)
         p = engine.player
         if p.inventory.add(item):
             end(engine, f"You keep the {item.label}. (r to cast again)")
@@ -926,6 +962,11 @@ def _landed(engine, s: Session, cmd: str) -> bool:
             engine.game_map.items.append(FloorItem(p.x, p.y, item))
             end(engine, f"No room in your pack: the {item.label} is at your feet. (r to cast again)")
         return False
+    if cmd == "gut":
+        if not s.miasma:
+            take(engine, s.key, s.fish, cap(s.fish, s.kind, s.size))
+        end(engine, gut(engine, s, item, _rng(engine)) + " (r to cast again)")
+        return True
     if cmd == "release":
         from game import fieldskills
         fieldskills.practise(engine, "angling")
@@ -975,6 +1016,13 @@ def tip(engine, rng=None) -> str:
     rng = rng or _rng(engine)
     fid = rng.choice(sorted(k for k, f in species().items() if f["tier"] <= 4))
     f = species()[fid]
+    if f.get("miasma"):                      # he's never fished the miasma himself (v0.98.0)
+        waters_ = " or ".join(data()["waters"][w]["short"] for w in f["waters"])
+        bait = max(f["baits"], key=f["baits"].get)
+        bait = {"worms": "a worm", "grubs": "a grub", "dough": "dough", "spinner": "a spinner"}.get(bait, bait)
+        return (f"Out in the miasma? Never been. Hunters tell me about {plural(f['name'])}: {waters_}, "
+                f"{' or '.join(f['depth'])} water, and they'll take {bait}. The deeper the danger, the bigger "
+                "what bites, they say." + (" And mind it doesn't pull you in." if f.get("drags") else ""))
     lit = sky.lit_half()
     dark = "north" if lit == "south" else "south"
     side = {"lit": lit, "dark": dark}.get(f["light"])
@@ -1019,3 +1067,82 @@ def plural(name: str) -> str:
                       "dace", "chub", "loach", "beard")):
         return name
     return name + ("es" if name.endswith(("ch", "sh", "s", "x")) else "s")
+
+
+# ---- The miasma (stage 4, v0.98.0) -----------------------------------------------------------------
+def danger(engine) -> int:
+    hunt = getattr(engine, "hunt", None)
+    return int(getattr(getattr(hunt, "contract", None), "danger", 1) or 1) if hunt else 1
+
+
+def splash(engine, s: Session, rng) -> None:
+    """A fish fighting on a line draws what's out there: the nearest sleeping creature may wake."""
+    if rng.random() >= SPLASH * (1 + danger(engine) / 3):
+        return
+    p = engine.player
+    near = sorted((abs(m.x - p.x) + abs(m.y - p.y), i) for i, m in enumerate(engine.game_map.monsters)
+                  if not getattr(m, "awake", False) and abs(m.x - p.x) + abs(m.y - p.y) <= 16)
+    if near:
+        m = engine.game_map.monsters[near[0][1]]
+        m.awake = True
+        note(s, "The splashing carries. Something out there has heard it.")
+
+
+def _eel_comes(engine, s: Session) -> bool:
+    """A landed hookjaw tears free and comes at you: the creature, awake, in the water at your feet."""
+    from game.monsters import Monster
+    t = (getattr(engine, "monster_types", None) or {}).get("hookjaw_eel")
+    if t is None:
+        return False
+    p, gm = engine.player, engine.game_map
+    w = waters(gm, "miasma")
+    spots = sorted((abs(c[0] - p.x) + abs(c[1] - p.y), c) for c in w.body if not gm.monster_at(*c))
+    if not spots or spots[0][0] > 3:
+        return False
+    x, y = spots[0][1]
+    m = Monster.spawn(t, x, y)
+    m.awake = True
+    gm.monsters.append(m)
+    return True
+
+
+def gut(engine, s: Session, item, rng) -> str:
+    """Gut a fish where you stand: what was inside it. (Its meat and scales are for a later stage.)"""
+    from game.items import Item
+    g = data()["guts"]["miasma" if s.miasma else "home"]
+    p = engine.player
+    name = item.type.name
+    found = []
+    roll = rng.random()
+    if s.miasma and roll < g.get("bottle", 0):
+        from game import keywords
+        kw = engine.regions.keywords
+        unknown = sorted(w for w in kw.all_ids(ordinary=True) if w not in engine.words)
+        if unknown:
+            word = kw.word(rng.choice(unknown))
+            keywords.learn(engine, [word.id], say=False)
+            return (f"You gut the {name}. Inside: a stoppered bottle with a scrap of paper in it, "
+                    f"in a hand you don't know. It names a place. You learn the word {word.shown}.")
+    roll -= g.get("bottle", 0)
+    if s.miasma and roll < g.get("artifact", 0) and getattr(engine, "hunt", None) is not None:
+        from game.hunt import pick_artifact
+        region = engine.hunt.contract.region
+        aid = pick_artifact(region, danger(engine), engine.catalogue, rng)
+        art = Item(engine.catalogue[aid])
+        _give(engine, art)
+        return f"You gut the {name}. Something hard in its belly: {art.type.name}, swallowed whole."
+    roll -= g.get("artifact", 0)
+    if roll < g.get("shards", 0):
+        n = rng.randint(5, 20) * danger(engine) if s.miasma else rng.randint(1, 6)
+        p.earn(n, "fishing")
+        found.append(f"{n} shard{'s' if n != 1 else ''} it had swallowed")
+    from game import sound
+    sound.play("butcher")
+    return f"You gut the {name}." + (" Inside: " + ", ".join(found) + "." if found else " Nothing inside but fish.")
+
+
+def _give(engine, item) -> None:
+    from game.items import FloorItem
+    p = engine.player
+    if not p.inventory.add(item):
+        engine.game_map.items.append(FloorItem(p.x, p.y, item))

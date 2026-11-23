@@ -690,7 +690,7 @@ The map is built by `tools/brisering/build_brisering.py` (it overwrites
 **The Watermen and Anglers' Guild** keeps a **tackleman** in the house nearest
 the river, west of the plaza: rods, bait and lures, Angling lessons, and he
 buys fish by weight. Fish in the city river, or out on the Brisering's river,
-lakes and ponds. (The miasma's waters need tackle you can't get yet.)
+lakes and ponds. And out in the miasma, on a hunt (see below).
 
 1. **Cast** (`r`): with a rod or hand line and some bait in your pack. Aim at
    water within your rod's reach (`Tab` cycles the water you can reach, `b`
@@ -724,7 +724,22 @@ and the duelfish only in the holiday Pulses between the Duels. **Waters can be
 fished out:** every fish you keep comes out of that water, and they come back
 a few Pulses at a time (the small ones quickly, a great lakeback only after
 a Reckon or so). Releasing a fish costs the water nothing. Look (`x`) at a water
-to see whether it's been fished hard. 40 fish in all.
+to see whether it's been fished hard.
+
+**Fishing the miasma** (v0.98.0). On a hunt you can fish an area's water:
+marsh water, cave pools and the pools of other lands. The fish there are the
+miasma's: twice-eyed, glass-scaled, a carp that hums like the Wayfinder, fish
+that **lurch** to somewhere they can't be. The place's danger word decides how
+big they come (up to a tier above it), and the area's own light decides what
+rises. Nothing waits while you fish: the splashing of a fight can wake what's
+sleeping nearby, and anything awake that comes within a few steps makes you
+drop the line. Some fish **drag**: hold a hookjaw eel or a mire king hard on a
+run and it pulls you in after it. Land a hookjaw and it may tear free on the
+bank and come for you. **Gut** a fish where you stand (`g` once it's landed)
+to see what it swallowed: shards, now and then a broken Tower Artifact, or a
+message in a bottle that names a Wayfinder word. Two **artifacts** help: a
+humming bobber and a stillwater spool, worn in artifact slots like any
+artifact (so in the miasma, only with a windcatcher). 53 fish in all.
 **Bait:** worms (dig them with `g` in soft ground by the water, or buy them),
 grubs, dough, and a spinner lure that isn't used up. Angling teaches itself to
 rank 2; the tackleman trains beyond.

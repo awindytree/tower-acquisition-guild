@@ -4273,6 +4273,8 @@ class FishScreen:
                 return FishAction("keep")
             if k == _key("x"):
                 return FishAction("release")
+            if k == _key("g"):
+                return FishAction("gut")
             return None
         if s.phase == "fight":
             cmd = {_key("r"): "reel", _key("h"): "hold", _key("g"): "give", KeySym.LEFT: "left", _key("a"): "left",
@@ -4301,7 +4303,7 @@ class FishScreen:
             body.append((item.label.capitalize(), ACCENT))
             body += wrapped(fishing.species()[s.fish]["description"], w - 4, TEXT)
             body += wrapped(item_worth(item, engine), w - 4, DIM)
-            keys = "Enter keep  x let it go"
+            keys = "Enter keep  x let it go  g gut it"
         elif s.phase == "fight":
             title = "On the line!"
             bw = w - 16
