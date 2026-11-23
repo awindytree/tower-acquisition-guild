@@ -43,8 +43,10 @@ def armour_slot(item_type) -> str:
 
 
 def has_tier(item) -> bool:
-    """Weapons and armour have tiers; windcatchers, artifacts and everything else don't."""
+    """Weapons, armour and tackle (v0.96.0) have tiers; windcatchers, artifacts, bait and everything else don't."""
     t = item.type
+    if t.kind == "tackle":
+        return bool(t.properties.get("tackle_slot"))
     return t.kind in ("weapon", "armor") and not t.properties.get("windcatcher") and not t.rarity
 
 
@@ -52,6 +54,8 @@ def gear_type(item_type) -> str | None:
     """The weapon type or armour slot that decides an item's materials (data/gear.json)."""
     if item_type.kind == "armor":
         return armour_slot(item_type)
+    if item_type.kind == "tackle":                        # rod, reel, line, hook, float (v0.96.0)
+        return item_type.properties.get("tackle_slot")
     if item_type.kind != "weapon":
         return None
     props = item_type.properties
@@ -99,6 +103,9 @@ def tier_text(item) -> str:
     """What the tier adds, for the item windows: "+2 accuracy, +1 damage"."""
     if not has_tier(item) or item.tier == 0:
         return ""
+    if item.type.kind == "tackle":
+        from game import fishing
+        return fishing.tier_text(item)
     if item.type.kind == "weapon":
         parts = [(accuracy(item), "accuracy"), (damage(item), "damage")]
     else:
@@ -108,6 +115,9 @@ def tier_text(item) -> str:
 
 def step_gain(item_type, tier: int) -> str:
     """What reaching this tier adds: "+1 accuracy", "+1 damage", "+2 max HP" or "+1 armour"."""
+    if item_type.kind == "tackle":
+        from game import fishing
+        return fishing.step_gain(item_type, tier)
     if item_type.kind == "weapon":
         return "+1 accuracy" if tier % 2 else "+1 damage"
     return f"+{HP_PER_TIER} max HP" if tier % 2 else "+1 armour"
@@ -190,6 +200,9 @@ def _material_value(mid: str) -> int:
     return _VALUES.get(mid, 0)
 
 
+PAID = {"smith": "smith", "tackleman": "tackleman"}   # where raising a piece costs a fee (v0.96.0: tackle too)
+
+
 def stores(engine, at: str) -> list:
     """Where materials are taken from: the pack, and at home the home chest too."""
     out = [engine.player.inventory]
@@ -214,8 +227,8 @@ def blocked(engine, item, at: str) -> str | None:
              for mid, n in material_bill(item.type, to).items() if have(engine, mid, at) < n]
     if short:
         return "You need " + ", ".join(short) + "."
-    if at == "smith" and engine.player.shards < shard_cost(to):
-        return f"The smith's fee is {shard_cost(to)} shards."
+    if at in PAID and engine.player.shards < shard_cost(to):
+        return f"The {PAID[at]}'s fee is {shard_cost(to)} shards."
     return None
 
 
@@ -250,7 +263,7 @@ def upgrade(engine, item, at: str, rng=None) -> tuple[str, str]:
         _take(engine, mid, n, at)
     from game import sound
     if rng.randint(1, 100) <= chance(to):
-        if at == "smith":
+        if at in PAID:
             engine.player.shards -= shard_cost(to)
         item.tier = to
         extra = ""
@@ -266,7 +279,7 @@ def upgrade(engine, item, at: str, rng=None) -> tuple[str, str]:
         return "destroyed", (f"The {item.type.name} gives way under the hammer and is ruined. "
                              "The materials are gone with it.")
     return "failed", (f"It doesn't take: the {item.type.name} stays +{item.tier}. The materials are spent"
-                      + ("; the smith keeps no fee." if at == "smith" else "."))
+                      + (f"; the {PAID[at]} keeps no fee." if at in PAID else "."))
 
 
 # ---- Traits (stage 3, v0.77.0) ----------------------------------------------------------------------

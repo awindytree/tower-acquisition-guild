@@ -179,6 +179,9 @@ def item_details(item, engine: "Engine") -> str:
 
 GEAR_SLOTS = (("weapon", "Weapon", "bare hands"), ("head", "Head", "nothing"), ("chest", "Chest", "nothing"),
               ("legs", "Legs", "nothing"), ("windcatcher", "Windcatcher", "none"))   # (head and legs: v0.75.0)
+TACKLE_ROWS = (("rod", "Rod", "the best in your pack"), ("reel", "Reel", "by hand"), ("line", "Line", "the rod's cord"),
+               ("hook", "Hook", "a small hook"), ("float", "Float", "none"))           # (v0.96.0, game/fishing.py)
+SLOT_INFO = {s: (label, empty) for s, label, empty in GEAR_SLOTS + TACKLE_ROWS}
 
 
 def gear_stat(item, engine: "Engine") -> list[tuple[str, tuple]]:
@@ -192,6 +195,22 @@ def gear_stat(item, engine: "Engine") -> list[tuple[str, tuple]]:
         low = share <= 0.25
         return [("█" * fill, JODEBRIS_LOW if low else JODEBRIS), ("░" * (10 - fill), (100, 90, 78))]
     from game import gear
+    if t.kind == "tackle" and props.get("tackle_slot"):
+        T = item.tier
+        sl = props["tackle_slot"]
+        if sl == "rod":
+            text = f"reach {props.get('reach', 2) + T // 5}, strain {props.get('power', 40) + 3 * T}"
+        elif sl == "reel":
+            text = f"reel {props.get('retrieve', 2.5) + 0.1 * T:.1f}, drag {props.get('drag', 0) + T}%, line {props.get('capacity', 26) + T}"
+        elif sl == "line":
+            text = f"strength {props.get('strength', 20) + 3 * T}, " + ["unseen", "faint", "plain"][min(2, props.get('visibility', 2))]
+        elif sl == "hook":
+            from game import fishing
+            text = f"{fishing.SIZE_NAMES.get(props.get('size', 1), '')}, hold {props.get('hold', 0) + 2 * T}%"
+        else:
+            text = props.get("float", "float") + (f", +{props.get('window')} to strike" if props.get("window") else "") \
+                + (f", +{props.get('bite', 0) + 2 * T}% bites" if props.get("bite", 0) + 2 * T else "")
+        return [(text, DIM)]
     if t.kind == "weapon":
         text = props.get("damage", "")
         if gear.damage(item):
@@ -229,7 +248,8 @@ class EquipmentScreen:
     def rows(engine) -> list:
         from game import attunement
         attunement.sync_slots(engine.player)
-        return [("gear", s) for s, _, _ in GEAR_SLOTS] + [("art", n) for n in range(len(engine.player.artifact_slots))]
+        return ([("gear", s) for s, _, _ in GEAR_SLOTS] + [("art", n) for n in range(len(engine.player.artifact_slots))]
+                + [("gear", s) for s, _, _ in TACKLE_ROWS])
 
     @staticmethod
     def fits(engine, row) -> list[int]:
@@ -301,9 +321,11 @@ class EquipmentScreen:
                 if kind == "art" and slot == 0:
                     lines.append((None, f"Artifacts ({len(p.equipped_artifacts)}/{len(p.artifact_slots)})",
                                   "", ACCENT, "", ACCENT, []))
+                if kind == "gear" and slot == "rod":
+                    lines.append((None, "Tackle", "", ACCENT, "", ACCENT, []))
                 item = self.held(engine, (kind, slot))
-                label = (dict((s, l) for s, l, _ in GEAR_SLOTS)[slot] if kind == "gear" else f"  {slot + 1}")
-                empty = dict((s, e) for s, _, e in GEAR_SLOTS)[slot] if kind == "gear" else "(empty)"
+                label = SLOT_INFO[slot][0] if kind == "gear" else f"  {slot + 1}"
+                empty = SLOT_INFO[slot][1] if kind == "gear" else "(empty)"
                 if item is None:
                     lines.append((r, label, "·", DIM, empty, DIM, []))
                 else:
@@ -314,7 +336,7 @@ class EquipmentScreen:
             keys = "↑↓  e take off  u use  Enter swap  Tab pack  Esc"
         else:
             kind, slot = rows[self.selected]
-            name = dict((s, l) for s, l, _ in GEAR_SLOTS)[slot] if kind == "gear" else f"artifact slot {slot + 1}"
+            name = SLOT_INFO[slot][0] if kind == "gear" else f"artifact slot {slot + 1}"
             for n, i in enumerate(self.picking):
                 it = p.inventory.items[i]
                 lines.append((n, "", it.type.glyph, it.type.color, it.label, TEXT, gear_stat(it, engine)))
@@ -3117,18 +3139,22 @@ class UpgradeScreen:
     from the home chest count too). Lists what you wear, then what's in the pack. A try that could
     destroy the piece asks first. Takes no time."""
 
-    def __init__(self, at: str = "smith", title: str = "Raise a piece") -> None:
+    def __init__(self, at: str = "smith", title: str = "Raise a piece", only: str | None = None) -> None:
         self.at = at
+        self.only = only          # "gear" (weapons and armour) or "tackle" (v0.96.0); None: both
         self.title = title
         self.selected = 0
         self.notice = ""
 
-    @staticmethod
-    def rows(engine) -> list:
-        from game import gear
+    def rows(self, engine) -> list:
+        from game import gear, fishing
         p = engine.player
-        worn = [p.equipped[s] for s in gear.SLOTS if p.equipped.get(s) is not None and gear.has_tier(p.equipped[s])]
-        return worn + [it for it in p.inventory.items if gear.has_tier(it)]
+        slots = {"gear": gear.SLOTS, "tackle": fishing.TACKLE_SLOTS}.get(self.only, gear.SLOTS + fishing.TACKLE_SLOTS)
+        worn = [p.equipped[s] for s in slots if p.equipped.get(s) is not None and gear.has_tier(p.equipped[s])]
+        def fits(it):
+            tackle = it.type.kind == "tackle"
+            return gear.has_tier(it) and (self.only is None or (self.only == "tackle") == tackle)
+        return worn + [it for it in p.inventory.items if fits(it)]
 
     def handle(self, event, engine: "Engine") -> Action | None:
         from game import gear
@@ -3185,12 +3211,12 @@ class UpgradeScreen:
                 for mid, n in gear.material_bill(item.type, to).items():
                     have = gear.have(engine, mid, self.at)
                     extra.append((f"  {cat[mid].name}: {have}/{n}", TEXT if have >= n else CANT))
-                if self.at == "smith":
+                if self.at in gear.PAID:
                     fee = gear.shard_cost(to)
                     extra.append((f"  fee: {fee} shards, only on success", TEXT if p.shards >= fee else CANT))
                 else:
                     extra.append(("  no fee; materials in your home chest count", DIM))
-                extra += wrapped("If it fails, the materials are lost" + ("; the fee isn't taken." if self.at == "smith" else "."),
+                extra += wrapped("If it fails, the materials are lost" + ("; the fee isn't taken." if self.at in gear.PAID else "."),
                                  w - 4, DIM)
         else:
             extra += wrapped("You have no weapon or armour to work on.", w - 4, DIM)
@@ -3199,7 +3225,7 @@ class UpgradeScreen:
         h, visible, extra = fit_window(console, max(len(rows), 1), extra)
         x, y = (area_w - w) // 2, (console.height - h) // 2
         draw_box(console, x, y, w, h, self.title)
-        if self.at == "smith":
+        if self.at in gear.PAID:
             purse = f"♦ {p.shards} shards"
             console.print(x + w - 2 - len(purse), y + 1, purse, fg=TEXT, bg=BG)
         first = max(0, min(self.selected - visible // 2, len(rows) - visible))
@@ -4196,7 +4222,9 @@ class CastScreen(LookScreen):
         rod = fishing.rod(p)
         why = fishing.why_not(engine, self.x, self.y)
         lines = [(why, WARN)] if why else [(fishing.describe_spot(engine, self.x, self.y), TEXT)]
-        lines.append((f"{rod.type.name.capitalize()}: casts {rod.type.properties.get('reach', 2)}.", DIM))
+        lines.append((f"{rod.type.name.capitalize()}: casts {fishing.kit(p)['reach']}.", DIM))
+        for text in fishing.kit_lines(p):
+            lines.append((text, DIM))
         if self.baits:
             bt = engine.catalogue[self.baits[self.bait]]
             n = p.inventory.count_of(bt.id)

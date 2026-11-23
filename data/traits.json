@@ -1,5 +1,5 @@
 {
- "_comment": "Gear traits (v0.77.0, more ready in v0.78.0, v0.81.0 and v0.82.0; design: claude/design-equipment.md, the assistant's draft pools, 12 per type). Rolled when a piece reaches +5, +10, +15... from its type's pool (data/gear.json types), never twice on one piece. Only traits with \"ready\": true are rolled; the rest wait for their mechanics (reach, knockback and so on) or their weapon type (stage 4). effects use the talent keys (game/talents.py) plus the gear keys in game/gear.py; a key ending in /5 counts once for every 5 tiers of the piece. ALL PLACEHOLDERS.",
+ "_comment": "Gear traits (v0.77.0, more ready in v0.78.0, v0.81.0 and v0.82.0; design: claude/design-equipment.md, the assistant's draft pools, 12 per type). Rolled when a piece reaches +5, +10, +15... from its type's pool (data/gear.json types), never twice on one piece. Only traits with \"ready\": true are rolled; the rest wait for their mechanics (reach, knockback and so on) or their weapon type (stage 4). effects use the talent keys (game/talents.py) plus the gear keys in game/gear.py; a key ending in /5 counts once for every 5 tiers of the piece. ALL PLACEHOLDERS. Tackle pools (rod, reel, line, hook, float; v0.96.0, fishing stage 2): the assistant's drafts, read by game/fishing.py (fish_* keys).",
  "pools": {
   "knife": {
    "venom_groove": {
@@ -1376,6 +1376,224 @@
     "effects": {
      "pathfinder": 1
     }
+   }
+  },
+  "rod": {
+   "steady_spine": {
+    "name": "Steady Spine",
+    "text": "+8 to what the rod can take",
+    "effects": {
+     "fish_power": 8
+    },
+    "ready": true
+   },
+   "long_caster": {
+    "name": "Long Caster",
+    "text": "+1 reach",
+    "effects": {
+     "fish_reach": 1
+    },
+    "ready": true
+   },
+   "telltale_tip": {
+    "name": "Telltale Tip",
+    "text": "read fish one tier higher",
+    "effects": {
+     "fish_read": 1
+    },
+    "ready": true
+   },
+   "sweet_cast": {
+    "name": "Sweet Cast",
+    "text": "bites 10% more often",
+    "effects": {
+     "fish_bite": 10
+    },
+    "ready": true
+   },
+   "wearing_bend": {
+    "name": "Wearing Bend",
+    "text": "holding tires a fish 1 more",
+    "effects": {
+     "fish_tire": 1
+    },
+    "ready": true
+   },
+   "turning_butt": {
+    "name": "Turning Butt",
+    "text": "snags half as likely",
+    "effects": {
+     "fish_snag_guard": 50
+    },
+    "ready": true
+   }
+  },
+  "reel": {
+   "quick_spool": {
+    "name": "Quick Spool",
+    "text": "+0.5 line won back a reel",
+    "effects": {
+     "fish_retrieve": 0.5
+    },
+    "ready": true
+   },
+   "soft_check": {
+    "name": "Soft Check",
+    "text": "+15% drag",
+    "effects": {
+     "fish_drag": 15
+    },
+    "ready": true
+   },
+   "deep_drum": {
+    "name": "Deep Drum",
+    "text": "+8 line",
+    "effects": {
+     "fish_capacity": 8
+    },
+    "ready": true
+   },
+   "finishing_wind": {
+    "name": "Finishing Wind",
+    "text": "+1 line a reel on a spent fish",
+    "effects": {
+     "fish_spent": 1
+    },
+    "ready": true
+   },
+   "clicking_pawl": {
+    "name": "Clicking Pawl",
+    "text": "a run takes 1 less line",
+    "effects": {
+     "fish_run_line": 1
+    },
+    "ready": true
+   }
+  },
+  "line": {
+   "tough_twist": {
+    "name": "Tough Twist",
+    "text": "+10 strength",
+    "effects": {
+     "fish_strength": 10
+    },
+    "ready": true
+   },
+   "water_coloured": {
+    "name": "Water-coloured",
+    "text": "one less visible",
+    "effects": {
+     "fish_unseen": 1
+    },
+    "ready": true
+   },
+   "slick_lay": {
+    "name": "Slick Lay",
+    "text": "snags half as likely",
+    "effects": {
+     "fish_snag_guard": 50
+    },
+    "ready": true
+   },
+   "patient_line": {
+    "name": "Patient Line",
+    "text": "giving line goes slack less",
+    "effects": {
+     "fish_slack_guard": 50
+    },
+    "ready": true
+   },
+   "fine_strand": {
+    "name": "Fine Strand",
+    "text": "bites 10% more often",
+    "effects": {
+     "fish_bite": 10
+    },
+    "ready": true
+   }
+  },
+  "hook": {
+   "keen_point": {
+    "name": "Keen Point",
+    "text": "+25% hold",
+    "effects": {
+     "fish_hold": 25
+    },
+    "ready": true
+   },
+   "quick_set": {
+    "name": "Quick Set",
+    "text": "wary fish never slip a strike",
+    "effects": {
+     "fish_set": 1
+    },
+    "ready": true
+   },
+   "lingering_bait": {
+    "name": "Lingering Bait",
+    "text": "+1 turn to strike",
+    "effects": {
+     "fish_window": 1
+    },
+    "ready": true
+   },
+   "bait_keeper": {
+    "name": "Bait Keeper",
+    "text": "a missed bite never takes the bait",
+    "effects": {
+     "fish_keep_bait": 1
+    },
+    "ready": true
+   },
+   "any_mouth": {
+    "name": "Any Mouth",
+    "text": "no penalty for the wrong size",
+    "effects": {
+     "fish_any_size": 1
+    },
+    "ready": true
+   }
+  },
+  "float": {
+   "bright_tip": {
+    "name": "Bright Tip",
+    "text": "+1 turn to strike",
+    "effects": {
+     "fish_window": 1
+    },
+    "ready": true
+   },
+   "honest_float": {
+    "name": "Honest Float",
+    "text": "false tells show for what they are",
+    "effects": {
+     "fish_true_tells": 1
+    },
+    "ready": true
+   },
+   "drifting_rig": {
+    "name": "Drifting Rig",
+    "text": "bites 10% more often",
+    "effects": {
+     "fish_bite": 10
+    },
+    "ready": true
+   },
+   "deep_drop": {
+    "name": "Deep Drop",
+    "text": "a float rig reaches deep water too",
+    "effects": {
+     "fish_deep": 1
+    },
+    "ready": true
+   },
+   "quiet_entry": {
+    "name": "Quiet Entry",
+    "text": "a strike at nothing spooks the water 1 turn",
+    "effects": {
+     "fish_quiet": 1
+    },
+    "ready": true
    }
   }
  }

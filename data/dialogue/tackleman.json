@@ -15,7 +15,9 @@
       "choices": [
         {"text": "Show me your tackle.", "do": ["shop:tackle"]},
         {"text": "What's biting?", "goto": "biting"},
+        {"text": "Can you work on my tackle?", "do": ["upgrade_tackle"]},
         {"text": "Can you teach me to fish better?", "do": ["train:angling"]},
+        {"text": "What makes a good rig?", "goto": "rig"},
         {"text": "Who are the Watermen and Anglers?", "goto": "guild"},
         {"text": "How do I go about it?", "goto": "how"}
       ]
@@ -29,6 +31,12 @@
     },
     "guild": {
       "text": "The Watermen and Anglers' Guild. Boatmen, fishers, the people who keep the river clear under the bridges. Waters, every one of us, same as you lot are Hunters. We don't go out into the miasma for artifacts. We go out on the water for supper, mostly.",
+      "choices": [
+        {"text": "Back.", "goto": "hello"}
+      ]
+    },
+    "rig": {
+      "text": "Rod's the backbone: reach, and how much strain it'll take. Line adds its own strength, and the thinner it is the less the wary ones see it. A reel brings it in quicker and eases a run. Hook to suit the mouth: too big and you miss the little ones, too small and the big ones tear free. And no sinker, no deep water. Your bait just hangs there in the shallows. Bring me materials and I'll make any of it better.",
       "choices": [
         {"text": "Back.", "goto": "hello"}
       ]

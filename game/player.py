@@ -169,6 +169,8 @@ class Player(Entity):
             return "windcatcher"
         if item.type.kind == "armor":
             return gear.armour_slot(item.type)
+        if item.type.kind == "tackle":               # rod, reel, line, hook, float (v0.96.0)
+            return item.type.properties.get("tackle_slot")
         return SLOT_FOR_KIND.get(item.type.kind)
 
     def gear_changed(self) -> None:

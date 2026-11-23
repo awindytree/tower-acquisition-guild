@@ -237,7 +237,22 @@
       {"id": "worms", "max": 6, "restock": 9, "bundle": 10, "price": 3},
       {"id": "grubs", "max": 4, "restock": 9, "bundle": 10, "price": 5},
       {"id": "dough_balls", "max": 4, "restock": 9, "bundle": 10, "price": 4},
-      {"id": "spinner", "max": 4, "restock": 27}
+      {"id": "spinner", "max": 4, "restock": 27},
+      {"id": "wooden_reel", "max": 2, "restock": 81},
+      {"id": "brass_reel", "max": 1, "restock": 162},
+      {"id": "geared_reel", "max": 1, "restock": 729},
+      {"id": "hemp_line", "max": 3, "restock": 27},
+      {"id": "gut_line", "max": 2, "restock": 81},
+      {"id": "silk_line", "max": 1, "restock": 243},
+      {"id": "small_hook", "max": 4, "restock": 27},
+      {"id": "medium_hook", "max": 4, "restock": 27},
+      {"id": "large_hook", "max": 3, "restock": 81},
+      {"id": "barbed_hook", "max": 1, "restock": 162},
+      {"id": "cork_float", "max": 3, "restock": 27},
+      {"id": "quill_float", "max": 1, "restock": 81},
+      {"id": "lead_sinker", "max": 3, "restock": 27},
+      {"id": "running_sinker", "max": 1, "restock": 162},
+      {"id": "tackle_box", "max": 1, "restock": 243}
     ],
     "buys": ["fish", "tackle"],
     "sell_rate": 0.5

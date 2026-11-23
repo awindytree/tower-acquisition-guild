@@ -272,15 +272,28 @@ class Inventory:
         return max((i.type.properties.get("pouch", 0) for i in self.items), default=0)
 
     @property
+    def box(self) -> int:
+        """Kinds of bait and lure a tackle box here carries without taking slots (v0.96.0)."""
+        return max((i.type.properties.get("tackle_box", 0) for i in self.items), default=0)
+
+    @staticmethod
+    def _bait(item) -> bool:
+        return bool(item.type.properties.get("bait"))
+
+    @property
     def used(self) -> int:
         """Slots taken: one a thing (a stack counts once), more for a big trophy (v0.61.0). Materials
-        in a pouch (up to its kinds) take none (v0.80.0)."""
+        in a pouch (up to its kinds) take none (v0.80.0); nor do baits and lures in a tackle box (v0.96.0)."""
         mats = sum(1 for i in self.items if i.type.kind == "material")
-        return sum(i.slots for i in self.items if i.type.kind != "material") + max(0, mats - self.pouch)
+        baits = sum(1 for i in self.items if self._bait(i))
+        return (sum(i.slots for i in self.items if i.type.kind != "material" and not self._bait(i))
+                + max(0, mats - self.pouch) + max(0, baits - self.box))
 
     def cost(self, item) -> int:
         """Slots adding this (a new stack) would take."""
         if item.type.kind == "material" and sum(1 for i in self.items if i.type.kind == "material") < self.pouch:
+            return 0
+        if self._bait(item) and sum(1 for i in self.items if self._bait(i)) < self.box:
             return 0
         return item.slots
 

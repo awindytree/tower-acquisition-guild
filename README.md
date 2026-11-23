@@ -716,9 +716,27 @@ water's light follows the Duel (south of Myligast is lit in the Light Duel,
 north in the Dark Duel), so the northern lakes hold different fish from the
 southern ones, and swap when the Duel turns. Ask the tackleman what's biting.
 **Bait:** worms (dig them with `g` in soft ground by the water, or buy them),
-grubs, dough, and a spinner lure that isn't used up. **Rods:** hand line,
-cane, ash and lacquered: longer reach, more strain before the line goes, and
-more line. Angling teaches itself to rank 2; the tackleman trains beyond.
+grubs, dough, and a spinner lure that isn't used up. Angling teaches itself to
+rank 2; the tackleman trains beyond.
+
+**Tackle** (v0.96.0) has five slots of its own, at the bottom of the
+equipment window (`e`): **rod, reel, line, hook, float**. Only a rod is
+needed (a rod in your pack will do); without the rest you fish with the rod's
+own cord, a small hook, and line pulled in by hand.
+- **Rod** (hand line, cane, ash, lacquered): reach, and the strain it takes.
+- **Reel** (wooden, brass, geared): line won back with each reel, drag that
+  eases a running fish, and how much line you have.
+- **Line** (hemp, gut, silk): adds its strength to the rod's; the thinner it
+  is, the less the wary fish see it (more so in lit water).
+- **Hook** (small, medium, large, barbed): match it to the mouth. Too big and
+  small fish slip it at the strike; too small and big fish tear free.
+- **Float or sinker:** a float gives you a turn longer to strike (a quill
+  float shows false tells for what they are); a sinker gets your bait down to
+  deep water. Without a sinker, your bait never reaches the deep.
+The cast window sums up your rig. The tackleman raises tackle a tier at a time
+like the smith does weapons (materials and a fee), and every fifth tier brings
+a trait from its own pool. A **tackle box** carries six kinds of bait and lure
+without taking room in your pack.
 The fish, the numbers and the tackleman's lines are placeholders
 (`data/fish.json`; design: `claude/design-fishing.md`).
 

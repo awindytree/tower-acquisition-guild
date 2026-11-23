@@ -21,6 +21,11 @@
     "polearm": {"name": "Polearm", "families": ["fibre", "metal"], "skill": "polearms"},
     "head": {"name": "Head", "families": ["hide", "chitin"]},
     "chest": {"name": "Chest", "families": ["hide", "metal"]},
-    "legs": {"name": "Legs", "families": ["hide", "chitin"]}
+    "legs": {"name": "Legs", "families": ["hide", "chitin"]},
+    "rod": {"name": "Rod", "families": ["fibre", "bone"], "tackle": true},
+    "reel": {"name": "Reel", "families": ["metal", "bone"], "tackle": true},
+    "line": {"name": "Line", "families": ["fibre", "hide"], "tackle": true},
+    "hook": {"name": "Hook", "families": ["metal", "bone"], "tackle": true},
+    "float": {"name": "Float or sinker", "families": ["fibre", "chitin"], "tackle": true}
   }
 }

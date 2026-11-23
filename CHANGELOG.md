@@ -5,6 +5,37 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.96.0: Fishing, stage 2: tackle (2026-11-23)
+Stage 2 of `claude/design-fishing.md`. Every item, number and trait is a placeholder.
+
+**Five tackle slots** sit at the bottom of the equipment window: rod, reel, line, hook, float.
+- Only a rod is needed: a rod in your pack still works.
+- Without the rest you fish with the rod's own cord (strength 20, easy to see), a small hook, and line pulled in by hand (2.5 a reel, 26 line).
+- `fishing.kit` adds up the rig. The cast window shows it.
+
+**What each piece does:**
+- **Rods** now give reach and the rod's share of the strain (hand line 40, cane 65, ash 90, lacquered 120). Their line moved to reels.
+- **Reels** set retrieve, drag (it softens a run or a dive) and line: wooden 3/10%/34, brass 3.5/20%/42, geared 4/30%/50.
+- **Lines** add strength, and their visibility puts wary fish off, three times as much in lit water: hemp 30 (plain), gut 40 (faint), silk 55 (unseen).
+- **Hooks** have a size and a hold: small, medium, large and barbed (medium, hold 35).
+  - A hook too big for the fish's mouth misses at the strike (35% per size).
+  - A hook too small makes tears and slack worse, and a run can rip it out.
+  - Hold cuts every way the hook can come free.
+- **Floats** give +1 turn to strike; the quill float also marks false tells. **Sinkers** get bait down to deep water; the running sinker also adds 15% bites.
+  - **Without a sinker, your bait never reaches deep water.** The great lakeback, the ghost char and the gloamfish need one.
+
+**Tiers and traits:**
+- Tackle has tiers, raised by the tackleman for materials and a fee, like the smith with gear. The smith no longer lists tackle.
+- What a tier adds: a rod +3 strain (+1 reach every 5); a reel +0.1 retrieve, +1% drag, +1 line; a line +3 strength; a hook +2% hold; a float +2% bites.
+- The materials: rod fibre/bone, reel metal/bone, line fibre/hide, hook metal/bone, float fibre/chitin.
+- Every fifth tier rolls a trait: 26 in five pools (data/traits.json, `fish_*` keys). Examples: Steady Spine, Telltale Tip (read fish a tier higher), Soft Check, Water-coloured, Keen Point, Quick Set, Honest Float, Deep Drop.
+
+**Also:**
+- **The tackle box:** carries 6 kinds of bait and lure without taking pack room.
+- **The tackleman** sells it all, raises tackle ("Can you work on my tackle?") and explains a good rig.
+- **Tuning** (a perfect reader, 300 fights each): a bare cane rod lands tier-2 runners about 45% of the time; a full brass, gut and medium rig, over 90%. The great lakeback goes from about 1% with a cane rig to about 70% with the best of everything, read from Angling 3.
+- **Tests:** `test_tackle.py` is new. `test_traits` and `test_traits2` leave the tackle pools out of their weapon and armour counts.
+
 ## 0.95.0: The middle name follows the living (2026-11-23)
 The user's rule. A middle name is how a Hunter makes their living, judged on what they've earned lately rather than over a whole career, and rather than on which tool they've held most.
 - **The rule:** when more than half of the last 1,000 shards came from one kind of work, that becomes the Hunter's living (`game/livings.py`).

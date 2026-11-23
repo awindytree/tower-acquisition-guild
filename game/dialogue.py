@@ -187,6 +187,8 @@ def apply(engine, effects) -> str | None:
             opens = effect   # "craft:smith"
         elif kind == "upgrade":
             opens = "upgrade"   # (v0.76.0: the smith raises gear)
+        elif kind == "upgrade_tackle":
+            opens = "upgrade_tackle"   # (v0.96.0: the tackleman raises tackle)
         elif kind == "maps":
             opens = "maps"      # (v0.84.0: the cartographer's maps)
         elif kind.startswith("caravan_"):

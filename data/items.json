@@ -533,23 +533,23 @@
     "description": "Not yet: a later chapter.", "properties": {}},
   "hand_line": {
     "name": "hand line", "glyph": "/", "color": [180, 170, 140], "kind": "tackle",
-    "description": "A wooden spool of line with a hook and a float. No rod: you throw it out by hand and pull it in the same way. It won't reach far or hold much.",
-    "value": 4, "properties": {"rod": true, "reach": 2, "power": 60, "line": 24}
+    "description": "A wooden spool of cord with a hook. No rod: you throw it out by hand and pull it in the same way. It won't reach far or take much strain.",
+    "value": 4, "properties": {"rod": true, "tackle_slot": "rod", "reach": 2, "power": 40}
   },
   "cane_rod": {
     "name": "cane rod", "glyph": "/", "color": [200, 180, 110], "kind": "tackle",
-    "description": "A jointed cane rod with a plain reel. The rod most of the city's anglers learned on.",
-    "value": 20, "properties": {"rod": true, "reach": 4, "power": 85, "line": 32}
+    "description": "A jointed cane rod. The rod most of the city's anglers learned on.",
+    "value": 20, "properties": {"rod": true, "tackle_slot": "rod", "reach": 4, "power": 65}
   },
   "ash_rod": {
     "name": "ash rod", "glyph": "/", "color": [210, 190, 150], "kind": "tackle",
-    "description": "A springy ash rod and a geared reel. It casts well out and takes a fair strain.",
-    "value": 60, "properties": {"rod": true, "reach": 6, "power": 110, "line": 40}
+    "description": "A springy ash rod. It casts well out and takes a fair strain.",
+    "value": 60, "properties": {"rod": true, "tackle_slot": "rod", "reach": 6, "power": 90}
   },
   "lacquered_rod": {
     "name": "lacquered rod", "glyph": "/", "color": [190, 90, 70], "kind": "tackle",
     "description": "Red-lacquered and whipped with silk, a waterman's rod. Long, strong and quick to answer.",
-    "value": 160, "properties": {"rod": true, "reach": 7, "power": 140, "line": 48}
+    "value": 160, "properties": {"rod": true, "tackle_slot": "rod", "reach": 7, "power": 120}
   },
   "worms": {
     "name": "worm", "plural": "worms", "glyph": "∞", "color": [190, 120, 120], "kind": "tackle",
@@ -570,5 +570,80 @@
     "name": "spinner", "glyph": "♪", "color": [200, 210, 220], "kind": "tackle",
     "description": "A lure: a spoon of bright metal that turns as it's drawn through the water. Fish that hunt take it; others don't. It isn't used up, but a snapped line takes it with it.",
     "value": 15, "stackable": true, "properties": {"bait": "spinner", "lure": true}
+  },
+  "wooden_reel": {
+    "name": "wooden reel", "glyph": "o", "color": [170, 140, 100], "kind": "tackle",
+    "description": "A turned wooden drum with a crank. Better than pulling line in by hand.",
+    "value": 15, "properties": {"tackle_slot": "reel", "retrieve": 3.0, "drag": 10, "capacity": 34}
+  },
+  "brass_reel": {
+    "name": "brass reel", "glyph": "o", "color": [210, 180, 90], "kind": "tackle",
+    "description": "A brass reel with a click-check that eases a running fish.",
+    "value": 50, "properties": {"tackle_slot": "reel", "retrieve": 3.5, "drag": 20, "capacity": 42}
+  },
+  "geared_reel": {
+    "name": "geared reel", "glyph": "o", "color": [200, 200, 210], "kind": "tackle",
+    "description": "A waterman's geared reel: quick to wind, with a drag that gives line before the line gives.",
+    "value": 140, "properties": {"tackle_slot": "reel", "retrieve": 4.0, "drag": 30, "capacity": 50}
+  },
+  "hemp_line": {
+    "name": "hemp line", "glyph": "~", "color": [190, 170, 120], "kind": "tackle",
+    "description": "Twisted hemp line. Stronger than the cord a rod comes with, and just as easy to see.",
+    "value": 5, "properties": {"tackle_slot": "line", "strength": 30, "visibility": 2}
+  },
+  "gut_line": {
+    "name": "gut line", "glyph": "~", "color": [220, 200, 170], "kind": "tackle",
+    "description": "Line of dried and twisted gut, thin and hard to see in the water.",
+    "value": 20, "properties": {"tackle_slot": "line", "strength": 40, "visibility": 1}
+  },
+  "silk_line": {
+    "name": "silk line", "glyph": "~", "color": [235, 235, 240], "kind": "tackle",
+    "description": "Fine silk line: strong, and all but invisible. Wary fish don't see it coming.",
+    "value": 70, "properties": {"tackle_slot": "line", "strength": 55, "visibility": 0}
+  },
+  "small_hook": {
+    "name": "small hook", "glyph": "¿", "color": [180, 180, 190], "kind": "tackle",
+    "description": "A small iron hook, for small mouths. A big fish will tear free of it.",
+    "value": 2, "properties": {"tackle_slot": "hook", "size": 1, "hold": 10}
+  },
+  "medium_hook": {
+    "name": "medium hook", "glyph": "¿", "color": [180, 180, 190], "kind": "tackle",
+    "description": "A middling iron hook. Too big for a minnow's mouth; fine for most else.",
+    "value": 4, "properties": {"tackle_slot": "hook", "size": 2, "hold": 10}
+  },
+  "large_hook": {
+    "name": "large hook", "glyph": "¿", "color": [180, 180, 190], "kind": "tackle",
+    "description": "A heavy iron hook for big fish. Small ones can't get their mouths round it.",
+    "value": 8, "properties": {"tackle_slot": "hook", "size": 3, "hold": 10}
+  },
+  "barbed_hook": {
+    "name": "barbed hook", "glyph": "¿", "color": [210, 200, 160], "kind": "tackle",
+    "description": "A middling hook with a barb: once it's set, it stays set.",
+    "value": 25, "properties": {"tackle_slot": "hook", "size": 2, "hold": 35}
+  },
+  "cork_float": {
+    "name": "cork float", "glyph": "°", "color": [220, 120, 80], "kind": "tackle",
+    "description": "A painted cork float. Your bait hangs shallow beneath it, and you see a bite a moment sooner.",
+    "value": 3, "properties": {"tackle_slot": "float", "float": "float", "window": 1}
+  },
+  "quill_float": {
+    "name": "quill float", "glyph": "°", "color": [235, 230, 210], "kind": "tackle",
+    "description": "A long quill float that shows every touch. You learn to tell a bite from the current.",
+    "value": 12, "properties": {"tackle_slot": "float", "float": "float", "window": 1, "true_tells": 1}
+  },
+  "lead_sinker": {
+    "name": "lead sinker", "glyph": "•", "color": [130, 130, 140], "kind": "tackle",
+    "description": "A lead weight on the line. Without one, your bait never gets down to the deep water.",
+    "value": 4, "properties": {"tackle_slot": "float", "float": "sinker"}
+  },
+  "running_sinker": {
+    "name": "running sinker", "glyph": "•", "color": [170, 170, 180], "kind": "tackle",
+    "description": "A sinker that slides on the line, so a fish feels nothing when it takes the bait. Gets you down deep.",
+    "value": 15, "properties": {"tackle_slot": "float", "float": "sinker", "bite": 15}
+  },
+  "tackle_box": {
+    "name": "tackle box", "glyph": "■", "color": [150, 110, 80], "kind": "misc",
+    "description": "A wooden box of little drawers. Carries up to 6 kinds of bait and lures without taking room in your pack.",
+    "value": 25, "properties": {"tackle_box": 6}
   }
 }

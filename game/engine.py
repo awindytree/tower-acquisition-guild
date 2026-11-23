@@ -1270,7 +1270,10 @@ class Engine:
             caravans.act(self, vid)
         elif kind == "upgrade":
             from game.screens import UpgradeScreen
-            self.screen = UpgradeScreen(at="smith", title="The smith: raise a piece")
+            self.screen = UpgradeScreen(at="smith", title="The smith: raise a piece", only="gear")
+        elif kind == "upgrade_tackle":         # (v0.96.0) the tackleman raises tackle
+            from game.screens import UpgradeScreen
+            self.screen = UpgradeScreen(at="tackleman", title="The tackleman: raise your tackle", only="tackle")
         elif kind == "library":
             from game.screens import LibraryScreen
             self.screen = LibraryScreen()

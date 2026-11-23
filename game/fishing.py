@@ -228,10 +228,134 @@ def light_at(engine, x: int, y: int, where: str) -> str:
 
 # ---- Tackle ------------------------------------------------------------------------------------
 def rod(player):
-    """The best rod in the pack (most power), or None."""
+    """The rod you've rigged (the tackle's rod slot), else the best one in the pack, or None."""
+    held = (getattr(player, "equipped", None) or {}).get("rod")
+    if held is not None:
+        return held
     rods = [it for it in player.inventory.items if it.type.properties.get("rod")]
     return max(rods, key=lambda it: (it.type.properties.get("power", 0), it.type.properties.get("reach", 0)),
                default=None)
+
+
+# ---- Tackle (stage 2, v0.96.0) -------------------------------------------------------------------
+# Five slots of their own (the equipment window's Tackle section): rod, reel, line, hook, float (a float
+# or a sinker). Only a rod is needed: without the rest you fish with the rod's own cord, a small hook and
+# line pulled in by hand. Each piece has tiers (game/gear.py; raised by the tackleman, or at home) and,
+# every 5 tiers, a trait from its pool in data/traits.json (fish_* keys, summed by tackle_total).
+TACKLE_SLOTS = ("rod", "reel", "line", "hook", "float")
+BARE = {"retrieve": 2.5, "drag": 0, "capacity": 26, "strength": 20, "visibility": 2, "size": 1, "hold": 0}
+PER_TIER = {"rod": {"power": 3}, "reel": {"retrieve": 0.1, "drag": 1, "capacity": 1}, "line": {"strength": 3},
+            "hook": {"hold": 2}, "float": {"bite": 2}}
+SIZE_NAMES = {1: "small", 2: "middling", 3: "large"}
+
+
+def tackle_total(player, key: str) -> float:
+    """A fish_* key summed over the traits of the tackle you've rigged."""
+    from game import gear
+    total = 0
+    for slot in TACKLE_SLOTS:
+        item = (getattr(player, "equipped", None) or {}).get(slot)
+        if item is None or not item.traits:
+            continue
+        pool = gear.pool_of(item)
+        for tid in item.traits:
+            total += pool.get(tid, {}).get("effects", {}).get(key, 0)
+    return total
+
+
+def kit(player) -> dict:
+    """What your tackle adds up to: reach, power (rod + line), retrieve, drag, capacity, visibility,
+    hook size and hold, float or sinker, the strike window, bites, reading."""
+    eq = getattr(player, "equipped", None) or {}
+    r = rod(player)
+    t = lambda slot: eq.get(slot)
+    def prop(item, key, default):
+        return item.type.properties.get(key, default) if item is not None else default
+    def tier(item):
+        return item.tier if item is not None else 0
+    reel, line, hook, flo = t("reel"), t("line"), t("hook"), t("float")
+    k = {
+        "reach": prop(r, "reach", 2) + tier(r) // 5 + int(tackle_total(player, "fish_reach")),
+        "power": prop(r, "power", 40) + PER_TIER["rod"]["power"] * tier(r) + tackle_total(player, "fish_power"),
+        "retrieve": prop(reel, "retrieve", BARE["retrieve"]) + PER_TIER["reel"]["retrieve"] * tier(reel)
+                    + tackle_total(player, "fish_retrieve"),
+        "drag": min(60, prop(reel, "drag", BARE["drag"]) + PER_TIER["reel"]["drag"] * tier(reel)
+                    + tackle_total(player, "fish_drag")),
+        "capacity": prop(reel, "capacity", BARE["capacity"]) + PER_TIER["reel"]["capacity"] * tier(reel)
+                    + tackle_total(player, "fish_capacity"),
+        "strength": prop(line, "strength", BARE["strength"]) + PER_TIER["line"]["strength"] * tier(line)
+                    + tackle_total(player, "fish_strength"),
+        "visibility": max(0, prop(line, "visibility", BARE["visibility"]) - int(tackle_total(player, "fish_unseen"))),
+        "size": prop(hook, "size", BARE["size"]),
+        "hold": min(80, prop(hook, "hold", BARE["hold"]) + PER_TIER["hook"]["hold"] * tier(hook)
+                    + tackle_total(player, "fish_hold")),
+        "rig": prop(flo, "float", "none"),
+        "window": prop(flo, "window", 0) + int(tackle_total(player, "fish_window")),
+        "true_tells": bool(prop(flo, "true_tells", 0) or tackle_total(player, "fish_true_tells")),
+        "bite": prop(flo, "bite", 0) + PER_TIER["float"]["bite"] * tier(flo) + tackle_total(player, "fish_bite"),
+        "read": int(tackle_total(player, "fish_read")),
+        "tire": int(tackle_total(player, "fish_tire")),
+        "snag_guard": min(90, tackle_total(player, "fish_snag_guard")),
+        "slack_guard": min(90, tackle_total(player, "fish_slack_guard")),
+        "set": bool(tackle_total(player, "fish_set")),
+        "keep_bait": bool(tackle_total(player, "fish_keep_bait")),
+        "any_size": bool(tackle_total(player, "fish_any_size")),
+        "deep": bool(tackle_total(player, "fish_deep")),
+        "quiet": int(tackle_total(player, "fish_quiet")),
+        "spent": tackle_total(player, "fish_spent"),
+        "run_line": tackle_total(player, "fish_run_line"),
+    }
+    return k
+
+
+def bait_band(k: dict, band: str) -> str:
+    """Where your bait sits: without a sinker it never gets below shallow water (a float rig with
+    Deep Drop does)."""
+    if band == "deep" and k["rig"] != "sinker" and not (k["rig"] == "float" and k["deep"]):
+        return "shallow"
+    return band
+
+
+def size_class(kg: float) -> int:
+    return 1 if kg < 0.6 else 2 if kg < 5 else 3
+
+
+def tier_text(item) -> str:
+    """What a tackle piece's tier adds (for the item windows)."""
+    slot, T = item.type.properties.get("tackle_slot"), item.tier
+    if not T:
+        return ""
+    if slot == "rod":
+        parts = [f"+{3 * T} strain"] + ([f"+{T // 5} reach"] if T >= 5 else [])
+    elif slot == "reel":
+        parts = [f"+{0.1 * T:.1f} retrieve", f"+{T}% drag", f"+{T} line"]
+    elif slot == "line":
+        parts = [f"+{3 * T} strength"]
+    elif slot == "hook":
+        parts = [f"+{2 * T}% hold"]
+    else:
+        parts = [f"+{2 * T}% bites"]
+    return ", ".join(parts)
+
+
+def step_gain(item_type, tier: int) -> str:
+    slot = item_type.properties.get("tackle_slot")
+    return {"rod": "+3 strain" + (", +1 reach" if tier % 5 == 0 else ""), "reel": "+0.1 retrieve, +1% drag, +1 line",
+            "line": "+3 strength", "hook": "+2% hold", "float": "+2% bites"}.get(slot, "")
+
+
+def kit_lines(player) -> list[str]:
+    """The rig, for the cast window and the tackleman: one short line each."""
+    k = kit(player)
+    eq = getattr(player, "equipped", None) or {}
+    def name(slot, bare):
+        it = eq.get(slot)
+        return it.label if it is not None else bare
+    rig = {"float": "float", "sinker": "sinker"}.get(k["rig"], "no float or sinker")
+    return [f"Strain {k['power'] + k['strength']:.0f} (rod {k['power']:.0f} + line {k['strength']:.0f}), "
+            f"line {k['capacity']:.0f}, reel {k['retrieve']:.1f}, drag {k['drag']:.0f}%.",
+            f"Hook {SIZE_NAMES.get(k['size'], k['size'])}; {rig}"
+            + ("; your bait won't reach deep water." if bait_band(k, 'deep') != 'deep' else "; it reaches deep water.")]
 
 
 def baits(player) -> list:
@@ -281,8 +405,9 @@ def why_not(engine, x: int, y: int) -> str:
     w = waters(gm, where)
     if (x, y) not in w.body:
         return "That isn't water."
-    if ranged.distance(p.x, p.y, x, y) > r.type.properties.get("reach", 2):
-        return f"Out of reach: your {r.type.name} casts {r.type.properties.get('reach', 2)}."
+    reach = kit(p)["reach"]
+    if ranged.distance(p.x, p.y, x, y) > reach:
+        return f"Out of reach: your {r.type.name} casts {reach}."
     if not engine.in_vision(x, y) or not _clear_line(gm, p.x, p.y, x, y):
         return "You can't see a way to cast there."
     return ""
@@ -313,7 +438,7 @@ def spots(engine) -> list:
     if r is None or where in (None, "miasma"):
         return []
     w = waters(gm, where)
-    reach = r.type.properties.get("reach", 2)
+    reach = kit(p)["reach"]
     out = []
     for dx in range(-reach, reach + 1):
         for dy in range(-reach, reach + 1):
@@ -331,8 +456,12 @@ def describe_spot(engine, x: int, y: int) -> str:
 
 
 # ---- Who's there -------------------------------------------------------------------------------
-def candidates(kind: str, band: str, light: str, bait: str) -> list:
-    """[(fish id, chance a turn)] for this water, depth, light and bait."""
+def candidates(kind: str, band: str, light: str, bait: str, k: dict | None = None) -> list:
+    """[(fish id, chance a turn)] for this water, depth, light and bait. With a rig (`kit`): a visible line
+    puts wary fish off (more in the light), and floats, sinkers and traits can add bites."""
+    k = k or {}
+    more = 1 + k.get("bite", 0) / 100
+    vis = k.get("visibility", 0)
     out = []
     for fid, f in species().items():
         if kind not in f["waters"] or band not in f["depth"]:
@@ -341,7 +470,10 @@ def candidates(kind: str, band: str, light: str, bait: str) -> list:
             continue
         like = f["baits"].get(bait, 0)
         if like > 0:
-            out.append((fid, TIER_BITE[f["tier"]] * like))
+            shy = 1.0
+            if f.get("wary") and vis:
+                shy = max(0.2, 1 - (0.3 if light == "lit" else 0.1) * vis)
+            out.append((fid, TIER_BITE[f["tier"]] * like * more * shy))
     return out
 
 
@@ -357,6 +489,8 @@ class Session:
     rod: object
     bait: str                       # the bait's item type id
     bait_key: str = ""              # what kind of bait it is (worms, grubs, dough, spinner)
+    kit: dict = field(default_factory=dict)   # the rig as cast (v0.96.0)
+    water_band: str = ""            # the water's own depth (band is where the bait sits)
     phase: str = "wait"             # wait, bite, fight, landed, over
     spooked: int = 0
     false_tell: bool = False
@@ -396,11 +530,14 @@ def cast(engine, x: int, y: int, bait_type: str) -> tuple[bool, str]:
         return False, "You've no bait. Worms, grubs, dough or a lure: the tackleman sells them, and worms can be dug."
     where = place(engine)
     w = waters(engine.game_map, where)
-    s = Session(x, y, (p.x, p.y), w.kinds[w.body[(x, y)]], BANDS[w.band[(x, y)]], light_at(engine, x, y, where),
-                rod(p), bait_type, bait.type.properties.get("bait", ""))
+    k = kit(p)
+    water_band = BANDS[w.band[(x, y)]]
+    s = Session(x, y, (p.x, p.y), w.kinds[w.body[(x, y)]], bait_band(k, water_band), light_at(engine, x, y, where),
+                rod(p), bait_type, bait.type.properties.get("bait", ""), kit=k, water_band=water_band)
     engine.fishing = s
     engine.fishing_last = (x, y, bait_type)
-    note(s, f"You cast your {bait.type.name} into {data()['waters'][s.kind]['name']}, {s.band} water.")
+    note(s, f"You cast your {bait.type.name} into {data()['waters'][s.kind]['name']}, {s.water_band} water"
+         + (f" (it sits {s.band} without a sinker)." if s.band != s.water_band else "."))
     from game import sound
     sound.play("cast")
     return True, ""
@@ -422,7 +559,7 @@ def still_on(engine) -> bool:
         return False
     p = engine.player
     if (p.x, p.y) != s.stand or p.stats.is_dead or place(engine) in (None, "miasma") \
-            or s.rod not in p.inventory.items:
+            or not any(it is s.rod for it in p.all_items()):
         engine.fishing = None
         return False
     return True
@@ -431,7 +568,7 @@ def still_on(engine) -> bool:
 def shows_coming(engine, s: Session) -> bool:
     from game import fieldskills
     rank = fieldskills.rank(engine, "angling")
-    return species()[s.fish]["tier"] <= rank or rank >= 3
+    return species()[s.fish]["tier"] <= rank + s.kit.get("read", 0) or rank >= 3
 
 
 def _use_bait(engine, s: Session) -> None:
@@ -464,7 +601,7 @@ def step(engine, cmd: str) -> bool:
     if cmd == "strike":
         if s.phase == "bite":
             return _hook(engine, s, rng)
-        s.spooked = STRIKE_SPOOK
+        s.spooked = max(1, STRIKE_SPOOK - s.kit.get("quiet", 0) * 2)
         note(s, "You strike at nothing. " + ("It was only the current." if s.false_tell else "")
              + " You've put them down for a while.")
         s.false_tell = False
@@ -475,7 +612,7 @@ def step(engine, cmd: str) -> bool:
         s.window -= 1
         if s.window <= 0:
             s.phase = "wait"
-            if rng.random() < 0.5 and not _is_lure(engine, s):
+            if rng.random() < 0.5 and not _is_lure(engine, s) and not s.kit.get("keep_bait"):
                 _use_bait(engine, s)
                 note(s, "It's gone, and your bait with it.")
                 if bait_named(engine.player, s.bait) is None:
@@ -488,7 +625,7 @@ def step(engine, cmd: str) -> bool:
     if s.spooked:
         s.spooked -= 1
         return True
-    cands = candidates(s.kind, s.band, s.light, s.bait_key)
+    cands = candidates(s.kind, s.band, s.light, s.bait_key, s.kit)
     roll = rng.random()
     total = 0.0
     for fid, chance in cands:
@@ -497,7 +634,7 @@ def step(engine, cmd: str) -> bool:
             return _bite(engine, s, fid, rng)
     if rng.random() < FALSE_TELL:
         s.false_tell = True
-        note(s, rng.choice(data()["tells"]["false"]))
+        note(s, rng.choice(data()["tells"]["false"]) + (" (Only the current.)" if s.kit.get("true_tells") else ""))
     elif rng.random() < AMBIENT_TELL:
         note(s, rng.choice(data()["tells"]["ambient"]))
     return True
@@ -514,7 +651,8 @@ def _bite(engine, s: Session, fid: str, rng) -> bool:
     from game import fieldskills
     f = species()[fid]
     s.phase, s.fish = "bite", fid
-    s.window = (1 if f.get("wary") else 2) + (1 if fieldskills.rank(engine, "angling") >= 2 else 0)
+    s.window = ((1 if f.get("wary") else 2) + (1 if fieldskills.rank(engine, "angling") >= 2 else 0)
+                + s.kit.get("window", 0))
     note(s, data()["tells"]["bite"][f["temper"]])
     from game import sound
     sound.play("fish_bite")
@@ -524,7 +662,7 @@ def _bite(engine, s: Session, fid: str, rng) -> bool:
 def _hook(engine, s: Session, rng) -> bool:
     from game import fieldskills
     f = species()[s.fish]
-    if f.get("wary") and fieldskills.rank(engine, "angling") < 2 and rng.random() < 0.25:
+    if f.get("wary") and fieldskills.rank(engine, "angling") < 2 and not s.kit.get("set") and rng.random() < 0.25:
         s.phase = "wait"
         note(s, "You strike, but it's too quick for you.")
         if not _is_lure(engine, s):
@@ -532,6 +670,13 @@ def _hook(engine, s: Session, rng) -> bool:
         return True
     item = make(s.fish, rng, s.kind, engine.day)
     s.kg, s.quirk = item.catch["kg"], item.catch["quirk"]
+    big = s.kit.get("size", 1) - size_class(s.kg)       # a hook too big for its mouth misses it (v0.96.0)
+    if big > 0 and not s.kit.get("any_size") and rng.random() < 0.35 * big:
+        s.phase = "wait"
+        note(s, "You strike, but the hook's too big for its mouth. It's gone.")
+        if not _is_lure(engine, s):
+            _use_bait(engine, s)
+        return True
     ratio = s.kg / f["kg"][0]
     s.strength = TIER_STRENGTH[f["tier"]] * ratio ** 0.4
     s.max_stamina = s.stamina = TIER_STAMINA[f["tier"]] * ratio ** 0.5
@@ -559,12 +704,24 @@ def _next_move(s: Session, rng) -> str:
 
 
 def power(s: Session) -> float:
-    pw = s.rod.type.properties.get("power", 60)
+    """The strain the rig takes before the line goes: the rod's power plus the line's strength (a biter's
+    teeth take some off)."""
+    k = s.kit or {}
+    pw = k.get("power", s.rod.type.properties.get("power", 40)) + k.get("strength", BARE["strength"])
     return pw * (0.85 if species()[s.fish]["temper"] == "biter" else 1.0)
 
 
 def max_line(s: Session) -> float:
-    return s.rod.type.properties.get("line", 24)
+    return (s.kit or {}).get("capacity", BARE["capacity"])
+
+
+def hold_chance(s: Session, chance: float) -> float:
+    """A chance of the hook coming free, after the hook's hold, and worse for a hook too small for the fish."""
+    k = s.kit or {}
+    small = size_class(s.kg) - k.get("size", 1)
+    if small > 0 and not k.get("any_size"):
+        chance = chance * (1 + 0.6 * small) + 0.05 * small
+    return chance * (1 - k.get("hold", 0) / 100)
 
 
 def _fight(engine, s: Session, cmd: str, rng) -> bool:
@@ -577,6 +734,9 @@ def _fight(engine, s: Session, cmd: str, rng) -> bool:
     move = s.coming
     m = data()["moves"][move]
     pull = s.strength * (0.45 + 0.55 * max(0.0, s.stamina) / s.max_stamina) * m["pull"] * rng.uniform(0.85, 1.15)
+    k = s.kit or {}
+    if move in ("run", "dive"):
+        pull *= 1 - k.get("drag", 0) / 100                # the reel's drag eases a run
     factor = ACT[cmd]
     if move == "sulk" and cmd == "reel":
         factor *= 0.8
@@ -585,19 +745,24 @@ def _fight(engine, s: Session, cmd: str, rng) -> bool:
     s.tension = s.tension * KEEP + pull * factor
     gain = 0.0
     if cmd == "reel":
-        gain = RETRIEVE / (1 + s.kg / HEAVY) + (1 if move == "sulk" else 0) + (2 if move == "spent" else 0)
+        gain = (k.get("retrieve", RETRIEVE) / (1 + s.kg / HEAVY) + (1 if move == "sulk" else 0)
+                + ((2 + k.get("spent", 0)) if move == "spent" else 0))
     elif cmd == "give":
         gain = -2
     if move == "run":
-        gain -= 2
+        gain -= max(0, 2 - k.get("run_line", 0))
     s.line -= gain
-    s.stamina = max(0.0, s.stamina - TIRE[cmd] - (1 if move in ("run", "thrash", "dive") else 0))
+    s.stamina = max(0.0, s.stamina - TIRE[cmd] - (k.get("tire", 0) if cmd == "hold" else 0)
+                    - (1 if move in ("run", "thrash", "dive") else 0))
     s.move = move
     note(s, m["text"])
     lost = ""
-    if move == "thrash" and cmd == "reel" and rng.random() < TEAR:
+    if move == "thrash" and cmd == "reel" and rng.random() < hold_chance(s, TEAR):
         lost = "The hook tears free as you haul into its thrashing."
-    elif move in ("left", "right") and cmd != ("right" if move == "left" else "left") and rng.random() < SNAG:
+    elif move == "run" and rng.random() < hold_chance(s, 0.0):
+        lost = "It runs, and the little hook rips out of its mouth."
+    elif move in ("left", "right") and cmd != ("right" if move == "left" else "left") \
+            and rng.random() < SNAG * (1 - k.get("snag_guard", 0) / 100):
         lost = "It wraps the line round a snag. The line parts."
         _lose_lure(engine, s)
     elif s.tension > power(s):
@@ -609,7 +774,7 @@ def _fight(engine, s: Session, cmd: str, rng) -> bool:
         _lose_lure(engine, s)
     else:
         s.slack = s.slack + 1 if (s.tension < SLACK and cmd == "give") else 0   # (only giving line goes slack)
-        if s.slack >= 2 and rng.random() < 0.4:
+        if s.slack >= 2 and rng.random() < hold_chance(s, 0.4) * (1 - k.get("slack_guard", 0) / 100):
             lost = "The line's gone slack too long. The hook falls free."
     if lost:
         from game import fieldskills
