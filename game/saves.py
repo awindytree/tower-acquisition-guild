@@ -337,4 +337,6 @@ def restore(engine: "Engine", data: dict) -> None:
     if stale_hunt:
         engine.log("That hunt was saved by an older version of the game, and its areas can't be rebuilt. "
                    "You've made your way back to Bytorsskug; the contract is lost.")
+    from game import lost_grounds
+    lost_grounds.clear_work(engine)  # no work at a Lost Ground's words (v0.87.1)
     story.fire(engine, "load")     # the story catches up with a save from before it (v0.67.0)

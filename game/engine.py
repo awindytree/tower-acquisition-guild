@@ -164,6 +164,8 @@ class Engine:
         # quests, scenes, story talk and key hunts (data/story/*.json); TAG_NO_STORY=1 runs without
         # the story (the balance bot, and tests of other things)
         self.story_data = story.StoryData(None if os.environ.get("TAG_NO_STORY") else story.DATA)
+        from game import lost_grounds
+        lost_grounds.check_story(self.story_data)     # no key hunt at a Lost Ground's words (v0.87.1)
         self.story = story.empty()           # story progress (world state; game/story.py)
         self.scene_queue: list = []          # scenes waiting for the screen to be free
         self.story_event: dict = {}          # the event being handled (for event: conditions)
@@ -1391,10 +1393,10 @@ class Engine:
         words = keywords.resolve(self, words, self.rng)
         keywords.learn(self, list(words))
         place = self.regions.place(*words)
-        from game import lost_grounds, work
+        from game import lost_grounds
         ground = lost_grounds.at_place(place.id)
-        if ground and not postings.matches(self, place) and not work.bounties_for(self, place):
-            lost_grounds.enter(self, ground)       # a Lost Ground (roadmap step 5, v0.87.0)
+        if ground:                                 # a Lost Ground (roadmap step 5, v0.87.0): never a hunt (user)
+            lost_grounds.enter(self, ground)
             return
         contract = postings.matches(self, place) or trip(place, self.catalogue, self.rng)
         self.screen = departure_card(contract, self)

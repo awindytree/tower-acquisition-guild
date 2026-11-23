@@ -5,13 +5,19 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.87.1: A Lost Ground is never a hunt (2026-11-22)
+- **A Lost Ground is never a hunt** (user). Its words always take you there. 0.87.0 let a contract or bounty held at the same words win, but no board ever posts one.
+- Two ways such work could still exist are now closed:
+  - A save from before a ground was added could hold work at its words. When it loads, that work is withdrawn, with a log line.
+  - A story key hunt at a ground's words stops the game from loading, with an error naming both.
+
 ## 0.87.0: Lost Grounds, the plumbing (2026-11-22)
 Roadmap step 5 (user): hand-built, fixed places out in the miasma, reached through the Wayfinder by particular words, there for lore and story. This is only the machinery: **the places themselves are the user's.** The game ships none yet.
 - **Making one:** a JSON file and a map in `data/lost_grounds/`. The writer's guide is `data/lost_grounds/_README.md`, and `examples/hollow` is a small example the tests visit.
   - The JSON gives a name, three keyword ids, the map, card lines for the first visit and later ones, readable monuments, and the ambience.
   - The map uses the usual format, with `;gate=x,y out` as the way back, plus `;item` and `;monument`.
   - Grounds are checked on load: the words must exist, the map must exist and must have a way back.
-- **Choosing its words at the Wayfinder** takes you there instead of a hunt, with a title card. A contract or bounty you hold for exactly those words still means a hunt. Rank limits on the danger word apply as usual.
+- **Choosing its words at the Wayfinder** takes you there instead of a hunt, with a title card. Rank limits on the danger word apply as usual.
 - **Persistent**, like Ingenfjel and the stead: the same place every time. What one Hunter takes or leaves stays taken or left for everyone after. It's kept in saves, including saving while you're there.
 - **It lies in the miasma:** windcatchers drain, artifacts need one, torches burn. There are no creatures yet.
 - **Travel:** going and coming back take a Pulse each. The way back returns you to the Wayfinder, and travel-to lists it.

@@ -14,14 +14,15 @@ for lore and story. This module is the plumbing; **the places themselves are the
 `data/lost_grounds/_README.md` is the writer's guide; `examples/` holds an example the tests load.
 
 **How it behaves** (assistant's calls, for the user to change):
-- Choosing a Lost Ground's words at the Wayfinder takes you there instead of a hunt (a contract or
-  bounty you hold for that exact place still wins). Rank limits on danger words apply as usual.
+- Choosing a Lost Ground's words at the Wayfinder always takes you there: **a Lost Ground is never a
+  hunt** (user, v0.87.1). Rank limits on danger words apply as usual.
 - It's **persistent** (like Ingenfjel and the stead, game/sites.py): the same place every time, and
   what you take or leave stays taken or left, for every Hunter after you.
 - It lies **in the miasma**: windcatchers drain, artifacts need one, torches burn. No creatures unless
   a later version adds them; no faints are needed.
 - Going and coming back each take a Pulse. The way back (`;gate=x,y out`) returns you to the Wayfinder.
-- The Guild's boards never post work at a Lost Ground's words.
+- The Guild's boards never post work at a Lost Ground's words. Work a save already held there (from
+  before the ground existed) is dropped on load (`clear_work`).
 - **World state:** `engine.story["grounds"]` {id: first day anyone came}. Story: event `lost_ground`
   (ground=ID, first=True/False) on arrival; condition `visited:ID`.
 """
@@ -64,6 +65,16 @@ def load(root: Path | str | None = None, keywords=None) -> dict:
             monuments.table().update(g["monuments"])
     _cache = out
     return out
+
+
+def check_story(story_data) -> None:
+    """A story key hunt can't send a Hunter to a Lost Ground's words: a Lost Ground is never a hunt."""
+    places = {g["place"]: gid for gid, g in grounds().items()}
+    for cid, c in getattr(story_data, "contracts", {}).items():
+        words = "/".join(c.get("words", []))
+        if words in places:
+            raise ValueError(f"Story contract {cid}: its words are the Lost Ground {places[words]}'s. "
+                             "A Lost Ground is never a hunt: pick other words.")
 
 
 def grounds() -> dict:
@@ -112,6 +123,25 @@ def enter(engine, gid: str) -> None:
                                     + [("", TEXT), (f"{engine.date.short}", DIM)])
     story.fire(engine, "lost_ground", ground=gid, first=first)
     engine.autosave()
+
+
+def clear_work(engine) -> list[str]:
+    """Drop work at any Lost Ground's words (a save from before the ground was added): the Hunter's
+    contract, their bounties, errands on the notice board. Returns what went, for the log."""
+    places = {g["place"] for g in grounds().values()}
+    gone = []
+    p = engine.player
+    if p.contract is not None and p.contract.region.id in places:
+        gone.append(p.contract.title(engine.catalogue))
+        p.contract = None
+    for j in [j for j in p.jobs if j.region in places]:
+        p.jobs.remove(j)
+        gone.append(j.label(engine))
+    engine.requests = [r for r in engine.requests if not (r.kind == "errand" and r.place in places)]
+    engine.job_board = [j for j in engine.job_board if j.region not in places]
+    for what in gone:
+        engine.log(f"The Guild has withdrawn your work there: {what}. Those words lead somewhere else now.")
+    return gone
 
 
 def leave(engine) -> None:

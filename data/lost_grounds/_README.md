@@ -37,5 +37,5 @@ Files starting with `_` and anything in `examples/` aren't loaded by the game.
 ## How it plays (for now)
 - Going and coming back take a Pulse each. It's in the miasma: windcatchers drain, artifacts need
   one, torches burn. There are no creatures there yet.
-- If a Hunter holds a contract or a bounty for exactly those words, the hunt wins.
-- The Guild's boards never post work at a Lost Ground's words.
+- A Lost Ground is never a hunt: its words always lead there. The Guild's boards, errands and
+  bounties never use them, and work an older save held there is withdrawn when it loads.
