@@ -41,6 +41,7 @@ EQUIPMENT_KEY = _key("e")   # the equipment window (user, v0.69.0)
 LOOK_KEY = _key("x")
 CHARACTER_KEY = _key("c")
 FIRE_KEY = _key("f")
+VAULT_KEY = _key("j")       # Pole-vault (a staff trait, v0.86.0): j then a direction
 THROW_KEY = _key("h")       # throw (hurl) something: a pot, a jar, a lure, a weapon that can be thrown (v0.82.0)
 EXPLORE_KEY = _key("o")
 TECHNIQUE_KEY = _key("z")   # ready the weapon's rank-5 technique (v0.55.0; no turn)
@@ -126,6 +127,15 @@ def action_for_event(event: tcod.event.Event, engine: "Engine") -> Action | None
                 engine.log(why)
             else:
                 engine.screen = TargetScreen(engine)
+            return None
+        if event.sym == VAULT_KEY:
+            from game import legs
+            why = legs.can_vault(engine)
+            if why:
+                engine.log(why)
+            else:
+                from game.screens import VaultScreen
+                engine.screen = VaultScreen()
             return None
         if event.sym == THROW_KEY:
             from game import throwing

@@ -48,6 +48,7 @@ python main.py
 | `t` | Travel to a known place (walks there, stopping if anything comes up) |
 | `o` | Auto-explore (hunts): walk to unexplored ground until something comes up (a creature, an item, the way deeper) |
 | `h` | Throw (hurl) something: a flash pot, a smoke jar, a lure, or a weapon with a throwing trait: Tab next target, move keys to aim, Enter/`h` throw, Esc |
+| `j` + direction | Pole-vault two cells (a staff with the Pole-vault trait; once per area) |
 | `f` | Aim and shoot a wielded bow or crossbow (a crossbow that needs winding: `f` winds it, a turn): Tab next target, move keys to aim, Enter/`f` shoot, Esc |
 | `z` | Ready your weapon's rank-5 technique (again to put it aside); no time |
 | `n` | Choose a talent you've earned |

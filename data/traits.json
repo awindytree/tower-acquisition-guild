@@ -513,8 +513,11 @@
    },
    "pole_vault": {
     "name": "Pole-vault",
-    "text": "leap two cells instead of a step, once per area",
-    "ready": false
+    "text": "once per area, j and a direction leaps two cells (over a creature, water or a gap)",
+    "ready": true,
+    "effects": {
+     "vault": 1
+    }
    },
    "sweeping": {
     "name": "Sweeping",
@@ -1312,18 +1315,27 @@
    },
    "wading": {
     "name": "Wading",
-    "text": "can walk through shallow water (the edge of ponds) for a turn's cost",
-    "ready": false
+    "text": "on a hunt, step into shallow water (water beside dry ground) at a normal step's cost",
+    "ready": true,
+    "effects": {
+     "wading": 1
+    }
    },
    "mud_boots": {
     "name": "Mud-boots",
-    "text": "marsh mud and reeds cost no extra",
-    "ready": false
+    "text": "marsh mud and reeds cost no extra turn",
+    "ready": true,
+    "effects": {
+     "mud_boots": 1
+    }
    },
    "runners": {
     "name": "Runner's",
-    "text": "stepping away from a creature beside you is never punished",
-    "ready": false
+    "text": "a creature you step away from can't strike you that turn",
+    "ready": true,
+    "effects": {
+     "runner": 1
+    }
    },
    "tireless": {
     "name": "Tireless",
@@ -1359,8 +1371,11 @@
    },
    "pathfinders": {
     "name": "Pathfinder's",
-    "text": "auto-explore and travel-to stop less often for nothing",
-    "ready": false
+    "text": "auto-explore and travel-to walk on past creatures that haven't noticed you and are well away, and auto-explore picks up supplies on the way",
+    "ready": true,
+    "effects": {
+     "pathfinder": 1
+    }
    }
   }
  }

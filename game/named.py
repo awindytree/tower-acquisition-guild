@@ -53,10 +53,26 @@ def display(name: str, affixes: list) -> str:
     return out
 
 
+NAMES: set[str] = set()      # every named creature's full name met so far (for `fix`)
+
+
+def fix(text: str) -> str:
+    """Messages are written "the wild dog hits you"; a named creature is just "Knif the Swift"
+    (v0.86.0: "The Knif the Swift" before). Drops the "the" or "a" in front of any named one's name."""
+    if not NAMES or not text:
+        return text
+    import re
+    for n in NAMES:
+        if n in text:
+            text = re.sub(r"\b(?:[Tt]he|[Aa]n?) " + re.escape(n), n, text)
+    return text
+
+
 def apply(m, name: str, affixes: list, fresh: bool = True) -> None:
     """Make a creature a named one (fresh: also give it its extra health)."""
     m.named, m.affixes = name, list(affixes)
     m.name = display(name, affixes)
+    NAMES.add(m.name)
     m.color = COLOR
     if fresh and "hulking" in affixes:
         m.hp = m.type.hp * 3 // 2

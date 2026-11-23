@@ -527,7 +527,8 @@ class TitleCardScreen:
 
     def __init__(self, heading: str, lines: list[tuple[str, tuple]], on_continue=None) -> None:
         self.heading = heading
-        self.lines = lines          # (text, colour) pairs, centred
+        from game import named
+        self.lines = [(named.fix(t), c) for t, c in lines]   # (text, colour) pairs, centred
         self.on_continue = on_continue
 
     def handle(self, event, engine: "Engine") -> Action | None:
@@ -1944,6 +1945,29 @@ class TargetScreen(LookScreen):
         console.print(x + 2, y + h - 2, "Enter/f shoot  Tab next  move to aim  Esc"[: w - 4], fg=DIM, bg=BG)
 
 
+class VaultScreen:
+    """Pole-vault (v0.86.0): which way? A direction vaults; Esc doesn't."""
+
+    def handle(self, event, engine: "Engine") -> Action | None:
+        from game.input_handlers import MOVE_KEYS
+        from game.actions import VaultAction
+        if not isinstance(event, tcod.event.KeyDown):
+            return None
+        if event.sym in MOVE_KEYS:
+            engine.screen = None
+            return VaultAction(*MOVE_KEYS[event.sym])
+        if event.sym == KeySym.ESCAPE:
+            engine.screen = None
+        return None
+
+    def render(self, console, engine: "Engine", area_w: int) -> None:
+        text = " Vault which way? (a direction; Esc: don't) "
+        w = min(area_w - 2, len(text) + 2)
+        x = (area_w - w) // 2
+        draw_box(console, x, 1, w, 3, "Pole-vault")
+        console.print(x + 1, 2, text[: w - 2], fg=TEXT, bg=BG)
+
+
 class ThrowScreen(LookScreen):
     """Aim a throw (v0.82.0): the cursor starts on the nearest creature within reach; Tab cycles them;
     the movement keys move it. Enter or h throws (a turn passes); Esc puts it away."""
@@ -2234,6 +2258,7 @@ KEY_REFERENCE = [
         ("b", "butcher the corpse here, for materials"),
         ("f", "aim and shoot a bow or crossbow"),
         ("h", "throw a pot, jar, lure or throwable weapon"),
+        ("j + direction", "pole-vault two cells (a staff trait)"),
         ("x", "look (Tab: next thing in view)"),
     ]),
     ("Windows", [

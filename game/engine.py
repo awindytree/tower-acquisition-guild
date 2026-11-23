@@ -155,6 +155,8 @@ class Engine:
         self.mentor_spot = None          # where the mentor stands (from the city map)
         self.passing = False             # a Hunter has just died of old age (stops time until the card)
         self.heavy_step = False          # the last action was a step (Gravity, v0.70.0)
+        self.mud_step = False            # ...onto mud or reeds (v0.86.0)
+        self.disengaged = set()          # creatures you stepped away from with Runner's (v0.86.0)
         from game import story
         import os
         # quests, scenes, story talk and key hunts (data/story/*.json); TAG_NO_STORY=1 runs without
@@ -363,6 +365,8 @@ class Engine:
         return self.player.x, self.player.y
 
     def log(self, message: str) -> None:
+        from game import named
+        message = named.fix(message)       # "Knif the Swift misses you", not "The Knif the Swift..." (v0.86.0)
         self.messages.append(message)
         self.logged += 1  # a running count, so auto-explore can tell when something was said
         del self.messages[:-MAX_LOG]
@@ -426,7 +430,9 @@ class Engine:
             times = max(1, getattr(self.hunt.contract.region, "time", 1))
             if talents.total(self.player, "no_heavy"):            # Tireless (a trait, v0.77.0)
                 times = 1
-        self.heavy_step = False
+        if getattr(self, "mud_step", False) and self.hunt is not None:
+            times += 1                    # mud and reeds drag at you: a step takes another turn (v0.86.0)
+        self.heavy_step = self.mud_step = False
         hunt, player = self.hunt, self.player
         for n in range(times):
             if n:
@@ -434,6 +440,7 @@ class Engine:
                     break                    # (the hunt ended, or the Hunter fell, on the turn before)
                 self.turn += 1
             self._end_turn_once()
+            self.disengaged = set()       # Runner's covers the turn you step away, no more (v0.86.0)
 
     def _end_turn_once(self) -> None:
         """Everything that happens after the player acts: creatures take
@@ -731,6 +738,9 @@ class Engine:
 
     def monster_attacks(self, m) -> None:
         from game import combat, talents
+        if id(m) in getattr(self, "disengaged", ()):        # Runner's (a leg trait, v0.86.0): you slipped away
+            self.log(f"The {m.name} can't catch you as you slip away.")
+            return
         parry = talents.total(self.player, "parry")          # Parrying (a trait, v0.77.0)
         if parry and self.rng.randint(1, 100) <= parry:
             self.log(f"You turn the {m.name}'s attack aside.")
@@ -1252,6 +1262,7 @@ class Engine:
         self.player.daylight = getattr(game_map, "light", "") == "day"     # (Brimmed)
         p_ = self.player
         p_.area_kills, p_.coil_used, p_.kick_used, p_.streak = 0, False, False, 0   # (once-an-area traits)
+        p_.vault_used = False                                                       # (Pole-vault, v0.86.0)
         if not self.player.in_miasma:
             from game.artifacts import refill
             refill(self.player)  # back in the Brisering: windcatchers fill up

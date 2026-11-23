@@ -5,6 +5,16 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.86.0: The last traits (2026-11-22)
+Five of the six traits still waiting are now ready (167 of 168). **Chorus-touched** stays reserved for Chorus magic (user).
+- **Mud and reeds now slow you:** on a hunt, a step onto either takes two turns. The first time, the log says so.
+- **Mud-boots** (legs): mud and reeds cost no extra turn.
+- **Wading** (legs): on a hunt, step into shallow water (water beside dry ground) at a normal step's cost. Creatures that walk can't follow you in.
+- **Runner's** (legs): a creature you step away from can't strike you that turn. Without it, a quick creature catches up and strikes, roughly three times in four in the test.
+- **Pole-vault** (staff): once per area, press **j** and a direction to leap two cells, over a creature, water or a gap (not a wall or trees). Takes a turn.
+- **Pathfinder's** (legs): auto-explore and travel-to walk on past creatures that haven't noticed you and are at least 8 cells away. Auto-explore also picks up supplies on the way instead of stopping at them.
+- **Fixed:** a named creature in messages read "The Knif the Swift misses you" (since v0.83.0). The log, title cards and the Hall of Hunters now say "Knif the Swift misses you".
+
 ## 0.85.1: What comes home in a lost pack (2026-11-22)
 User's rules for a recovered pack:
 - **Shards** in the pack are earnings, so **dues apply**. The Guild's fee for the recovery is still Guild pay (no dues).

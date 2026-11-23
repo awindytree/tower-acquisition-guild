@@ -275,6 +275,7 @@ def upgrade(engine, item, at: str, rng=None) -> tuple[str, str]:
 #     pierce; bows: ranged_pierce, arrow_survive (%), free_shot (%), marked_shot_damage, ranged_stagger (%),
 #     ranged_bleed_chance (%), steady; worn: light, daze_immune, no_injury:<injury>, thorns_back,
 #     quick_butcher, no_heavy, ash_immune.
+#   Moving (v0.86.0, game/legs.py and game/explore.py): vault, wading, mud_boots, runner, pathfinder.
 #   v0.78.0: melee first_double, first_accuracy, sneak_accuracy, full_hp_damage, reach_damage, close_damage,
 #     bleeding_damage, execute (%), double_strike (%), bleed_extra, hold_on_hit, pin_chance (%), crit_stagger,
 #     sweep_stagger, frenzy_extra, impale_stagger, set_rolls, counter (%), reach; worn still_evasion,

@@ -98,7 +98,9 @@ class MoveAction(Action):
             engine.open_artifact()
             return False  # choosing takes no time
 
-        if not tile.walkable:
+        from game import legs
+        wade = not tile.walkable and legs.can_wade(engine, nx, ny)     # Wading (a leg trait, v0.86.0)
+        if not tile.walkable and not wade:
             from game import sound
             sound.play("bump", gap=0.4)
             place = engine.game_map.landmarks.get((nx, ny))
@@ -115,7 +117,9 @@ class MoveAction(Action):
             return False
 
         from_x, from_y = player.x, player.y
+        beside = legs.beside(engine)
         player.move(self.dx, self.dy)
+        legs.after_step(engine, tile, beside, wade)     # mud, Runner's (v0.86.0)
         engine.heavy_step = True        # (a step: Gravity makes time pass faster for it, v0.70.0)
         player.stepped_now = True       # (Braced, v0.78.0)
         from game import sound
@@ -585,6 +589,17 @@ def bleed(engine, target) -> None:
     if target.bleeding < turns:
         target.bleeding = turns
         engine.log(f"The {target.name} is bleeding.")
+
+
+class VaultAction(Action):
+    """j then a direction, with Pole-vault (a staff trait, v0.86.0): leap two cells, once an area."""
+
+    def __init__(self, dx: int, dy: int) -> None:
+        self.dx, self.dy = dx, dy
+
+    def perform(self, engine: "Engine") -> bool:
+        from game import legs
+        return legs.vault(engine, self.dx, self.dy)
 
 
 class ReloadAction(Action):

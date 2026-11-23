@@ -151,7 +151,7 @@ def record(engine, player, cause: str) -> dict:
     entry = {"name": player.full_name, "rank": ranks.of(player)["name"],
              "age": age_of(player, engine.day), "level": player.stats.level,
              "hunts": player.hunts_done, "joined": player.born + player.join_age if player.born is not None else 0,
-             "ended": engine.day, "cause": cause}
+             "ended": engine.day, "cause": __import__("game.named", fromlist=["fix"]).fix(cause)}
     engine.hall.append(entry)
     return entry
 

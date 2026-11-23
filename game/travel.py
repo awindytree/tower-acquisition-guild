@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from collections import deque
 
-from game.explore import STEPS, creatures_in_view
+from game.explore import STEPS, creatures_in_view, worth_stopping_for
 
 MAX_STEPS = 2000
 PASSAGES = {">": "the way deeper", "<": "the way back", "H": "the trail home"}
@@ -145,7 +145,7 @@ def travel_steps(engine, label: str, spot: tuple[int, int], beside: bool):
         engine.end_turn()
         if engine.game_map is not gm or engine.screen is not None or p.stats.is_dead:
             return  # arrived through a passage or onto a gate, or something opened
-        new = [m for m in creatures_in_view(engine) if id(m) not in known]
+        new = [m for m in worth_stopping_for(engine) if id(m) not in known]
         if new:
             engine.log(f"You see {'an' if new[0].name[0] in 'aeiou' else 'a'} {new[0].name}.")
             return

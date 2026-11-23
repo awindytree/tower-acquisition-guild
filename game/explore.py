@@ -25,6 +25,32 @@ def creatures_in_view(engine) -> list:
     return [m for m in engine.game_map.monsters if engine.visible is not None and engine.visible[m.x, m.y]]
 
 
+CALM_RANGE = 8      # Pathfinder's (a leg trait, v0.86.0): a creature that hasn't noticed you, this far off, isn't a reason to stop
+
+
+def pathfinder(engine) -> bool:
+    from game import talents
+    return bool(talents.total(engine.player, "pathfinder"))
+
+
+def worth_stopping_for(engine) -> list:
+    """Creatures in view that stop auto-explore and travel-to: all of them, unless the Hunter has
+    Pathfinder's, which walks on past one that hasn't noticed them and is at least CALM_RANGE away."""
+    seen = creatures_in_view(engine)
+    if not pathfinder(engine):
+        return seen
+    from game.ranged import distance
+    p = engine.player
+    return [m for m in seen if m.awake or distance(p.x, p.y, m.x, m.y) < CALM_RANGE]
+
+
+def is_supply(item) -> bool:
+    """Something Pathfinder's picks up on the way without stopping: a stackable supply."""
+    t = item.type
+    return (item.trophy is None and t.stackable and t.kind in ("consumable", "misc")
+            and not t.properties.get("lost_pack") and not t.properties.get("pouch"))
+
+
 def next_step(engine) -> tuple[tuple[int, int] | None, str]:
     """The first step towards the nearest place worth going: ground next to the
     unexplored, or something lying there (not already passed over). Returns
@@ -75,7 +101,7 @@ def explore_steps(engine):
     if not gm.fog:
         engine.log("There's nothing to explore here.")
         return
-    seen = creatures_in_view(engine)
+    seen = worth_stopping_for(engine)
     if seen:
         engine.log(f"Not with {_a(seen[0].name)} in view.")
         return
@@ -102,14 +128,19 @@ def explore_steps(engine):
             return
         if (p.x, p.y) in {(f.x, f.y) for f in gm.items}:  # (shards were picked up above)
             engine.explore_seen_items.add((p.x, p.y))
-            if why == "item":
+            here = gm.items_at(p.x, p.y)
+            if (pathfinder(engine) and all(is_supply(f.item) for f in here)
+                    and all(p.inventory.can_add(f.item) for f in here)):
+                PickUpAction().perform(engine)     # Pathfinder's: supplies go in the pack on the way
+                count_after_step = engine.logged
+            elif why == "item":
                 return
         found = _way_spots(engine) - known_ways
         if found:
             x, y = sorted(found)[0]
             engine.log(f"You've found the {gm.tile_at(x, y).name}.")
             return
-        new = creatures_in_view(engine)
+        new = worth_stopping_for(engine)
         if new:
             engine.log(f"You see {_a(new[0].name)}.")
             return
