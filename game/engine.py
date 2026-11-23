@@ -244,6 +244,9 @@ class Engine:
                 self.log(message)
             from game import rest
             rest.passed(self, 1, getattr(self, "rest_rate", rest.NATURAL))    # the rest owed (v0.88.0)
+            if not self.in_brisering():           # (v0.92.0) the caravans keep moving while you're elsewhere
+                from game import caravans
+                caravans.tick(self, caravans.data()["per_pulse"], walking=False)
             from game import aging, story
             aging.refresh(self)
             if self.passing:
@@ -488,6 +491,8 @@ class Engine:
             if last is not None and last[0] is gm and (last[1], last[2]) != (p.x, p.y):
                 from game import road
                 road.maybe(self)             # people on the road (v0.90.0)
+            from game import caravans
+            caravans.tick(self, 1, walking=True)   # the Towerway's caravans move as you do (v0.92.0)
         else:
             self._bris_last = None
         self.monsters_act()
@@ -1087,6 +1092,7 @@ class Engine:
         self.trophies = trophies.fresh()           # the trophy wall (v0.61.0)
         self.lost = []                             # lost Hunters' packs (v0.85.0)
         self.wilds = {}                            # what's been foraged, and heard at camps (v0.91.0)
+        self.caravans = {}                         # the Towerway's caravans (v0.92.0)
         self.road = {}                             # people met on the road (v0.90.0)
         works.apply(self)
         from game import homes
@@ -1178,6 +1184,7 @@ class Engine:
         from game.dialogue import Talk, load_conversation
         from game.screens import DialogueScreen
         folk = self.townsfolk[npc.folk_id]
+        self.talk_folk = npc.folk_id           # (who's being talked to: a caravan's choices need it, v0.92.0)
         from game import story
         if npc.folk_id == "clerk":            # back with what the contract asked for: report it (v0.89.0)
             from game import journey
@@ -1249,6 +1256,9 @@ class Engine:
         elif kind == "maps":
             from game.screens import MapsScreen
             self.screen = MapsScreen()
+        elif kind == "caravan":                # (v0.92.0) a caravan on the Towerway
+            from game import caravans
+            caravans.act(self, vid)
         elif kind == "upgrade":
             from game.screens import UpgradeScreen
             self.screen = UpgradeScreen(at="smith", title="The smith: raise a piece")
@@ -1298,6 +1308,9 @@ class Engine:
             refill(self.player)  # back in the Brisering: windcatchers fill up
             if self.player.torch_turns:
                 self.player.torch_turns = self.player.torch_light = 0  # put out at the gate
+        if game_map is getattr(self, "_brisering", None):
+            from game import caravans
+            caravans.place(self)              # the Towerway's caravans, where they've got to (v0.92.0)
         self.update_fov()
 
     def on_step(self, from_x: int, from_y: int) -> None:
@@ -1378,8 +1391,9 @@ class Engine:
             self.log(f"You pass out through the {g['name']} into the Brisering: {g['toward']}.")
         else:
             x, y = self.city_inside(gate_id)
-            from game import road
+            from game import road, caravans
             road.clear(self)                  # (anyone left on the road stays there, v0.90.0)
+            caravans.abandoned(self)          # (a guard who goes into the city leaves their caravan)
             self.change_map(self.city, x, y)
             self.log(f"You come back into Bytorsskug through the {g['name']}.")
             from game import journey

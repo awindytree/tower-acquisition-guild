@@ -108,6 +108,9 @@ def holds(engine, condition: str) -> bool:
         result = p.dues_owed > 0
     elif kind == "jobs_done":
         result = any(j.done for j in p.jobs)
+    elif kind == "caravan_escort":          # (v0.92.0) this caravan would take a guard
+        from game import caravans
+        result = caravans.offers_escort(engine)
     elif kind == "rank_ready":
         from game import ranks
         result = ranks.ready(p)
@@ -186,6 +189,8 @@ def apply(engine, effects) -> str | None:
             opens = "upgrade"   # (v0.76.0: the smith raises gear)
         elif kind == "maps":
             opens = "maps"      # (v0.84.0: the cartographer's maps)
+        elif kind.startswith("caravan_"):
+            opens = "caravan:" + kind[8:]      # (v0.92.0: trade, walk along, hire on as a guard)
         elif kind == "hand_in_writings":
             from game import library
             engine.log(library.hand_in(engine))
@@ -285,6 +290,9 @@ class Talk:
         if self.speaker.id.startswith("rival:"):
             from game import rivals
             extra = rivals.values(self.engine, self.speaker.id)
+        elif self.speaker.id.startswith("caravan:"):
+            from game import caravans
+            extra = caravans.values(self.engine, self.speaker.id)
         self.text = fill(self.engine, text, extra)
         if node.get("rumor"):          # small talk that may pass on a word (game/rumors.py)
             from game import rumors

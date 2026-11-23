@@ -36,6 +36,12 @@
    "text": ["They were waiting for someone coming in from the edge, and here you are. \"That pack looks heavy. We'll take {want}.\"",
             "\"Easy, Hunter. Just {want}, and nobody gets hurt.\" There are more of them than you'd like."]
   },
+  "raid": {
+   "title": "Raiders",
+   "who": ["highwayman", "deserter"], "count": [2, 3], "weight": 0,
+   "text": ["They come at the wagons from the scrub at the roadside, shouting for the drivers to stop. The caravan master looks at you: this is what you're paid for.",
+            "A cart's been dragged across the road ahead, and people are coming out of the ditches. They want the caravan's goods."]
+  },
   "beggars": {
    "title": "Hungry people",
    "who": ["desperate_local"], "count": [1, 2], "weight": 3,

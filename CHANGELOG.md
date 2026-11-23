@@ -5,6 +5,30 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.92.0: Caravans on the Towerway (2026-11-23)
+Stage 4 of the journey-home design, part 2, which completes it. User: caravans on the Towerway that trade or ask for an escort. Everything else is my draft, in `data/caravans.json`.
+
+**On the road:**
+- Two caravans travel the Towerway, Whisper Poet's road, between the Brisering's western edge and Bytorsskug's west gate.
+- They move a road cell for every step you take on the Brisering, or 50 cells a Pulse while you're elsewhere. The whole stretch takes them about 3 Pulses, as the lore says.
+- In town they trade 2 Pulses, then head back west. Past the edge they're gone, and 3 Pulses later a new one comes in.
+- They hold still while a fight's on near them, or when you're in the way.
+- Each has a leader with a Starsong name ("Xelfa Caravaner") and appears on the map as a gold `@`.
+
+**Talk to one:**
+- **"What have you got?"** Each caravan carries five to seven goods picked from its own list, at its own prices. 8% carry a lesser windcatcher (800). They buy supplies, misc and materials at 60%. Their goods leave with them.
+  - Two new western goods (drafts): **desert dates** (a ration that lasts longer) and **Bermann salve** (heals 14, stops bleeding and poison).
+- **"Mind if I walk with you a while?"** Travel-to that keeps you beside them until they reach the end of their road. **Company:** within 4 cells of a caravan, nobody on the road troubles you.
+- **"Need another guard?"** Offered while they have at least 40 cells to go. See them to the end of their road (the west gate, or the western edge).
+  - Pay is 30 + 0.6 a km (about 85 for the whole Towerway), as earnings, so dues apply.
+  - You're paid on arrival if you were within 6 cells for at least 60% of the way. Going into the city first ends the job with no pay.
+  - **Raiders**, at most once a trip: a road encounter where letting them take a crate halves your pay. Standing your ground gets +15% (the caravan's hands stand with you), and you can't run.
+- **"Any news from the road?"** A rumour, sometimes a word for the Wayfinder.
+
+**Also:**
+- Saved: the caravans and each one's stock.
+- In a short bot run they changed nothing for the bot, which doesn't use them.
+
 ## 0.91.0: Foraging, camps and cooking (2026-11-23)
 Stage 4 of the journey-home design, part 1. User: foraging spots and camp sites on the Brisering, making it a staging area before hunts. Everything else (spots, camps, recipes, numbers, words) is my draft, in `data/wilds.json`.
 

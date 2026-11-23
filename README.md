@@ -767,6 +767,12 @@ on their turn, one next to you attacks.
   traits); the panel shows "Faints: 1/1". Drop to 0 HP with a faint in hand
   and you're knocked out and come to at the trail home, healed. Drop with
   none, and the Hunter dies for good; a new Hunter starts in the guild hall.
+- **Caravans on the Towerway** (v0.92.0): caravans travel between the
+  Brisering's western edge and the city's west gate. Talk to one to trade (each
+  carries its own goods from the west, and buys supplies and materials), to walk
+  along with it (nobody on the road troubles you in its company), or to hire on as
+  a guard as far as the end of its road: paid if you were with them, half if
+  raiders made off with a crate.
 - **Foraging and camps** (v0.91.0): berry thickets, herb patches and mushroom
   rings grow across the Brisering (stand on one and press `g`; they grow back).
   Camps sit every 20 km along the roads (walk into the fire): cook hunter's stew

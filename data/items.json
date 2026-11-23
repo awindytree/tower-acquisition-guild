@@ -313,6 +313,16 @@
     "description": "Berries pressed and baked over a camp fire. Like a ration, but it keeps you going longer.",
     "value": 6, "stackable": true, "properties": {"heal_per_turn": 1, "heal_turns": 15}
   },
+  "desert_dates": {
+    "name": "pouch of desert dates", "plural": "pouches of desert dates", "glyph": "¥", "color": [170, 110, 60], "kind": "consumable",
+    "description": "Sweet dried dates from the western deserts, carried in on the Towerway's caravans. They keep for ever, and keep you going.",
+    "value": 5, "stackable": true, "properties": {"heal_per_turn": 1, "heal_turns": 12}
+  },
+  "bermann_salve": {
+    "name": "jar of Bermann salve", "plural": "jars of Bermann salve", "glyph": "♥", "color": [200, 160, 90], "kind": "consumable",
+    "description": "A thick, resinous salve the Bermann make for cuts and bites. It heals well, and stops bleeding and poison.",
+    "value": 22, "stackable": true, "properties": {"heal": 14, "cures": true}
+  },
   "materials_pouch": {
     "name": "materials pouch", "glyph": "&", "color": [170, 130, 90], "kind": "misc",
     "description": "A many-pocketed leather pouch for hides, bone, shell and the like. It takes one slot in your pack, and up to eight kinds of material ride in it without taking any more.",

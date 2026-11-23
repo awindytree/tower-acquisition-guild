@@ -1,0 +1,22 @@
+{
+  "_comment": "A caravan on the Towerway (game/caravans.py, v0.92.0). The assistant's draft. {caravan_line} is the caravan's own line (data/caravans.json lines, by where it's heading).",
+  "start": "hello",
+  "nodes": {
+    "hello": {
+      "text": "{caravan_line}",
+      "choices": [
+        {"text": "What have you got?", "do": ["caravan_trade"]},
+        {"text": "Mind if I walk with you a while?", "do": ["caravan_walk"]},
+        {"text": "Need another guard? I'll see you to the end of the road.", "if": ["caravan_escort"], "do": ["caravan_escort"]},
+        {"text": "Any news from the road?", "goto": "news"},
+        {"text": "Safe travels.", "end": true}
+      ]
+    },
+    "news": {
+      "rumor": true,
+      "choices": [
+        {"text": "Thanks.", "goto": "hello"}
+      ]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+ "_comment": "Caravans on the Towerway (design-return-journey.md stage 4, part 2). User: caravans on the Towerway that trade or ask for an escort. Everything here is the assistant's draft. count: caravans on the road at once; speed: road cells a caravan covers for each step a Hunter takes (1 = walking pace); per_pulse: cells covered for each Pulse that passes while the Hunter is off the Brisering; town_wait / next_wait: Pulses spent trading in Bytorsskug before heading back west, and before a new caravan comes in from the west; company_cells: walk this close and nobody on the road bothers you; escort: what a guard is paid (base + per_km), how close counts as with them, the share of the way you must be with them, and the chance per step of a raid while you guard them. goods: what a caravan may carry [item, least, most, price x], a few picked per caravan; rare: [item, chance, price].",
+ "count": 2, "speed": 1.0, "per_pulse": 50, "town_wait": 2, "next_wait": 3, "company_cells": 4,
+ "escort": {"base": 30, "per_km": 0.6, "near": 6, "share": 0.6, "raid": 0.004, "min_cells": 40},
+ "sell_rate": 0.6, "buys": ["material", "misc", "consumable"],
+ "goods": [
+  ["ration", 3, 8, 0.9], ["trail_cakes", 2, 5, 1.0], ["herb_broth", 1, 3, 1.0], ["healing_herbs", 2, 6, 1.0],
+  ["bandage", 2, 6, 0.9], ["poultice", 1, 3, 1.0], ["torch", 2, 6, 0.9], ["healing_draught", 1, 3, 1.1],
+  ["rope", 1, 2, 1.0], ["flash_pot", 1, 2, 1.1], ["desert_dates", 3, 8, 1.0], ["bermann_salve", 1, 3, 1.0],
+  ["thick_hide", 1, 4, 1.1], ["vinewood", 1, 3, 1.2], ["sinew", 2, 5, 1.0]
+ ],
+ "picks": [5, 7],
+ "rare": [["lesser_windcatcher", 0.08, 800]],
+ "lines": {
+  "east": ["Bound for Bytorsskug. Three Pulses of road, if nobody stops us.", "East to the city, and glad of it. Buying, selling?"],
+  "west": ["West, home, with whatever Bytorsskug would sell us. Need anything before the road?", "Heading back west. The deserts don't trade themselves."],
+  "town": ["Trading in the city a while yet. Then the long road west."]
+ }
+}

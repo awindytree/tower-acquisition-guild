@@ -177,6 +177,7 @@ def capture(engine: "Engine") -> dict:
             "lost": getattr(engine, "lost", []),          # lost Hunters' packs (v0.85.0)
             "road": getattr(engine, "road", {}),          # people met on the road (v0.90.0)
             "wilds": getattr(engine, "wilds", {}),        # foraging and camps (v0.91.0)
+            "caravans": getattr(engine, "caravans", {}),  # the Towerway's caravans (v0.92.0)
             "works": getattr(engine, "works", None),
             "trophies": getattr(engine, "trophies", None),   # the trophy wall (v0.61.0)
             "story": engine.story,
@@ -321,6 +322,8 @@ def restore(engine: "Engine", data: dict) -> None:
             have = {l.item_id for l in st.lines if l.max > 0}
             st.lines += [l for l in fresh[vid].lines if l.max > 0 and l.item_id not in have]
         engine.stocks[vid] = st
+    from game import caravans
+    caravans.from_save(engine, world.get("caravans"))    # (after the stocks: each caravan's goods, v0.92.0)
     engine.hunt = hunt
     engine.screen = None
     engine.started = True

@@ -122,6 +122,9 @@ def maybe(engine) -> None:
     st = state(engine)
     if st["last_day"] == engine.day or engine.day < st.get("quiet_until", -1):
         return
+    from game import caravans
+    if caravans.near(engine, caravans.data()["company_cells"]):
+        return                          # walking with a caravan: nobody troubles you (v0.92.0)
     if engine.rng.random() >= chance(engine):
         return
     st["last_day"] = engine.day
@@ -192,7 +195,8 @@ def talk_chance(engine, enc) -> int:
 def bluff_chance(engine, enc) -> int:
     p = engine.player
     hard = sum(1 for w in enc["who"] if w == "failed_hunter")
-    return _pct(15 + 10 * p.rank + 2 * p.stats.level - 8 * (len(enc["who"]) - 1) - 10 * hard)
+    guards = 15 if enc["kind"] == "raid" else 0          # (the caravan's own hands stand with you)
+    return _pct(15 + 10 * p.rank + 2 * p.stats.level - 8 * (len(enc["who"]) - 1) - 10 * hard + guards)
 
 
 def run_chance(engine, enc) -> int:
@@ -210,6 +214,8 @@ def choices(engine, enc) -> list[tuple[str, str]]:
                     else f"Pay what you have ({p.shards} shards)"))
     elif k == "robbery":
         out.append(("hand", f"Hand over {_the(enc['want_name'], enc['want'])}"))
+    elif k == "raid":
+        out.append(("crate", "Let them take a crate (half your pay)"))
     else:
         if p.inventory.count_of("ration"):
             out.append(("feed", "Give them a ration"))
@@ -220,7 +226,7 @@ def choices(engine, enc) -> list[tuple[str, str]]:
         out.append(("talk", f"Talk them down ({talk_chance(engine, enc)}%)"))
     if k != "beggars" and "bluff" not in tried:
         out.append(("bluff", f"Stand your ground: a Hunter of the Guild ({bluff_chance(engine, enc)}%)"))
-    if k != "beggars":
+    if k not in ("beggars", "raid"):
         out.append(("run", f"Run ({run_chance(engine, enc)}%)"))
     if k == "toll":
         out.append(("around", "Turn back and go round another way (a Pulse)"))
@@ -246,6 +252,13 @@ def choose(engine, enc, key: str) -> tuple[list[str], bool]:
                 p.inventory.items.remove(item)
                 return [f"You hand over {paid} shards. It isn't enough: they take the {item.type.name} too, and let you go."], True
         return [f"You count out {paid} shards. They step aside, and wish you a good walk home."], True
+    if key == "crate":
+        from game import caravans
+        es = caravans.state(engine)["escort"]
+        if es is not None:
+            es["crate"] = True
+        note(engine, k, key)
+        return ["The drivers stand back while they take a crate off the last wagon. Then they're gone, and the caravan rolls on."], True
     if key == "hand":
         item = enc["want"]
         if item is not None and item in p.inventory.items:
