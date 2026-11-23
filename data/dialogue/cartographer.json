@@ -1,0 +1,47 @@
+{
+  "start": [
+    {
+      "node": "hello"
+    }
+  ],
+  "nodes": {
+    "hello": {
+      "text": [
+        "Maps, {given}. Bring me a place you've walked end to end and I'll draw it for the next Hunter.",
+        "Every place the Wayfinder sends you is the same each time. That's what makes my work worth doing.",
+        "A good report and a steady hand: that's a map. Looking to buy?"
+      ],
+      "choices": [
+        {
+          "text": "Show me your maps.",
+          "do": [
+            "maps"
+          ]
+        },
+        {
+          "text": "How do maps get made?",
+          "goto": "how"
+        },
+        {
+          "text": "Another time.",
+          "end": true
+        }
+      ]
+    },
+    "how": {
+      "text": "Scout a place properly: every area, and at least half of the ground all told. Report it to the clerk with your field notes, and the report comes to me. Once it's drawn, any Hunter can buy a copy.",
+      "choices": [
+        {
+          "text": "Show me your maps.",
+          "do": [
+            "maps"
+          ]
+        },
+        {
+          "text": "Thanks.",
+          "end": true
+        }
+      ]
+    }
+  }
+}

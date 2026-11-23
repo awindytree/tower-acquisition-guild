@@ -757,6 +757,11 @@ on their turn, one next to you attacks.
   traits); the panel shows "Faints: 1/1". Drop to 0 HP with a faint in hand
   and you're knocked out and come to at the trail home, healed. Drop with
   none, and the Hunter dies for good; a new Hunter starts in the guild hall.
+- **Maps** (v0.84.0): scout a place properly (enter every area and explore
+  at least half of it) and report it to the clerk with your field notes; the
+  Guild's cartographer draws it. Once the Guild has built the Cartographer's
+  Study, buy maps at his window off the front hall (about 100 shards): a map
+  shows the whole place on every hunt there.
 - **Named creatures** (v0.83.0): from danger 2 up, now and then an area holds
   a creature the Guild knows by name: "Idred the Venomous", or "Armoured Idred
   the Venomous" with two marks. Each mark changes it: venomous (its hits

@@ -52,7 +52,7 @@ def note_area(engine, index: int) -> None:
 
 def has_notes(player) -> bool:
     n = player.notes
-    return bool(n.get("seen") or n.get("kills") or n.get("reached"))
+    return bool(n.get("seen") or n.get("kills") or n.get("reached") or n.get("mapped"))
 
 
 # ---- The archive -------------------------------------------------------------------------------
@@ -92,6 +92,9 @@ def report(engine) -> str:
             arc["regions"][rid] = deepest
             new_areas += deepest - before
             pay += (deepest - before) * FEE_PER_AREA * engine.regions[rid].danger[0]
+    from game import maps                   # scouting reports, for the cartographer (v0.84.0)
+    new_maps, map_pay = maps.report(engine)
+    pay += map_pay
     p.notes = {}
     from game import works                  # (the archive wing pays half again)
     pay = round(pay * (1 + works.active("notes") / 100))
@@ -103,6 +106,8 @@ def report(engine) -> str:
         parts.append(f"{new_entries} bestiary entr{'ies' if new_entries != 1 else 'y'}")
     if new_areas:
         parts.append(f"{new_areas} area{'s' if new_areas != 1 else ''} of scouting")
+    if new_maps:
+        parts.append(f"{new_maps} place{'s' if new_maps != 1 else ''} for the cartographer")
     return f"The clerk files your notes ({' and '.join(parts)}) and pays you {pay} shards."
 
 
@@ -140,6 +145,9 @@ def region_lines(engine, region_id: str) -> list[str]:
     lines = [f"Danger {lo}, {r.depth or '?'} areas deep, {r.style_text()}. "
              + ("Hunted by day." if r.light == "day" else "Dark: bring light."),
              f"Deepest reported: area {deepest}." if deepest else "No Hunter has reported scouting it yet."]
+    filed = engine.archive.get("maps", {}).get(region_id)
+    if filed:
+        lines.append(f"Scouted for the maps by {filed['by']}: the cartographer can draw it.")
     known = [engine.monster_types[c].name for c in engine.archive["creatures"]
              if c in engine.monster_types and set(r.all_styles()) & set(engine.monster_types[c].habitats)]
     lines.append("Creatures on record there: " + (", ".join(sorted(known)) if known else "none yet") + ".")

@@ -192,6 +192,8 @@ def apply(engine) -> None:
                     original[cell] = city.tile_at(*cell).symbol
                 city.set_tile(*cell, original[cell])
             people |= {folk for _, _, folk in tier.get("people", [])}
+            for dx, dy, _ in tier.get("windows", []):
+                city.windows.pop((hx + dx, hy + dy), None)
     city.npcs = [n for n in city.npcs if n.folk_id not in people]
     for pid, p in projects().items():
         for tier in p["tiers"][: tiers_done(engine, pid)]:
@@ -199,6 +201,8 @@ def apply(engine) -> None:
                 city.set_tile(hx + dx, hy + dy, sym)
             for dx, dy, folk_id in tier.get("people", []):
                 place_person(engine, folk_id, hx + dx, hy + dy)
+            for dx, dy, folk_id in tier.get("windows", []):      # a service window (v0.84.0)
+                city.windows[(hx + dx, hy + dy)] = folk_id
     from game import story                  # the story's people in the hall (v0.67.0)
     city.npcs = [n for n in city.npcs if not ((engine.townsfolk.get(n.folk_id) and
                  (engine.townsfolk[n.folk_id].extra or {}).get("hall_spot")))]

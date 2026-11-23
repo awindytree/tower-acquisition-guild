@@ -1,254 +1,360 @@
 {
-  "_comment": "The Guild's works (v0.60.0; design-progression.md stage 6a). User: TAG improves what it thinks needs improving, paid for by dues; the player can pay into any project; rivals add a trickle (Animal Crossing style); the hall itself changes; a plaque records who paid. projects: in the Guild's order of priority (its focus is the first unfinished tier). Each tier: cost, effect (read by game/works.py), changes (tiles set relative to the hall's corner, ;hall= in city.txt) and people (folk placed relative to it). COSTS, EFFECTS, NAMES AND PLACES ARE PLACEHOLDERS.",
-  "rival_trickle": [
-    2,
-    6
-  ],
-  "projects": {
-    "stash_room": {
-      "name": "The stash room",
-      "what": "More room in the guild stash.",
-      "tiers": [
-        {
-          "cost": 1500,
-          "effect": {
-            "stash_slots": 20
-          },
-          "changes": [
-            [
-              18,
-              8,
-              "C"
-            ]
-          ]
-        },
-        {
-          "cost": 4000,
-          "effect": {
-            "stash_slots": 40
-          },
-          "changes": [
-            [
-              18,
-              7,
-              "C"
-            ]
-          ]
-        }
+ "_comment": "The Guild's works (v0.60.0; design-progression.md stage 6a). User: TAG improves what it thinks needs improving, paid for by dues; the player can pay into any project; rivals add a trickle (Animal Crossing style); the hall itself changes; a plaque records who paid. projects: in the Guild's order of priority (its focus is the first unfinished tier). Each tier: cost, effect (read by game/works.py), changes (tiles set relative to the hall's corner, ;hall= in city.txt), people (folk placed relative to it) and windows (service windows: [dx, dy, folk], v0.84.0). COSTS, EFFECTS, NAMES AND PLACES ARE PLACEHOLDERS.",
+ "rival_trickle": [
+  2,
+  6
+ ],
+ "projects": {
+  "stash_room": {
+   "name": "The stash room",
+   "what": "More room in the guild stash.",
+   "tiers": [
+    {
+     "cost": 1500,
+     "effect": {
+      "stash_slots": 20
+     },
+     "changes": [
+      [
+       18,
+       8,
+       "C"
       ]
+     ]
     },
-    "quartermaster": {
-      "name": "The quartermaster",
-      "what": "A quartermaster in the stash room, selling better supplies than the market.",
-      "tiers": [
-        {
-          "cost": 3000,
-          "effect": {},
-          "people": [
-            [
-              16,
-              7,
-              "quartermaster"
-            ]
-          ]
-        }
+    {
+     "cost": 4000,
+     "effect": {
+      "stash_slots": 40
+     },
+     "changes": [
+      [
+       18,
+       7,
+       "C"
       ]
-    },
-    "training_corner": {
-      "name": "The training corner",
-      "what": "Training dummies and better teaching: every trainer charges less.",
-      "tiers": [
-        {
-          "cost": 2000,
-          "effect": {
-            "training": 10
-          },
-          "changes": [
-            [
-              1,
-              6,
-              "U"
-            ]
-          ]
-        },
-        {
-          "cost": 5000,
-          "effect": {
-            "training": 20
-          },
-          "changes": [
-            [
-              1,
-              9,
-              "U"
-            ]
-          ]
-        }
-      ]
-    },
-    "infirmary": {
-      "name": "The infirmary",
-      "what": "Cots in the stash room: the healer charges less, and minor injuries mend sooner.",
-      "tiers": [
-        {
-          "cost": 1500,
-          "effect": {
-            "healing": 20,
-            "mending": 25
-          },
-          "changes": [
-            [
-              12,
-              9,
-              "Z"
-            ],
-            [
-              13,
-              9,
-              "Z"
-            ]
-          ]
-        },
-        {
-          "cost": 4000,
-          "effect": {
-            "healing": 40,
-            "mending": 50
-          },
-          "changes": [
-            [
-              14,
-              9,
-              "Z"
-            ],
-            [
-              15,
-              9,
-              "Z"
-            ]
-          ]
-        }
-      ]
-    },
-    "dormitory": {
-      "name": "The dormitory",
-      "what": "Bunks for Hunters home from a hunt: a shorter rest.",
-      "tiers": [
-        {
-          "cost": 2500,
-          "effect": {
-            "rest": 15
-          },
-          "changes": [
-            [
-              11,
-              1,
-              "K"
-            ],
-            [
-              12,
-              1,
-              "K"
-            ]
-          ]
-        },
-        {
-          "cost": 6000,
-          "effect": {
-            "rest": 30
-          },
-          "changes": [
-            [
-              16,
-              1,
-              "K"
-            ],
-            [
-              17,
-              1,
-              "K"
-            ]
-          ]
-        }
-      ]
-    },
-    "archive_wing": {
-      "name": "The archive wing",
-      "what": "Shelves for the Guild's archive: field notes pay half again, and the bestiary fills in sooner.",
-      "tiers": [
-        {
-          "cost": 2500,
-          "effect": {
-            "notes": 50,
-            "bestiary_kills": 3
-          },
-          "changes": [
-            [
-              5,
-              1,
-              "b"
-            ],
-            [
-              6,
-              1,
-              "b"
-            ],
-            [
-              7,
-              1,
-              "b"
-            ]
-          ]
-        }
-      ]
-    },
-    "wayfinder_study": {
-      "name": "The Wayfinder study",
-      "what": "A Guild scholar of the Wayfinder's words, who'll teach you one you don't know, for a fee.",
-      "tiers": [
-        {
-          "cost": 3500,
-          "effect": {},
-          "people": [
-            [
-              5,
-              9,
-              "scholar"
-            ]
-          ],
-          "changes": [
-            [
-              6,
-              8,
-              "b"
-            ]
-          ]
-        }
-      ]
-    },
-    "armoury": {
-      "name": "The armoury",
-      "what": "Loaner gear: each new Hunter starts with an arming sword (or a longbow) and a studded jerkin.",
-      "tiers": [
-        {
-          "cost": 3000,
-          "effect": {
-            "loaner": 1
-          },
-          "changes": [
-            [
-              12,
-              6,
-              "E"
-            ],
-            [
-              13,
-              6,
-              "E"
-            ]
-          ]
-        }
-      ]
+     ]
     }
+   ]
+  },
+  "quartermaster": {
+   "name": "The quartermaster",
+   "what": "A quartermaster in the stash room, selling better supplies than the market.",
+   "tiers": [
+    {
+     "cost": 3000,
+     "effect": {},
+     "people": [
+      [
+       16,
+       7,
+       "quartermaster"
+      ]
+     ]
+    }
+   ]
+  },
+  "training_corner": {
+   "name": "The training corner",
+   "what": "Training dummies and better teaching: every trainer charges less.",
+   "tiers": [
+    {
+     "cost": 2000,
+     "effect": {
+      "training": 10
+     },
+     "changes": [
+      [
+       1,
+       6,
+       "U"
+      ]
+     ]
+    },
+    {
+     "cost": 5000,
+     "effect": {
+      "training": 20
+     },
+     "changes": [
+      [
+       1,
+       9,
+       "U"
+      ]
+     ]
+    }
+   ]
+  },
+  "infirmary": {
+   "name": "The infirmary",
+   "what": "Cots in the stash room: the healer charges less, and minor injuries mend sooner.",
+   "tiers": [
+    {
+     "cost": 1500,
+     "effect": {
+      "healing": 20,
+      "mending": 25
+     },
+     "changes": [
+      [
+       12,
+       9,
+       "Z"
+      ],
+      [
+       13,
+       9,
+       "Z"
+      ]
+     ]
+    },
+    {
+     "cost": 4000,
+     "effect": {
+      "healing": 40,
+      "mending": 50
+     },
+     "changes": [
+      [
+       14,
+       9,
+       "Z"
+      ],
+      [
+       15,
+       9,
+       "Z"
+      ]
+     ]
+    }
+   ]
+  },
+  "dormitory": {
+   "name": "The dormitory",
+   "what": "Bunks for Hunters home from a hunt: a shorter rest.",
+   "tiers": [
+    {
+     "cost": 2500,
+     "effect": {
+      "rest": 15
+     },
+     "changes": [
+      [
+       11,
+       1,
+       "K"
+      ],
+      [
+       12,
+       1,
+       "K"
+      ]
+     ]
+    },
+    {
+     "cost": 6000,
+     "effect": {
+      "rest": 30
+     },
+     "changes": [
+      [
+       16,
+       1,
+       "K"
+      ],
+      [
+       17,
+       1,
+       "K"
+      ]
+     ]
+    }
+   ]
+  },
+  "archive_wing": {
+   "name": "The archive wing",
+   "what": "Shelves for the Guild's archive: field notes pay half again, and the bestiary fills in sooner.",
+   "tiers": [
+    {
+     "cost": 2500,
+     "effect": {
+      "notes": 50,
+      "bestiary_kills": 3
+     },
+     "changes": [
+      [
+       5,
+       1,
+       "b"
+      ],
+      [
+       6,
+       1,
+       "b"
+      ],
+      [
+       7,
+       1,
+       "b"
+      ]
+     ]
+    }
+   ]
+  },
+  "cartographers_study": {
+   "name": "The Cartographer's Study",
+   "what": "A small room off the front hall where the Guild's cartographer turns scouting reports into maps, sold at his window.",
+   "tiers": [
+    {
+     "cost": 2000,
+     "effect": {},
+     "changes": [
+      [
+       0,
+       -3,
+       "#"
+      ],
+      [
+       1,
+       -3,
+       "#"
+      ],
+      [
+       2,
+       -3,
+       "#"
+      ],
+      [
+       3,
+       -3,
+       "#"
+      ],
+      [
+       4,
+       -3,
+       "#"
+      ],
+      [
+       0,
+       -2,
+       "#"
+      ],
+      [
+       1,
+       -2,
+       "b"
+      ],
+      [
+       2,
+       -2,
+       "b"
+      ],
+      [
+       3,
+       -2,
+       "b"
+      ],
+      [
+       4,
+       -2,
+       "#"
+      ],
+      [
+       0,
+       -1,
+       "#"
+      ],
+      [
+       1,
+       -1,
+       "."
+      ],
+      [
+       2,
+       -1,
+       "."
+      ],
+      [
+       3,
+       -1,
+       "."
+      ],
+      [
+       4,
+       -1,
+       "#"
+      ],
+      [
+       2,
+       0,
+       "W"
+      ]
+     ],
+     "people": [
+      [
+       2,
+       -1,
+       "cartographer"
+      ]
+     ],
+     "windows": [
+      [
+       2,
+       0,
+       "cartographer"
+      ]
+     ]
+    }
+   ]
+  },
+  "wayfinder_study": {
+   "name": "The Wayfinder study",
+   "what": "A Guild scholar of the Wayfinder's words, who'll teach you one you don't know, for a fee.",
+   "tiers": [
+    {
+     "cost": 3500,
+     "effect": {},
+     "people": [
+      [
+       5,
+       9,
+       "scholar"
+      ]
+     ],
+     "changes": [
+      [
+       6,
+       8,
+       "b"
+      ]
+     ]
+    }
+   ]
+  },
+  "armoury": {
+   "name": "The armoury",
+   "what": "Loaner gear: each new Hunter starts with an arming sword (or a longbow) and a studded jerkin.",
+   "tiers": [
+    {
+     "cost": 3000,
+     "effect": {
+      "loaner": 1
+     },
+     "changes": [
+      [
+       12,
+       6,
+       "E"
+      ],
+      [
+       13,
+       6,
+       "E"
+      ]
+     ]
+    }
+   ]
   }
+ }
 }

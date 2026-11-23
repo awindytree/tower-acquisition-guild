@@ -1196,6 +1196,9 @@ class Engine:
         elif kind == "craft":
             from game.screens import CraftScreen
             self.screen = CraftScreen(vid)
+        elif kind == "maps":
+            from game.screens import MapsScreen
+            self.screen = MapsScreen()
         elif kind == "upgrade":
             from game.screens import UpgradeScreen
             self.screen = UpgradeScreen(at="smith", title="The smith: raise a piece")
@@ -1394,6 +1397,8 @@ class Engine:
             else:
                 self.place_npcs(area)
         hunt.current = index
+        from game import maps
+        maps.reveal(self, area)          # a bought map: the area starts revealed (v0.84.0)
         self.next_day()  # a Pulse for every move from one area to another
         from game import archive, work
         work.on_area(self, index)
@@ -1441,7 +1446,8 @@ class Engine:
         from game.screens import TitleCardScreen
         c = self.hunt.contract
         artifact = self.catalogue[c.artifact_id] if c.artifact_id else None
-        from game import rivals, story
+        from game import rivals, story, maps
+        maps.note(self)                       # scouted deeply enough? a report for the maps (v0.84.0)
         story.end_hunt(self, self.hunt)
         rivals.end_race(self, self.hunt)
         self.hunt = None

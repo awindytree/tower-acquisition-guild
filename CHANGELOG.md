@@ -5,6 +5,26 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.84.0: Maps and the cartographer (2026-11-22)
+Roadmap step 4, part 1 (user's design).
+
+**Scouting a place for the maps:**
+- Enter every area of a place and explore at least half of it all told (user).
+- When you get home, the log tells you you've seen enough to report it.
+- Report it to the clerk with your field notes: it's filed in the Guild archive for the cartographer, and pays 10 shards × danger.
+- The archive's scouting tab says who scouted it. Filed places are world state and outlast your Hunter.
+
+**The Cartographer's Study** (user) is a new Guild works project, after the archive wing:
+- A small room with bookshelves, built onto the front of the guild hall.
+- The cartographer, **Erdo Cartographer Hunters** (my name), works behind a window into the front hall, like the clerk's.
+- Talk to him through it: "Show me your maps."
+
+**Buying a map** (user):
+- **About 100 shards:** 60 + 15 × danger, so 75 at danger 1 and 135 at danger 5. Bargaining brings it down.
+- A map you own reveals **the whole place**: every area starts explored on every hunt there.
+- Maps are your Hunter's own, lost with them like skills. The Guild's filed reports stay.
+- Buying one also teaches you the place's words.
+
 ## 0.83.0: Named creatures, callers and flankers (2026-11-22)
 Roadmap step 3. The numbers and the six marks are drafts.
 

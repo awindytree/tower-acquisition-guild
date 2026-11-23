@@ -321,5 +321,21 @@
     "description": "Deals in houses and land: a house in the city, one out in Ingenfjel, a stead along the Towerway. Sells improvements for them too. (Placeholder.)",
     "dialogue": "dealer",
     "wander": 0
+  },
+  "cartographer": {
+    "name": [
+      "Erdo",
+      "Cartographer",
+      "Hunters"
+    ],
+    "glyph": "@",
+    "color": [
+      200,
+      180,
+      120
+    ],
+    "description": "The Guild's cartographer, in his study behind a window off the front hall. He turns Hunters' scouting reports into proper maps. (Placeholder name; there once the Guild's works build the Cartographer's Study.)",
+    "dialogue": "cartographer",
+    "wander": 0
   }
 }

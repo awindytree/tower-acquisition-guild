@@ -84,6 +84,7 @@ class Player(Entity):
     known_artifacts: set = field(default_factory=set)     # broken artifact ids this Hunter has identified
     read_writings: set = field(default_factory=set)       # writings this Hunter has read (game/library.py)
     notes: dict = field(default_factory=dict)             # unreported field notes for the Guild archive (game/archive.py)
+    maps: set = field(default_factory=set)                # places whose map you've bought (v0.84.0; game/maps.py)
     studied: dict = field(default_factory=dict)           # artifact id -> Identification rank last tried at
     artifact_uses: dict = field(default_factory=dict)     # working artifact id -> uses this hunt
     artifact_slots: list = field(default_factory=lambda: [None] * 3)  # equipped artifacts (out of the bag)
@@ -417,6 +418,7 @@ class Player(Entity):
             "known_artifacts": sorted(self.known_artifacts),
             "read_writings": sorted(self.read_writings),
             "notes": self.notes,
+            "maps": sorted(self.maps),
             "studied": dict(self.studied),
             "artifact_uses": dict(self.artifact_uses),
             "artifact_slots": [i.type.id if i else None for i in self.artifact_slots],
@@ -451,6 +453,7 @@ class Player(Entity):
         player.known_artifacts = set(data.get("known_artifacts", []))
         player.read_writings = set(data.get("read_writings", []))
         player.notes = data.get("notes", {})
+        player.maps = set(data.get("maps", []))
         player.studied = dict(data.get("studied", {}))
         player.artifact_uses = dict(data.get("artifact_uses", {}))
         slots = data.get("artifact_slots", [])

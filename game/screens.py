@@ -1116,6 +1116,76 @@ class ArtificyScreen:
         console.print(x + 2, y + h - 2, "↑↓ choose  Enter repair  Esc"[: w - 4], fg=DIM, bg=BG)
 
 
+class MapsScreen:
+    """The cartographer's maps (v0.84.0): every place the Guild has a scouting report of, the gentlest
+    first; Enter buys one. A map you own shows the whole place on every hunt there."""
+
+    def __init__(self) -> None:
+        self.selected = 0
+        self.notice = ""
+
+    def handle(self, event, engine: "Engine") -> Action | None:
+        from game import maps
+        if not isinstance(event, tcod.event.KeyDown):
+            return None
+        rows = maps.for_sale(engine)
+        if event.sym == KeySym.ESCAPE:
+            engine.screen = None
+        elif event.sym in UP_KEYS and rows:
+            self.selected = (self.selected - 1) % len(rows)
+            self.notice = ""
+        elif event.sym in DOWN_KEYS and rows:
+            self.selected = (self.selected + 1) % len(rows)
+            self.notice = ""
+        elif event.sym in CONFIRM_KEYS and rows:
+            ok, self.notice = maps.buy(engine, rows[min(self.selected, len(rows) - 1)])
+            if ok:
+                engine.log(self.notice)
+        return None
+
+    def render(self, console, engine: "Engine", area_w: int) -> None:
+        from game import maps
+        p = engine.player
+        w = min(area_w - 2, 60)
+        rows = maps.for_sale(engine)
+        self.selected = max(0, min(self.selected, len(rows) - 1))
+        extra = []
+        if rows:
+            r = engine.regions[rows[self.selected]]
+            extra += wrapped(" ".join(region_text_lines(r)), w - 4, DIM)
+            by = maps.filed(engine)[rows[self.selected]]["by"]
+            extra += wrapped(f"From the report of {by}.", w - 4, DIM)
+        else:
+            extra += wrapped("No maps yet. Scout a place properly (every area, and half the ground) and report it "
+                             "to the clerk with your field notes.", w - 4, DIM)
+        if self.notice:
+            extra += [("", DIM)] + wrapped(self.notice, w - 4, ACCENT)
+        h, visible, extra = fit_window(console, max(len(rows), 1), extra)
+        x, y = (area_w - w) // 2, (console.height - h) // 2
+        draw_box(console, x, y, w, h, "The cartographer's maps")
+        purse = f"♦ {p.shards} shards"
+        console.print(x + w - 2 - len(purse), y + 1, purse, fg=TEXT, bg=BG)
+        first = max(0, min(self.selected - visible // 2, len(rows) - visible))
+        for i, place in enumerate(rows[first : first + visible]):
+            row, bg = y + 3 + i, HIGHLIGHT if first + i == self.selected else BG
+            console.rgb["bg"][x + 1 : x + w - 1, row] = bg
+            owned = place in p.maps
+            cost = maps.price(engine, place)
+            tag = "yours" if owned else f"{cost} ♦"
+            name = engine.regions[place].name
+            console.print(x + 2, row, name[: w - 6 - len(tag)], fg=DIM if owned else (TEXT if p.shards >= cost else CANT), bg=bg)
+            console.print(x + w - 2 - len(tag), row, tag, fg=DIM, bg=bg)
+        for i, (text, color) in enumerate(extra):
+            console.print(x + 2, y + 4 + visible + i, text[: w - 4], fg=color, bg=BG)
+        console.print(x + 2, y + h - 2, "↑↓ choose  Enter buy  Esc"[: w - 4], fg=DIM, bg=BG)
+
+
+def region_text_lines(r) -> list[str]:
+    lo = r.danger[0]
+    return [f"Danger {lo}, {r.depth or '?'} areas, {r.style_text()}.",
+            "Hunted by day." if r.light == "day" else "Dark: bring light."]
+
+
 class SlotScreen(MenuScreen):
     """Pick a slot to save into or load from."""
 
