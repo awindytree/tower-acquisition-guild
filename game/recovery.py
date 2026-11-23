@@ -15,8 +15,10 @@ An invented one is posted for a Cycle (seeded from the Cycle) and joins `engine.
 recovered (so it can't be done twice).
 
 The pack is the contract's prize (item `lost_pack`), at the far end of the area they fell in.
-Bringing it home: the Guild puts what was in it in the guild stash (anything carried between Hunters
-goes through a persistent place), pays a small fee (Guild pay: no dues), and remembers the Hunter
+Bringing it home (user, v0.85.1): what survived goes in the guild stash (anything carried between
+Hunters goes through a persistent place): half of the materials, each weapon, armour piece and artifact
+at 50%, nothing else. The shards in it are earnings (dues apply); the Guild's fee is Guild pay (no
+dues). The Hunter is remembered
 in the Hall of Hunters: a new entry for an invented one, a note on the entry for the others.
 All numbers are the assistant's placeholders.
 """
@@ -31,6 +33,8 @@ INVENTED_CHANCE = 0.5     # a Cycle with an invented recovery posted
 MAX_ITEMS = 20            # entries kept from a fallen Hunter's pack
 FEE_BASE, FEE_PER_DANGER = 15, 10
 DANGER_WEIGHTS = {1: 4, 2: 3, 3: 2, 4: 1.5, 5: 1}   # an invented Hunter's place (the bounty board's spread)
+EQUIPMENT = ("weapon", "armor", "artifact")
+EQUIPMENT_CHANCE = 0.5    # each weapon, armour piece or artifact in a pack comes home (user, v0.85.1)
 LEFT_OUT = ("key", "trophy")   # kinds that don't go into a lost pack (story items go to the stash anyway)
 
 
@@ -67,14 +71,11 @@ def on_death(engine, hunt) -> dict | None:
 
 
 def contents(engine, place: str, rng: random.Random) -> tuple[list, int]:
-    """What a Hunter you didn't play had on them: shards, a few supplies, perhaps a broken artifact."""
+    """What a Hunter you didn't play had on them: shards, materials, perhaps a broken artifact."""
     from game.hunt import pick_artifact
     danger = _danger(engine, place)
-    items = []
-    for item_id, lo, hi in (("healing_draught", 0, 2), ("ration", 1, 3), ("torch", 0, 2), ("rope", 0, 1)):
-        n = rng.randint(lo, hi)
-        if n and item_id in engine.catalogue.types:
-            items.append([item_id, n])
+    mats = sorted(t.id for t in engine.catalogue.types.values() if t.kind == "material")
+    items = [[m, rng.randint(2, 6)] for m in rng.sample(mats, min(len(mats), rng.randint(1, 3)))]
     if rng.random() < 0.4:
         items.append([pick_artifact(engine.regions[place], danger, engine.catalogue, rng), 1])
     return items, rng.randint(10, 30) * danger
@@ -160,6 +161,19 @@ def fee(c) -> int:
 
 
 # ---- Home with it ---------------------------------------------------------------------------------------
+def survives(item, rng: random.Random):
+    """What comes home of one thing in a lost pack (user, v0.85.1): half of each stack of materials
+    (rounded down); weapons, armour and artifacts each a 50% chance; nothing else (supplies, trophies,
+    writings, notes...). Returns the item (perhaps a smaller stack) or None."""
+    kind = item.type.kind
+    if kind == "material":
+        item.count //= 2
+        return item if item.count > 0 else None
+    if kind in EQUIPMENT:
+        return item if rng.random() < EQUIPMENT_CHANCE else None
+    return None
+
+
 def complete(engine, c) -> list[str]:
     """The pack is home (finish_hunt, on success). Returns lines for the card."""
     from game.items import Item
@@ -170,10 +184,18 @@ def complete(engine, c) -> list[str]:
             p.inventory.remove(i, 1)
             break
     stashed, kept, lost = [], [], []
+    spoiled = 0
+    rng = random.Random(zlib.crc32(f"recovered/{rec['id']}/{engine.day}".encode()))
     for entry in rec.get("items", []):
         try:
             item = Item.from_entry(entry, engine.catalogue)
         except KeyError:
+            continue
+        before = item.count
+        item = survives(item, rng)
+        if item is None or item.count < before:
+            spoiled += 1
+        if item is None:
             continue
         if engine.stash.add(item):
             stashed.append(item)
@@ -183,7 +205,9 @@ def complete(engine, c) -> list[str]:
             lost.append(item)
     shards = rec.get("shards", 0)
     pay = fee(c)
-    p.guild_pay(pay + shards)
+    p.guild_pay(pay)          # the Guild's fee: no dues (user)
+    if shards:
+        p.earn(shards)        # the shards in the pack are earnings: dues apply (user)
     # The Hall of Hunters
     note = {"by": p.full_name, "day": engine.day}
     real = next((r for r in engine.lost if r["id"] == rec["id"]), None)
@@ -203,13 +227,18 @@ def complete(engine, c) -> list[str]:
                             "joined": rec["day"] - rng.randint(200, 2000), "ended": rec["day"],
                             "cause": f"lost in {c.region.name}", "recovered": note})
     lines = [f"You bring {owner(rec['name'])} pack home.",
-             f"The Guild pays {pay} shards for the recovery" + (f", and the {shards} shards in it are yours." if shards else ".")]
+             f"The Guild pays {pay} shards for the recovery" + (f", and the {shards} shards in it are yours (dues apply)."
+                                                                 if shards else ".")]
+    if not (stashed or kept or lost):
+        lines.append("Nothing else in it survived out there.")
     if stashed:
         lines.append("The rest goes into the guild stash: " + ", ".join(i.label for i in stashed) + ".")
     if kept:
         lines.append("The stash is full, so you keep " + ", ".join(i.label for i in kept) + ".")
     if lost:
         lines.append("There's no room for " + ", ".join(i.label for i in lost) + ": the Guild lets it go.")
+    if spoiled and (stashed or kept):
+        lines.append("The rest didn't survive out there.")
     lines.append(f"{rec['name']} is remembered in the Hall of Hunters.")
     engine.log(f"You bring {owner(rec['name'])} pack home. The Guild pays {pay + shards} shards.")
     return lines

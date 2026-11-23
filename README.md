@@ -760,8 +760,10 @@ on their turn, one next to you attacks.
 - **Recovery contracts** (v0.85.0): a Hunter who falls out there leaves their
   pack where they fell. "Bring home [name]" contracts on the Guild's board send
   you after it: your own fallen Hunters, rivals who died, or Hunters you never
-  met. Bring the pack home and the Guild puts its contents in the stash, pays a
-  fee, and remembers them in the Hall of Hunters.
+  met. Bring the pack home and the Guild pays a fee and remembers them in the
+  Hall of Hunters. Its shards are yours (dues apply), half its materials and
+  about half its weapons, armour and artifacts go to the stash; nothing else
+  survives.
 - **Maps** (v0.84.0): scout a place properly (enter every area and explore
   at least half of it) and report it to the clerk with your field notes; the
   Guild's cartographer draws it. Once the Guild has built the Cartographer's

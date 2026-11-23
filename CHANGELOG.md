@@ -5,6 +5,14 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.85.1: What comes home in a lost pack (2026-11-22)
+User's rules for a recovered pack:
+- **Shards** in the pack are earnings, so **dues apply**. The Guild's fee for the recovery is still Guild pay (no dues).
+- **Materials:** half of each stack comes home (rounded down, so a single piece is lost).
+- **Weapons, armour and artifacts:** each has a 50% chance to come home.
+- **Everything else** (supplies, trophies, writings, notes...) doesn't come home.
+- What survives goes to the guild stash as before, and the card says when the rest didn't survive. Invented and rival Hunters' packs now carry materials instead of supplies.
+
 ## 0.85.0: Recovery contracts (2026-11-22)
 Roadmap step 4, part 2 (user's design): go out and bring home a lost Hunter's pack, and they're remembered in the Hall of Hunters.
 
