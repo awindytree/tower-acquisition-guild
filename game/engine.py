@@ -262,6 +262,10 @@ class Engine:
             work.refresh(self)
 
     def on_kill(self, monster) -> None:
+        if monster.type.person:               # someone on the road (game/road.py, v0.90.0)
+            from game import road
+            road.on_kill(self, monster)
+            return
         from game import mastery
         mastery.note_kill(self.player, monster.type.id)     # knowing your prey (v0.59.0)
         # (kills practised Tracking until v0.64.0; user: it rose much too fast. Entering areas does.)
@@ -473,12 +477,17 @@ class Engine:
             last = getattr(self, "_bris_last", None)
             vertical = last is not None and last[0] is gm and last[1] == p.x and last[2] != p.y
             before = getattr(self, "bris_steps", 0)
-            self.bris_steps = before + (2 if vertical else 1)
+            from game import travel as _tr          # (v0.90.0: open country is slower than the roads)
+            moved = last is not None and last[0] is gm and (last[1], last[2]) != (p.x, p.y)
+            self.bris_steps = before + (_tr.step_cost(gm, p.x, p.y, vertical) if moved else 1)
             self._bris_last = (gm, p.x, p.y)
             from game import talents
             per = int(self.bris_settings["steps_per_pulse"] * (1 + talents.total(p, "brisering_steps") / 100))
-            for _ in range(self.bris_steps // per - before // per):
+            for _ in range(int(self.bris_steps // per - before // per)):
                 self.next_day()
+            if last is not None and last[0] is gm and (last[1], last[2]) != (p.x, p.y):
+                from game import road
+                road.maybe(self)             # people on the road (v0.90.0)
         else:
             self._bris_last = None
         self.monsters_act()
@@ -532,7 +541,7 @@ class Engine:
             dx, dy = p.x - m.x, p.y - m.y
             sees = (self.visible is not None and self.visible[m.x, m.y]
                     and dx * dx + (dy * CELL_ASPECT) ** 2 <= m.type.sight ** 2)
-            if (self.visible is not None and self.visible[m.x, m.y]
+            if (self.visible is not None and self.visible[m.x, m.y] and not m.type.person
                     and m.type.id not in p.notes.get("seen", [])):
                 from game import archive
                 archive.note_sighting(self, m)   # you saw it: a note for the Guild archive
@@ -1077,6 +1086,7 @@ class Engine:
         from game import trophies
         self.trophies = trophies.fresh()           # the trophy wall (v0.61.0)
         self.lost = []                             # lost Hunters' packs (v0.85.0)
+        self.road = {}                             # people met on the road (v0.90.0)
         works.apply(self)
         from game import homes
         homes.furnish_all(self)
@@ -1367,6 +1377,8 @@ class Engine:
             self.log(f"You pass out through the {g['name']} into the Brisering: {g['toward']}.")
         else:
             x, y = self.city_inside(gate_id)
+            from game import road
+            road.clear(self)                  # (anyone left on the road stays there, v0.90.0)
             self.change_map(self.city, x, y)
             self.log(f"You come back into Bytorsskug through the {g['name']}.")
             from game import journey

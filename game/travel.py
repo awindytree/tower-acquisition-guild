@@ -85,12 +85,67 @@ def destinations(engine) -> list[tuple[str, tuple[int, int], bool]]:
     return [d for d in out if d[1] != (p.x, p.y)]
 
 
+OFF_ROAD = 1.5      # (v0.90.0) open country is slower than the roads: each step counts 1.5 toward a Pulse
+ROADS = "R=I"
+
+
+def step_cost(gm, x: int, y: int, vertical: bool) -> float:
+    """A step's share of the Brisering's distance: rows count double; off the roads, 1.5 times."""
+    return (2 if vertical else 1) * (1.0 if gm.tile_at(x, y).symbol in ROADS else OFF_ROAD)
+
+
+def _bris_route(engine, start, goals) -> list | None:
+    """(v0.90.0) The quickest way across the Brisering (Dijkstra by step_cost): roads are quicker.
+    Unseen ground is fine (you know the way home); never through another gate or a person."""
+    import heapq
+    gm = engine.game_map
+    dist = {start: 0.0}
+    prev = {start: None}
+    heap = [(0.0, start)]
+    while heap:
+        d, cell = heapq.heappop(heap)
+        if cell in goals:
+            path = []
+            while prev[cell] is not None:
+                path.append(cell)
+                cell = prev[cell]
+            return path[::-1]
+        if d > dist.get(cell, 1e18):
+            continue
+        x, y = cell
+        for dx, dy in STEPS:
+            n = (x + dx, y + dy)
+            if not gm.in_bounds(*n) or not gm.is_walkable(*n):
+                continue
+            if n not in goals and (n in gm.gates or gm.tile_at(*n).symbol in "H<>"):
+                continue
+            if gm.npc_at(*n) or _seen_creature(engine, n):
+                continue
+            nd = d + step_cost(gm, n[0], n[1], dy != 0)
+            if nd < dist.get(n, 1e18):
+                dist[n] = nd
+                prev[n] = cell
+                heapq.heappush(heap, (nd, n))
+    return None
+
+
 def next_step(engine, spot: tuple[int, int], beside: bool) -> tuple[int, int] | None:
     gm, p = engine.game_map, engine.player
     start = (p.x, p.y)
     goals = ({(spot[0] + dx, spot[1] + dy) for dx, dy in STEPS} if beside else {spot})
     if start in goals:
         return None
+    if engine.in_brisering():                 # roads are quicker (v0.90.0): a route, kept while it's good
+        route = getattr(engine, "_route", None)
+        if not (route and route["goals"] == goals and route["path"]
+                and abs(route["path"][0][0] - start[0]) + abs(route["path"][0][1] - start[1]) == 1
+                and not gm.monster_at(*route["path"][0])):
+            path = _bris_route(engine, start, goals)
+            if not path:
+                return None
+            route = engine._route = {"goals": goals, "path": path}
+        nx, ny = route["path"].pop(0)
+        return nx - start[0], ny - start[1]
     prev = {start: None}
     queue = deque([start])
     while queue:

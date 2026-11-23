@@ -100,7 +100,7 @@ def come_out(engine, region, seed_text: str) -> str:
     x, y = edge_for(engine, region, seed_text)
     engine.site = None
     engine.change_map(gm, x, y)
-    engine._bris_last = (x, y)
+    engine._bris_last = None
     return where_text(engine, x, y)
 
 
@@ -166,6 +166,8 @@ def home_now(engine) -> None:
         p = engine.player
         label, spot, beside = min(dests, key=lambda d: abs(d[1][0] - p.x) + abs(d[1][1] - p.y))
         travel.travel(engine, label, spot, beside)
+        if type(engine.screen).__name__ == "EncounterScreen":
+            return                      # someone on the road: the caller answers them (v0.90.0)
         engine.screen = None
 
 

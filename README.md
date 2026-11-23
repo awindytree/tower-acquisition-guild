@@ -767,6 +767,12 @@ on their turn, one next to you attacks.
   traits); the panel shows "Faints: 1/1". Drop to 0 HP with a faint in hand
   and you're knocked out and come to at the trail home, healed. Drop with
   none, and the Hunter dies for good; a new Hunter starts in the guild hall.
+- **People on the road** (v0.90.0): the walk home isn't always quiet. Highwaymen
+  ask a toll on the roads, deserters and Hunters gone bad waylay anyone coming in
+  rich from the edge, and hungry people ask for food. Pay, talk them down, stand
+  your ground, run, go round, or fight. The roads are quicker than open
+  country (where every step counts half again toward the day) but watched more,
+  and a full pack draws them.
 - **The walk home** (v0.89.0): the Wayfinder sends you out but can't bring you
   back. The trail home brings you out at the edge of the Brisering, on the side
   that matches the place's land, about 4 or 5 Pulses' walk from Bytorsskug

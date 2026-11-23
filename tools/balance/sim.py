@@ -86,6 +86,7 @@ WEARY = None            # --weary S: set out at weariness S (0-1) every hunt (v0
 WEARY_FROM = 0          # --weary-from N: ...from the Nth hunt (0-based) on
 DANGER = None           # --danger D: always hunt at danger D (within rank)
 KILL_AT = None          # --kill-first-at N: the first Hunter falls in the deepest area of their Nth hunt (v0.87.2)
+ROAD = []               # (v0.90.0) encounters on the road, by kind
 RECOVER = False         # --recover: go after your own fallen Hunters' packs, and use the guild stash (v0.87.2)
 PLAIN = False           # --plain: the pre-stage-7 bot (trips only, no bounties, trophies or training)
 TRAIN_ORDER = ["survival", "stealth", "harvesting", "tracking", "medicine"]   # after the weapon's skill
@@ -129,6 +130,11 @@ def clear_screens(e) -> None:
         if s is None:
             return
         e.screen = None
+        if type(s).__name__ == "EncounterScreen":   # people on the road (v0.90.0): pay, hand over, give
+            from game import road
+            road.choose(e, s.enc, road.choices(e, s.enc)[0][0])
+            ROAD.append(s.enc["kind"])
+            continue
         if getattr(s, "on_yes", None):
             s.on_yes(e)
         elif getattr(s, "on_continue", None):
@@ -347,8 +353,11 @@ def walk_home(e, p, rec) -> str:
     from game import journey
     clear_screens(e)
     d0 = e.day
-    journey.home_now(e)
-    clear_screens(e)
+    for _ in range(10):                      # (people on the road stop the walk: answer, walk on)
+        journey.home_now(e)
+        clear_screens(e)
+        if e.game_map is e.city or e.player is not p:
+            break
     rec["walk_pulses"] = e.day - d0
     if e.player is not p:
         return "died"
@@ -762,6 +771,8 @@ def run(hunters: int, hunts: int, seed: int, region: str | None) -> dict:
         out["hunters"].append(career)
         print(f"hunter {h + 1}/{hunters}: {len(career['hunts'])} hunts, level {p.stats.level}, "
               f"{'died' if career['end']['died'] else 'alive'}", flush=True)
+    out["road"] = {k: v for k, v in getattr(e, "road", {}).items() if k != "log"}
+    out["road"]["kinds"] = {k: ROAD.count(k) for k in set(ROAD)}
     return out
 
 

@@ -40,7 +40,7 @@ def type_id(monster_id: str) -> str:
 
 def leaves_corpse(mtype) -> bool:
     """A lantern tick bursts; an ashmantle is smoke. Everything else leaves a body."""
-    return not (mtype.burst or mtype.ghost)
+    return not (mtype.burst or mtype.ghost or getattr(mtype, "person", False))   # (people: v0.90.0)
 
 
 def profile(mtype) -> dict:

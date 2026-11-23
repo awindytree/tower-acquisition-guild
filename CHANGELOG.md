@@ -5,6 +5,46 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.90.0: People on the road (2026-11-23)
+Stage 3 of the journey-home design. User: the walk home should carry risk, but hostile fauna isn't lore-accurate for the Brisering. People are the danger: highwaymen, a toll at a bridge, desperate locals, deserters, failed Hunters gone bad (not Bermann outcasts). Encounters can turn into fights. Fighting people will carry a consequence after v1.0, so what happens is recorded for it.
+
+**When:**
+- A chance with every step on the Brisering, higher on roads and bridges (watched) than in open country.
+- **What you carry draws them:** shards, artifacts and a contract's prize, up to three times as likely.
+- Never within 10 km of Bytorsskug's walls, and at most one a Pulse.
+- **Roads are quicker but watched:** off the roads, every step on the Brisering counts 1.5 times toward the next Pulse. Travel-to takes the quickest way, usually by road (a route it keeps and recomputes if something blocks it).
+- In bot runs (6 Hunters × 15 hunts): 14 encounters in 90 walks home (4 tolls, 7 robberies, 3 hungry people). The walk averaged 5.7 Pulses. The bot hands over what robbers ask for, so a robbery cost it the contract.
+
+**Who** (`data/road.json`, drafts):
+- **A toll on the road** (highwaymen, roads only).
+- **Waylaid:** deserters or Hunters gone bad, who want your prize or best artifact. It's likelier the more you carry, and there are no Hunters gone bad before level 5.
+- **Hungry people** asking for food or a few shards.
+
+**Choices**, in a window that Esc won't close (they're in your way):
+
+| Choice | What happens |
+|---|---|
+| Pay / hand it over / give | If you can't pay half the toll, they take an artifact too. |
+| Talk them down | Bargaining, Acumen. A failed toll talk raises the price; a failed robbery talk means a fight. |
+| Stand your ground | Rank, level, and how many of them there are. Fail: a fight. |
+| Run | Celerity and their numbers. Costs some of the day; fail: a fight. |
+| Go round another way | Tolls only. Costs a Pulse. |
+| Walk on | Hungry people only. 40% they snatch a supply. |
+| Fight | |
+
+- Feeding hungry people sometimes earns a word for the Wayfinder.
+- Talk, bluff and run show their chances.
+
+**Fights** are on the map with the usual combat:
+- **People** (a desperate local, a highwayman, a deserter, a Hunter gone bad) are combatants like creatures. Most run when hurt.
+- They leave no corpse and don't go in the bestiary; a body drops its purse.
+- Going into the city leaves anyone still about on the road.
+- **Recorded** (world state, `road`): encounters, fights, deaths, shards paid, and a log of the last 50. Nothing reads it yet (the consequence comes after v1.0).
+
+**Also:**
+- Travel-to stops for an encounter.
+- The balance bot pays, hands over or gives, and never fights.
+
 ## 0.89.0: The one-way Wayfinder and the walk home (2026-11-23)
 Stage 2 of the journey-home design (user).
 - **The Wayfinder is one way** (user). The trail home, the rope, and a Lost Ground's way back bring you out at **the edge of the Brisering**, and you walk home.

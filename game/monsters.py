@@ -52,6 +52,7 @@ class MonsterType:
     beast: bool = False        # an animal (v0.81.0: Herder's, Boar-spear)
     calls: bool = False        # raises the alarm when it notices you (v0.83.0: corridor-breakers)
     flanks: bool = False       # goes round another way when the way to you is blocked (v0.83.0)
+    person: bool = False       # people on the road (data/road.json, v0.90.0): no corpse, no bestiary, never on hunts
 
     def lives(self, style: str, light: str) -> bool:
         """Does it turn up in this kind of place, at this time? (night = torchlight only)"""
@@ -67,6 +68,13 @@ def load_monster_types(path: str | Path) -> dict[str, MonsterType]:
     for mid, d in raw.items():
         if mid.startswith("_"):
             continue
+        types[mid] = type_from_dict(mid, d)
+    return types
+
+
+def type_from_dict(mid: str, d: dict) -> "MonsterType":
+    """One creature (or person, data/road.json) from its data."""
+    if True:
         behaviour = d.get("behaviour", "hunt")
         if behaviour not in BEHAVIOURS:
             raise ValueError(f"Monster {mid!r}: behaviour must be one of {BEHAVIOURS}")
@@ -79,7 +87,7 @@ def load_monster_types(path: str | Path) -> dict[str, MonsterType]:
         for key in ("burst", "trail"):
             if d.get(key):
                 combat.roll(d[key])
-        types[mid] = MonsterType(
+        return MonsterType(
             id=mid, name=d["name"], glyph=d["glyph"], color=tuple(d["color"]),
             habitats=tuple(h for h, _ in when), tier=d["tier"], hp=d["hp"],
             accuracy=d["accuracy"], evasion=d["evasion"], damage=d["damage"],
@@ -91,9 +99,8 @@ def load_monster_types(path: str | Path) -> dict[str, MonsterType]:
             spawn_weight=d.get("spawn_weight", 1.0), opens=d.get("opens", ""), burst=d.get("burst", ""),
             ghost=d.get("ghost", False), trail=d.get("trail", ""), thorns=d.get("thorns", 0),
             flees=d.get("flees", 0.0), burrows=d.get("burrows", False), beast=d.get("beast", False),
-            calls=d.get("calls", False), flanks=d.get("flanks", False),
+            calls=d.get("calls", False), flanks=d.get("flanks", False), person=d.get("person", False),
         )
-    return types
 
 
 @dataclass

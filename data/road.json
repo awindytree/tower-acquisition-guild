@@ -1,0 +1,46 @@
+{
+ "_comment": "People on the road (design-return-journey.md stage 3; user: hostile fauna isn't lore-accurate for the Brisering; people are the danger: highwaymen, a toll at a bridge, desperate locals, deserters, failed Hunters gone bad; not Bermann outcasts. Encounters can turn into fights; fighting people will carry a consequence after v1.0). Everything here is the assistant's draft: numbers, people, words. people: combatants in the monsters.json format (plus 'person': true; no habitats: they never turn up on hunts). chance: per step on the Brisering, on a road or bridge / off it; quiet_km: no one bothers you this close to Bytorsskug's walls; lure: carried worth multiplies the chance by 1 + worth / lure, at most lure_cap times. Encounters: weights, who, how many, what they want.",
+ "chance": {"road": 0.0015, "off_road": 0.0006, "quiet_km": 10, "lure": 300, "lure_cap": 3.0},
+ "people": {
+  "desperate_local": {
+   "name": "desperate local", "glyph": "@", "color": [190, 150, 120], "habitats": [],
+   "tier": 1, "hp": 9, "accuracy": 9, "evasion": 9, "damage": "1d4", "xp": 4, "sight": 10, "flees": 0.6,
+   "description": "Thin, wary, dressed for a colder season than this. More hungry than dangerous.", "person": true
+  },
+  "highwayman": {
+   "name": "highwayman", "glyph": "@", "color": [200, 120, 90], "habitats": [],
+   "tier": 2, "hp": 16, "accuracy": 11, "evasion": 11, "damage": "1d6", "armor": 1, "xp": 12, "sight": 12, "flees": 0.35,
+   "description": "A road-hardened sort with a cudgel and an eye for a full pack.", "person": true
+  },
+  "deserter": {
+   "name": "deserter", "glyph": "@", "color": [170, 110, 110], "habitats": [],
+   "tier": 2, "hp": 20, "accuracy": 12, "evasion": 10, "damage": "1d8", "armor": 2, "xp": 16, "sight": 12, "flees": 0.25,
+   "description": "Someone's soldier once, in mismatched armour with the badges cut off.", "person": true
+  },
+  "failed_hunter": {
+   "name": "Hunter gone bad", "glyph": "@", "color": [220, 90, 120], "habitats": [],
+   "tier": 3, "hp": 26, "accuracy": 13, "evasion": 12, "damage": "1d8+1", "armor": 2, "xp": 25, "sight": 14, "flees": 0.15,
+   "description": "Knows the Guild's ways, and knows what Hunters carry home. Whatever ended their hunting, it wasn't the miasma.", "person": true
+  }
+ },
+ "encounters": {
+  "toll": {
+   "title": "A toll on the road",
+   "who": ["highwayman"], "count": [2, 3], "weight": 3, "road_only": true,
+   "text": ["Figures step out where the road narrows. One leans on a cudgel. \"Toll road, Hunter. {demand} shards and you walk on.\"",
+            "Someone has dragged a cart across the road. The people behind it aren't traders. \"Road's ours today. {demand} shards to pass.\""]
+  },
+  "robbery": {
+   "title": "Waylaid",
+   "who": ["deserter", "failed_hunter"], "count": [1, 3], "weight": 1, "lure_weight": 100,
+   "text": ["They were waiting for someone coming in from the edge, and here you are. \"That pack looks heavy. We'll take {want}.\"",
+            "\"Easy, Hunter. Just {want}, and nobody gets hurt.\" There are more of them than you'd like."]
+  },
+  "beggars": {
+   "title": "Hungry people",
+   "who": ["desperate_local"], "count": [1, 2], "weight": 3,
+   "text": ["A few people by the road, thin as rakes. \"Anything to eat, Hunter? Anything at all?\"",
+            "Someone falls in beside you, then another. They're not armed, not really. \"Spare some food? Or a shard or two?\""]
+  }
+ }
+}

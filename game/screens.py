@@ -1952,6 +1952,70 @@ class TargetScreen(LookScreen):
         console.print(x + 2, y + h - 2, "Enter/f shoot  Tab next  move to aim  Esc"[: w - 4], fg=DIM, bg=BG)
 
 
+class EncounterScreen:
+    """Someone on the road (game/road.py, v0.90.0): what they say, then a choice; then what happened.
+    ↑↓ or 1-9 and Enter. It can't be waved away with Esc: they're in your way."""
+
+    def __init__(self, enc: dict) -> None:
+        self.enc = enc
+        self.selected = 0
+        self.result: list[str] | None = None
+        self.over = False
+
+    def handle(self, event, engine: "Engine") -> Action | None:
+        from game import road
+        if not isinstance(event, tcod.event.KeyDown):
+            return None
+        if self.result is not None:
+            if self.over:
+                engine.screen = None
+            else:
+                self.result, self.selected = None, 0
+            return None
+        opts = road.choices(engine, self.enc)
+        if event.sym in UP_KEYS:
+            self.selected = (self.selected - 1) % len(opts)
+        elif event.sym in DOWN_KEYS:
+            self.selected = (self.selected + 1) % len(opts)
+        elif event.sym in DIGIT_KEYS and 1 <= DIGIT_KEYS[event.sym] <= len(opts):
+            self.selected = DIGIT_KEYS[event.sym] - 1
+            return self.pick(engine)
+        elif event.sym in CONFIRM_KEYS:
+            return self.pick(engine)
+        return None
+
+    def pick(self, engine) -> Action | None:
+        from game import road
+        key = road.choices(engine, self.enc)[self.selected][0]
+        self.result, self.over = road.choose(engine, self.enc, key)
+        return None
+
+    def render(self, console, engine: "Engine", area_w: int) -> None:
+        from game import road
+        w = min(area_w - 2, 64)
+        if self.result is not None:
+            body = [l for t in self.result for l in wrapped(t, w - 4, TEXT)]
+            foot = " any key "
+            opts = []
+        else:
+            body = wrapped(self.enc["text"], w - 4, TEXT)
+            opts = road.choices(engine, self.enc)
+            foot = " ↑↓ or 1-9 choose  Enter "
+        h = len(body) + (len(opts) + 1 if opts else 0) + 4
+        x, y = (area_w - w) // 2, max(0, (console.height - h) // 2)
+        draw_box(console, x, y, w, h, self.enc["title"])
+        for i, (t, c) in enumerate(body):
+            console.print(x + 2, y + 2 + i, t, fg=c, bg=BG)
+        top = y + 3 + len(body)
+        for i, (_, label) in enumerate(opts):
+            sel = i == self.selected
+            if sel:
+                console.rgb["bg"][x + 1: x + w - 1, top + i] = HIGHLIGHT
+            console.print(x + 2, top + i, f"{i + 1}. {label}"[: w - 4], fg=ACCENT if sel else TEXT,
+                          bg=HIGHLIGHT if sel else BG)
+        console.print(x + 2, y + h - 1, foot[: w - 4], fg=DIM, bg=BG)
+
+
 class VaultScreen:
     """Pole-vault (v0.86.0): which way? A direction vaults; Esc doesn't."""
 
