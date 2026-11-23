@@ -5,6 +5,10 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.84.1: The study moves to the hall's NE corner (2026-11-22)
+- The Cartographer's Study now juts north from the guild hall's north-east corner (user), not the north-west one, where it sat in the lane to the hall's door. His window opens into the front hall beside the bounty board.
+- Halls already built in a saved game move it when the game loads.
+
 ## 0.84.0: Maps and the cartographer (2026-11-22)
 Roadmap step 4, part 1 (user's design).
 
