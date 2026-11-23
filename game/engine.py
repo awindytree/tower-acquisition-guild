@@ -242,6 +242,8 @@ class Engine:
             crafting.deliver_orphans(self)
             for message in injuries.mend(self.player, self.day):
                 self.log(message)
+            from game import rest
+            rest.passed(self, 1, getattr(self, "rest_rate", rest.NATURAL))    # the rest owed (v0.88.0)
             from game import aging, story
             aging.refresh(self)
             if self.passing:
@@ -1374,15 +1376,17 @@ class Engine:
         self.screen = ContractBoardScreen(None, postings.board(self), taken)
 
     def open_artifact(self) -> None:
-        """Walk into the Wayfinder: choose three words (game/keywords.py)."""
+        """Walk into the Wayfinder: choose three words (game/keywords.py). Rest owed is settled first:
+        rest it off here, or set out weary (game/rest.py, v0.88.0)."""
         from game.screens import ArtifactScreen
-        from game import story
+        from game import story, rest
         story.fire(self, "wayfinder")          # a word from the story first, if it has one (v0.54.0)
+        go = lambda e: rest.at_wayfinder(e, lambda e2: setattr(e2, "screen", ArtifactScreen(e2)))
         if self.scene_queue:
-            self.after_scenes = lambda e: setattr(e, "screen", ArtifactScreen(e))
+            self.after_scenes = go
             story.show_next_scene(self)
             return
-        self.screen = ArtifactScreen(self)
+        go(self)
 
     def set_out(self, words: tuple[str, str, str]) -> None:
         """Through the Wayfinder to the place the words make: the Hunter's contract,
@@ -1409,6 +1413,8 @@ class Engine:
         self.hunt.writings = writings
         self.hunt.story_items = story_items
         self.player.second_wind_used = False      # (the Second Wind talent: once a hunt)
+        from game import rest as _rest
+        _rest.begin(self)                         # set out weary? (v0.88.0)
         from game import work
         self.hunt.bounties = work.bounties_for(self, contract.region)
         self.hunt.carried_at_start = self.player.inventory.count_of(contract.artifact_id)
@@ -1486,21 +1492,22 @@ class Engine:
         self.change_map(self.city, *self.city_return)
         # A completed hunt takes a whole Cycle; turning back is just the walk home (a Pulse).
         # Then the Hunter rests before going out again (game/aging.py): longer if they came home hurt.
-        from game import aging
+        from game import aging, rest as _rest
         if success:
             self.player.hunts_done += 1
         rest = aging.rest_pulses(self.player)
         fieldskills.practise(self, "survival", 2 if success else 1)    # every trip out there teaches a little
-        self.next_day(self.calendar.per_cycle if success else 1)
-        if not self.passing:
-            self.next_day(rest)
+        _rest.end(self)                       # weariness lifts (v0.88.0)
+        self.rest_rate = 0.0                  # (the hunt's own time pays no rest)
+        try:
+            self.next_day(self.calendar.per_cycle if success else 1)
+        finally:
+            self.rest_rate = _rest.NATURAL
         if self.passing:      # their years ran out on the way (the card is up)
             return
-        self.player.stats.hp = self.player.stats.max_hp  # rested and patched up at home
-        cycles = rest // self.calendar.per_cycle
-        rested = (f"You rest {cycles} Cycle{'s' if cycles != 1 else ''}" + (f" and {rest % 9} Pulses" if rest % 9 else "")
-                  + " before you're fit to go out again.")
-        self.log(rested)
+        _rest.add(self, rest)                 # the rest is owed, not passed (user, v0.88.0)
+        rested = _rest.owed_line(self) + "."
+        self.log(f"You'll need rest before you go out again. {rested}")
         self.autosave()
         done_jobs = [(f"Done: {j.text(self)}", TEXT) for j in self.player.jobs if j.done]
         if success:
@@ -1517,7 +1524,7 @@ class Engine:
                 told = recovery.complete(self, c)
             lines += [(t, TEXT) for t in told] + ([("", TEXT)] if told else [])
             lines += done_jobs + ([("", TEXT)] if done_jobs else [])
-            lines += [(rested, DIM), (f"{self.date.short} begins", DIM)]
+            lines += [(rested, DIM)]
             heading = (self.story_data.contracts.get(c.story, {}).get("card_heading", "Key hunt complete") if c.story
                        else ("Trip complete" if c.free else "Recovery complete" if c.recover else "Contract complete"))
             self.screen = TitleCardScreen(heading, lines)
@@ -1532,7 +1539,7 @@ class Engine:
             elif not c.free:
                 lines += [("The contract is still yours.", DIM), ("", TEXT)]
             lines += done_jobs + ([("", TEXT)] if done_jobs else [])
-            lines += [(rested, DIM), (f"{self.date.short} begins", DIM)]
+            lines += [(rested, DIM)]
             self.screen = TitleCardScreen("Back in Bytorsskug" if c.free else "Contract not done", lines)
         story.fire(self, "home", success=success, region=c.region.id, free=c.free)
 
@@ -1798,6 +1805,16 @@ class Engine:
             left_faints = self.faints_left()
             text = f"Faints: {left_faints}/{p.faint_limit}"            # (earned by reaching new areas, v0.82.0)
             console.print(left, y, text, fg=DIM if left_faints else HP_LOW, bg=PANEL_BG)
+            y += 1
+        from game import rest as _rest              # (v0.88.0) rest owed; weary on a hunt
+        if self.hunt and p.weary:
+            console.print(left, y, f"Weary: {round(p.weary * 100)}%"[:width], fg=HP_LOW, bg=PANEL_BG)
+            y += 1
+        elif not self.hunt and _rest.pulses_owed(p):
+            n = _rest.pulses_owed(p)
+            c, r = divmod(n, self.calendar.per_cycle)
+            short = " ".join(([f"{c}C"] if c else []) + ([f"{r}P"] if r else []))
+            console.print(left, y, f"Rest owed: {short}"[:width], fg=HP_LOW if n >= _rest.reckon(self) else DIM, bg=PANEL_BG)
             y += 1
         if p.dues_owed:
             console.print(left, y, f"Dues owed: {p.dues_owed}"[:width], fg=HP_LOW, bg=PANEL_BG)

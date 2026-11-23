@@ -195,7 +195,7 @@ def fire(engine, tx: int, ty: int, rng: random.Random = random) -> bool:
             damage = max(1, sum(combat.roll(dice, rng) for _ in range(2 if aimed and not extra else 1))
                          + (talents.total(p, "sneak_shot_damage") if unaware else 0)          # Silent
                          + (talents.total(p, "close_shot_damage") if dist <= 2 else 0)        # Point blank
-                         + talents.total(p, "ranged_damage") + mastery.prey_bonus(p, creature)[1]
+                         + talents.total(p, "ranged_damage") + mastery.prey_bonus(p, creature)[1] - p.weary_damage
                          + gear.damage(weapon) - max(0, creature.armor - talents.total(p, "ranged_pierce") - ammo_pierce)
                          + (talents.total(p, "marked_shot_damage") if getattr(creature, "shot", False) else 0)
                          + (talents.total(p, "braced_damage") if braced else 0)                # Braced stock

@@ -5,6 +5,47 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.88.0: The rest you owe (2026-11-23)
+Stage 1 of the journey-home design (`claude/design-return-journey.md`, user). Before, a hunt's rest (about 8 Cycles) passed the moment you got home, and only then could you sell and sort. Now the rest is owed, so you sell first and rest after.
+
+**Rest owed:**
+- Coming home leaves the rest as a debt, the same size as before: 72 Pulses plus 18 for each injury, less with Survival.
+- **Every Pulse that passes off a hunt pays it down** and heals a tenth of your HP.
+- The side panel shows "Rest owed: 8C", and the cards show it where the date used to be.
+
+**Beds pay it off faster** (user's order, my rates: Pulses of rest per Pulse slept):
+
+| Where | Rate |
+|---|---|
+| On your feet | 1 |
+| The Guild dormitory's bunks (bump a bunk) | 1.25, then 1.4 with the second tier |
+| The stead | 1.5 |
+| The Ingenfjel house | 1.75 |
+| The Bytorsskug house | 2 |
+
+The dormitory no longer shortens the rest itself; its bunks pay it off faster.
+
+**At the Wayfinder** with rest owed, you choose:
+- **Rest it off here first** (slowest), or
+- **Set out weary** (user), which is allowed while you owe less than a Reckon.
+- Weariness = rest owed ÷ 80 (8 Cycles 8 Pulses = 100%). The rest you skipped is still owed when you come home, on top of the new rest.
+
+**Weary, at 100%** (scaled down below that): max HP −80%, accuracy −10, evasion −10, damage −3, slower natural healing. **From 50%, resting in the field doesn't heal at all**; draughts and rations still do.
+
+**Calibrated with the balance bot** against your anchors (careful bot, weary from hunt 5 on):
+
+| | Success | Turned back | Deaths |
+|---|---|---|---|
+| Rested | about 93% | 6% | none |
+| 50% weary | 72% | 21% | 4% of hunts |
+| 80% weary | 42% | 37% | 19% of hunts (8 of 10 Hunters) |
+| 100% weary | 13% | about 60% | every Hunter, within a few hunts |
+| Your 50% anchor: a level-1 Hunter at danger 2 in starting gear | 23% | 73% | 3% |
+
+**Also:**
+- The sim's bot rests before each hunt. New switches: `--weary S`, `--weary-from N`, `--danger D`.
+- Choice windows widen to fit their title and choices.
+
 ## 0.87.2: Balance tools for recovery (2026-11-22)
 Measurement only; the game is unchanged. The findings are in the project's balance report.
 - `tools/balance/sim.py --recover`: the bot goes after its own fallen Hunter's pack first, when its rank allows. It also wears anything better from the guild stash and takes the stash's materials. Each Hunter's record now holds what their pack was worth and what a recovery brought home.

@@ -130,6 +130,9 @@ def apply_to_stats(player) -> None:
         mods[k] = mods.get(k, 0) + v
     player.stats.mods = mods
     player.stats.hp_mod = total(player, "max_hp") + talents.total(player, "max_hp")
+    if getattr(player, "weary", 0.0):            # set out before resting (game/rest.py, v0.88.0)
+        from game import rest
+        player.stats.hp_mod -= rest.max_hp_loss(player, player.stats.max_hp)
     player.stats.hp = min(player.stats.hp, player.stats.max_hp)
     player.refresh_capacity()
 

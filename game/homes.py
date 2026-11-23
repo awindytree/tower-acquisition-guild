@@ -222,18 +222,24 @@ def improve(engine, key: str) -> tuple[bool, str]:
 
 
 # ---- Using it --------------------------------------------------------------------------------------------------
+def rest_rate(engine) -> float:
+    """How fast your own bed pays off the rest you owe (user, v0.88.0: the stead, then Ingenfjel, then
+    Bytorsskug, all faster than the Guild's bunks)."""
+    mine = owned(engine)
+    return float(data()["homes"][mine].get("rest_rate", 1.5)) if mine else 1.0
+
+
 def rest(engine) -> None:
-    """The bed: a Pulse's sleep. Full HP, and every minor injury mended."""
-    from game import injuries
+    """The bed: sleep off everything owed (at least a Pulse). Full HP, and every minor injury mended."""
+    from game import injuries, rest as _rest
     p = engine.player
     before = len(p.injuries)
     p.injuries = [i for i in p.injuries if injuries.table()[i.id].mends is None]
     mended = before - len(p.injuries)
     injuries.apply_to_stats(p)
-    engine.next_day()
-    p.stats.hp = p.stats.max_hp
-    engine.log("You sleep in your own bed and wake rested." +
-               (f" {mended} minor injur{'y has' if mended == 1 else 'ies have'} mended." if mended else ""))
+    _rest.sleep(engine, rest_rate(engine), "in your own bed")
+    if mended:
+        engine.log(f"{mended} minor injur{'y has' if mended == 1 else 'ies have'} mended.")
     if p.injuries:
         engine.log("What's left needs the healer.")
 

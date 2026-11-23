@@ -274,10 +274,19 @@ world, so it carries on from one Hunter to the next.
 ## Age, retirement and the Hall of Hunters
 
 Every Hunter has an **age**, counted in Turns and Judgments (a Turn is about
-16 years, a Judgment about 2). After each hunt you **rest** about a Reckon
-before you're fit to go out again (longer if you came home hurt), so the years
-add up: the mind sharpens a little, then past 2 Turns 4 Judgments the body
-starts to decline, and very old Hunters can die of old age.
+16 years, a Judgment about 2). Each hunt leaves you **owing rest**, about a
+Reckon (longer if you came home hurt), so the years add up: the mind sharpens a
+little, then past 2 Turns 4 Judgments the body starts to decline, and very old
+Hunters can die of old age.
+
+**The rest you owe** (v0.88.0) is shown in the side panel. Sell, sort and train
+first: every Pulse that passes pays it down, and a bed pays it faster (slowest to
+fastest: on your feet, the Guild dormitory's bunks, the stead, the Ingenfjel
+house, the Bytorsskug house). At the Wayfinder, rest off what's left, or **set
+out weary** while you owe less than a Reckon. Weary means less max HP, accuracy,
+evasion and damage, and from half-weary no healing by resting in the field. At
+80% it's a fool's game; at 100% very nearly a death sentence. The rest you
+skipped is still owed when you come home.
 
 You can **retire** at any time by asking the guild clerk. What you carry goes
 to the stash, your shards to the next Hunter, and you stay on in the guild

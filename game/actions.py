@@ -110,6 +110,13 @@ class MoveAction(Action):
                 return False
             if homes.use(engine, nx, ny):                  # your bed, chest or shelves (v0.74.0)
                 return False
+            if tile.symbol == "K":                         # a Guild bunk (the dormitory): sleep off what you owe
+                from game import rest
+                if rest.pulses_owed(engine.player):
+                    rest.sleep(engine, rest.dorm_rate(), "in a Guild bunk")
+                else:
+                    engine.log("You're rested. The bunks are for Hunters home from a hunt.")
+                return False
             if place:      # a village on the Brisering (lore, user): not open yet
                 engine.log(f"{place}. You can't go in yet.")
             else:

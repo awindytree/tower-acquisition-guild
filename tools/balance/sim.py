@@ -82,6 +82,9 @@ PROFILES = {
 }
 PROFILE = PROFILES["careful"]
 SELL_ALL = False        # --sell-all: sell every material and never raise gear (the bot before v0.80.0)
+WEARY = None            # --weary S: set out at weariness S (0-1) every hunt (v0.88.0 calibration)
+WEARY_FROM = 0          # --weary-from N: ...from the Nth hunt (0-based) on
+DANGER = None           # --danger D: always hunt at danger D (within rank)
 KILL_AT = None          # --kill-first-at N: the first Hunter falls in the deepest area of their Nth hunt (v0.87.2)
 RECOVER = False         # --recover: go after your own fallen Hunters' packs, and use the guild stash (v0.87.2)
 PLAIN = False           # --plain: the pre-stage-7 bot (trips only, no bounties, trophies or training)
@@ -215,7 +218,8 @@ def hunt_turn(e, rec, state) -> None:
     hunting = [m for m in seen if m.type.behaviour == "hunt" and not m.type.swims
                and state.setdefault("waited", {}).get(id(m), 0) < 30]
     # Rest when nothing's about: natural healing (stopped while bleeding).
-    if not hunting and not injuries.bleeding(p):
+    from game import rest as _rest                # (weary from half: resting in the field doesn't heal, v0.88.0)
+    if not hunting and not injuries.bleeding(p) and p.weary < _rest.NO_HEAL_FROM:
         if p.stats.hp < p.stats.max_hp * PROFILE["rest_below"]:
             state["resting"] = True
         if state.get("resting") and p.stats.hp < p.stats.max_hp * PROFILE["rest_to"]:
@@ -340,6 +344,13 @@ def forced_death(e, contract) -> str:
 
 def run_hunt(e, contract, rec) -> str:
     p = e.player
+    from game import rest                    # (v0.88.0) rest off what's owed first, or set out weary
+    rest.rest_here(e)
+    if e.passing:                            # their years ran out while resting
+        clear_screens(e)
+        return "died"
+    if WEARY and rec["n"] >= WEARY_FROM:
+        p.weary_next = WEARY
     e.begin_hunt(contract)
     clear_screens(e)
     state = {"retreat": False, "stuck": 0}
@@ -613,7 +624,7 @@ def pick_contract(e, region_id=None):
     if region_id is not None:
         return trip(e.regions[region_id], e.catalogue, e.rng), "trip"
     top = ranks.max_danger(p.rank)
-    want = min(top, ladder_danger(p))
+    want = min(top, DANGER if DANGER else ladder_danger(p))
     if RECOVER:                     # your own fallen Hunter's pack first, when your rank allows it
         from game import recovery
         mine = [c for c in recovery.postings(e) if c.recover["kind"] == "own" and c.danger <= top]
@@ -740,6 +751,9 @@ if __name__ == "__main__":
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--region", default=None)
     ap.add_argument("--out", default="sim.json")
+    ap.add_argument("--weary", type=float, default=None, help="set out at this weariness (0-1) every hunt")
+    ap.add_argument("--weary-from", type=int, default=0, help="...from this hunt (0-based) on")
+    ap.add_argument("--danger", type=int, default=None, help="always this danger (within rank)")
     ap.add_argument("--kill-first-at", type=int, default=None, help="the first Hunter dies on this hunt (0-based)")
     ap.add_argument("--recover", action="store_true", help="take own-pack recovery contracts; use the guild stash")
     ap.add_argument("--plain", action="store_true", help="the bot as it was before stage 7")
@@ -751,6 +765,9 @@ if __name__ == "__main__":
     PLAIN = a.plain
     RECOVER = a.recover
     KILL_AT = a.kill_first_at
+    WEARY = a.weary
+    WEARY_FROM = a.weary_from
+    DANGER = a.danger
     SELL_ALL = a.sell_all
     t0 = time.time()
     result = run(a.hunters, a.hunts, a.seed, a.region)

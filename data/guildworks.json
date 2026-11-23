@@ -132,12 +132,12 @@
   },
   "dormitory": {
    "name": "The dormitory",
-   "what": "Bunks for Hunters home from a hunt: a shorter rest.",
+   "what": "Bunks for Hunters home from a hunt: sleep off the rest you owe faster than on your feet.",
    "tiers": [
     {
      "cost": 2500,
      "effect": {
-      "rest": 15
+      "rest": 25
      },
      "changes": [
       [
@@ -155,7 +155,7 @@
     {
      "cost": 6000,
      "effect": {
-      "rest": 30
+      "rest": 40
      },
      "changes": [
       [

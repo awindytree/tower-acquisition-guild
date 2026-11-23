@@ -124,6 +124,9 @@ class Player(Entity):
     meal_turns: int = 0      # turns left of healing from something eaten
     meal_heal: int = 0       # HP it gives each of those turns
     injuries: list = field(default_factory=list)  # lasting injuries (game/injuries.py)
+    rest_owed: float = 0.0     # Pulses of rest owed since the last hunt (game/rest.py, v0.88.0)
+    weary: float = 0.0         # 0-1: set out before resting, for this hunt (game/rest.py)
+    weary_next: float = 0.0    # (chosen at the Wayfinder, taking hold when the hunt begins)
     join_age: int = 0          # age (in Pulses) when they joined the Guild (game/aging.py)
     born: int | None = None    # the day (absolute Pulse) they were born; set when they join
     age_mods: dict = field(default_factory=dict)  # attribute changes from age (worked out, not saved)
@@ -145,7 +148,14 @@ class Player(Entity):
             return
         self.regen_progress += 1
         from game import talents
-        if self.regen_progress >= max(1, regen_turns(self.stats["fortitude"]) - talents.total(self, "heal_rate")):
+        from game import rest
+        every = max(1, regen_turns(self.stats["fortitude"]) - talents.total(self, "heal_rate"))
+        if self.weary:                      # (weary: healing is slower, or stops, v0.88.0)
+            if self.weary >= rest.NO_HEAL_FROM:
+                self.regen_progress = 0
+                return
+            every = int(every * (1 + rest.WEARY_HEAL * self.weary))
+        if self.regen_progress >= every:
             self.regen_progress = 0
             self.stats.heal(1)
 
@@ -267,6 +277,7 @@ class Player(Entity):
         return (self.stats["celerity"] + artifacts.bonus(self, "accuracy") + injuries.total(self, "accuracy")
                 + weaponskills.accuracy_bonus(self) + talents.total(self, "accuracy") + tier
                 + mastery.calling_bonus(self, "accuracy") - (2 if self.dazed else 0)
+                - round(__import__("game.rest", fromlist=["x"]).WEARY_ACCURACY * self.weary)
                 + (talents.total(self, "day_accuracy") if self.daylight else 0)                    # Brimmed
                 + (talents.total(self, "kill_accuracy") if self.frenzied else 0))                  # Frenzied
 
@@ -274,6 +285,7 @@ class Player(Entity):
     def evasion(self) -> int:
         from game import talents, mastery
         return (self.stats["celerity"] + artifacts.bonus(self, "evasion") + injuries.total(self, "evasion")
+                - round(__import__("game.rest", fromlist=["x"]).WEARY_EVASION * self.weary)
                 + talents.total(self, "evasion") + mastery.calling_bonus(self, "evasion") - (2 if self.dazed else 0)
                 + weaponskills_guard(self)
                 + (0 if self.stepped_now else talents.total(self, "still_evasion")))       # Line-holder
@@ -320,14 +332,20 @@ class Player(Entity):
         weapon = self.equipped.get("weapon")
         bash = weapon.type.properties.get("bash_every") if weapon else None
         if bash:   # a bow in close combat: a bash, helped by Physicality (instead of the usual bonus)
-            return self.stats["physicality"] // bash + injuries.total(self, "damage")
+            return self.stats["physicality"] // bash + injuries.total(self, "damage") - self.weary_damage
         from game import weaponskills
         from game import talents
         low = talents.total(self, "low_hp_damage") if self.stats.hp * 3 < self.stats.max_hp else 0   # Last Stand
         from game import mastery
         return (attribute_bonus(self.stats["physicality"]) + injuries.total(self, "damage")
                 + weaponskills.damage_bonus(self) + talents.total(self, "damage") + low + gear.damage(weapon)
-                + mastery.calling_bonus(self, "damage"))
+                + mastery.calling_bonus(self, "damage") - self.weary_damage)
+
+    @property
+    def weary_damage(self) -> int:
+        """Weary blows land softer (game/rest.py, v0.88.0)."""
+        from game import rest
+        return round(rest.WEARY_DAMAGE * self.weary)
 
     @property
     def crit(self) -> int:
@@ -424,6 +442,7 @@ class Player(Entity):
             "artifact_slots": [i.type.id if i else None for i in self.artifact_slots],
             "flags": sorted(self.flags),
             "dues": [self.earned, self.dues_owed, self.earned_free],
+            "rest": [round(self.rest_owed, 3), self.weary],
             "jobs": work_jobs_to_list(self.jobs),
             "torch": [self.torch_turns, self.torch_light],
             "meal": [self.meal_turns, self.meal_heal],
@@ -463,6 +482,7 @@ class Player(Entity):
         dues = list(data.get("dues", [0, 0])) + [0]
         player.earned, player.dues_owed, player.earned_free = dues[0], dues[1], dues[2]
         player.jobs = work_jobs_from_list(data.get("jobs", []))
+        player.rest_owed, player.weary = data.get("rest", [0.0, 0.0])
         player.torch_turns, player.torch_light = data.get("torch", [0, 0])
         player.meal_turns, player.meal_heal = data.get("meal", [0, 0])
         player.injuries = injuries.from_list(data.get("injuries", []))

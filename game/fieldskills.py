@@ -149,8 +149,8 @@ def extra_count(engine) -> int:
 # ---- Survival ----------------------------------------------------------------------------------------
 def rest_factor(player) -> float:
     from game import works                       # (the dormitory)
-    return (max(0.5, 1.0 - 0.1 * (rank(player, "survival") - 1)) * (1 - _tal(player, "rest") / 100)
-            * (1 - works.active("rest") / 100))
+    return max(0.5, 1.0 - 0.1 * (rank(player, "survival") - 1)) * (1 - _tal(player, "rest") / 100)
+    # (v0.88.0: the dormitory no longer shortens the rest; its bunks pay it off faster: game/rest.py)
 
 
 def ration_turns(player, base: int) -> int:

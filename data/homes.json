@@ -2,6 +2,7 @@
   "_comment": "A Hunter's home (user, 2026-11-21): bought from the property dealer, one at a time; bare when bought and improved over time; it passes to the next Hunter (world state). Three places (user): a house in Bytorsskug (dearest, takes everything, a step from the guild hall and the Wayfinder), a house in Ingenfjel (middling, takes everything, by the boga circuit and stables), a stead along the Towerway (cheapest, takes the least). Buying another means moving: what's in the chest and on the shelves comes too (what won't fit goes to the guild stash), the old place is sold back for half what was paid, and its improvements stay with it. ALL PRICES, SIZES AND NAMES ARE PLACEHOLDERS (the assistant's), for a balance pass. improvements: each has tiers (bought in order); a home's 'most' caps how far each goes there. smithing (v0.76.0, user): the improvement that raises gear to +3 at that home; artificy (v0.79.0, user): the one that repairs Common artifacts (Bytorsskug: a forge and a workbench; Ingenfjel: one workbench for both; the stead: neither).",
   "homes": {
     "bytorsskug": {
+      "rest_rate": 2.0,
       "name": "the house in Bytorsskug",
       "short": "Bytorsskug",
       "price": 3000,
@@ -12,6 +13,7 @@
       "artificy": "workbench"
     },
     "ingenfjel": {
+      "rest_rate": 1.75,
       "name": "the house in Ingenfjel",
       "short": "Ingenfjel",
       "price": 1500,
@@ -22,6 +24,7 @@
       "artificy": "workbench"
     },
     "stead": {
+      "rest_rate": 1.5,
       "name": "the Towerway stead",
       "short": "the Towerway stead",
       "price": 600,

@@ -887,9 +887,12 @@ class MenuScreen:
             console.rgb["bg"][x + 1 : x + w - 1, y + i] = bg
             console.print(x + 2, y + i, label[: w - 4], fg=TEXT if enabled else DIM, bg=bg)
 
+    def width(self, engine) -> int:
+        return 40
+
     def render(self, console, engine: "Engine", area_w: int) -> None:
         opts = self.options(engine)
-        w = min(area_w - 2, 40)
+        w = min(area_w - 2, self.width(engine))
         notice = textwrap.wrap(self.notice, w - 4) if self.notice else []
         h = len(opts) + 4 + (len(notice) + 1 if notice else 0)
         x, y = (area_w - w) // 2, (console.height - h) // 2
@@ -1056,6 +1059,10 @@ class ChoiceScreen(MenuScreen):
 
     def on_escape(self, engine):
         engine.screen = None
+
+    def width(self, engine) -> int:
+        """Wide enough for the title and the longest choice (v0.88.0)."""
+        return max(40, len(self.title) + 6, max((len(label) for label, _ in self.choices), default=0) + 8)
 
 
 class ArtificyScreen:
@@ -2537,6 +2544,12 @@ class CharacterScreen(ScrollScreen):
                                                                else " (a new area earns one)"), DIM if faints else WARN))
         if p.dues_owed:
             cond.append((f"Dues owed ♦ {p.dues_owed}: pay the clerk", WARN))
+        from game import rest as _rest              # (v0.88.0)
+        if engine.hunt and p.weary:
+            cond.append((_rest.weary_line(p.weary) + ": less HP, accuracy and evasion, slower healing", WARN))
+        elif not engine.hunt and _rest.pulses_owed(p):
+            cond.append((_rest.owed_line(engine) + ": sleep it off (a bed is quicker), or it's rested off at the Wayfinder",
+                         WARN if _rest.pulses_owed(p) >= _rest.reckon(engine) else DIM))
         if p.talent_offers:
             cond.append(("A talent to choose: press n", ACCENT))
         from game import skills as skills_mod
