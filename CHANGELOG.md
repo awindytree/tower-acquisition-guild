@@ -5,6 +5,11 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.87.2: Balance tools for recovery (2026-11-22)
+Measurement only; the game is unchanged. The findings are in the project's balance report.
+- `tools/balance/sim.py --recover`: the bot goes after its own fallen Hunter's pack first, when its rank allows. It also wears anything better from the guild stash and takes the stash's materials. Each Hunter's record now holds what their pack was worth and what a recovery brought home.
+- `--kill-first-at N`: the first Hunter falls in the deepest area of their Nth hunt (0-based). Running the same seed with and without `--recover` isolates what the pack is worth to the successor.
+
 ## 0.87.1: A Lost Ground is never a hunt (2026-11-22)
 - **A Lost Ground is never a hunt** (user). Its words always take you there. 0.87.0 let a contract or bounty held at the same words win, but no board ever posts one.
 - Two ways such work could still exist are now closed:

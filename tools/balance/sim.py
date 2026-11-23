@@ -82,6 +82,8 @@ PROFILES = {
 }
 PROFILE = PROFILES["careful"]
 SELL_ALL = False        # --sell-all: sell every material and never raise gear (the bot before v0.80.0)
+KILL_AT = None          # --kill-first-at N: the first Hunter falls in the deepest area of their Nth hunt (v0.87.2)
+RECOVER = False         # --recover: go after your own fallen Hunters' packs, and use the guild stash (v0.87.2)
 PLAIN = False           # --plain: the pre-stage-7 bot (trips only, no bounties, trophies or training)
 TRAIN_ORDER = ["survival", "stealth", "harvesting", "tracking", "medicine"]   # after the weapon's skill
 TRAIN_RESERVE = 60      # shards kept back (beyond the next dues) when training
@@ -320,6 +322,22 @@ def worth_hauling(e, item) -> bool:
     return bool(record) and inv.used + item.slots + spare <= inv.capacity
 
 
+def forced_death(e, contract) -> str:
+    """(--kill-first-at) The Hunter falls in the deepest area of this hunt, carrying what they carry."""
+    class Blow:
+        name = "hollow brute"
+    p = e.player
+    e.begin_hunt(contract)
+    clear_screens(e)
+    for i in range(1, contract.depth):
+        e.travel(i, arrive_at="entry")
+    clear_screens(e)
+    e.hunt.faints_used = e.hunt.faints_earned
+    e.player_down(Blow)
+    clear_screens(e)
+    return "died" if e.player is not p else "done"
+
+
 def run_hunt(e, contract, rec) -> str:
     p = e.player
     e.begin_hunt(contract)
@@ -501,6 +519,8 @@ def city_phase(e, rec) -> None:
     reserve = 40
     armour_score = lambda t, tier=0: t.properties.get("armor", 0) + tier // 2
     weapon_score = lambda t, tier=0: combat.average(t.properties.get("damage", "1d2")) + tier // 2
+    if RECOVER:
+        stash_gear(e, rec, armour_score, weapon_score)
     for slot, score in (("chest", armour_score), ("legs", armour_score), ("head", armour_score), ("weapon", weapon_score)):
         cur = p.equipped.get(slot)
         cur_score = score(cur.type, cur.tier) if cur else 0
@@ -523,6 +543,61 @@ def city_phase(e, rec) -> None:
                 rec["bought"].append(line.item_id)
 
 
+def stash_gear(e, rec, armour_score, weapon_score) -> None:
+    """(--recover) Wear what's better in the guild stash; take its materials for raising gear."""
+    from game import gear
+    p = e.player
+    for slot, score in (("chest", armour_score), ("legs", armour_score), ("head", armour_score), ("weapon", weapon_score)):
+        cur = p.equipped.get(slot)
+        if slot == "weapon" and cur and ranged.bow(p):
+            continue
+        kind = "weapon" if slot == "weapon" else "armor"
+        best = None
+        for it in e.stash.items:
+            t = it.type
+            if t.kind != kind or t.properties.get("range") or t.properties.get("reach"):
+                continue
+            if kind == "armor" and gear.armour_slot(t) != slot:
+                continue
+            if score(t, it.tier) > (score(cur.type, cur.tier) if cur else 0) and (best is None or score(t, it.tier) > score(best.type, best.tier)):
+                best = it
+        if best is not None and p.inventory.can_add(best):
+            e.stash.items.remove(best)
+            p.inventory.add(best)
+            p.equip(best)
+            rec.setdefault("from_stash", []).append(f"{best.type.id} +{best.tier}")
+    for it in list(e.stash.items):
+        if it.type.kind == "material" and p.inventory.can_add(it):
+            e.stash.items.remove(it)
+            p.inventory.add(it)
+            rec.setdefault("stash_mats", 0)
+            rec["stash_mats"] += it.count
+
+
+def worth(e, it) -> int:
+    from game import gear
+    return gear.value(it) * it.count if it.type.kind in ("weapon", "armor") else it.type.value * it.count
+
+
+def stash_worth(e) -> int:
+    return sum(worth(e, it) for it in e.stash.items)
+
+
+def pack_worth(e, rec) -> dict:
+    """A fallen Hunter's pack: what it held, by kind, in shards."""
+    from game.items import Item
+    out = {"danger": e.regions[rec["place"]].danger[0], "area": rec["area"], "shards": rec["shards"],
+           "equipment": 0, "materials": 0, "other": 0, "tiers": []}
+    for entry in rec["items"]:
+        it = Item.from_entry(entry, e.catalogue)
+        k = it.type.kind
+        bucket = "equipment" if k in ("weapon", "armor", "artifact") else "materials" if k == "material" else "other"
+        out[bucket] += worth(e, it)
+        if it.tier:
+            out["tiers"].append(f"{it.type.id} +{it.tier}")
+    return out
+
+
 def ladder_danger(p) -> int:
     return max(d for lv, d in PROFILE["ladder"] if p.stats.level >= lv)
 
@@ -539,6 +614,12 @@ def pick_contract(e, region_id=None):
         return trip(e.regions[region_id], e.catalogue, e.rng), "trip"
     top = ranks.max_danger(p.rank)
     want = min(top, ladder_danger(p))
+    if RECOVER:                     # your own fallen Hunter's pack first, when your rank allows it
+        from game import recovery
+        mine = [c for c in recovery.postings(e) if c.recover["kind"] == "own" and c.danger <= top]
+        if mine:
+            postings.take(e, mine[0])
+            return mine[0], "recovery"
     if not PLAIN:
         for j in p.jobs:
             if not j.done and j.region in e.regions:
@@ -595,7 +676,13 @@ def run(hunters: int, hunts: int, seed: int, region: str | None) -> dict:
             mats0 = sum(it.count for it in p.inventory.items if it.type.kind == "material")
             rec["mats0"] = {it.type.id: it.count for it in p.inventory.items if it.type.kind == "material"}
             shards_before = p.shards
-            outcome = run_hunt(e, c, rec)
+            stash0 = stash_worth(e)
+            if h == 0 and KILL_AT is not None and n == KILL_AT:
+                outcome = forced_death(e, c)
+            else:
+                outcome = run_hunt(e, c, rec)
+            if kind == "recovery":
+                rec["stash_gain"] = stash_worth(e) - stash0
             rec["jobs_done"] = sum(1 for j in p.jobs if j.done)
             if kind == "bounty" and e.player is p:     # two tries at a bounty, then drop it
                 tries = career.setdefault("tries", {})
@@ -609,12 +696,17 @@ def run(hunters: int, hunts: int, seed: int, region: str | None) -> dict:
                     p.inventory.count_of(c.artifact_id) > 0 and kind == "contract":
                 p.contract = None
             if outcome == "died":
+                if e.lost and e.lost[-1]["kind"] == "own" and e.lost[-1]["day"] >= rec["day0"]:
+                    career["pack"] = pack_worth(e, e.lost[-1])
                 rec["outcome"] = "died"
                 rec["turns"] = e.turn - rec["turn0"]
                 career["hunts"].append(rec)
                 career["end"] = {"died": True, "level": p.stats.level}
                 break
             got = p.inventory.count_of(c.artifact_id) > 0
+            if kind == "recovery":           # (the pack goes to the Guild on the way home)
+                got = any(r["id"] == c.recover["id"] and r["recovered"] for r in e.lost)
+                rec["recovered"] = c.recover["name"]
             rec["outcome"] = "success" if (outcome == "done" and got) else ("stuck" if outcome == "stuck" else "abandoned")
             rec["turns"] = e.turn - rec["turn0"]
             rec["pulses"] = e.day - rec["day0"]
@@ -648,6 +740,8 @@ if __name__ == "__main__":
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--region", default=None)
     ap.add_argument("--out", default="sim.json")
+    ap.add_argument("--kill-first-at", type=int, default=None, help="the first Hunter dies on this hunt (0-based)")
+    ap.add_argument("--recover", action="store_true", help="take own-pack recovery contracts; use the guild stash")
     ap.add_argument("--plain", action="store_true", help="the bot as it was before stage 7")
     ap.add_argument("--sell-all", action="store_true", help="sell every material; never raise gear (as before v0.80.0)")
     ap.add_argument("--profile", choices=sorted(PROFILES), default="careful",
@@ -655,6 +749,8 @@ if __name__ == "__main__":
     a = ap.parse_args()
     PROFILE = PROFILES[a.profile]
     PLAIN = a.plain
+    RECOVER = a.recover
+    KILL_AT = a.kill_first_at
     SELL_ALL = a.sell_all
     t0 = time.time()
     result = run(a.hunters, a.hunts, a.seed, a.region)
