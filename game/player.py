@@ -127,6 +127,7 @@ class Player(Entity):
     rest_owed: float = 0.0     # Pulses of rest owed since the last hunt (game/rest.py, v0.88.0)
     weary: float = 0.0         # 0-1: set out before resting, for this hunt (game/rest.py)
     weary_next: float = 0.0    # (chosen at the Wayfinder, taking hold when the hunt begins)
+    fed: int = 0               # well fed: % more max HP until the end of the next hunt (game/wilds.py, v0.91.0)
     join_age: int = 0          # age (in Pulses) when they joined the Guild (game/aging.py)
     born: int | None = None    # the day (absolute Pulse) they were born; set when they join
     age_mods: dict = field(default_factory=dict)  # attribute changes from age (worked out, not saved)
@@ -443,6 +444,7 @@ class Player(Entity):
             "flags": sorted(self.flags),
             "dues": [self.earned, self.dues_owed, self.earned_free],
             "rest": [round(self.rest_owed, 3), self.weary],
+            "fed": self.fed,
             "jobs": work_jobs_to_list(self.jobs),
             "torch": [self.torch_turns, self.torch_light],
             "meal": [self.meal_turns, self.meal_heal],
@@ -483,6 +485,7 @@ class Player(Entity):
         player.earned, player.dues_owed, player.earned_free = dues[0], dues[1], dues[2]
         player.jobs = work_jobs_from_list(data.get("jobs", []))
         player.rest_owed, player.weary = data.get("rest", [0.0, 0.0])
+        player.fed = data.get("fed", 0)
         player.torch_turns, player.torch_light = data.get("torch", [0, 0])
         player.meal_turns, player.meal_heal = data.get("meal", [0, 0])
         player.injuries = injuries.from_list(data.get("injuries", []))

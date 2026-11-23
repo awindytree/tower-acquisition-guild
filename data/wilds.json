@@ -1,0 +1,21 @@
+{
+ "_comment": "Living off the Brisering (design-return-journey.md stage 4, part 1): foraging spots, camps and cooking. All the assistant's drafts (user: foraging spots and camp sites on the Brisering; a staging area before hunts). forage: kinds of spot, where they grow (Brisering tile symbols), how many in all, what they give [item, least, most], and how long they take to grow back (Pulses). camps: one every spacing_km along each road, off to one side. recipes: cooked at a camp: what goes in, what comes out.",
+ "forage": {
+  "regrow": 27,
+  "kinds": {
+   "berries": {"name": "berry thicket", "glyph": "*", "color": [200, 80, 110], "on": "f", "count": 70, "gives": ["wild_berries", 2, 4],
+               "look": "Brambles heavy with dark berries."},
+   "herbs": {"name": "herb patch", "glyph": "*", "color": [120, 200, 120], "on": ",^", "count": 60, "gives": ["healing_herbs", 1, 3],
+             "look": "A low patch of bitter, healing herbs."},
+   "mushrooms": {"name": "mushroom ring", "glyph": "*", "color": [210, 180, 130], "on": "fu", "count": 45, "gives": ["earthy_mushrooms", 1, 3],
+                 "look": "A ring of pale, earthy mushrooms."}
+  }
+ },
+ "camps": {"spacing_km": 20, "glyph": "∩", "color": [230, 150, 70],
+           "look": "A camp site: a ring of stones for a fire, a flat place to sleep, other people's ashes."},
+ "recipes": {
+  "hunters_stew": {"name": "hunter's stew", "needs": {"wild_berries": 1, "earthy_mushrooms": 2, "ration": 1}},
+  "herb_broth": {"name": "herb broth", "needs": {"healing_herbs": 2}},
+  "trail_cakes": {"name": "trail cakes", "needs": {"wild_berries": 3}}
+ }
+}

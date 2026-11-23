@@ -767,6 +767,12 @@ on their turn, one next to you attacks.
   traits); the panel shows "Faints: 1/1". Drop to 0 HP with a faint in hand
   and you're knocked out and come to at the trail home, healed. Drop with
   none, and the Hunter dies for good; a new Hunter starts in the guild hall.
+- **Foraging and camps** (v0.91.0): berry thickets, herb patches and mushroom
+  rings grow across the Brisering (stand on one and press `g`; they grow back).
+  Camps sit every 20 km along the roads (walk into the fire): cook hunter's stew
+  (eat it before you set out and your next hunt starts well fed, with more max
+  HP), herb broth (heals, stops bleeding and poison) or trail cakes; sleep a
+  Pulse by the fire; or listen to the travellers, who sometimes know a word.
 - **People on the road** (v0.90.0): the walk home isn't always quiet. Highwaymen
   ask a toll on the roads, deserters and Hunters gone bad waylay anyone coming in
   rich from the edge, and hungry people ask for food. Pay, talk them down, stand

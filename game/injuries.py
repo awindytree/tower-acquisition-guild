@@ -130,6 +130,9 @@ def apply_to_stats(player) -> None:
         mods[k] = mods.get(k, 0) + v
     player.stats.mods = mods
     player.stats.hp_mod = total(player, "max_hp") + talents.total(player, "max_hp")
+    if getattr(player, "fed", 0):                # well fed: a stew from a camp (game/wilds.py, v0.91.0)
+        from game import wilds
+        player.stats.hp_mod += wilds.fed_bonus(player, player.stats.max_hp)
     if getattr(player, "weary", 0.0):            # set out before resting (game/rest.py, v0.88.0)
         from game import rest
         player.stats.hp_mod -= rest.max_hp_loss(player, player.stats.max_hp)

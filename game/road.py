@@ -120,7 +120,7 @@ def maybe(engine) -> None:
     if any(m.type.person for m in gm.monsters):
         return                          # (a fight's still on; those who ran far are gone)
     st = state(engine)
-    if st["last_day"] == engine.day:
+    if st["last_day"] == engine.day or engine.day < st.get("quiet_until", -1):
         return
     if engine.rng.random() >= chance(engine):
         return

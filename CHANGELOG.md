@@ -5,6 +5,38 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.91.0: Foraging, camps and cooking (2026-11-23)
+Stage 4 of the journey-home design, part 1. User: foraging spots and camp sites on the Brisering, making it a staging area before hunts. Everything else (spots, camps, recipes, numbers, words) is my draft, in `data/wilds.json`.
+
+**Foraging spots:** 175 across the Brisering, the same every game (seeded), by kind of ground.
+
+| Spot | Where | Gives |
+|---|---|---|
+| **Berry thicket** (70) | woods | 2–4 wild berries |
+| **Herb patch** (60) | grass and hills | 1–3 healing herbs |
+| **Mushroom ring** (45) | woods and ruins | 1–3 earthy mushrooms |
+
+- Stand on one and press `g`. It grows back in 3 Cycles (shown dim until then).
+- Harvesting 3+ gives one more, and gathering practises Harvesting.
+
+**Camps:** one every 20 km along the west, south and east roads, just off the road (ten in all). Each is a fire (`∩`); walk into it for the camp window:
+- **Cook:**
+
+| Dish | Ingredients | Effect |
+|---|---|---|
+| **Hunter's stew** | 1 berries, 2 mushrooms, 1 ration | Eat it, and your next hunt starts **well fed**: +20% max HP until that hunt is over. Eat it on the way home and it carries over. |
+| **Herb broth** | 2 herbs | Heals 8; stops bleeding and poison. |
+| **Trail cakes** | 3 berries | Like a ration, but 15 turns of healing. |
+
+  Cooking practises Survival.
+- **Make camp:** a Pulse by the fire. Full HP, bleeding and poison stop, and nobody on the road troubles you that night.
+- **Listen to the travellers:** once a Cycle at each camp. Half the time, a word for the Wayfinder.
+
+**Also:**
+- Travel-to on the Brisering lists the four nearest camps you've seen.
+- The look command describes camps and spots.
+- The home bed's look line now says it sleeps off the rest you owe.
+
 ## 0.90.0: People on the road (2026-11-23)
 Stage 3 of the journey-home design. User: the walk home should carry risk, but hostile fauna isn't lore-accurate for the Brisering. People are the danger: highwaymen, a toll at a bridge, desperate locals, deserters, failed Hunters gone bad (not Bermann outcasts). Encounters can turn into fights. Fighting people will carry a consequence after v1.0, so what happens is recorded for it.
 

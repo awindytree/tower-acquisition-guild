@@ -36,6 +36,11 @@ def destinations(engine) -> list[tuple[str, tuple[int, int], bool]]:
     if engine.hunt is None and gm is not engine.city:     # the Brisering: back to the gates
         for (x, y), gate_id in sorted(gm.gates.items(), key=lambda g: g[1]):
             out.append((f"Bytorsskug: the {engine.gate_info.get(gate_id, {}).get('name', gate_id)}", (x, y), False))
+        from game import wilds, journey              # (v0.91.0) the nearest camps you've seen
+        seen_camps = sorted((c for c in wilds.camps(engine) if gm.explored[c]),
+                            key=lambda c: journey.km(gm, p.x, p.y, c))[:4]
+        for c in seen_camps:
+            out.append((f"a camp, {round(journey.km(gm, p.x, p.y, c))} km", c, True))
         named = {}
         for (x, y), name in sorted(gm.landmarks.items()):   # places you've seen (stop beside them)
             if gm.explored[x, y] and name not in named:

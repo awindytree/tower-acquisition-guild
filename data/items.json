@@ -283,6 +283,36 @@
     "description": "A Hunter's pack, left out in the miasma when its owner fell, the strap stiff with old weather. The Guild wants it home: what's in it, and the name of who carried it.",
     "value": 0, "properties": {"lost_pack": true, "slots": 2}
   },
+  "wild_berries": {
+    "name": "handful of wild berries", "plural": "handfuls of wild berries", "glyph": "%", "color": [200, 80, 110], "kind": "misc",
+    "description": "Dark berries from a Brisering thicket. Better cooked into something, at a camp.",
+    "value": 1, "stackable": true, "properties": {"ingredient": true}
+  },
+  "healing_herbs": {
+    "name": "bunch of healing herbs", "plural": "bunches of healing herbs", "glyph": "%", "color": [120, 200, 120], "kind": "misc",
+    "description": "Bitter herbs that grow on the Brisering's open ground. Boiled at a camp, they make a broth that heals.",
+    "value": 2, "stackable": true, "properties": {"ingredient": true}
+  },
+  "earthy_mushrooms": {
+    "name": "earthy mushroom", "glyph": "%", "color": [210, 180, 130], "kind": "misc",
+    "description": "Pale mushrooms from a ring in the woods or the ruins. Good in a stew.",
+    "value": 2, "stackable": true, "properties": {"ingredient": true}
+  },
+  "hunters_stew": {
+    "name": "pot of hunter's stew", "plural": "pots of hunter's stew", "glyph": "¥", "color": [190, 130, 80], "kind": "consumable",
+    "description": "A thick stew cooked at a Brisering camp. Eat it before you set out: you start your next hunt well fed (more max HP until it's over).",
+    "value": 12, "stackable": true, "properties": {"fed": 20}
+  },
+  "herb_broth": {
+    "name": "flask of herb broth", "plural": "flasks of herb broth", "glyph": "♥", "color": [120, 200, 120], "kind": "consumable",
+    "description": "A bitter broth of healing herbs. It heals a little, and stops bleeding and poison.",
+    "value": 10, "stackable": true, "properties": {"heal": 8, "cures": true}
+  },
+  "trail_cakes": {
+    "name": "trail cake", "glyph": "¥", "color": [200, 120, 120], "kind": "consumable",
+    "description": "Berries pressed and baked over a camp fire. Like a ration, but it keeps you going longer.",
+    "value": 6, "stackable": true, "properties": {"heal_per_turn": 1, "heal_turns": 15}
+  },
   "materials_pouch": {
     "name": "materials pouch", "glyph": "&", "color": [170, 130, 90], "kind": "misc",
     "description": "A many-pocketed leather pouch for hides, bone, shell and the like. It takes one slot in your pack, and up to eight kinds of material ride in it without taking any more.",

@@ -98,6 +98,10 @@ class MoveAction(Action):
             engine.open_artifact()
             return False  # choosing takes no time
 
+        from game import wilds
+        if wilds.blocks(engine, nx, ny):               # a camp on the Brisering (v0.91.0): its window
+            wilds.open_camp(engine, (nx, ny))
+            return False
         from game import legs
         wade = not tile.walkable and legs.can_wade(engine, nx, ny)     # Wading (a leg trait, v0.86.0)
         if not tile.walkable and not wade:
@@ -149,6 +153,9 @@ class PickUpAction(Action):
         player, gm = engine.player, engine.game_map
         here = gm.items_at(player.x, player.y)
         if not here:
+            from game import wilds
+            if wilds.spot_here(engine):                # a foraging spot on the Brisering (v0.91.0)
+                return wilds.gather(engine)
             engine.log("There's nothing here to pick up.")
             return False
         took_any = False
@@ -686,6 +693,9 @@ class UseAction(Action):
                 engine.screen = ReadingScreen(item.type.writing["title"], item.type.writing["text"])
             return took_time
         props = item.type.properties
+        if props.get("fed") or props.get("cures"):    # dishes cooked at a camp (v0.91.0)
+            from game import wilds
+            return wilds.eat_dish(engine, self.index)
         if "treats" in props:
             from game import medicine
             used = medicine.use(engine, self.index)

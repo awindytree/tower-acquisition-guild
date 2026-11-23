@@ -1086,6 +1086,7 @@ class Engine:
         from game import trophies
         self.trophies = trophies.fresh()           # the trophy wall (v0.61.0)
         self.lost = []                             # lost Hunters' packs (v0.85.0)
+        self.wilds = {}                            # what's been foraged, and heard at camps (v0.91.0)
         self.road = {}                             # people met on the road (v0.90.0)
         works.apply(self)
         from game import homes
@@ -1528,6 +1529,8 @@ class Engine:
         rest = aging.rest_pulses(self.player)
         fieldskills.practise(self, "survival", 2 if success else 1)    # every trip out there teaches a little
         _rest.end(self)                       # weariness lifts (v0.88.0)
+        from game import wilds
+        wilds.end_hunt(self)                  # being well fed wears off (v0.91.0)
         self.rest_rate = 0.0                  # (the hunt's own time pays no rest)
         try:
             self.next_day(self.calendar.per_cycle if success else 1)
@@ -1591,6 +1594,14 @@ class Engine:
                 if spot and self.visible[tx, ty]:
                     console.rgb["ch"][spot] = ord(TRACK_GLYPH)
                     console.rgb["fg"][spot] = TRACK_COLOR
+
+        # Camps and foraging spots on the Brisering (v0.91.0), where you've seen them.
+        from game import wilds
+        for (wx, wy, glyph, colour) in wilds.overlay(self):
+            spot = cam.to_screen(wx, wy)
+            if spot and gm.explored[wx, wy]:
+                console.rgb["ch"][spot] = ord(glyph)
+                console.rgb["fg"][spot] = colour
 
         # Smoke from a smoke jar (v0.82.0).
         for (sx, sy) in gm.smoke:

@@ -107,6 +107,11 @@ def describe(engine: "Engine", x: int, y: int) -> tuple[str, list[tuple[str, tup
             lines.append(("The guild hall's stash chest. Walk into it to store things or take them out. "
                           "What's in it passes to the next Hunter.", TEXT))
 
+    from game import wilds                 # (v0.91.0) a camp or a foraging spot on the Brisering
+    wl = wilds.look_lines(engine, x, y) if gm.explored[x, y] or not gm.fog else None
+    if wl:
+        heading = wl[0]
+        lines.insert(0, (wl[1], TEXT))
     # Items lying here (remembered ones too).
     here = gm.items_at(x, y)
     if here:
@@ -132,7 +137,7 @@ def describe(engine: "Engine", x: int, y: int) -> tuple[str, list[tuple[str, tup
         lines.insert(0, (("Your own place." if mine else f"For sale, for {h['price']} shards: see the property dealer."), TEXT))
     sym_here = gm.tile_at(x, y).symbol
     if sym_here in "nqjFd" and homes.owned(engine):
-        lines.insert(0, ({"n": "Your bed: walk into it to sleep a Pulse, heal, and mend minor injuries.",
+        lines.insert(0, ({"n": "Your bed: walk into it to sleep off the rest you owe, heal, and mend minor injuries.",
                           "q": "Your chest: walk into it to put things in or take them out.",
                           "j": "Your trophy shelves: walk into them to put a trophy up or take one down.",
                           "F": "Your forge: walk into it to raise a weapon or armour piece, up to +3.",
