@@ -7,4 +7,4 @@ MAJOR.MINOR.PATCH, while the game is in early development (0.x):
 Record each version in CHANGELOG.md.
 """
 
-VERSION = "0.93.0"
+VERSION = "0.93.1"

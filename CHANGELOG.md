@@ -5,6 +5,12 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.93.1: The inventory as a carousel (2026-11-23)
+User: the inventory should be a carousel with the selected item anchored to the top of the list.
+- The selected item always sits on the list's top row. The rest of the bag follows it in order, wrapping round to the start, so each item shows once.
+- ↑↓ still wrap from end to end. The window's size is unchanged.
+- The README's key table says so.
+
 ## 0.93.0: Lit or dark, by the Duel (2026-11-23)
 The user's lore: the Overland has no day within a Pulse. Its axial tilt is 110°, so the Light Duel and the Dark Duel are its light and dark. Myligast stands on the equator and Bytorsskug is in the southern hemisphere, so the south is lit in the Light Duel and the north in the Dark Duel. A place is **lit** or **dark**, never day or night, and the word "day" is gone from the game.
 

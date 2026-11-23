@@ -138,9 +138,11 @@ class InventoryScreen:
         h, list_rows, extra = fit_window(console, len(lines), extra, top=2)
         x, y = (area_w - w) // 2, (console.height - h) // 2
         draw_box(console, x, y, w, h, f"Inventory {inv.used}/{inv.capacity}")
+        # A carousel (user, v0.93.1): the selected item on the top row, the rest of the bag following
+        # it and wrapping round to the start, each shown once.
         here = next((n for n, line in enumerate(lines) if line[0] == self.selected), 0)
-        first = max(0, min(here - list_rows // 2, len(lines) - list_rows))
-        for row, (r, text, glyph, gcolor, tcolor) in enumerate(lines[first : first + list_rows]):
+        shown = [lines[(here + k) % len(lines)] for k in range(min(list_rows, len(lines)))]
+        for row, (r, text, glyph, gcolor, tcolor) in enumerate(shown):
             bg = HIGHLIGHT if r is not None and r == self.selected else BG
             console.rgb["bg"][x + 1 : x + w - 1, y + 2 + row] = bg
             if glyph:

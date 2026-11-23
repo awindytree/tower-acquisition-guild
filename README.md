@@ -43,7 +43,7 @@ python main.py
 | (shop) | Trade (`←→`/Tab: Buy or Sell, Enter, Esc) |
 | (workshop) | Workshop: `r` repair, `b` sell (broken or repaired), `c` consign; `←→`/Tab: Buy, Training |
 | `x` | Look: move the cursor (movement keys) or `Tab` between things in view; the view follows the cursor, as far as you can see (less in the dark); `Esc` done |
-| `i` | Inventory (the bag): `↑↓` select, `e` wield/wear/equip (weapon, armour, windcatcher or artifact), `u` use (drink, use an artifact, or study a broken one), `d` drop, `Tab` the equipment window, `Esc` close |
+| `i` | Inventory (the bag, a carousel: the selected item sits on the top row and the rest follow it, wrapping round): `↑↓` select, `e` wield/wear/equip (weapon, armour, windcatcher or artifact), `u` use (drink, use an artifact, or study a broken one), `d` drop, `Tab` the equipment window, `Esc` close |
 | `e` | Equipment: weapon, head, chest, legs, windcatcher (its Jodebris bar) and artifact slots. `↑↓` select, `e` take off, `u` use an artifact, `Enter` pick something from the bag for that slot (swapping), `Tab` the bag, `Esc` close |
 | `t` | Travel to a known place (walks there, stopping if anything comes up) |
 | `o` | Auto-explore (hunts): walk to unexplored ground until something comes up (a creature, an item, the way deeper) |
