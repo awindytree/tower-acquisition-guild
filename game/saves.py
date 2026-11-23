@@ -186,7 +186,7 @@ def capture(engine: "Engine") -> dict:
         c = hunt.contract
         data["hunt"] = {
             **contract_to_dict(c), "gen": procgen.GENERATION,
-            "current": hunt.current, "faints_used": hunt.faints_used,
+            "current": hunt.current, "faints_used": hunt.faints_used, "faints_earned": hunt.faints_earned,
             "carried_at_start": hunt.carried_at_start,
             "writings": hunt.writings,
             "story_items": hunt.story_items,
@@ -228,6 +228,8 @@ def restore(engine: "Engine", data: dict) -> None:
             contract = contract_from_dict(engine, hd)
             hunt = Hunt(contract, engine.monster_types)
             hunt.faints_used = hd["faints_used"]
+            # (v0.82.0) older saves: as many earned as new areas reached, and at least those used
+            hunt.faints_earned = hd.get("faints_earned", max(hd["faints_used"], len(hd.get("areas", {})) - 1))
             hunt.carried_at_start = hd["carried_at_start"]
             hunt.writings = [w if w in cat.types else None for w in hd.get("writings", [None] * contract.depth)]
             hunt.story_items = [s for s in hd.get("story_items", []) if s[0] in cat.types]

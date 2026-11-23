@@ -1,5 +1,5 @@
 {
- "_comment": "Gear traits (v0.77.0, more ready in v0.78.0 and v0.81.0; design: claude/design-equipment.md, the assistant's draft pools, 12 per type). Rolled when a piece reaches +5, +10, +15... from its type's pool (data/gear.json types), never twice on one piece. Only traits with \"ready\": true are rolled; the rest wait for their mechanics (reach, knockback and so on) or their weapon type (stage 4). effects use the talent keys (game/talents.py) plus the gear keys in game/gear.py; a key ending in /5 counts once for every 5 tiers of the piece. ALL PLACEHOLDERS.",
+ "_comment": "Gear traits (v0.77.0, more ready in v0.78.0, v0.81.0 and v0.82.0; design: claude/design-equipment.md, the assistant's draft pools, 12 per type). Rolled when a piece reaches +5, +10, +15... from its type's pool (data/gear.json types), never twice on one piece. Only traits with \"ready\": true are rolled; the rest wait for their mechanics (reach, knockback and so on) or their weapon type (stage 4). effects use the talent keys (game/talents.py) plus the gear keys in game/gear.py; a key ending in /5 counts once for every 5 tiers of the piece. ALL PLACEHOLDERS.",
  "pools": {
   "knife": {
    "venom_groove": {
@@ -36,8 +36,11 @@
    },
    "wrist_flick": {
     "name": "Wrist-flick",
-    "text": "can be thrown (2-5 cells), and comes back to your hand",
-    "ready": false
+    "text": "can be thrown (h) up to 5 cells, and comes back to your hand",
+    "ready": true,
+    "effects": {
+     "throw_weapon": 5
+    }
    },
    "gutting": {
     "name": "Gutting",
@@ -369,8 +372,11 @@
    },
    "throwing_balance": {
     "name": "Throwing balance",
-    "text": "can be thrown (2-4 cells)",
-    "ready": false
+    "text": "can be thrown (h) up to 4 cells; it lands where it strikes",
+    "ready": true,
+    "effects": {
+     "throw_weapon": 4
+    }
    },
    "rending": {
     "name": "Rending",

@@ -47,6 +47,7 @@ python main.py
 | `e` | Equipment: weapon, head, chest, legs, windcatcher (its Jodebris bar) and artifact slots. `↑↓` select, `e` take off, `u` use an artifact, `Enter` pick something from the bag for that slot (swapping), `Tab` the bag, `Esc` close |
 | `t` | Travel to a known place (walks there, stopping if anything comes up) |
 | `o` | Auto-explore (hunts): walk to unexplored ground until something comes up (a creature, an item, the way deeper) |
+| `h` | Throw (hurl) something: a flash pot, a smoke jar, a lure, or a weapon with a throwing trait: Tab next target, move keys to aim, Enter/`h` throw, Esc |
 | `f` | Aim and shoot a wielded bow or crossbow (a crossbow that needs winding: `f` winds it, a turn): Tab next target, move keys to aim, Enter/`f` shoot, Esc |
 | `z` | Ready your weapon's rank-5 technique (again to put it aside); no time |
 | `n` | Choose a talent you've earned |
@@ -750,10 +751,12 @@ on their turn, one next to you attacks.
   Creatures hit you the same way, minus the armour you wear.
 - **Healing:** draughts (`u` in the inventory), slow natural recovery (faster
   with Fortitude), and you come home from a hunt fully healed.
-- **Fainting and death:** the first time you drop to 0 HP on a hunt, you're
-  knocked out and come to at the trail home, healed. Drop again on the same
-  hunt and the Hunter dies for good; a new Hunter starts in the guild hall.
-  The number of faints allowed is `faints_allowed` in `data/player.json`.
+- **Fainting and death:** a hunt starts with no faint in hand. **Reaching
+  a new area earns one** (you've marked the way back, so you can be found),
+  up to your limit (`faints_allowed` in `data/player.json`, plus talents and
+  traits); the panel shows "Faints: 1/1". Drop to 0 HP with a faint in hand
+  and you're knocked out and come to at the trail home, healed. Drop with
+  none, and the Hunter dies for good; a new Hunter starts in the guild hall.
 - **Creatures** are in `data/monsters.json`: stats, the area styles they live
   in, and a tier (1–4). Deeper areas and more dangerous contracts bring more
   and tougher creatures. They're all placeholders.

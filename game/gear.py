@@ -285,6 +285,7 @@ def upgrade(engine, item, at: str, rng=None) -> tuple[str, str]:
 #     reach_past, pulping, make_flee (%), bleed_kill_heal; defence rhythm, brace_armour, ringing, fearsome (%);
 #     bows sneak_shot_damage, close_shot_damage, volley, twin_shot (%), shot_knockback; worn listen,
 #     day_accuracy, poison_resist.
+#   v0.82.0: throw_weapon (the weapon in hand can be thrown that far: game/throwing.py).
 # A key ending in /5 counts once for every 5 tiers of the piece ("max_hp/5": 2 = +2 max HP per 5 tiers).
 TRAITS_DATA = Path(__file__).resolve().parent.parent / "data" / "traits.json"
 TRAIT_EVERY = 5

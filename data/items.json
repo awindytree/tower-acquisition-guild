@@ -263,6 +263,21 @@
     "description": "Gloves faced with plates of shell.",
     "value": 30, "properties": {"damage": "1d6", "skill": "brawling", "calling": "Brawler"}
   },
+  "flash_pot": {
+    "name": "flash pot", "glyph": "!", "color": [240, 235, 200], "kind": "consumable",
+    "description": "A clay pot of powders that burst into white light when it breaks. Throw it (h): everything within a cell of where it lands loses a turn.",
+    "value": 12, "stackable": true, "properties": {"throw": "flash"}
+  },
+  "smoke_jar": {
+    "name": "smoke jar", "glyph": "!", "color": [160, 160, 170], "kind": "consumable",
+    "description": "A sealed jar that breaks into a thick cloud. Throw it (h): the smoke blocks sight for a few turns, theirs and yours.",
+    "value": 10, "stackable": true, "properties": {"throw": "smoke"}
+  },
+  "lure": {
+    "name": "lure", "glyph": "!", "color": [200, 140, 90], "kind": "consumable",
+    "description": "A bundle of offal and musk. Throw it (h): for a while, creatures that haven't seen you, or have lost you, go to it instead.",
+    "value": 6, "stackable": true, "properties": {"throw": "lure"}
+  },
   "materials_pouch": {
     "name": "materials pouch", "glyph": "&", "color": [170, 130, 90], "kind": "misc",
     "description": "A many-pocketed leather pouch for hides, bone, shell and the like. It takes one slot in your pack, and up to eight kinds of material ride in it without taking any more.",

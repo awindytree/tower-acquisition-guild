@@ -169,6 +169,7 @@ class Hunt:
         self.contract = contract
         self.monster_types = monster_types or {}
         self.faints_used = 0
+        self.faints_earned = 0    # (user, v0.82.0) earned by reaching each new area, up to the Hunter's limit
         self.areas: list[GameMap | None] = [None] * contract.depth
         self.entries: list[tuple[int, int]] = [(0, 0)] * contract.depth
         self.far_ends: list[tuple[int, int]] = [(0, 0)] * contract.depth

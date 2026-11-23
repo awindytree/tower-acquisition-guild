@@ -60,6 +60,8 @@ class GameMap:
         self.landmarks: dict[tuple[int, int], str] = {}  # named places (the Brisering): cell -> name
         self.windows: dict[tuple[int, int], str] = {}    # service windows: cell -> folk id behind it
         self.tracks: dict[tuple[int, int], int] = {}     # creature tracks: cell -> turn left (Tracking)
+        self.smoke: dict[tuple[int, int], int] = {}      # a smoke jar's cloud: cell -> turns left (v0.82.0)
+        self.lure = None                                 # a thrown lure: [x, y, turns left] (v0.82.0)
         self.hall: tuple[int, int] | None = None         # the guild hall's corner (the city)    # hot ash (an ashmantle's trail): cell -> turns left
         # Fog of war (hunt areas only): you see what's in your line of sight,
         # and remember what you've seen.

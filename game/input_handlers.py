@@ -41,6 +41,7 @@ EQUIPMENT_KEY = _key("e")   # the equipment window (user, v0.69.0)
 LOOK_KEY = _key("x")
 CHARACTER_KEY = _key("c")
 FIRE_KEY = _key("f")
+THROW_KEY = _key("h")       # throw (hurl) something: a pot, a jar, a lure, a weapon that can be thrown (v0.82.0)
 EXPLORE_KEY = _key("o")
 TECHNIQUE_KEY = _key("z")   # ready the weapon's rank-5 technique (v0.55.0; no turn)
 BUTCHER_KEY = _key("b")     # butcher the corpse here (v0.61.0)
@@ -125,6 +126,18 @@ def action_for_event(event: tcod.event.Event, engine: "Engine") -> Action | None
                 engine.log(why)
             else:
                 engine.screen = TargetScreen(engine)
+            return None
+        if event.sym == THROW_KEY:
+            from game import throwing
+            from game.screens import ThrowScreen, ChoiceScreen
+            things = throwing.throwables(engine.player)
+            if not things:
+                engine.log("You have nothing to throw.")
+            elif len(things) == 1:
+                engine.screen = ThrowScreen(engine, things[0][1], things[0][2])
+            else:
+                engine.screen = ChoiceScreen("Throw what?", [
+                    (label, lambda e, it=it, r=r: setattr(e, "screen", ThrowScreen(e, it, r))) for label, it, r in things])
             return None
         if event.sym == TRAVEL_KEY:
             from game.screens import TravelScreen

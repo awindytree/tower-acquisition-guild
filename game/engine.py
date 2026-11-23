@@ -440,6 +440,8 @@ class Engine:
             if not p.dazed:
                 self.log("Your head clears.")
         gm = self.game_map
+        from game import throwing
+        throwing.tick(self)              # smoke thins, a lure fades (v0.82.0)
         if gm.trails:                    # ash cools
             for cell in list(gm.trails):
                 gm.trails[cell] -= 1
@@ -584,6 +586,15 @@ class Engine:
         """One creature's action: attack, close in, or one of its own ways (v0.49.0)."""
         gm, p = self.game_map, self.player
         t = m.type
+        from game import throwing
+        dest = throwing.lured(self, m)                # a lure draws it (v0.82.0)
+        if dest is not None:
+            key = (dest, self.turn)
+            if getattr(self, "_lure_key", None) != key:
+                self._lure_key, self._lure_dist = key, self.distances_from(*dest)
+            if (m.x, m.y) != dest:
+                self.step_monster(m, self._lure_dist)
+            return
         dx, dy = p.x - m.x, p.y - m.y
         near = abs(dx) + abs(dy)
         if t.ghost:                       # never fights; keeps its distance; leaves ash behind it
@@ -805,16 +816,18 @@ class Engine:
     def player_down(self, killer) -> None:
         from game.screens import TitleCardScreen
         p, hunt = self.player, self.hunt
-        if hunt and hunt.faints_used < p.faint_limit:
+        if hunt and self.faints_left() > 0:
             hunt.faints_used += 1
             p.stats.hp = p.stats.max_hp
             self.travel(0, arrive_at="entry")
-            left = p.faint_limit - hunt.faints_used
+            left = self.faints_left()
             self.log(getattr(killer, "knocks", f"The {killer.name} knocks you out.") + " You come to at the trail home.")
             self.screen = TitleCardScreen("Knocked out", [
                 (getattr(killer, "struck", f"The {killer.name} struck you down."), TEXT),
                 ("You come to at the trail home, battered but alive.", DIM), ("", TEXT),
-                (f"Faints left on this hunt: {left}" if left else "One more fall, and it's over.",
+                (f"Faints left on this hunt: {left}" if left else
+                 ("One more fall, and it's over." if hunt.faints_earned >= p.faint_limit
+                  else "One more fall before you find a new area, and it's over."),
                  TEXT if left else HP_LOW),
             ])
             return
@@ -1317,6 +1330,7 @@ class Engine:
 
     def travel(self, index: int, arrive_at: str) -> None:
         hunt = self.hunt
+        first = index > 0 and hunt.areas[index] is None     # a new area: it earns a faint (user, v0.82.0)
         area = hunt.area(index, self.catalogue)
         if area.npc_spawns:          # someone waiting out here (a key hunt's person, v0.67.0)
             if self.player.inventory.count_of(hunt.contract.artifact_id):
@@ -1335,9 +1349,20 @@ class Engine:
             attunement.practise(self)
         x, y = hunt.entries[index] if arrive_at == "entry" else hunt.far_ends[index]
         self.change_map(area, x, y)
+        p = self.player
+        if first and hunt.faints_earned < p.faint_limit:
+            hunt.faints_earned += 1
+            self.log(f"You've marked the way back: if you fall now, you'll be found. "
+                     f"(Faints {self.faints_left()}/{p.faint_limit})")
         from game import story
         story.fire(self, "area", region=hunt.contract.region.id, area=index + 1)
         self.autosave()
+
+    def faints_left(self) -> int:
+        """Faints you can take on this hunt now: those earned (a new area each), less those used."""
+        if self.hunt is None:
+            return 0
+        return max(0, min(self.hunt.faints_earned, self.player.faint_limit) - self.hunt.faints_used)
 
     def reach_trail_home(self) -> None:
         from game.screens import ConfirmScreen
@@ -1438,6 +1463,13 @@ class Engine:
                 if spot and self.visible[tx, ty]:
                     console.rgb["ch"][spot] = ord(TRACK_GLYPH)
                     console.rgb["fg"][spot] = TRACK_COLOR
+
+        # Smoke from a smoke jar (v0.82.0).
+        for (sx, sy) in gm.smoke:
+            spot = cam.to_screen(sx, sy)
+            if spot:
+                console.rgb["ch"][spot] = ord("░")
+                console.rgb["fg"][spot] = (170, 170, 175)
 
         # Items lying on the floor (drawn before the light, so they dim too).
         for floor_item in gm.items:
@@ -1663,8 +1695,8 @@ class Engine:
                 console.print(left, y, line[:width], fg=DATE if i == 0 else DIM, bg=PANEL_BG)
                 y += 1
         if self.hunt:
-            left_faints = p.faint_limit - self.hunt.faints_used
-            text = f"Faints left: {left_faints}" if left_faints else "No faints left"
+            left_faints = self.faints_left()
+            text = f"Faints: {left_faints}/{p.faint_limit}"            # (earned by reaching new areas, v0.82.0)
             console.print(left, y, text, fg=DIM if left_faints else HP_LOW, bg=PANEL_BG)
             y += 1
         if p.dues_owed:

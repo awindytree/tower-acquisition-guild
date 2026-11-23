@@ -1872,6 +1872,102 @@ class TargetScreen(LookScreen):
         console.print(x + 2, y + h - 2, "Enter/f shoot  Tab next  move to aim  Esc"[: w - 4], fg=DIM, bg=BG)
 
 
+class ThrowScreen(LookScreen):
+    """Aim a throw (v0.82.0): the cursor starts on the nearest creature within reach; Tab cycles them;
+    the movement keys move it. Enter or h throws (a turn passes); Esc puts it away."""
+
+    def __init__(self, engine: "Engine", item, reach: int) -> None:
+        super().__init__(engine)
+        self.item, self.reach = item, reach
+        spots = self.targets(engine)
+        if spots:
+            self.x, self.y = spots[0]
+            self.cycle = 0
+
+    def targets(self, engine) -> list:
+        from game import look, ranged
+        p, gm = engine.player, engine.game_map
+        weapon = self.item is p.equipped.get("weapon")
+        spots = [(m.x, m.y) for m in gm.monsters if look.can_see(engine, m.x, m.y)
+                 and ranged.distance(p.x, p.y, m.x, m.y) <= self.reach
+                 and not (weapon and abs(m.x - p.x) + abs(m.y - p.y) <= 1)]
+        return sorted(spots, key=lambda s: ranged.distance(p.x, p.y, *s))
+
+    def handle(self, event, engine: "Engine") -> Action | None:
+        from game.input_handlers import THROW_KEY, MOVE_KEYS
+        from game.actions import ThrowAction
+        if not isinstance(event, tcod.event.KeyDown):
+            return None
+        if event.sym == KeySym.ESCAPE:
+            engine.screen = None
+        elif event.sym in CONFIRM_KEYS or event.sym == THROW_KEY:
+            engine.screen = None
+            return ThrowAction(self.item, self.x, self.y)
+        elif event.sym == KeySym.TAB:
+            spots = self.targets(engine)
+            if spots:
+                self.cycle = (getattr(self, "cycle", -1) + 1) % len(spots)
+                self.x, self.y = spots[self.cycle]
+        elif event.sym in MOVE_KEYS:
+            dx, dy = MOVE_KEYS[event.sym]
+            nx, ny = self.x + dx, self.y + dy
+            if engine.game_map.in_bounds(nx, ny) and engine.in_vision(nx, ny):
+                self.x, self.y = nx, ny
+        return None
+
+    def render(self, console, engine: "Engine", area_w: int) -> None:
+        from game import ranged, throwing, combat
+        p = engine.player
+        path, creature = ranged.flight(engine, self.x, self.y)
+        for cell in path:
+            spot = engine.cam.to_screen(*cell)
+            if spot:
+                console.rgb["bg"][spot] = PATH_BG
+        spot = engine.cam.to_screen(self.x, self.y)
+        if spot:
+            console.rgb["bg"][spot] = CURSOR_BG
+            console.rgb["fg"][spot] = CURSOR_FG
+        weapon = self.item is p.equipped.get("weapon")
+        name = self.item.type.name
+        why = throwing.why_not(engine, self.item, self.reach, self.x, self.y)
+        lines = []
+        if why:
+            heading = "Throw " + name
+            lines.append((why, WARN if (self.x, self.y) != (p.x, p.y) else TEXT))
+        else:
+            heading = creature.name.capitalize() if creature is not None else "Throw " + name
+            if weapon and creature is not None:
+                dist = ranged.distance(p.x, p.y, creature.x, creature.y)
+                lines.append((f"Chance to hit: {combat.hit_chance(p.accuracy - int(dist // 3), creature.evasion)}%", TEXT))
+            elif not weapon:
+                what = {"flash": "Everything within a cell of where it lands loses a turn.",
+                        "smoke": "A cloud of smoke that blocks sight for a while.",
+                        "lure": "Creatures that haven't seen you, or have lost you, go to it."}[self.item.type.properties["throw"]]
+                lines.append((what, TEXT))
+        if weapon:
+            lines.append((f"{name.capitalize()}: thrown up to {self.reach}." + (" It comes back to your hand."
+                          if throwing_returns(self.item) else " It stays where it lands."), DIM))
+        else:
+            lines.append((f"Thrown up to {self.reach}. {p.inventory.count_of(self.item.type.id)} left.", DIM))
+        w = min(area_w - 2, 52)
+        body = []
+        for text, color in lines:
+            body += wrapped(text, w - 4, color)
+        h = len(body) + 4
+        cursor_low = spot is not None and spot[1] > console.height // 2
+        x = (area_w - w) // 2
+        y = 1 if cursor_low else console.height - h - 1
+        draw_box(console, x, y, w, h, heading)
+        for i, (text, color) in enumerate(body):
+            console.print(x + 2, y + 1 + i, text, fg=color, bg=BG)
+        console.print(x + 2, y + h - 2, "Enter/h throw  Tab next  move to aim  Esc"[: w - 4], fg=DIM, bg=BG)
+
+
+def throwing_returns(item) -> bool:
+    from game import gear
+    return gear.gear_type(item.type) == "knife"
+
+
 # ---- Training (opened from a conversation: "train:marksmanship") ---------------------------
 class TrainingScreen:
     """Pay to train skills past what practice alone can teach. Enter trains; Esc leaves."""
@@ -2065,6 +2161,7 @@ KEY_REFERENCE = [
         ("g or ,", "pick up what's here (a corpse last, as a trophy)"),
         ("b", "butcher the corpse here, for materials"),
         ("f", "aim and shoot a bow or crossbow"),
+        ("h", "throw a pot, jar, lure or throwable weapon"),
         ("x", "look (Tab: next thing in view)"),
     ]),
     ("Windows", [
@@ -2338,8 +2435,9 @@ class CharacterScreen(ScrollScreen):
                 when = f"mends in {left_p} Pulse{'s' if left_p != 1 else ''}"
             cond.append((f"! {it.name}: {it.effect_text()}; {when}", WARN))   # (running bleeds: the side panel)
         if engine.hunt:
-            faints = p.faint_limit - engine.hunt.faints_used
-            cond.append((f"Faints left {faints}", DIM if faints else WARN))
+            faints = engine.faints_left()
+            cond.append((f"Faints {faints}/{p.faint_limit}" + ("" if engine.hunt.faints_earned >= p.faint_limit
+                                                               else " (a new area earns one)"), DIM if faints else WARN))
         if p.dues_owed:
             cond.append((f"Dues owed ♦ {p.dues_owed}: pay the clerk", WARN))
         if p.talent_offers:

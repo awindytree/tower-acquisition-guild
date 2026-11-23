@@ -5,6 +5,24 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.82.0: Earned faints, and throwing (2026-11-22)
+**Faints are earned** (user):
+- A hunt starts at 0 of your faint limit. **Reaching an area for the first time earns one**, up to the limit (talents and traits that raise it still do). You've marked the way back, so you can be found and dragged home.
+- Until you've earned one, being knocked out is death.
+- The panel shows "Faints: 0/1" and the sheet says a new area earns one. The knocked-out card says whether a new area would give you another.
+- Older saves count one for each new area already reached.
+- A one-area place (Trifling) never earns a faint.
+
+**Throwing** (roadmap step 2): `h` throws something at a cell you can see. It flies like an arrow and takes a turn.
+- **A flash pot** (12): everything within a cell of where it lands loses a turn.
+- **A smoke jar** (10): a cloud of smoke a few cells wide that blocks sight, theirs and yours, for 8 turns.
+- **A lure** (6): for 12 turns, creatures that haven't seen you, or have lost you, go to it.
+- All three are at the supplier.
+- **Weapons:** a knife with **Wrist-flick** can be thrown up to 5 cells and comes back to your hand. An axe with **Throwing balance** can be thrown up to 4 and lands where it strikes, leaving you bare-handed until you pick it up. Either is an attack (melee accuracy, less a point every 3 cells), but not at a creature beside you.
+- Both traits can roll now: **162 of 168**.
+
+The numbers are drafts.
+
 ## 0.81.1: A reckless bot (2026-11-22)
 - **`tools/balance/sim.py --profile reckless`** (user's idea): drinks and eats later, rests less, turns back only near death, and climbs to harder places two levels sooner. It gives a rough idea of where people will die. The careful profile is the bot as it always was.
 - First run (balance report): still no deaths in 115 reckless hunts. It faints 5–10 times as often, but a death takes a second knockout in the same hunt. Danger 5 got its first real sample. No change to the game.

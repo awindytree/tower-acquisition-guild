@@ -785,6 +785,17 @@ class ArtifactSlotAction(Action):
         return ok
 
 
+class ThrowAction(Action):
+    """Throw something at a spot (see game/throwing.py, v0.82.0)."""
+
+    def __init__(self, item, x: int, y: int) -> None:
+        self.item, self.x, self.y = item, x, y
+
+    def perform(self, engine: "Engine") -> bool:
+        from game import throwing
+        return throwing.throw(engine, self.item, self.x, self.y)
+
+
 class FireAction(Action):
     """Shoot the wielded bow at a spot (see game/ranged.py)."""
 
