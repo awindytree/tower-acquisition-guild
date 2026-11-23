@@ -29,7 +29,9 @@ def destinations(engine) -> list[tuple[str, tuple[int, int], bool]]:
         if home_door:
             out.append(("your home", home_door, False))
         for (x, y) in gm.gates:
-            out.append(("back out to the Brisering", (x, y), False))
+            from game import lost_grounds
+            out.append(("the way back to the Wayfinder" if lost_grounds.here(engine) else "back out to the Brisering",
+                        (x, y), False))
         return out
     if engine.hunt is None and gm is not engine.city:     # the Brisering: back to the gates
         for (x, y), gate_id in sorted(gm.gates.items(), key=lambda g: g[1]):

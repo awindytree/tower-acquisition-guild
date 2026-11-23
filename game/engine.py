@@ -118,6 +118,8 @@ class Engine:
             _gear.set_catalogue(catalogue)               # (material values for gear worth, v0.76.0)
         self.trophies = {"records": {}, "curios": {}}   # the trophy wall (world state, v0.61.0)
         self.lost = []          # lost Hunters' packs, for recovery contracts (world state, v0.85.0)
+        from game import lost_grounds          # hand-built places at particular words (v0.87.0)
+        lost_grounds.load(keywords=getattr(regions, "keywords", None))
         self.new_hunter = new_hunter     # makes a fresh Player, after a death
         self.rng = random.Random()
         self.turn = 0
@@ -1258,7 +1260,8 @@ class Engine:
         self.game_map = game_map
         self.explore_seen_items = set()
         self.player.x, self.player.y = x, y
-        self.player.in_miasma = self.hunt is not None  # hunts lie out beyond the Chorus Winds
+        self.player.in_miasma = (self.hunt is not None        # hunts lie out beyond the Chorus Winds
+                                 or str(getattr(self, "site", None) or "").startswith("lost:"))   # and Lost Grounds (v0.87.0)
         self.player.daylight = getattr(game_map, "light", "") == "day"     # (Brimmed)
         p_ = self.player
         p_.area_kills, p_.coil_used, p_.kick_used, p_.streak = 0, False, False, 0   # (once-an-area traits)
@@ -1388,6 +1391,11 @@ class Engine:
         words = keywords.resolve(self, words, self.rng)
         keywords.learn(self, list(words))
         place = self.regions.place(*words)
+        from game import lost_grounds, work
+        ground = lost_grounds.at_place(place.id)
+        if ground and not postings.matches(self, place) and not work.bounties_for(self, place):
+            lost_grounds.enter(self, ground)       # a Lost Ground (roadmap step 5, v0.87.0)
+            return
         contract = postings.matches(self, place) or trip(place, self.catalogue, self.rng)
         self.screen = departure_card(contract, self)
 

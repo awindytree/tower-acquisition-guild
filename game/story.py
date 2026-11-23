@@ -33,6 +33,7 @@ DATA = Path(__file__).resolve().parent.parent / "data" / "story"
 EVENTS = ("new_game", "new_hunter", "set_out", "area", "kill", "pickup", "home", "day", "retire", "death",
           "contract_done", "contract_failed",
           "talk", "wayfinder", "see", "bounty_paid", "load",   # v0.67.0: load (a save was loaded)
+          "lost_ground",   # v0.87.0: arriving at a Lost Ground (ground=ID, first=True/False)
           "manual")   # "manual": never fired; played only by a scene:ID effect   # v0.54.0: talk (folk=ID), see (monster=ID, marked)
 
 
@@ -374,6 +375,8 @@ def holds(engine, kind: str, rest: str) -> bool | None:
         return engine.hunt is not None and engine.hunt.contract.region.id == rest
     if kind == "word":             # word:ID: on a trip whose place uses that word
         return engine.hunt is not None and rest in engine.hunt.contract.region.place
+    if kind == "visited":          # visited:ID: anyone has been to that Lost Ground (v0.87.0)
+        return rest in s.get("grounds", {})
     if kind == "knows":            # knows:ID: the word is known
         return rest in engine.words
     if kind == "event":

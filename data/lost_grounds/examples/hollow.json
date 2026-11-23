@@ -1,0 +1,16 @@
+{
+ "_comment": "An example Lost Ground (tests only). Copy this file and its map into data/lost_grounds/ (not examples/) to make a real one.",
+ "name": "The Example Hollow",
+ "words": ["quiet", "craggy", "letters"],
+ "map": "hollow.txt",
+ "arrive": ["The Wayfinder sets you down somewhere it shouldn't go.", "The air is still, and something here was built by hands."],
+ "again": ["The hollow is as you left it."],
+ "monuments": {
+  "example_stone": {
+   "name": "a worn standing stone",
+   "look": "A standing stone, its face cut with lines of script.",
+   "title": "The standing stone",
+   "text": ["(An example inscription. A Lost Ground's lore goes here.)"]
+  }
+ }
+}

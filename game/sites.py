@@ -25,7 +25,10 @@ def for_landmark(name: str) -> str | None:
 def get(engine, sid: str) -> GameMap:
     sites = engine.__dict__.setdefault("sites", {})
     if sid not in sites:
-        gm, _ = GameMap.from_file(DATA / SITES[sid][0])
+        from game import lost_grounds
+        path = (lost_grounds.grounds()[sid[len(lost_grounds.PREFIX):]]["map_path"]
+                if sid.startswith(lost_grounds.PREFIX) else DATA / SITES[sid][0])   # (a Lost Ground, v0.87.0)
+        gm, _ = GameMap.from_file(path)
         gm.place_items(engine.catalogue)
         saved = engine.__dict__.get("site_items", {}).get(sid)
         if saved is not None:                 # (what was left there, from a save)
@@ -68,6 +71,10 @@ def enter(engine, sid: str, from_xy: tuple[int, int]) -> None:
 
 def leave(engine) -> None:
     sid = here(engine)
+    from game import lost_grounds
+    if sid and sid.startswith(lost_grounds.PREFIX):     # a Lost Ground: home through the Wayfinder (v0.87.0)
+        lost_grounds.leave(engine)
+        return
     bris = engine.brisering
     x, y = engine.__dict__.get("site_return") or next(iter(bris.arrivals.values()))
     engine.site = None
@@ -83,6 +90,16 @@ def to_save(engine) -> dict:
         items[sid] = saves._items(gm)
     ret = engine.__dict__.get("site_return")
     return {"here": here(engine), "return": list(ret) if ret else None, "items": items}
+
+
+def known(sid: str | None) -> bool:
+    """A site id this game can put you back in (a site, or a Lost Ground that still exists)."""
+    if not sid:
+        return False
+    from game import lost_grounds
+    if sid.startswith(lost_grounds.PREFIX):
+        return sid[len(lost_grounds.PREFIX):] in lost_grounds.grounds()
+    return sid in SITES
 
 
 def from_save(engine, data: dict | None) -> None:

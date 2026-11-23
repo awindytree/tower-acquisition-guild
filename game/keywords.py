@@ -219,6 +219,11 @@ def random_place(engine, danger: int, rng: random.Random):
     """A place of the given danger, from all the words (for the Guild's boards): grammatical."""
     kw = engine.regions.keywords
     dwords = [w for w in kw.ordinary("danger") if int(kw.words["danger"][w].data["danger"]) == danger] or kw.ordinary("danger")
-    d = rng.choice(dwords)
-    land = [w for w in kw.ordinary("land") if kw.valid(d, w)]
-    return engine.regions.place(d, rng.choice(land), rng.choice(kw.ordinary("feature")))
+    from game import lost_grounds
+    for _ in range(20):           # never a Lost Ground's words (v0.87.0)
+        d = rng.choice(dwords)
+        land = [w for w in kw.ordinary("land") if kw.valid(d, w)]
+        place = engine.regions.place(d, rng.choice(land), rng.choice(kw.ordinary("feature")))
+        if not lost_grounds.at_place(place.id):
+            break
+    return place

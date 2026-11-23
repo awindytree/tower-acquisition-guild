@@ -35,6 +35,9 @@ def generated(engine, day: int) -> list[Contract]:
         d = rng.choice(by_danger[danger])
         land = [l for l in words["land"] if kw.valid(d, l)]           # never two verbs
         place = engine.regions.place(d, rng.choice(land), rng.choice(words["feature"]))
+        from game import lost_grounds, keywords
+        if lost_grounds.at_place(place.id):           # never work at a Lost Ground's words (v0.87.0)
+            place = keywords.random_place(engine, danger, rng)
         artifact = pick_artifact(place, danger, engine.catalogue, rng)
         for _ in range(6):    # not the same artifact twice on the board
             if all(c.artifact_id != artifact for c in out):

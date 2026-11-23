@@ -331,7 +331,7 @@ def restore(engine: "Engine", data: dict) -> None:
         engine.reveal_landmarks()
     where = engine.brisering if (bd and bd.get("here") and not hunt) else None
     engine.change_map(hunt.areas[hunt.current] if hunt else where or engine.city, player.x, player.y)
-    if site_here and not hunt and site_here in sites.SITES:   # in Ingenfjel or the stead (v0.74.0)
+    if site_here and not hunt and sites.known(site_here):   # in Ingenfjel, the stead or a Lost Ground (v0.74.0, v0.87.0)
         engine.site = site_here
         engine.change_map(sites.get(engine, site_here), player.x, player.y)
     if stale_hunt:
