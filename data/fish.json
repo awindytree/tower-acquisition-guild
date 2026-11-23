@@ -1,107 +1,1182 @@
 {
-  "_comment": "Fishing (v0.94.0, stage 1 of claude/design-fishing.md). PLACEHOLDERS by the assistant: every fish, number and line; the user has fishing, the Watermen and Anglers' Guild (surname Waters) and its tackleman. waters: city_river (Bytorsskug's river), river (the Brisering's river), lake (Brisering waters of 25+ cells), pond (smaller). depth: shore, shallow, deep (cells from the bank: 1, 2, 3+). light: lit, dark or any (a water's light follows the Duel: south of Myligast is lit in the Light Duel). baits: bait id -> how much it likes it (0-1). temper: calm, runner, thrasher, sulker, diver, biter (see game/fishing.py). kg: [usual, spread]. per_kg: shards a kilo before the tackleman's cut. wary: a shorter bite and a harder strike.",
+  "_comment": "Fishing (v0.94.0, stage 1 of claude/design-fishing.md). PLACEHOLDERS by the assistant: every fish, number and line; the user has fishing, the Watermen and Anglers' Guild (surname Waters) and its tackleman. waters: city_river (Bytorsskug's river), river (the Brisering's river), lake (Brisering waters of 25+ cells), pond (smaller). depth: shore, shallow, deep (cells from the bank: 1, 2, 3+). light: lit, dark or any (a water's light follows the Duel: south of Myligast is lit in the Light Duel). baits: bait id -> how much it likes it (0-1). temper: calm, runner, thrasher, sulker, diver, biter (see game/fishing.py). kg: [usual, spread]. per_kg: shards a kilo before the tackleman's cut. wary: a shorter bite and a harder strike. Stage 3 (v0.97.0): where (north/south/east/west of Myligast: only those waters), share (only that share of the lakes or ponds hold it, picked per water), pulses (only on those Pulses), holiday (only in the holiday Pulses between the Duels); lake_names (placeholder patterns with Starsong given names); stock.",
   "waters": {
-    "city_river": {"name": "the city river", "short": "city river"},
-    "river": {"name": "the Brisering's river", "short": "river"},
-    "lake": {"name": "a Brisering lake", "short": "lake"},
-    "pond": {"name": "a Brisering pond", "short": "pond"}
+    "city_river": {
+      "name": "the city river",
+      "short": "city river"
+    },
+    "river": {
+      "name": "the Brisering's river",
+      "short": "river"
+    },
+    "lake": {
+      "name": "a Brisering lake",
+      "short": "lake"
+    },
+    "pond": {
+      "name": "a Brisering pond",
+      "short": "pond"
+    }
   },
   "glyph": "α",
   "species": {
     "silt_minnow": {
-      "name": "silt minnow", "tier": 1, "color": [170, 170, 150],
-      "waters": ["city_river", "river", "pond"], "depth": ["shore", "shallow"], "light": "any",
-      "baits": {"worms": 1.0, "dough": 0.8, "grubs": 0.5}, "temper": "calm", "kg": [0.04, 0.3], "per_kg": 60,
+      "name": "silt minnow",
+      "tier": 1,
+      "color": [
+        170,
+        170,
+        150
+      ],
+      "waters": [
+        "city_river",
+        "river",
+        "pond"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "any",
+      "baits": {
+        "worms": 1.0,
+        "dough": 0.8,
+        "grubs": 0.5
+      },
+      "temper": "calm",
+      "kg": [
+        0.04,
+        0.3
+      ],
+      "per_kg": 60,
       "description": "A finger of grey silver that lives anywhere there's silt to nose through. Everyone's first fish."
     },
     "bridge_perch": {
-      "name": "bridge perch", "tier": 1, "color": [150, 170, 90],
-      "waters": ["city_river"], "depth": ["shallow"], "light": "lit",
-      "baits": {"worms": 1.0, "grubs": 0.7, "spinner": 0.4}, "temper": "calm", "kg": [0.3, 0.3], "per_kg": 12,
+      "name": "bridge perch",
+      "tier": 1,
+      "color": [
+        150,
+        170,
+        90
+      ],
+      "waters": [
+        "city_river"
+      ],
+      "depth": [
+        "shallow"
+      ],
+      "light": "lit",
+      "baits": {
+        "worms": 1.0,
+        "grubs": 0.7,
+        "spinner": 0.4
+      },
+      "temper": "calm",
+      "kg": [
+        0.3,
+        0.3
+      ],
+      "per_kg": 12,
       "description": "Striped and bold, it holds in the still water under Bytorsskug's bridges while the light lasts."
     },
     "lampfin": {
-      "name": "lampfin", "tier": 2, "color": [230, 190, 110],
-      "waters": ["city_river"], "depth": ["shore", "shallow"], "light": "any",
-      "baits": {"grubs": 1.0, "spinner": 0.6, "dough": 0.5}, "temper": "runner", "kg": [0.5, 0.3], "per_kg": 20,
+      "name": "lampfin",
+      "tier": 2,
+      "color": [
+        230,
+        190,
+        110
+      ],
+      "waters": [
+        "city_river"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "any",
+      "baits": {
+        "grubs": 1.0,
+        "spinner": 0.6,
+        "dough": 0.5
+      },
+      "temper": "runner",
+      "kg": [
+        0.5,
+        0.3
+      ],
+      "per_kg": 20,
       "description": "Its fins catch any light at all. It gathers where the city's lamps reach the water, Duel in, Duel out."
     },
     "gutter_eel": {
-      "name": "gutter eel", "tier": 2, "color": [110, 100, 70],
-      "waters": ["city_river", "pond"], "depth": ["shore"], "light": "any",
-      "baits": {"worms": 1.0, "grubs": 0.8}, "temper": "thrasher", "kg": [1.2, 0.35], "per_kg": 8,
+      "name": "gutter eel",
+      "tier": 2,
+      "color": [
+        110,
+        100,
+        70
+      ],
+      "waters": [
+        "city_river",
+        "pond"
+      ],
+      "depth": [
+        "shore"
+      ],
+      "light": "any",
+      "baits": {
+        "worms": 1.0,
+        "grubs": 0.8
+      },
+      "temper": "thrasher",
+      "kg": [
+        1.2,
+        0.35
+      ],
+      "per_kg": 8,
       "description": "A brown eel of drains and bank holes. It fights like a dropped rope."
     },
     "stonecat": {
-      "name": "stonecat", "tier": 2, "color": [120, 120, 130],
-      "waters": ["river", "lake"], "depth": ["shallow", "deep"], "light": "dark",
-      "baits": {"worms": 1.0, "dough": 0.7}, "temper": "sulker", "kg": [2.5, 0.35], "per_kg": 6,
+      "name": "stonecat",
+      "tier": 2,
+      "color": [
+        120,
+        120,
+        130
+      ],
+      "waters": [
+        "river",
+        "lake"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "dark",
+      "baits": {
+        "worms": 1.0,
+        "dough": 0.7
+      },
+      "temper": "sulker",
+      "kg": [
+        2.5,
+        0.35
+      ],
+      "per_kg": 6,
       "description": "Whiskered, flat-headed, grey as a river stone. It feeds in the dark and lies like one when hooked."
     },
     "reedrunner": {
-      "name": "reedrunner", "tier": 2, "color": [140, 190, 120], "wary": true,
-      "waters": ["river"], "depth": ["shore", "shallow"], "light": "lit",
-      "baits": {"grubs": 1.0, "spinner": 1.0}, "temper": "runner", "kg": [1.0, 0.3], "per_kg": 10,
+      "name": "reedrunner",
+      "tier": 2,
+      "color": [
+        140,
+        190,
+        120
+      ],
+      "wary": true,
+      "waters": [
+        "river"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "lit",
+      "baits": {
+        "grubs": 1.0,
+        "spinner": 1.0
+      },
+      "temper": "runner",
+      "kg": [
+        1.0,
+        0.3
+      ],
+      "per_kg": 10,
       "description": "Lean and green-backed, it hunts the river's edges in the light and runs for the reeds the moment it feels a hook."
     },
     "bargefish": {
-      "name": "bargefish", "tier": 3, "color": [150, 130, 100],
-      "waters": ["river"], "depth": ["shallow"], "light": "any",
-      "baits": {"dough": 1.0, "grubs": 0.6}, "temper": "sulker", "kg": [6.0, 0.35], "per_kg": 5,
+      "name": "bargefish",
+      "tier": 3,
+      "color": [
+        150,
+        130,
+        100
+      ],
+      "waters": [
+        "river"
+      ],
+      "depth": [
+        "shallow"
+      ],
+      "light": "any",
+      "baits": {
+        "dough": 1.0,
+        "grubs": 0.6
+      },
+      "temper": "sulker",
+      "kg": [
+        6.0,
+        0.35
+      ],
+      "per_kg": 5,
       "description": "Broad as a plank and about as lively, until it decides otherwise. River people say they follow the current down to the miasma and come back bigger."
     },
     "glasstooth": {
-      "name": "glasstooth", "tier": 3, "color": [180, 210, 220], "wary": true,
-      "waters": ["river", "lake"], "depth": ["shallow", "deep"], "light": "lit",
-      "baits": {"spinner": 1.0}, "temper": "biter", "kg": [4.0, 0.35], "per_kg": 9,
+      "name": "glasstooth",
+      "tier": 3,
+      "color": [
+        180,
+        210,
+        220
+      ],
+      "wary": true,
+      "waters": [
+        "river",
+        "lake"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "lit",
+      "baits": {
+        "spinner": 1.0
+      },
+      "temper": "biter",
+      "kg": [
+        4.0,
+        0.35
+      ],
+      "per_kg": 9,
       "description": "A long hunter with clear, needle teeth. It takes only what moves, and it bites through a careless line."
     },
     "lake_perch": {
-      "name": "lake perch", "tier": 1, "color": [170, 160, 80],
-      "waters": ["lake", "pond"], "depth": ["shore", "shallow"], "light": "lit",
-      "baits": {"worms": 1.0, "grubs": 0.8}, "temper": "calm", "kg": [0.4, 0.3], "per_kg": 10,
+      "name": "lake perch",
+      "tier": 1,
+      "color": [
+        170,
+        160,
+        80
+      ],
+      "waters": [
+        "lake",
+        "pond"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "lit",
+      "baits": {
+        "worms": 1.0,
+        "grubs": 0.8
+      },
+      "temper": "calm",
+      "kg": [
+        0.4,
+        0.3
+      ],
+      "per_kg": 10,
       "description": "The common perch of the Brisering's still waters, in schools at the edges while it's light."
     },
     "moonbream": {
-      "name": "moonbream", "tier": 2, "color": [200, 205, 225],
-      "waters": ["lake", "pond"], "depth": ["shallow", "deep"], "light": "dark",
-      "baits": {"dough": 1.0, "grubs": 0.7}, "temper": "calm", "kg": [1.4, 0.3], "per_kg": 9,
+      "name": "moonbream",
+      "tier": 2,
+      "color": [
+        200,
+        205,
+        225
+      ],
+      "waters": [
+        "lake",
+        "pond"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "dark",
+      "baits": {
+        "dough": 1.0,
+        "grubs": 0.7
+      },
+      "temper": "calm",
+      "kg": [
+        1.4,
+        0.3
+      ],
+      "per_kg": 9,
       "description": "Round and pale as the moon it's named for. It rises to feed only in the dark."
     },
     "gloamfish": {
-      "name": "gloamfish", "tier": 3, "color": [90, 110, 150],
-      "waters": ["lake"], "depth": ["deep"], "light": "dark",
-      "baits": {"grubs": 1.0, "worms": 0.5}, "temper": "diver", "kg": [5.0, 0.35], "per_kg": 7,
+      "name": "gloamfish",
+      "tier": 3,
+      "color": [
+        90,
+        110,
+        150
+      ],
+      "waters": [
+        "lake"
+      ],
+      "depth": [
+        "deep"
+      ],
+      "light": "dark",
+      "baits": {
+        "grubs": 1.0,
+        "worms": 0.5
+      },
+      "temper": "diver",
+      "kg": [
+        5.0,
+        0.35
+      ],
+      "per_kg": 7,
       "description": "A deep-water fish with eyes too big for its head. Hooked, it goes straight down."
     },
     "mirecarp": {
-      "name": "mirecarp", "tier": 3, "color": [130, 120, 70],
-      "waters": ["lake", "pond"], "depth": ["shallow", "deep"], "light": "any",
-      "baits": {"dough": 1.0}, "temper": "sulker", "kg": [9.0, 0.4], "per_kg": 4,
+      "name": "mirecarp",
+      "tier": 3,
+      "color": [
+        130,
+        120,
+        70
+      ],
+      "waters": [
+        "lake",
+        "pond"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "any",
+      "baits": {
+        "dough": 1.0
+      },
+      "temper": "sulker",
+      "kg": [
+        9.0,
+        0.4
+      ],
+      "per_kg": 4,
       "description": "A heavy, gold-brown grubber of lake beds. It can sulk on the bottom for a long time."
     },
     "ghost_char": {
-      "name": "ghost char", "tier": 4, "color": [225, 235, 240], "wary": true,
-      "waters": ["lake"], "depth": ["deep"], "light": "dark",
-      "baits": {"spinner": 1.0, "grubs": 0.3}, "temper": "runner", "kg": [7.0, 0.3], "per_kg": 10,
+      "name": "ghost char",
+      "tier": 4,
+      "color": [
+        225,
+        235,
+        240
+      ],
+      "wary": true,
+      "waters": [
+        "lake"
+      ],
+      "depth": [
+        "deep"
+      ],
+      "light": "dark",
+      "baits": {
+        "spinner": 1.0,
+        "grubs": 0.3
+      },
+      "temper": "runner",
+      "kg": [
+        7.0,
+        0.3
+      ],
+      "per_kg": 10,
       "description": "Nearly white, nearly invisible in the dark water. Seen more often than caught."
     },
     "lakeback": {
-      "name": "great lakeback", "tier": 5, "color": [100, 140, 120], "wary": true,
-      "waters": ["lake"], "depth": ["deep"], "light": "any",
-      "baits": {"grubs": 1.0, "worms": 0.6}, "temper": "diver", "kg": [40.0, 0.35], "per_kg": 3,
+      "name": "great lakeback",
+      "tier": 5,
+      "color": [
+        100,
+        140,
+        120
+      ],
+      "wary": true,
+      "waters": [
+        "lake"
+      ],
+      "depth": [
+        "deep"
+      ],
+      "light": "any",
+      "baits": {
+        "grubs": 1.0,
+        "worms": 0.6
+      },
+      "temper": "diver",
+      "kg": [
+        40.0,
+        0.35
+      ],
+      "per_kg": 3,
       "description": "Armoured down its back like a boat's keel, and older than anyone fishing for it. The lake people call it the lake-king."
     },
     "pond_loach": {
-      "name": "pond loach", "tier": 1, "color": [150, 120, 90],
-      "waters": ["pond"], "depth": ["shore", "shallow"], "light": "any",
-      "baits": {"worms": 1.0, "dough": 0.6}, "temper": "calm", "kg": [0.1, 0.3], "per_kg": 30,
+      "name": "pond loach",
+      "tier": 1,
+      "color": [
+        150,
+        120,
+        90
+      ],
+      "waters": [
+        "pond"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "any",
+      "baits": {
+        "worms": 1.0,
+        "dough": 0.6
+      },
+      "temper": "calm",
+      "kg": [
+        0.1,
+        0.3
+      ],
+      "per_kg": 30,
       "description": "A whiskered little bottom-dweller of every pond and puddle on the Brisering."
+    },
+    "sluice_dace": {
+      "name": "sluice dace",
+      "tier": 1,
+      "color": [
+        190,
+        190,
+        170
+      ],
+      "waters": [
+        "city_river"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "any",
+      "baits": {
+        "worms": 1.0,
+        "dough": 0.9
+      },
+      "temper": "calm",
+      "kg": [
+        0.15,
+        0.3
+      ],
+      "per_kg": 20,
+      "description": "A quick little fish that gathers where the city's sluices let water in."
+    },
+    "nightglass": {
+      "name": "nightglass",
+      "tier": 2,
+      "color": [
+        150,
+        170,
+        220
+      ],
+      "waters": [
+        "city_river"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "dark",
+      "baits": {
+        "grubs": 1.0,
+        "spinner": 0.5
+      },
+      "temper": "runner",
+      "kg": [
+        0.7,
+        0.3
+      ],
+      "per_kg": 18,
+      "description": "Clear as a lamp chimney, all but its spine and eyes. It only comes up the city river in a Dark Duel."
+    },
+    "bridgeback": {
+      "name": "bridgeback",
+      "tier": 4,
+      "color": [
+        110,
+        120,
+        110
+      ],
+      "waters": [
+        "city_river"
+      ],
+      "depth": [
+        "deep"
+      ],
+      "light": "any",
+      "baits": {
+        "grubs": 1.0,
+        "worms": 0.5
+      },
+      "temper": "sulker",
+      "kg": [
+        14.0,
+        0.3
+      ],
+      "per_kg": 4,
+      "description": "A huge, slow river fish that lives in the deep holes under the oldest bridge. The anglers say there's only ever one.",
+      "wary": true
+    },
+    "towerway_chub": {
+      "name": "Towerway chub",
+      "tier": 1,
+      "color": [
+        160,
+        150,
+        110
+      ],
+      "waters": [
+        "river"
+      ],
+      "depth": [
+        "shallow"
+      ],
+      "light": "lit",
+      "baits": {
+        "worms": 1.0,
+        "dough": 0.8,
+        "grubs": 0.6
+      },
+      "temper": "calm",
+      "kg": [
+        0.5,
+        0.3
+      ],
+      "per_kg": 10,
+      "description": "A fat-headed river fish, common wherever the Towerway runs near water."
+    },
+    "stone_loach": {
+      "name": "stone loach",
+      "tier": 1,
+      "color": [
+        140,
+        130,
+        110
+      ],
+      "waters": [
+        "river"
+      ],
+      "depth": [
+        "shallow"
+      ],
+      "light": "any",
+      "baits": {
+        "worms": 1.0
+      },
+      "temper": "calm",
+      "kg": [
+        0.08,
+        0.3
+      ],
+      "per_kg": 40,
+      "description": "A whiskered finger of a fish that lives under the river's stones."
+    },
+    "silver_darter": {
+      "name": "silver darter",
+      "tier": 2,
+      "color": [
+        210,
+        215,
+        225
+      ],
+      "waters": [
+        "river"
+      ],
+      "depth": [
+        "shallow"
+      ],
+      "light": "any",
+      "baits": {
+        "spinner": 1.0,
+        "grubs": 0.6
+      },
+      "temper": "runner",
+      "kg": [
+        0.9,
+        0.3
+      ],
+      "per_kg": 12,
+      "description": "A bright, slim river fish that runs the moment it's touched."
+    },
+    "eelpout": {
+      "name": "river eelpout",
+      "tier": 3,
+      "color": [
+        110,
+        100,
+        90
+      ],
+      "waters": [
+        "river"
+      ],
+      "depth": [
+        "shallow"
+      ],
+      "light": "dark",
+      "baits": {
+        "worms": 1.0,
+        "grubs": 0.7
+      },
+      "temper": "thrasher",
+      "kg": [
+        3.0,
+        0.35
+      ],
+      "per_kg": 6,
+      "description": "Half eel, half something worse. It feeds on the river bed in the dark and twists like a rope when hooked."
+    },
+    "currentking": {
+      "name": "currentking",
+      "tier": 4,
+      "color": [
+        170,
+        190,
+        200
+      ],
+      "waters": [
+        "river"
+      ],
+      "depth": [
+        "shallow"
+      ],
+      "light": "lit",
+      "baits": {
+        "spinner": 1.0
+      },
+      "temper": "runner",
+      "kg": [
+        6.0,
+        0.3
+      ],
+      "per_kg": 9,
+      "description": "A long, hard-running river fish that holds in the strongest current. Hooking one is the easy part.",
+      "wary": true
+    },
+    "reed_bream": {
+      "name": "reed bream",
+      "tier": 1,
+      "color": [
+        180,
+        170,
+        110
+      ],
+      "waters": [
+        "lake"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "lit",
+      "baits": {
+        "dough": 1.0,
+        "worms": 0.7
+      },
+      "temper": "calm",
+      "kg": [
+        0.6,
+        0.3
+      ],
+      "per_kg": 8,
+      "description": "A flat, bronze fish of the reedy margins."
+    },
+    "mudsucker": {
+      "name": "mudsucker",
+      "tier": 1,
+      "color": [
+        120,
+        110,
+        90
+      ],
+      "waters": [
+        "lake",
+        "pond"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "any",
+      "baits": {
+        "dough": 1.0,
+        "worms": 0.8
+      },
+      "temper": "sulker",
+      "kg": [
+        0.5,
+        0.3
+      ],
+      "per_kg": 8,
+      "description": "A thick-lipped bottom feeder that lives anywhere there's mud."
+    },
+    "glimmer_perch": {
+      "name": "glimmer perch",
+      "tier": 2,
+      "color": [
+        170,
+        190,
+        150
+      ],
+      "waters": [
+        "lake"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "dark",
+      "baits": {
+        "worms": 1.0,
+        "grubs": 0.8
+      },
+      "temper": "calm",
+      "kg": [
+        0.8,
+        0.3
+      ],
+      "per_kg": 10,
+      "description": "A perch with faintly glowing stripes, easiest to find in the dark."
+    },
+    "slatefin": {
+      "name": "slatefin",
+      "tier": 2,
+      "color": [
+        120,
+        130,
+        150
+      ],
+      "waters": [
+        "lake"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "lit",
+      "baits": {
+        "grubs": 1.0,
+        "spinner": 0.7
+      },
+      "temper": "runner",
+      "kg": [
+        1.2,
+        0.3
+      ],
+      "per_kg": 9,
+      "description": "A grey, hard-fighting lake fish, at its boldest in the light.",
+      "where": [
+        "east",
+        "west"
+      ]
+    },
+    "lake_eel": {
+      "name": "lake eel",
+      "tier": 2,
+      "color": [
+        100,
+        110,
+        80
+      ],
+      "waters": [
+        "lake"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "dark",
+      "baits": {
+        "worms": 1.0,
+        "grubs": 0.6
+      },
+      "temper": "thrasher",
+      "kg": [
+        1.6,
+        0.35
+      ],
+      "per_kg": 7,
+      "description": "A dark green eel of the lake margins."
+    },
+    "spinejaw": {
+      "name": "spinejaw",
+      "tier": 3,
+      "color": [
+        160,
+        150,
+        130
+      ],
+      "waters": [
+        "lake"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "lit",
+      "baits": {
+        "spinner": 1.0,
+        "grubs": 0.4
+      },
+      "temper": "biter",
+      "kg": [
+        3.5,
+        0.35
+      ],
+      "per_kg": 8,
+      "description": "A pike-like hunter with a mouthful of teeth that hook backward.",
+      "share": 0.5
+    },
+    "whitefin": {
+      "name": "whitefin trout",
+      "tier": 3,
+      "color": [
+        220,
+        225,
+        230
+      ],
+      "waters": [
+        "lake"
+      ],
+      "depth": [
+        "deep"
+      ],
+      "light": "dark",
+      "baits": {
+        "grubs": 1.0,
+        "spinner": 0.8
+      },
+      "temper": "runner",
+      "kg": [
+        2.5,
+        0.3
+      ],
+      "per_kg": 12,
+      "description": "A cold-water trout with fins like frost. Only some lakes are cold enough for it.",
+      "wary": true,
+      "where": [
+        "north"
+      ]
+    },
+    "blackwater_cat": {
+      "name": "blackwater cat",
+      "tier": 4,
+      "color": [
+        70,
+        70,
+        80
+      ],
+      "waters": [
+        "lake"
+      ],
+      "depth": [
+        "deep"
+      ],
+      "light": "dark",
+      "baits": {
+        "worms": 1.0,
+        "dough": 0.8
+      },
+      "temper": "sulker",
+      "kg": [
+        16.0,
+        0.35
+      ],
+      "per_kg": 3,
+      "description": "A black catfish as long as a Hunter is tall, lying on the bottom of the deepest lakes.",
+      "share": 0.4
+    },
+    "crowned_pike": {
+      "name": "crowned pike",
+      "tier": 4,
+      "color": [
+        190,
+        170,
+        100
+      ],
+      "waters": [
+        "lake"
+      ],
+      "depth": [
+        "deep"
+      ],
+      "light": "lit",
+      "baits": {
+        "spinner": 1.0
+      },
+      "temper": "biter",
+      "kg": [
+        9.0,
+        0.3
+      ],
+      "per_kg": 7,
+      "description": "A pike with a ridge of bony knobs above the eyes. It strikes anything that flashes.",
+      "wary": true,
+      "where": [
+        "south"
+      ]
+    },
+    "greybeard": {
+      "name": "old greybeard",
+      "tier": 5,
+      "color": [
+        160,
+        160,
+        160
+      ],
+      "waters": [
+        "lake"
+      ],
+      "depth": [
+        "deep"
+      ],
+      "light": "dark",
+      "baits": {
+        "grubs": 1.0,
+        "worms": 0.6
+      },
+      "temper": "diver",
+      "kg": [
+        28.0,
+        0.3
+      ],
+      "per_kg": 4,
+      "description": "A grey, barbelled giant of the northern lakes. Some anglers fish their whole lives for one.",
+      "wary": true,
+      "where": [
+        "north"
+      ],
+      "share": 0.5
+    },
+    "frogmouth": {
+      "name": "frogmouth",
+      "tier": 1,
+      "color": [
+        130,
+        150,
+        90
+      ],
+      "waters": [
+        "pond"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "any",
+      "baits": {
+        "worms": 1.0,
+        "grubs": 0.8
+      },
+      "temper": "calm",
+      "kg": [
+        0.2,
+        0.3
+      ],
+      "per_kg": 25,
+      "description": "A wide-mouthed pond fish that will take nearly anything."
+    },
+    "mud_minnow": {
+      "name": "mud minnow",
+      "tier": 1,
+      "color": [
+        120,
+        110,
+        90
+      ],
+      "waters": [
+        "pond"
+      ],
+      "depth": [
+        "shore"
+      ],
+      "light": "any",
+      "baits": {
+        "worms": 1.0,
+        "dough": 0.8
+      },
+      "temper": "calm",
+      "kg": [
+        0.03,
+        0.3
+      ],
+      "per_kg": 70,
+      "description": "A tiny brown minnow, the most common thing in any puddle on the Brisering."
+    },
+    "pond_eel": {
+      "name": "pond eel",
+      "tier": 2,
+      "color": [
+        90,
+        100,
+        70
+      ],
+      "waters": [
+        "pond"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "dark",
+      "baits": {
+        "worms": 1.0
+      },
+      "temper": "thrasher",
+      "kg": [
+        0.9,
+        0.35
+      ],
+      "per_kg": 9,
+      "description": "A small eel that waits out the light in the mud of ponds."
+    },
+    "tench": {
+      "name": "spotted tench",
+      "tier": 2,
+      "color": [
+        110,
+        130,
+        80
+      ],
+      "waters": [
+        "pond",
+        "lake"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "any",
+      "baits": {
+        "dough": 1.0,
+        "worms": 0.7
+      },
+      "temper": "sulker",
+      "kg": [
+        1.8,
+        0.3
+      ],
+      "per_kg": 7,
+      "description": "A slimy, gold-spotted fish of still water. It lies on the bottom when hooked.",
+      "share": 0.6
+    },
+    "duelfish": {
+      "name": "duelfish",
+      "tier": 3,
+      "color": [
+        230,
+        200,
+        120
+      ],
+      "waters": [
+        "lake",
+        "river"
+      ],
+      "depth": [
+        "shallow",
+        "deep"
+      ],
+      "light": "any",
+      "baits": {
+        "grubs": 1.0,
+        "spinner": 0.8
+      },
+      "temper": "runner",
+      "kg": [
+        3.0,
+        0.3
+      ],
+      "per_kg": 15,
+      "description": "A gold-flanked fish that only rises in the holiday Pulses between the Duels. Catching one is good luck for the Duel to come.",
+      "holiday": true
+    },
+    "neus_carp": {
+      "name": "Neu's carp",
+      "tier": 2,
+      "color": [
+        200,
+        160,
+        120
+      ],
+      "waters": [
+        "river",
+        "city_river"
+      ],
+      "depth": [
+        "shallow"
+      ],
+      "light": "any",
+      "baits": {
+        "dough": 1.0
+      },
+      "temper": "sulker",
+      "kg": [
+        2.0,
+        0.3
+      ],
+      "per_kg": 10,
+      "description": "A copper carp that comes up the rivers only on Neu, the last Pulse of the Cycle.",
+      "pulses": [
+        "Neu"
+      ]
+    },
+    "emu_dace": {
+      "name": "Emu dace",
+      "tier": 1,
+      "color": [
+        200,
+        200,
+        160
+      ],
+      "waters": [
+        "pond",
+        "lake"
+      ],
+      "depth": [
+        "shore",
+        "shallow"
+      ],
+      "light": "any",
+      "baits": {
+        "worms": 1.0,
+        "dough": 0.8
+      },
+      "temper": "calm",
+      "kg": [
+        0.2,
+        0.3
+      ],
+      "per_kg": 25,
+      "description": "A pale dace that rises only on Emu, the first Pulse of the Cycle.",
+      "pulses": [
+        "Emu"
+      ]
     }
   },
   "tells": {
-    "ambient": ["Rings spread on the water.", "Something rises, far out.", "The water lies still.", "A weed drifts past your line."],
-    "false": ["The float bobs.", "The line twitches."],
+    "ambient": [
+      "Rings spread on the water.",
+      "Something rises, far out.",
+      "The water lies still.",
+      "A weed drifts past your line."
+    ],
+    "false": [
+      "The float bobs.",
+      "The line twitches."
+    ],
     "bite": {
       "calm": "The float dips and holds under!",
       "runner": "The float shoots away!",
@@ -112,28 +1187,134 @@
     }
   },
   "moves": {
-    "swim": {"pull": 1.0, "text": "It swims against you.", "coming": "It's settling into the pull."},
-    "run": {"pull": 1.8, "text": "It runs, stripping line!", "coming": "It's gathering itself to run."},
-    "thrash": {"pull": 1.3, "text": "It thrashes at the surface!", "coming": "It's about to thrash."},
-    "sulk": {"pull": 0.4, "text": "It sulks, a dead weight.", "coming": "It's going still."},
-    "dive": {"pull": 1.5, "text": "It dives for the bottom!", "coming": "It's turning down."},
-    "left": {"pull": 1.0, "text": "It veers left, toward a snag!", "coming": "It's turning left."},
-    "right": {"pull": 1.0, "text": "It veers right, toward a snag!", "coming": "It's turning right."},
-    "spent": {"pull": 0.2, "text": "It's spent, coming in on its side.", "coming": "It's spent."}
+    "swim": {
+      "pull": 1.0,
+      "text": "It swims against you.",
+      "coming": "It's settling into the pull."
+    },
+    "run": {
+      "pull": 1.8,
+      "text": "It runs, stripping line!",
+      "coming": "It's gathering itself to run."
+    },
+    "thrash": {
+      "pull": 1.3,
+      "text": "It thrashes at the surface!",
+      "coming": "It's about to thrash."
+    },
+    "sulk": {
+      "pull": 0.4,
+      "text": "It sulks, a dead weight.",
+      "coming": "It's going still."
+    },
+    "dive": {
+      "pull": 1.5,
+      "text": "It dives for the bottom!",
+      "coming": "It's turning down."
+    },
+    "left": {
+      "pull": 1.0,
+      "text": "It veers left, toward a snag!",
+      "coming": "It's turning left."
+    },
+    "right": {
+      "pull": 1.0,
+      "text": "It veers right, toward a snag!",
+      "coming": "It's turning right."
+    },
+    "spent": {
+      "pull": 0.2,
+      "text": "It's spent, coming in on its side.",
+      "coming": "It's spent."
+    }
   },
   "tempers": {
-    "calm": {"swim": 5, "sulk": 2, "run": 1, "left": 1, "right": 1},
-    "runner": {"run": 4, "swim": 2, "left": 2, "right": 2, "sulk": 1},
-    "thrasher": {"thrash": 4, "swim": 2, "run": 1, "left": 1, "right": 1},
-    "sulker": {"sulk": 4, "swim": 2, "run": 1, "dive": 1},
-    "diver": {"dive": 4, "swim": 2, "run": 1, "left": 1, "right": 1},
-    "biter": {"thrash": 2, "run": 2, "swim": 2, "left": 1, "right": 1}
+    "calm": {
+      "swim": 5,
+      "sulk": 2,
+      "run": 1,
+      "left": 1,
+      "right": 1
+    },
+    "runner": {
+      "run": 4,
+      "swim": 2,
+      "left": 2,
+      "right": 2,
+      "sulk": 1
+    },
+    "thrasher": {
+      "thrash": 4,
+      "swim": 2,
+      "run": 1,
+      "left": 1,
+      "right": 1
+    },
+    "sulker": {
+      "sulk": 4,
+      "swim": 2,
+      "run": 1,
+      "dive": 1
+    },
+    "diver": {
+      "dive": 4,
+      "swim": 2,
+      "run": 1,
+      "left": 1,
+      "right": 1
+    },
+    "biter": {
+      "thrash": 2,
+      "run": 2,
+      "swim": 2,
+      "left": 1,
+      "right": 1
+    }
   },
   "quirks": {
-    "scarred": {"name": "scarred", "kg": 1.0, "note": "Old hook scars at the lip. Someone nearly had it."},
-    "pale": {"name": "pale", "kg": 1.0, "note": "Washed nearly white."},
-    "old": {"name": "old", "kg": 1.15, "note": "Thick-bodied and slow-eyed with age."},
-    "runt": {"name": "runt", "kg": 0.7, "note": "Small for its kind."}
+    "scarred": {
+      "name": "scarred",
+      "kg": 1.0,
+      "note": "Old hook scars at the lip. Someone nearly had it."
+    },
+    "pale": {
+      "name": "pale",
+      "kg": 1.0,
+      "note": "Washed nearly white."
+    },
+    "old": {
+      "name": "old",
+      "kg": 1.15,
+      "note": "Thick-bodied and slow-eyed with age."
+    },
+    "runt": {
+      "name": "runt",
+      "kg": 0.7,
+      "note": "Small for its kind."
+    }
   },
-  "quirk_chance": 0.08
+  "quirk_chance": 0.08,
+  "lake_names": [
+    "Lake {n}",
+    "{n} Mere",
+    "{n} Water",
+    "{n}'s Pool"
+  ],
+  "stock": {
+    "_comment": "How many of a fish a water holds (by tier), and Pulses for one to come back. A lake's size scales it (pond half, small lake one, big lakes up to twice).",
+    "cap": {
+      "1": 12,
+      "2": 8,
+      "3": 5,
+      "4": 3,
+      "5": 1
+    },
+    "regrow": {
+      "1": 3,
+      "2": 6,
+      "3": 12,
+      "4": 27,
+      "5": 81
+    }
+  }
 }

@@ -5,6 +5,38 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.97.0: Fishing, stage 3: the world's waters (2026-11-23)
+Stage 3 of `claude/design-fishing.md`. Everything is a placeholder: the fish, the lake names, the numbers.
+
+**Every water is its own** (`fishing.Waters` gains sizes, keys, sides, names):
+- The city's water is one, the Brisering's river is one, and each lake and pond is its own, keyed by its corner.
+- Each water lies north, south, east or west of Myligast (the city is south).
+- **Lakes have names:** a Starsong given name in one of `lake_names` ("Lake Setly", "Jyru Mere", "Mane Water", "Bomby's Pool"), shown when you look or cast.
+
+**Who lives where** (`present`):
+- a fish's `where` keeps it to some sides: the whitefin and old greybeard to the northern lakes, the crowned pike to the southern, the slatefin to east and west;
+- `share` puts it in only some lakes or ponds, chosen per water: the spinejaw in half of them, the blackwater cat in 40%, the spotted tench in 60%;
+- `pulses` lets it bite only on those Pulses: the Emu dace on Emu, Neu's carp on Neu;
+- `holiday` lets it bite only in the holiday Pulses: the duelfish.
+
+**Stock** (world state, `engine.angling["stock"]`; `data/fish.json` `stock`):
+- A water holds a few of each fish, by tier: 12, 8, 5, 3, 1. Ponds hold half, the river one and a half, lakes by size (0.6 to 2 times).
+- Bites scale with what's left.
+- Keeping a fish takes one; letting it go costs nothing.
+- They come back one at a time every 3, 6, 12, 27 or 81 Pulses by tier.
+- Look at a water to see if it's been fished hard.
+
+**25 new fish (40 in all):**
+- **city river:** sluice dace, nightglass (only in a Dark Duel), the bridgeback (tier 4, the deep holes under the bridges);
+- **river:** Towerway chub, stone loach, silver darter, river eelpout, currentking (tier 4);
+- **lakes:** reed bream, mudsucker, glimmer perch, slatefin, lake eel, spinejaw, whitefin trout, blackwater cat (tier 4), crowned pike (tier 4), old greybeard (tier 5);
+- **ponds:** frogmouth, mud minnow, pond eel, spotted tench;
+- **the calendar:** the duelfish, Neu's carp, the Emu dace.
+
+**The tackleman** knows about sides, "some of the lakes", Pulses, holidays and sinkers.
+
+**Tests:** `test_waters.py` is new.
+
 ## 0.96.0: Fishing, stage 2: tackle (2026-11-23)
 Stage 2 of `claude/design-fishing.md`. Every item, number and trait is a placeholder.
 

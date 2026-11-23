@@ -142,6 +142,10 @@ class Waters:
     body: dict = field(default_factory=dict)   # (x, y) -> body index
     kinds: list = field(default_factory=list)  # body index -> water kind
     band: dict = field(default_factory=dict)   # (x, y) -> 0 shore, 1 shallow, 2 deep
+    sizes: list = field(default_factory=list)  # body index -> cells (v0.97.0)
+    keys: list = field(default_factory=list)   # body index -> its stock key: "city", "river", "lake:x,y", "pond:x,y"
+    sides: list = field(default_factory=list)  # body index -> north / south / east / west of Myligast
+    names: list = field(default_factory=list)  # body index -> a name (lakes) or ""
 
 
 def place(engine) -> str | None:
@@ -179,7 +183,14 @@ def waters(gm, where: str) -> Waters:
                     if 0 <= nx < gm.width and 0 <= ny < gm.height and wet[nx, ny] and (nx, ny) not in out.body:
                         out.body[(nx, ny)] = idx
                         q.append((nx, ny))
-            out.kinds.append(_kind(cells, where))
+            kind = _kind(cells, where)
+            out.kinds.append(kind)
+            out.sizes.append(len(cells))
+            corner = min(cells, key=lambda c: (c[1], c[0]))
+            out.keys.append("city" if kind == "city_river" else "river" if kind == "river"
+                            else f"{kind}:{corner[0]},{corner[1]}")
+            out.sides.append(_side(gm, cells, where))
+            out.names.append(_lake_name(out.keys[-1]) if kind == "lake" else "")
     # depth bands: distance from the bank, four-way
     q = deque()
     for (x, y) in out.body:
@@ -201,6 +212,25 @@ def waters(gm, where: str) -> Waters:
             out.band[c] = 1
     gm._waters = out
     return out
+
+
+def _side(gm, cells: list, where: str) -> str:
+    """Which way from Myligast a water lies (the city is south)."""
+    if where != "brisering":
+        return "south"
+    from game import journey
+    cx = sum(c[0] for c in cells) / len(cells)
+    cy = sum(c[1] for c in cells) / len(cells)
+    b = journey.bearing(gm, cx, cy)
+    return ("north", "east", "south", "west")[int(((b + 45) % 360) // 90)]
+
+
+def _lake_name(key: str) -> str:
+    """A placeholder name for a lake: a Starsong given name in one of data's patterns."""
+    import zlib
+    from game import named
+    r = random.Random(zlib.crc32(key.encode()))
+    return r.choice(data()["lake_names"]).format(n=named.maker().given_name(r))
 
 
 def _kind(cells: list, where: str) -> str:
@@ -451,14 +481,43 @@ def spots(engine) -> list:
 def describe_spot(engine, x: int, y: int) -> str:
     where = place(engine)
     w = waters(engine.game_map, where)
-    kind = w.kinds[w.body[(x, y)]]
-    return f"{data()['waters'][kind]['name'].capitalize()}, {BANDS[w.band[(x, y)]]}, {light_at(engine, x, y, where)}."
+    b = w.body[(x, y)]
+    kind = w.kinds[b]
+    name = f"{w.names[b]} (a lake)" if w.names[b] else data()['waters'][kind]['name'].capitalize()
+    text = f"{name}, {BANDS[w.band[(x, y)]]}, {light_at(engine, x, y, where)}."
+    left = fished_share(engine, w.keys[b], kind, w.sizes[b])
+    if left < 0.5:
+        text += " It's been fished hard; it'll come back, given time."
+    elif left < 0.85:
+        text += " It's been fished lately."
+    return text
 
 
 # ---- Who's there -------------------------------------------------------------------------------
-def candidates(kind: str, band: str, light: str, bait: str, k: dict | None = None) -> list:
+def present(fid: str, ctx: dict | None) -> bool:
+    """Is this fish in this water now (v0.97.0)? Some keep to one side of Myligast (where), some to only
+    some lakes or ponds (share, picked per water), some to certain Pulses or the holidays."""
+    if not ctx:
+        return True
+    f = species()[fid]
+    if f.get("where") and ctx.get("side") not in f["where"]:
+        return False
+    if f.get("share") is not None and ctx.get("key", "").startswith(("lake:", "pond:")):
+        import zlib
+        if zlib.crc32(f"{ctx['key']}/{fid}".encode()) % 1000 >= f["share"] * 1000:
+            return False
+    if f.get("pulses") and (ctx.get("holiday") or ctx.get("pulse") not in f["pulses"]):
+        return False
+    if f.get("holiday") and not ctx.get("holiday"):
+        return False
+    return True
+
+
+def candidates(kind: str, band: str, light: str, bait: str, k: dict | None = None, ctx: dict | None = None,
+               stock=None) -> list:
     """[(fish id, chance a turn)] for this water, depth, light and bait. With a rig (`kit`): a visible line
-    puts wary fish off (more in the light), and floats, sinkers and traits can add bites."""
+    puts wary fish off (more in the light), and floats, sinkers and traits can add bites. With `ctx`
+    (side, key, pulse, holiday): only the fish in this water now. `stock(fid)`: the share of it left."""
     k = k or {}
     more = 1 + k.get("bite", 0) / 100
     vis = k.get("visibility", 0)
@@ -468,13 +527,60 @@ def candidates(kind: str, band: str, light: str, bait: str, k: dict | None = Non
             continue
         if f["light"] != "any" and f["light"] != light:
             continue
-        like = f["baits"].get(bait, 0)
+        if not present(fid, ctx):
+            continue
+        like = f["baits"].get(bait, 0) * (stock(fid) if stock else 1)
         if like > 0:
             shy = 1.0
             if f.get("wary") and vis:
                 shy = max(0.2, 1 - (0.3 if light == "lit" else 0.1) * vis)
             out.append((fid, TIER_BITE[f["tier"]] * like * more * shy))
     return out
+
+
+# ---- Stock: what a water holds, and how it comes back (v0.97.0) ---------------------------------------
+def cap(fid: str, kind: str, size: int) -> int:
+    """How many of this fish a water holds when it's left alone."""
+    base = data()["stock"]["cap"][str(species()[fid]["tier"])]
+    factor = {"pond": 0.5, "river": 1.5, "city_river": 1.0}.get(kind, min(2.0, max(0.6, size / 60)))
+    return max(1, round(base * factor))
+
+
+def _stock(engine) -> dict:
+    return engine.angling.setdefault("stock", {})
+
+
+def level(engine, key: str, fid: str, full: int) -> int:
+    """How many are left: full unless fished, and one back every few Pulses (by tier)."""
+    entry = _stock(engine).get(key, {}).get(fid)
+    if entry is None:
+        return full
+    n, since = entry
+    every = data()["stock"]["regrow"][str(species()[fid]["tier"])]
+    back = (engine.day - since) // every
+    if back:
+        n = min(full, n + back)
+        since += back * every
+        if n >= full:
+            _stock(engine)[key].pop(fid, None)
+            return full
+        _stock(engine)[key][fid] = [n, since]
+    return n
+
+
+def take(engine, key: str, fid: str, full: int) -> None:
+    n = level(engine, key, fid, full)
+    entry = _stock(engine).setdefault(key, {}).get(fid)
+    _stock(engine)[key][fid] = [max(0, n - 1), entry[1] if entry else engine.day]
+
+
+def fished_share(engine, key: str, kind: str, size: int) -> float:
+    """How much of a water's fish is left, all kinds together (1.0 = untouched)."""
+    kinds = [fid for fid, f in species().items() if kind in f["waters"]]
+    if not kinds:
+        return 1.0
+    have = sum(level(engine, key, fid, cap(fid, kind, size)) for fid in kinds)
+    return have / sum(cap(fid, kind, size) for fid in kinds)
 
 
 # ---- A session at the water --------------------------------------------------------------------
@@ -491,6 +597,10 @@ class Session:
     bait_key: str = ""              # what kind of bait it is (worms, grubs, dough, spinner)
     kit: dict = field(default_factory=dict)   # the rig as cast (v0.96.0)
     water_band: str = ""            # the water's own depth (band is where the bait sits)
+    key: str = ""                   # the water's stock key (v0.97.0)
+    size: int = 0
+    side: str = "south"
+    wname: str = ""
     phase: str = "wait"             # wait, bite, fight, landed, over
     spooked: int = 0
     false_tell: bool = False
@@ -532,11 +642,13 @@ def cast(engine, x: int, y: int, bait_type: str) -> tuple[bool, str]:
     w = waters(engine.game_map, where)
     k = kit(p)
     water_band = BANDS[w.band[(x, y)]]
-    s = Session(x, y, (p.x, p.y), w.kinds[w.body[(x, y)]], bait_band(k, water_band), light_at(engine, x, y, where),
-                rod(p), bait_type, bait.type.properties.get("bait", ""), kit=k, water_band=water_band)
+    b = w.body[(x, y)]
+    s = Session(x, y, (p.x, p.y), w.kinds[b], bait_band(k, water_band), light_at(engine, x, y, where),
+                rod(p), bait_type, bait.type.properties.get("bait", ""), kit=k, water_band=water_band,
+                key=w.keys[b], size=w.sizes[b], side=w.sides[b], wname=w.names[b])
     engine.fishing = s
     engine.fishing_last = (x, y, bait_type)
-    note(s, f"You cast your {bait.type.name} into {data()['waters'][s.kind]['name']}, {s.water_band} water"
+    note(s, f"You cast your {bait.type.name} into {s.wname or data()['waters'][s.kind]['name']}, {s.water_band} water"
          + (f" (it sits {s.band} without a sinker)." if s.band != s.water_band else "."))
     from game import sound
     sound.play("cast")
@@ -625,7 +737,10 @@ def step(engine, cmd: str) -> bool:
     if s.spooked:
         s.spooked -= 1
         return True
-    cands = candidates(s.kind, s.band, s.light, s.bait_key, s.kit)
+    d = engine.date
+    ctx = {"side": s.side, "key": s.key, "pulse": d.pulse, "holiday": bool(d.intercalary)}
+    cands = candidates(s.kind, s.band, s.light, s.bait_key, s.kit, ctx,
+                       lambda fid: level(engine, s.key, fid, cap(fid, s.kind, s.size)) / cap(fid, s.kind, s.size))
     roll = rng.random()
     total = 0.0
     for fid, chance in cands:
@@ -802,6 +917,7 @@ def _land(engine, s: Session, rng) -> bool:
 def _landed(engine, s: Session, cmd: str) -> bool:
     item = s.caught
     if cmd == "keep":
+        take(engine, s.key, s.fish, cap(s.fish, s.kind, s.size))     # it's out of the water now (v0.97.0)
         p = engine.player
         if p.inventory.add(item):
             end(engine, f"You keep the {item.label}. (r to cast again)")
@@ -861,28 +977,45 @@ def tip(engine, rng=None) -> str:
     f = species()[fid]
     lit = sky.lit_half()
     dark = "north" if lit == "south" else "south"
+    side = {"lit": lit, "dark": dark}.get(f["light"])
     where = []
     for w in f["waters"]:
         if w == "city_river":
             if f["light"] in ("any", "lit" if lit == "south" else "dark"):
                 where.append("the city river")
             continue
-        name = {"river": "the river", "lake": "the lakes", "pond": "the ponds"}[w]
-        side = {"lit": lit, "dark": dark}.get(f["light"])
-        where.append(f"the {side}ern {name[4:]}" if side else name)
+        sides = [x for x in (f.get("where") or ["north", "south", "east", "west"]) if side is None or x == side
+                 or (side == "south" and x in ("east", "west"))]
+        if f.get("where") and not sides:
+            continue
+        noun = {"river": "river", "lake": "lakes", "pond": "ponds"}[w]
+        some = "some of " if f.get("share") is not None and w in ("lake", "pond") else ""
+        if f.get("where"):
+            where.append(f"{some}the {' and '.join(x + 'ern' for x in sides)} {noun}")
+        elif side:
+            where.append(f"{some}the {side}ern {noun}")
+        else:
+            where.append(f"{some}the {noun}")
     bait = max(f["baits"], key=f["baits"].get)
     bait = {"worms": "a worm", "grubs": "a grub", "dough": "dough", "spinner": "a spinner"}.get(bait, bait)
     band = " or ".join(f["depth"])
     if not where:
-        return (f"The {f['name']}? Not in the city this Duel. It keeps to the "
-                + ("light" if f["light"] == "lit" else "dark") + ", and the river's on the wrong side of it.")
+        return (f"The {f['name']}? Not this Duel, not round here. It keeps to the "
+                + ("light" if f["light"] == "lit" else "dark") + ", and its waters are on the wrong side of it.")
     places = where[0] if len(where) == 1 else ", ".join(where[:-1]) + " and " + where[-1]
     light = {"lit": " while the light's on them", "dark": " in the dark"}.get(f["light"], "")
-    return (f"{plural(f['name']).capitalize()} are in {places}{light}, {band} water. Try {bait}."
-            + (" Wary, mind. Strike quick." if f.get("wary") else ""))
+    when = ""
+    if f.get("holiday"):
+        when = " But only in the holiday Pulses, between the Duels."
+    elif f.get("pulses"):
+        when = f" But only on {' and '.join(f['pulses'])}."
+    deep = " You'll want a sinker." if f["depth"] == ["deep"] else ""
+    return (f"{plural(f['name']).capitalize()} are in {places}{light}, {band} water. Try {bait}.{deep}"
+            + (" Wary, mind. Strike quick." if f.get("wary") else "") + when)
 
 
 def plural(name: str) -> str:
-    if name.endswith(("fish", "carp", "char", "perch", "bream", "back")):
+    if name.endswith(("fish", "carp", "char", "perch", "bream", "back", "cat", "trout", "pike", "tench",
+                      "dace", "chub", "loach", "beard")):
         return name
     return name + ("es" if name.endswith(("ch", "sh", "s", "x")) else "s")

@@ -715,6 +715,16 @@ lakes and ponds. (The miasma's waters need tackle you can't get yet.)
 water's light follows the Duel (south of Myligast is lit in the Light Duel,
 north in the Dark Duel), so the northern lakes hold different fish from the
 southern ones, and swap when the Duel turns. Ask the tackleman what's biting.
+
+**Every water is its own** (v0.97.0). Each Brisering lake has a name, and
+not every fish lives everywhere: some keep to one side of Myligast (the cold
+northern lakes, the southern ones), some live in only some lakes or ponds, and
+a few keep the calendar: the Emu dace rises only on Emu, Neu's carp only on Neu,
+and the duelfish only in the holiday Pulses between the Duels. **Waters can be
+fished out:** every fish you keep comes out of that water, and they come back
+a few Pulses at a time (the small ones quickly, a great lakeback only after
+a Reckon or so). Releasing a fish costs the water nothing. Look (`x`) at a water
+to see whether it's been fished hard. 40 fish in all.
 **Bait:** worms (dig them with `g` in soft ground by the water, or buy them),
 grubs, dough, and a spinner lure that isn't used up. Angling teaches itself to
 rank 2; the tackleman trains beyond.
