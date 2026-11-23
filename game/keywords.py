@@ -142,10 +142,12 @@ class PlaceBook(Mapping):
         return self._cache[pid]
 
     def __contains__(self, pid) -> bool:
+        if not isinstance(pid, str):          # (v0.93.2: None, from an "anything" slot, crashed the Wayfinder)
+            return False
         try:
             self[pid]
             return True
-        except (KeyError, TypeError):
+        except (KeyError, TypeError, ValueError, AttributeError):
             return False
 
     def __iter__(self):

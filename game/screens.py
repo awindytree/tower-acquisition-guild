@@ -795,7 +795,8 @@ class ArtifactScreen:
             info.append(("The Wayfinder chooses from the words you know.", DIM))
         c = engine.player.contract
         here = "/".join(ids) if keywords.ANY not in ids else None
-        if c is not None and not (here in engine.regions and postings.matches(engine, engine.regions[here])):
+        if c is not None and not (here is not None and here in engine.regions
+                                  and postings.matches(engine, engine.regions[here])):
             from game import story as _story
             info += wrapped(f"Your contract: {_story.words_shown(engine, c)} (c to choose those words).", w - 4, DIM)
         if self.notice:

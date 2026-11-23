@@ -5,6 +5,12 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.93.2: Wayfinder crash fixed (2026-11-23)
+The user's crash.log: the game crashed with a contract in hand and a word slot on "(anything)" in the Wayfinder.
+- The window checks whether the chosen words make your contract's place. With an "anything" slot there is no place yet, and asking the list of places about "no place" crashed.
+- The list of places now answers "no" for anything that isn't a place.
+- The window doesn't ask without three words.
+
 ## 0.93.1: The inventory as a carousel (2026-11-23)
 User: the inventory should be a carousel with the selected item anchored to the top of the list.
 - The selected item always sits on the list's top row. The rest of the bag follows it in order, wrapping round to the start, so each item shows once.
