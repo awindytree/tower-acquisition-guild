@@ -114,6 +114,7 @@ class Player(Entity):
     kick_used: bool = False          # Kicking (this area)
     bracing: int = 0                 # Bracing: armour against a creature that's just charged
     daylight: bool = False           # Brimmed: in a daylit place
+    venom: int = 0                   # a Venomous creature's poison: turns left (v0.83.0)
     stepped_now: bool = False        # this action was a step (Braced: did you step the turn before?)
     stepped_last: bool = False
     prey: dict = field(default_factory=dict)   # creature id -> kills by this Hunter (game/mastery.py)

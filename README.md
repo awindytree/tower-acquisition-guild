@@ -757,6 +757,18 @@ on their turn, one next to you attacks.
   traits); the panel shows "Faints: 1/1". Drop to 0 HP with a faint in hand
   and you're knocked out and come to at the trail home, healed. Drop with
   none, and the Hunter dies for good; a new Hunter starts in the guild hall.
+- **Named creatures** (v0.83.0): from danger 2 up, now and then an area holds
+  a creature the Guild knows by name: "Idred the Venomous", or "Armoured Idred
+  the Venomous" with two marks. Each mark changes it: venomous (its hits
+  poison you), armoured, swift (it acts twice a turn), a caller (it calls
+  everything near when it notices you), hulking, bloodthirsty (it heals when
+  it hits). They're drawn in violet, give twice the XP, and their bodies go
+  on the trophy wall's list of the named. A bounty's marked creature is
+  sometimes one.
+- **Callers and flankers** (v0.83.0): scavengers and thistlehounds raise the
+  alarm when they notice you, waking what's near; wild dogs, thistlehounds
+  and woodland stalkers go round another way when another creature blocks
+  the corridor to you.
 - **Creatures** are in `data/monsters.json`: stats, the area styles they live
   in, and a tier (1–4). Deeper areas and more dangerous contracts bring more
   and tougher creatures. They're all placeholders.

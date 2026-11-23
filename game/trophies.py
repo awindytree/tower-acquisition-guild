@@ -80,13 +80,18 @@ def _creature(item) -> str:
 
 
 def label(item) -> str:
-    """In the pack: 'crawler trophy (70.2 kg)', 'pale wild dog trophy (24.8 kg)'."""
+    """In the pack: 'crawler trophy (70.2 kg)', 'pale wild dog trophy (24.8 kg)'; a named one
+    'Idred the Venomous (wild dog trophy, 24.8 kg)'."""
     q = item.trophy.get("quirk", "")
+    if item.trophy.get("named"):
+        return f"{item.trophy['named']} ({item.type.real_name}, {weight_text(item.trophy['kg'])})"
     return f"{quirk_name(q) + ' ' if q else ''}{item.type.real_name} ({weight_text(item.trophy['kg'])})"
 
 
 def corpse_label(item) -> str:
-    """On the ground: 'crawler corpse'."""
+    """On the ground: 'crawler corpse'; 'the body of Idred the Venomous'."""
+    if item.trophy.get("named"):
+        return f"the body of {item.trophy['named']}"
     q = item.trophy.get("quirk", "")
     return f"{quirk_name(q) + ' ' if q else ''}{_creature(item)} corpse"
 
@@ -119,7 +124,10 @@ def leave_corpse(engine, monster, rng=random) -> None:
         if not cells:
             return
         x, y = min(cells, key=lambda c: (abs(c[0] - x) + abs(c[1] - y), abs(c[0] - p.x) + abs(c[1] - p.y)))
-    gm.items.append(FloorItem(x, y, make(engine, monster.type, rng)))
+    body = make(engine, monster.type, rng)
+    if getattr(monster, "named", ""):               # a named creature's body (v0.83.0)
+        body.trophy["named"] = monster.name
+    gm.items.append(FloorItem(x, y, body))
     p = engine.player
     from game import story
     if "seen_corpse" not in p.flags:
@@ -251,6 +259,11 @@ def assess(engine, index: int, rng=random) -> tuple[bool, str]:
         pay += round(base * d["pay"]["curio"])
         said.append(_line("curio", rng, creature=creature, quirk=quirk_name(quirk)))
         st["curios"].setdefault(mid, {})[quirk] = p.full_name
+    who = item.trophy.get("named", "")
+    if who and who not in st.setdefault("named", {}):      # a named creature: its own place on the wall (v0.83.0)
+        pay += base * 2
+        said.append(f"{who}! I've heard Hunters curse that name. It goes up with the named ones.")
+        st["named"][who] = {"creature": mid, "who": p.full_name, "day": engine.day, "kg": kg}
     if not pay:
         return False, _line("reject", rng, creature=creature, weight=weight_text(kg),
                             holder=rec["who"], old=weight_text(rec["kg"]))
@@ -273,6 +286,11 @@ def wall_lines(engine) -> list[str]:
         r = st["records"][mid]
         name = engine.monster_types[mid].name if mid in engine.monster_types else mid
         out.append(f"{name[0].upper() + name[1:]}: {weight_text(r['kg'])}, {r['who']}")
+    if st.get("named"):
+        out += ["", "The named:"]
+        for title, r in sorted(st["named"].items()):
+            kind = engine.monster_types[r["creature"]].name if r["creature"] in engine.monster_types else r["creature"]
+            out.append(f"{title}, a {kind}: {r['who']}")
     curios = [(mid, q, who) for mid, qs in st["curios"].items() for q, who in qs.items()]
     if curios:
         out += ["", "Curiosities:"]

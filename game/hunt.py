@@ -242,6 +242,9 @@ class Hunt:
         if region.alert:                            # Combative (v0.70.0): everything's awake and watching
             for m in game_map.monsters:
                 m.awake = True
+        from game import named                      # perhaps a named creature (v0.83.0; its own rng)
+        named.maybe_name(game_map.monsters, random.Random(f"named:{c.seed}/{index}"), c.danger,
+                         getattr(region, "named", 1.0))
         if last and c.guardian and c.guardian in self.monster_types:   # a story contract's guardian, by the prize
             near = sorted((p for p, d in dist.items() if p != plan.far_end
                            and 1 <= max(abs(p[0] - fx), abs(p[1] - fy)) <= 3), key=lambda p: (p[1], p[0]))
@@ -270,6 +273,9 @@ class Hunt:
                     m = Monster.spawn(self.monster_types[want], bx, by)
                     m.bounty = job_id
                     m.name = f"marked {m.name}"
+                    nrng = random.Random(f"named-bounty:{c.seed}/{job_id}")   # sometimes one the Guild has named
+                    if nrng.random() < named.BOUNTY_CHANCE and not m.type.ghost:
+                        named.roll(m, nrng, max(2, c.danger))
                     game_map.monsters.append(m)
                 elif kind in ("find", "errand") and want in catalogue.types:
                     game_map.item_spawns = [(bx, by, want, 1)]

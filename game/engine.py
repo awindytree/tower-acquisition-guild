@@ -473,6 +473,18 @@ class Engine:
         if self.player.is_dead:
             self.player_down(Wound(injuries.bleeding(self.player) or ["bleeding"]))
             return
+        p = self.player
+        if getattr(p, "venom", 0) and self.hunt is not None:    # a Venomous creature's poison (v0.83.0)
+            p.venom -= 1
+            from game import talents as _tal
+            every = 4 if _tal.total(p, "poison_resist") else 2
+            if p.venom % every == 0:
+                p.stats.take_damage(1)
+                if p.is_dead:
+                    self.player_down(Wound(["poisoned"]))
+                    return
+        elif getattr(p, "venom", 0):
+            p.venom = 0
         self.player.regenerate()
         for message in self.player.tick_supplies():
             self.log(message)
@@ -511,6 +523,8 @@ class Engine:
                 if fear and self.rng.randint(1, 100) <= fear:
                     m.staggered = max(m.staggered, 1)
                     self.log(f"The {m.name} sees you and hesitates.")
+                if getattr(m, "named", ""):
+                    self.log(f"That's {m.name}. The Guild knows this one by name.")
                 m.spotted = True                 # the story hears of each creature the first time it's seen
                 from game import story
                 story.fire(self, "see", monster=m.type.id, marked=bool(getattr(m, "bounty", 0)))
@@ -520,9 +534,12 @@ class Engine:
                 if not m.awake:
                     m.awake = True
                     if m.type.behaviour == "hunt":
-                        self.log(f"A {m.name} notices you.")
+                        self.log(f"{m.name} notices you." if m.named else f"A {m.name} notices you.")
                         from game import sound
                         sound.play("creature_alert", gap=4.0)
+                    from game import named
+                    if m.type.calls or named.has(m, "caller"):      # it raises the alarm (v0.83.0)
+                        named.call(self, m)
                 m.turns_unseen = 0
             elif m.awake:
                 m.turns_unseen += 1
@@ -570,7 +587,7 @@ class Engine:
                 m.staggered -= 1
                 continue
             m.ticks += 1
-            turns = 2 if m.type.speed == "quick" else (m.ticks % 2 if m.type.speed == "slow" else 1)
+            turns = 2 if m.speed == "quick" else (m.ticks % 2 if m.speed == "slow" else 1)
             for _ in range(turns):
                 if self.game_map is not gm or p.is_dead or m not in gm.monsters:
                     break
@@ -698,7 +715,7 @@ class Engine:
             p.stats.heal(talents.total(p, "heal_on_kill"))
         if getattr(m, "bleeding", 0) and talents.total(p, "bleed_kill_heal"):   # Bloodthirst (the claw trait)
             p.stats.heal(talents.total(p, "bleed_kill_heal"))
-        xp = round(m.type.xp * (1 + talents.total(p, "xp") / 100))
+        xp = round(m.type.xp * (2 if getattr(m, "named", "") else 1) * (1 + talents.total(p, "xp") / 100))
         from game import sound
         sound.play("kill")
         if p.stats.gain_xp(xp):
@@ -722,6 +739,14 @@ class Engine:
         self.player.bracing = 0
         from game import sound
         sound.play("hurt" if result.hit else "creature_miss")
+        if result.hit and not result.killed:
+            from game import named
+            if named.has(m, "venomous"):                   # (v0.83.0)
+                self.player.venom = max(getattr(self.player, "venom", 0), named.VENOM_TURNS)
+                self.log("Its venom burns in the wound.")
+            top = m.type.hp * 3 // 2 if named.has(m, "hulking") else m.type.hp
+            if named.has(m, "bloodthirsty") and m.hp < top:
+                m.hp = min(top, m.hp + 2)
         if not result.hit:
             self.log(f"The {m.name} misses you.")
             self.player.rhythm += talents.total(self.player, "rhythm")      # Rhythm (a trait)
@@ -779,6 +804,37 @@ class Engine:
                 best, best_d = (nx, ny), dist[nx, ny]
         if best:
             m.x, m.y = best
+        elif getattr(m.type, "flanks", False) and dist[m.x, m.y] > 1:
+            self.flank(m)                         # the way's blocked: go round (v0.83.0)
+
+    def flank(self, m) -> None:
+        """A flanker whose way to you is blocked by another creature looks for another way round: the
+        shortest path that treats the other creatures as walls, if there is one (and not too long)."""
+        gm, p = self.game_map, self.player
+        blocked = {(o.x, o.y) for o in gm.monsters if o is not m}
+        dist = {(p.x, p.y): 0}
+        frontier = [(p.x, p.y)]
+        steps = 0
+        while frontier and steps < 30 and (m.x, m.y) not in dist:
+            steps += 1
+            nxt = []
+            for cx, cy in frontier:
+                for ddx, ddy in STEPS:
+                    nx, ny = cx + ddx, cy + ddy
+                    if ((nx, ny) not in dist and gm.in_bounds(nx, ny) and gm.is_walkable(nx, ny)
+                            and ((nx, ny) == (m.x, m.y) or ((nx, ny) not in blocked and not gm.npc_at(nx, ny)
+                                 and gm.tile_at(nx, ny).symbol not in "<>H"))):
+                        dist[(nx, ny)] = steps
+                        nxt.append((nx, ny))
+            frontier = nxt
+        here = dist.get((m.x, m.y))
+        if here is None:
+            return
+        for ddx, ddy in STEPS:
+            c = (m.x + ddx, m.y + ddy)
+            if dist.get(c, 10_000) < here and c not in blocked and c != (p.x, p.y):
+                m.x, m.y = c
+                return
 
     def try_move_monster(self, m, nx: int, ny: int) -> None:
         gm = self.game_map

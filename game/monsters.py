@@ -50,6 +50,8 @@ class MonsterType:
     flees: float = 0.0
     burrows: bool = False
     beast: bool = False        # an animal (v0.81.0: Herder's, Boar-spear)
+    calls: bool = False        # raises the alarm when it notices you (v0.83.0: corridor-breakers)
+    flanks: bool = False       # goes round another way when the way to you is blocked (v0.83.0)
 
     def lives(self, style: str, light: str) -> bool:
         """Does it turn up in this kind of place, at this time? (night = torchlight only)"""
@@ -89,6 +91,7 @@ def load_monster_types(path: str | Path) -> dict[str, MonsterType]:
             spawn_weight=d.get("spawn_weight", 1.0), opens=d.get("opens", ""), burst=d.get("burst", ""),
             ghost=d.get("ghost", False), trail=d.get("trail", ""), thorns=d.get("thorns", 0),
             flees=d.get("flees", 0.0), burrows=d.get("burrows", False), beast=d.get("beast", False),
+            calls=d.get("calls", False), flanks=d.get("flanks", False),
         )
     return types
 
@@ -116,6 +119,9 @@ class Monster(Entity):
     fumble: bool = False       # its next attack misses (Disarming, Hooked)
     charged: bool = False      # it just closed in on you (Bracing, Boar-spear, Ringing)
     blows: int = 0             # your blows at it so far (Quick hands)
+    named: str = ""            # a named creature's given name (game/named.py, v0.83.0)
+    affixes: list = field(default_factory=list)
+    called: bool = False       # it has raised the alarm
 
     @classmethod
     def spawn(cls, mtype: MonsterType, x: int, y: int) -> "Monster":
@@ -123,6 +129,10 @@ class Monster(Entity):
                    type=mtype, hp=mtype.hp)
 
     # The combat interface (see game/combat.py).
+    @property
+    def speed(self) -> str:
+        return "quick" if "swift" in self.affixes else self.type.speed
+
     @property
     def accuracy(self) -> int:
         return self.type.accuracy
@@ -137,11 +147,11 @@ class Monster(Entity):
 
     @property
     def damage_bonus(self) -> int:
-        return 0
+        return 1 if "hulking" in self.affixes else 0
 
     @property
     def armor(self) -> int:
-        return self.type.armor
+        return self.type.armor + (2 if "armoured" in self.affixes else 0)
 
     @property
     def pierce(self) -> int:

@@ -5,6 +5,26 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.83.0: Named creatures, callers and flankers (2026-11-22)
+Roadmap step 3. The numbers and the six marks are drafts.
+
+**Named creatures** (user):
+- From danger 2 up, an area sometimes holds a creature the Guild knows by name: 5% of areas at danger 2, rising to 20% at danger 5. A bounty's marked creature is one a third of the time.
+- Its name comes from the Starsong given-name generator (user). In the world, the Guild takes up the name Hunters' reports settle on (user).
+- **Its marks:** one, and from danger 2 sometimes two (15% at danger 2, up to 50% at danger 5). Its title comes from the first mark ("Idred the Venomous") and the second goes in front ("Armoured Idred the Venomous", user):
+  - **Venomous:** its hits poison you (1 HP every other turn for 6 turns; Antidote-lined slows it).
+  - **Armoured:** +2 armour.
+  - **Swift:** it acts twice a turn.
+  - **Caller:** when it notices you, everything within 15 cells wakes.
+  - **Hulking:** half again its health, and +1 damage.
+  - **Bloodthirsty:** it heals 2 when it hits you.
+- How it shows: drawn in violet. On first sight: "That's Idred the Venomous. The Guild knows this one by name." The look command lists its marks and reads a step more dangerous.
+- Rewards: twice the XP. Its body ("the body of Idred the Venomous") goes on the trophy wall's new **"The named"** list the first time, and pays double the usual base.
+
+**Corridor-breakers** (roadmap):
+- **Scavengers and thistlehounds call:** when one notices you, it wakes what's within 15 cells.
+- **Wild dogs, thistlehounds and woodland stalkers flank:** when another creature blocks the way to you, they look for another way round (up to 30 steps).
+
 ## 0.82.0: Earned faints, and throwing (2026-11-22)
 **Faints are earned** (user):
 - A hunt starts at 0 of your faint limit. **Reaching an area for the first time earns one**, up to the limit (talents and traits that raise it still do). You've marked the way back, so you can be found and dragged home.

@@ -209,7 +209,8 @@
     1,
     3
    ]
-  ]
+  ],
+  "calls": true
  },
  "ruin_stalker": {
   "description": "Lean and patient. It moves between the broken walls like it owns them.",
@@ -322,7 +323,8 @@
     1
    ]
   ],
-  "beast": true
+  "beast": true,
+  "flanks": true
  },
  "strangler_vine": {
   "description": "A knot of creeper that tightens around anything that comes close. It doesn't move.",
@@ -448,7 +450,8 @@
     1
    ]
   ],
-  "beast": true
+  "beast": true,
+  "flanks": true
  },
  "glasswing": {
   "name": "glasswing",
@@ -695,7 +698,9 @@
    ]
   ],
   "description": "A lean, fast hound whose coat is all barbed burrs. Strike it and the burrs bite back.",
-  "beast": true
+  "beast": true,
+  "calls": true,
+  "flanks": true
  },
  "hollow_elk": {
   "name": "hollow elk",

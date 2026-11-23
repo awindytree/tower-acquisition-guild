@@ -64,7 +64,7 @@ def describe(engine: "Engine", x: int, y: int) -> tuple[str, list[tuple[str, tup
         lines.append((f"Level {st.level} Hunter, {health_words(st.hp, st.max_hp)} ({st.hp}/{st.max_hp} HP).", TEXT))
     elif can_see(engine, x, y) and (m := gm.monster_at(x, y)):
         t = m.type
-        heading = t.name.capitalize()
+        heading = m.name if getattr(m, "named", "") else t.name.capitalize()
         if t.description:
             lines.append((t.description, DIM))
         state = health_words(m.hp, t.hp).capitalize()
@@ -81,7 +81,11 @@ def describe(engine: "Engine", x: int, y: int) -> tuple[str, list[tuple[str, tup
         if getattr(m, "bleeding", 0) or getattr(m, "staggered", 0):   # (your techniques, v0.55.0)
             lines.append((" ".join(w for w in ("It's bleeding." if m.bleeding else "",
                                                "It's reeling." if m.staggered else "") if w), ACCENT))
-        lines.append((THREAT.get(t.tier, ""), WARN if t.tier >= 3 else TEXT))
+        from game import named
+        for line in named.look_lines(m):
+            lines.append((line, WARN))
+        tier = min(4, t.tier + 1) if getattr(m, "named", "") else t.tier     # (a named one: a step worse)
+        lines.append((THREAT.get(tier, ""), WARN if tier >= 3 else TEXT))
     elif can_see(engine, x, y) and (n := gm.npc_at(x, y)):
         heading = n.name
         folk = engine.townsfolk.get(n.folk_id)

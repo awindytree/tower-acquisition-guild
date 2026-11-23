@@ -195,7 +195,8 @@ def capture(engine: "Engine") -> dict:
             "areas": {
                 str(i): {
                     "items": _items(area),
-                    "monsters": [[m.type.id, m.x, m.y, m.hp, m.awake, m.turns_unseen, m.bounty, m.burrowed] for m in area.monsters],
+                    "monsters": [[m.type.id, m.x, m.y, m.hp, m.awake, m.turns_unseen, m.bounty, m.burrowed]
+                                 + ([m.named, m.affixes] if m.named else []) for m in area.monsters],
                     "explored": _pack(area.explored),
                 }
                 for i, area in enumerate(hunt.areas) if area is not None
@@ -246,6 +247,9 @@ def restore(engine: "Engine", data: dict) -> None:
                     m.hp, m.awake, m.turns_unseen = hp, awake, unseen
                     m.bounty = rest[0] if rest else 0
                     m.burrowed = bool(rest[1]) if len(rest) > 1 else False
+                    if len(rest) > 3 and rest[2]:            # a named creature (v0.83.0)
+                        from game import named
+                        named.apply(m, rest[2], rest[3], fresh=False)
                     area.monsters.append(m)
                 area.explored = _unpack(ad["explored"], area.kinds.shape)
             hunt.current = hd["current"]
