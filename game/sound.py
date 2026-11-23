@@ -330,7 +330,8 @@ def update(engine) -> None:
 QUIET_SCREENS = {"TitleScreen", "CrawlScreen", "LookScreen", "TargetScreen", "SoundScreen"}
 CARD_SOUNDS = {"The hunt begins": "wayfinder", "Knocked out": "faint", "Fallen": "death",
                "Passed away": "death", "Bounty done": "bounty_done", "Back in Bytorsskug": "hunt_return",
-               "Contract not done": "hunt_return", "Retired": "hunt_return"}
+               "Contract not done": "hunt_return", "Retired": "hunt_return",
+               "Out of the miasma": "hunt_return", "Lost on the Brisering": "death"}     # (v0.89.0)
 
 
 def on_screen(screen) -> None:

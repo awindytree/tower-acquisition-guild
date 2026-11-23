@@ -20,7 +20,8 @@ for lore and story. This module is the plumbing; **the places themselves are the
   what you take or leave stays taken or left, for every Hunter after you.
 - It lies **in the miasma**: windcatchers drain, artifacts need one, torches burn. No creatures unless
   a later version adds them; no faints are needed.
-- Going and coming back each take a Pulse. The way back (`;gate=x,y out`) returns you to the Wayfinder.
+- Going and coming out each take a Pulse. The way back (`;gate=x,y out`) brings you out at the edge of
+  the Brisering, on the land word's side, to walk home (v0.89.0: the Wayfinder is one way).
 - The Guild's boards never post work at a Lost Ground's words. Work a save already held there (from
   before the ground existed) is dropped on load (`clear_work`).
 - **World state:** `engine.story["grounds"]` {id: first day anyone came}. Story: event `lost_ground`
@@ -145,11 +146,15 @@ def clear_work(engine) -> list[str]:
 
 
 def leave(engine) -> None:
-    """The way back: home through the Wayfinder."""
+    """The way back: out to the edge of the Brisering, and home on foot (user, v0.89.0: the Wayfinder
+    is one way, Lost Grounds too)."""
     gid = here(engine)
     engine.site = None
     engine.next_day()
-    engine.change_map(engine.city, *engine.city_return)
-    name = in_sentence(grounds()[gid]["name"]) if gid in grounds() else "that place"
-    engine.log(f"You leave {name} behind, and the Wayfinder sets you down in the plaza.")
+    g = grounds().get(gid)
+    name = in_sentence(g["name"]) if g else "that place"
+    from game import journey
+    region = engine.regions[g["place"]] if g and g["place"] in engine.regions else None
+    where = journey.come_out(engine, region, f"ground:{gid}")
+    engine.log(f"You leave {name} behind, and come out at {where}.")
     engine.autosave()

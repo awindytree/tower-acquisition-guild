@@ -5,6 +5,25 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.89.0: The one-way Wayfinder and the walk home (2026-11-23)
+Stage 2 of the journey-home design (user).
+- **The Wayfinder is one way** (user). The trail home, the rope, and a Lost Ground's way back bring you out at **the edge of the Brisering**, and you walk home.
+  - You come out on the side that matches the place's land, as the Brisering's own terrain runs (draft): mountains north, caves north-north-east, ruins east, marsh south-east, forest south, plains south-west, grassland west.
+  - That's about 92 km from Myligast, shifted by the place: 85–115 km and 3–5 Pulses from Bytorsskug. Every Pulse of the walk pays down the rest you owe.
+- **A card at the edge, "Out of the miasma":** where you came out, what you carry, and the rest owed. A trip of your own says "Trip complete": its find is simply yours.
+- **A contract is done only when it's reported to the guild clerk in Bytorsskug** (user). Talking to the clerk with what it asked for reports it:
+  - The "Contract complete" card shows the rest owed. Then come the story's scenes: Chapter 1's Act III and Lifa now play at the clerk, after you've carried Selda home.
+  - Key hunts and recoveries finish there too, and only then does the hunt count for rank.
+  - Coming in through a gate reminds you to report.
+- **Travel-to on the Brisering** goes to the city's gates over ground you haven't seen yet. You know the way home.
+- **Bleeding and poison keep running on the road** (they already did outside the city walls). **A Hunter can die on the Brisering** (user): the card "Lost on the Brisering" says a Towerway caravan, or travellers on the road, found the remains and brought them home to the Guild. No recovery contract follows.
+- **First jobs:**
+  - A new tip when you come out of the miasma: the Wayfinder can't bring you back, only the Artificers' masters could even guess why, walk home and report to the clerk.
+  - The quest goals mention the walk.
+  - The bounty's tip says to walk home first.
+- **Sound:** "Out of the miasma" plays the homecoming; "Lost on the Brisering" the death.
+- The balance bot walks home and reports.
+
 ## 0.88.0: The rest you owe (2026-11-23)
 Stage 1 of the journey-home design (`claude/design-return-journey.md`, user). Before, a hunt's rest (about 8 Cycles) passed the moment you got home, and only then could you sell and sort. Now the rest is owed, so you sell first and rest after.
 

@@ -767,6 +767,12 @@ on their turn, one next to you attacks.
   traits); the panel shows "Faints: 1/1". Drop to 0 HP with a faint in hand
   and you're knocked out and come to at the trail home, healed. Drop with
   none, and the Hunter dies for good; a new Hunter starts in the guild hall.
+- **The walk home** (v0.89.0): the Wayfinder sends you out but can't bring you
+  back. The trail home brings you out at the edge of the Brisering, on the side
+  that matches the place's land, about 4 or 5 Pulses' walk from Bytorsskug
+  (travel-to, `t`, walks you to a gate). A contract is done only when you
+  report it to the guild clerk: talk to the clerk with what it asked for.
+  Bleeding and poison keep running on the road, and a Hunter can die out there.
 - **Recovery contracts** (v0.85.0): a Hunter who falls out there leaves their
   pack where they fell. "Bring home [name]" contracts on the Guild's board send
   you after it: your own fallen Hunters, rivals who died, or Hunters you never

@@ -925,6 +925,15 @@ class Engine:
         story.fire(self, "death")
         if self.saves:  # permadeath: this Hunter's saves go with them
             self.saves.delete_hunter(p.hunter_id)
+        if hunt is None and self.in_brisering():      # (user, v0.89.0) found on the road, brought home
+            from game import journey
+            heading, found = journey.death_lines(self, p)
+            self.screen = TitleCardScreen(heading, [(t, TEXT) for t in found] + [("", TEXT),
+                (f"{p.name} died on the way home, on {self.date.short}, having seen "
+                 f"{aging.describe(aging.age_of(p, self.day))}.", TEXT), ("", TEXT),
+                ("A new Hunter takes up the work.", DIM),
+            ], on_continue=lambda e: e.start_new_hunter())
+            return
         self.screen = TitleCardScreen("Fallen", [
             (getattr(killer, "epitaph", f"{p.full_name} was killed by a {killer.name}").format(name=p.full_name), TEXT),
             (f"in {where},", TEXT), (f"on {self.date.short},", TEXT),
@@ -1159,6 +1168,9 @@ class Engine:
         from game.screens import DialogueScreen
         folk = self.townsfolk[npc.folk_id]
         from game import story
+        if npc.folk_id == "clerk":            # back with what the contract asked for: report it (v0.89.0)
+            from game import journey
+            journey.report(self)
         story.fire(self, "talk", folk=npc.folk_id)   # the story may have something to say first (v0.54.0)
         if self.scene_queue:
             story.show_next_scene(self)
@@ -1357,6 +1369,10 @@ class Engine:
             x, y = self.city_inside(gate_id)
             self.change_map(self.city, x, y)
             self.log(f"You come back into Bytorsskug through the {g['name']}.")
+            from game import journey
+            c = journey.reportable(self)
+            if c is not None:                 # (v0.89.0) the contract is done when the clerk hears it
+                self.log(f"Report the contract to the guild clerk: {c.title(self.catalogue)}.")
         self.autosave()
 
     def open_contracts(self) -> None:
@@ -1481,20 +1497,22 @@ class Engine:
             )
 
     def finish_hunt(self, success: bool) -> None:
+        """The hunt is over: out through the trail home. Since v0.89.0 (user) the Wayfinder is one way: the
+        Hunter comes out at the edge of the Brisering and walks home (game/journey.py). A contract is
+        complete only when it's reported to the clerk; a trip's find is simply theirs."""
         from game.screens import TitleCardScreen
         c = self.hunt.contract
         artifact = self.catalogue[c.artifact_id] if c.artifact_id else None
-        from game import rivals, story, maps
+        from game import rivals, story, maps, journey
         maps.note(self)                       # scouted deeply enough? a report for the maps (v0.84.0)
         story.end_hunt(self, self.hunt)
         rivals.end_race(self, self.hunt)
         self.hunt = None
-        self.change_map(self.city, *self.city_return)
-        # A completed hunt takes a whole Cycle; turning back is just the walk home (a Pulse).
-        # Then the Hunter rests before going out again (game/aging.py): longer if they came home hurt.
+        where = journey.come_out(self, c.region, f"out:{c.region.id}")
+        # A completed hunt takes a whole Cycle; turning back, a Pulse. The rest is owed (v0.88.0).
         from game import aging, rest as _rest
-        if success:
-            self.player.hunts_done += 1
+        if success and c.free:
+            self.player.hunts_done += 1       # (a contract counts when it's reported)
         rest = aging.rest_pulses(self.player)
         fieldskills.practise(self, "survival", 2 if success else 1)    # every trip out there teaches a little
         _rest.end(self)                       # weariness lifts (v0.88.0)
@@ -1507,40 +1525,31 @@ class Engine:
             return
         _rest.add(self, rest)                 # the rest is owed, not passed (user, v0.88.0)
         rested = _rest.owed_line(self) + "."
-        self.log(f"You'll need rest before you go out again. {rested}")
+        self.log(f"You come out of the miasma at {where}.")
         self.autosave()
         done_jobs = [(f"Done: {j.text(self)}", TEXT) for j in self.player.jobs if j.done]
+        lines = [(f"You come out at {where}.", TEXT), ("", TEXT)]
         if success:
             the = "" if getattr(c, "prize_folk", "") else "the "      # (a person, v0.67.0)
-            if not c.recover:                    # (a recovery logs its own line)
-                self.log(f"You return to the city with {the}{artifact.name}.")
-            lines = ([] if c.recover else
-                     [(f"{'Brought home' if the == '' else 'Recovered'}: {artifact.name}", TEXT), ("", TEXT)])
-            if not c.free and self.player.contract is not None and self.player.contract.seed == c.seed:
-                self.player.contract = None      # the contract is done
-            told = story.contract_over(self, c, True) if c.story else []
-            if c.recover:
-                from game import recovery
-                told = recovery.complete(self, c)
-            lines += [(t, TEXT) for t in told] + ([("", TEXT)] if told else [])
-            lines += done_jobs + ([("", TEXT)] if done_jobs else [])
-            lines += [(rested, DIM)]
-            heading = (self.story_data.contracts.get(c.story, {}).get("card_heading", "Key hunt complete") if c.story
-                       else ("Trip complete" if c.free else "Recovery complete" if c.recover else "Contract complete"))
-            self.screen = TitleCardScreen(heading, lines)
+            what = f"{recovery_owner(c)} pack" if c.recover else f"{the}{artifact.name}"
+            if c.free:
+                lines += [(f"Found: {artifact.name}. It's yours.", TEXT), ("", TEXT)]
+            else:
+                lines += [(f"You carry {what}. The contract is done when you report it to the guild clerk"
+                           " in Bytorsskug.", TEXT), ("", TEXT)]
         else:
-            self.log("You return to the city without what lies deepest out there.")
-            lines = ([("You come back without the find.", TEXT)] if c.free
-                     else [(f"{recovery_owner(c)} pack remains out there." if c.recover
-                            else f"The {artifact.name} remains out there.", TEXT)]) + [("", TEXT)]
+            lines += ([("You come back without the find.", TEXT)] if c.free
+                      else [(f"{recovery_owner(c)} pack remains out there." if c.recover
+                             else f"The {artifact.name} remains out there.", TEXT)]) + [("", TEXT)]
             if c.story:
                 story.contract_over(self, c, False)
                 lines += [("The key hunt stays posted on the Guild's board.", DIM), ("", TEXT)]
             elif not c.free:
                 lines += [("The contract is still yours.", DIM), ("", TEXT)]
-            lines += done_jobs + ([("", TEXT)] if done_jobs else [])
-            lines += [(rested, DIM)]
-            self.screen = TitleCardScreen("Back in Bytorsskug" if c.free else "Contract not done", lines)
+        lines += done_jobs + ([("", TEXT)] if done_jobs else [])
+        lines += [(rested, DIM)]
+        heading = ("Trip complete" if (success and c.free) else "Out of the miasma")
+        self.screen = TitleCardScreen(heading, lines)
         story.fire(self, "home", success=success, region=c.region.id, free=c.free)
 
     # ---- Drawing ----------------------------------------------------------

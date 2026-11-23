@@ -342,6 +342,26 @@ def forced_death(e, contract) -> str:
     return "died" if e.player is not p else "done"
 
 
+def walk_home(e, p, rec) -> str:
+    """(v0.89.0) Out at the edge of the Brisering: walk home, and report the contract to the clerk."""
+    from game import journey
+    clear_screens(e)
+    d0 = e.day
+    journey.home_now(e)
+    clear_screens(e)
+    rec["walk_pulses"] = e.day - d0
+    if e.player is not p:
+        return "died"
+    if journey.reportable(e) is not None:
+        journey.report(e)
+        clear_screens(e)
+        while e.scene_queue:
+            from game import story
+            story.show_next_scene(e)
+            clear_screens(e)
+    return "done"
+
+
 def run_hunt(e, contract, rec) -> str:
     p = e.player
     from game import rest                    # (v0.88.0) rest off what's owed first, or set out weary
@@ -358,7 +378,7 @@ def run_hunt(e, contract, rec) -> str:
         if e.player is not p:
             return "died"
         if e.hunt is None:
-            return "done"
+            return walk_home(e, p, rec)
         if e.screen is not None:
             if type(e.screen).__name__ == "TitleCardScreen" and e.screen.heading == "Knocked out":
                 rec["faints"] += 1
@@ -371,6 +391,7 @@ def run_hunt(e, contract, rec) -> str:
     if e.hunt is not None and e.player is p:
         e.finish_hunt(success=False)
         clear_screens(e)
+        walk_home(e, p, rec)
     return "stuck"
 
 

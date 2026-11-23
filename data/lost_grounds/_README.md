@@ -11,8 +11,9 @@ or leaves there stays taken or left for every Hunter after. They're for lore and
    allows at the Wayfinder.
 2. Draw the map, `data/lost_grounds/<id>.txt`, in the usual map format (see `examples/hollow.txt`):
    - `;title=` the name shown on the map; `;light=day` or `;light=torch`; `;fog=on` to explore it.
-   - `;gate=x,y out` **(required)** on the way back (draw an `H` there): walking onto it returns
-     the Hunter to the Wayfinder. They arrive on the walkable cell beside it.
+   - `;gate=x,y out` **(required)** on the way back (draw an `H` there): walking onto it brings the
+     Hunter out at the edge of the Brisering (on the land word's side), to walk home. They arrive
+     on the walkable cell beside it.
    - `;item=x,y id [count]` puts something there the first time. Once taken, it's gone for good.
    - `;monument=x,y id` and an `S` tile: something to read (its text is in the ground's JSON).
 3. Write `data/lost_grounds/<id>.json`:
@@ -35,7 +36,8 @@ or leaves there stays taken or left for every Hunter after. They're for lore and
 Files starting with `_` and anything in `examples/` aren't loaded by the game.
 
 ## How it plays (for now)
-- Going and coming back take a Pulse each. It's in the miasma: windcatchers drain, artifacts need
+- Going and coming out take a Pulse each; then the walk home from the edge of the Brisering
+  (the Wayfinder is one way, v0.89.0). It's in the miasma: windcatchers drain, artifacts need
   one, torches burn. There are no creatures there yet.
 - A Lost Ground is never a hunt: its words always lead there. The Guild's boards, errands and
   bounties never use them, and work an older save held there is withdrawn when it loads.

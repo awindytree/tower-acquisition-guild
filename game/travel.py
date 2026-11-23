@@ -30,7 +30,7 @@ def destinations(engine) -> list[tuple[str, tuple[int, int], bool]]:
             out.append(("your home", home_door, False))
         for (x, y) in gm.gates:
             from game import lost_grounds
-            out.append(("the way back to the Wayfinder" if lost_grounds.here(engine) else "back out to the Brisering",
+            out.append(("the way back out of the miasma" if lost_grounds.here(engine) else "back out to the Brisering",
                         (x, y), False))
         return out
     if engine.hunt is None and gm is not engine.city:     # the Brisering: back to the gates
@@ -104,8 +104,8 @@ def next_step(engine, spot: tuple[int, int], beside: bool) -> tuple[int, int] | 
             n = (x + dx, y + dy)
             if n in prev or not gm.in_bounds(*n) or not gm.is_walkable(*n):
                 continue
-            if gm.fog and not gm.explored[n]:
-                continue
+            if gm.fog and not gm.explored[n] and not engine.in_brisering():
+                continue          # (on the Brisering you know the way home, seen or not: v0.89.0)
             if n != spot and (gm.tile_at(*n).symbol in "H<>" or n in gm.gates):
                 continue  # never through another passage or gate on the way
             if gm.npc_at(*n) or _seen_creature(engine, n):

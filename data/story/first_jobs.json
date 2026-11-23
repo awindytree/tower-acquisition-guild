@@ -15,7 +15,7 @@
          "do": ["only:clear", "scene:pop_contract_taken"],
          "until": ["on_hunt"]},
         {"id": "hunt",
-         "goal": "Find the broken glass curio at the far end of the deepest area, then bring it back to the trail home.",
+         "goal": "Find the broken glass curio at the far end of the deepest area and bring it out through the trail home. Then walk home to Bytorsskug and report to the guild clerk.",
          "until": ["completed:first_contract"]},
         {"id": "report", "log": "You brought back the broken glass curio.",
          "goal": "Tell the guild clerk the contract's done.",
@@ -28,7 +28,7 @@
          "do": ["only:clear", "scene:pop_bounty_taken"],
          "until": ["bounty_done:first_bounty"]},
         {"id": "bounty_home", "log": "You killed the marked scavenger.",
-         "goal": "Get back to the trail home safely.",
+         "goal": "Get back out through the trail home, and walk home to Bytorsskug.",
          "until": ["!on_hunt"]},
         {"id": "bounty_report",
          "goal": "See the guild clerk to be paid for the bounty.",
@@ -136,6 +136,7 @@
       "pages": ["This is the deepest area. The broken glass curio lies at its far end."]
     },
 
+    "out_of_miasma": {"on": "home", "if": ["quest:first_jobs:hunt"], "style": "tip", "title": "Out of the miasma", "pages": ["The Wayfinder sends Hunters out, but it can't bring them back. Only the Artificers' masters could even guess why. You've come out at the edge of the Brisering, and Bytorsskug is a few days' walk.\n\nt walks you to a city gate. In town, talk to the guild clerk: a contract isn't done until the clerk hears it.\n\nThe rest you owe goes down as the days pass."]},
     "got_the_lens": {
       "on": "pickup", "if": ["quest:first_jobs:hunt", "event:item=cracked_lens"], "style": "tip", "title": "The glass curio",
       "pages": ["That's it. Now get back to the trail home (≡) in the first area: back through « and across.\n\nt can walk you to places you've found."]
@@ -166,8 +167,8 @@
     },
 
     "bounty_home_hint": {
-      "on": "manual", "style": "tip", "title": "Back in Bytorsskug",
-      "pages": ["Now see the clerk to be paid for the bounty."]
+      "on": "manual", "style": "tip", "title": "Out of the miasma",
+      "pages": ["Walk home to Bytorsskug (t), then see the guild clerk to be paid for the bounty."]
     },
 
     "clerk_welcome": {
