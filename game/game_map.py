@@ -248,6 +248,8 @@ class GameMap:
         # neighbour of the same type above, below, right and left.
         kinds = self.kinds
         shown = self.graphics["ch"] != ord(" ")
+        also = {i: {j for j, t in enumerate(TILE_TYPES) if t.symbol in TILE_TYPES[i].joins}
+                for i, t in enumerate(TILE_TYPES) if t.joined}
         for x in range(self.width):
             for y in range(self.height):
                 kind = kinds[x, y]
@@ -255,7 +257,8 @@ class GameMap:
                     continue
 
                 def joins(nx: int, ny: int) -> int:
-                    return int(self.in_bounds(nx, ny) and kinds[nx, ny] == kind and shown[nx, ny])
+                    return int(self.in_bounds(nx, ny) and (kinds[nx, ny] == kind or kinds[nx, ny] in also[kind])
+                               and shown[nx, ny])
 
                 key = (joins(x, y - 1), joins(x, y + 1), joins(x + 1, y), joins(x - 1, y))
                 self.graphics["ch"][x, y] = ord(JOINED_LINES[key])

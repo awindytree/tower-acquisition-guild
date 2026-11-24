@@ -5,6 +5,14 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.100.2: Shaded walls, outlined houses (2026-11-23)
+The user found the solid-block walls didn't suit the game any more, and chose from previews.
+- **The city wall, the guild hall, the Academy and built ruins** (`#`) are drawn in dark shade (▓) instead of solid blocks.
+- **Houses** (`h`) are drawn in double lines that join up (═ ║ ╔ ╗ ╚ ╝ and the T pieces), as before v0.42.0.
+- **Corners stay corners (user):** a house wall joins toward a door, a service window, a plaque or the stone wall beside it, as well as other house wall. Before, a corner with a door beside it drew as a straight piece.
+- `TileType.joins` (the extra symbols a joined tile connects to), read when the map's graphics are built.
+- `test_logic` checks the new glyphs and a corner beside a door.
+
 ## 0.100.1: The contests' angler (2026-11-23)
 - **Ritla Waterman Waters is now Ritla Angler Waters** (user). A middle name is how someone makes their living, and she earns hers fishing; running the contests is a duty she takes on. The Guild's watermen will come later as their own people.
 - Townsperson id `waterman` → `angler`, dialogue `waterman.json` → `angler.json`. "What does a waterman do?" is now "Why do you run the contests?"

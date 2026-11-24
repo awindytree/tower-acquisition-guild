@@ -1109,7 +1109,7 @@ player, so maps can be any size.
 
 | Symbol | Terrain | | Symbol | Terrain |
 |---|---|---|---|---|
-| `#` | stone wall (built; drawn solid █) | | `:` | cobblestones |
+| `#` | stone wall (built; drawn shaded ▓) | | `:` | cobblestones |
 | `.` | flagstone floor | | `w` | wooden floor |
 | `+` | doorway | | `-` | dirt path |
 | `,` | grass | | `=` | bridge (running east–west) |
@@ -1118,7 +1118,7 @@ player, so maps can be any size.
 | `Y` | the Wayfinder (walk into it) | | `P` `J` | the Guild's contracts and bounty boards |
 | `T` | tree | | `O` | well |
 | `~` | water | | `G` | city gate (needs a `;gate=` line) |
-| `h` | house (closed building) | | `I` | bridge running north–south |
+| `h` | house (closed building; drawn in double lines, v0.100.2) | | `I` | bridge running north–south |
 | `X` `M` `B` | (the Brisering) the miasma, Myligast, Bytorsskug | | `V` `Q` | (the Brisering) a village (Igerste, Ingenfjel), the Ingenfjel boga circuit | | `A` `^` `f` `u` `R` | (the Brisering) mountains, hills, woods, ruins, road |
 | `%` | rough stone (natural; caves, dungeons) | | `@` | where the player starts |
 | `c` | cave floor | | `>` `<` `H` | way deeper, way back, trail home (hunts) |

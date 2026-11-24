@@ -36,19 +36,23 @@ class TileType:
     # Draw with line pieces that join up with neighbouring walls of the same
     # type (═ ║ ╔ ╗ ╚ ╝ ╠ ╣ ╦ ╩ ╬); glyphs is ignored. For built walls.
     joined: bool = False
+    # Joined walls also join toward these map symbols (v0.100.2, user: a door, window or the city wall
+    # beside a corner keeps it a corner, not a straight piece).
+    joins: str = ""
     # Glyphs with a colour of their own, whatever colors says (e.g. white glints on water).
     glyph_colors: tuple = ()   # ((glyph, color), ...)
 
 
 TILE_TYPES: list[TileType] = [
-    # Built walls: buildings, city walls. Solid blocks (user, v0.42.0; were joined lines).
+    # Built walls: the city wall, the guild hall, ruins. Dark shade (user, v0.100.2; solid blocks from
+    # v0.42.0, joined lines before that).
     TileType("stone wall", "#", walkable=False, transparent=False,
-             glyphs="█", colors=((150, 136, 120),), bg=(30, 26, 23),
+             glyphs="▓", colors=((150, 136, 120),), bg=(30, 26, 23),
              hide_when_buried=True),
-    # Houses: closed buildings, solid like built walls, a warmer stone.
+    # Houses: double lines joined to their neighbours (user, v0.100.2; solid blocks from v0.42.0).
     TileType("house", "h", walkable=False, transparent=False,
              glyphs="█", colors=((168, 138, 104),), bg=(30, 24, 19),
-             hide_when_buried=True),
+             hide_when_buried=True, joined=True, joins="+WL#"),
     # Natural rock: caves and dungeons. Drawn as rough stone.
     TileType("rough stone", "%", walkable=False, transparent=False,
              glyphs="▒", colors=((94, 85, 76), (86, 78, 70)), bg=(34, 30, 27),
