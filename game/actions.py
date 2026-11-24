@@ -633,6 +633,20 @@ class ReloadAction(Action):
         return ranged.reload(engine)
 
 
+def carried_note(item) -> str:
+    """A materials pouch or a tackle box isn't worn or used: it works from the pack (v0.100.6, user: "How do
+    I use it then?")."""
+    props = item.type.properties
+    if props.get("pouch"):
+        what, n = "kinds of material", props["pouch"]
+    elif props.get("tackle_box"):
+        what, n = "kinds of bait or lure", props["tackle_box"]
+    else:
+        return ""
+    return (f"The {item.type.name} works from your pack: it carries {n} {what} without them taking up room. "
+            "Just keep it with you.")
+
+
 class EquipAction(Action):
     """Wield, wear or hang a bag item in its equipment slot (out of the bag since v0.69.0); an
     artifact goes in an artifact slot (the given one, or the first free)."""
@@ -650,6 +664,9 @@ class EquipAction(Action):
             return ok
         slot = player.slot_for(item)
         if slot is None:
+            if carried_note(item):                          # a pouch or a tackle box (v0.100.6)
+                engine.log(carried_note(item))
+                return False
             engine.log(f"You can't wield or wear {article(item.label)}.")
             return False
         verb = {"weapon": "wield", "windcatcher": "hang at your belt"}.get(slot, "put on")
@@ -725,7 +742,7 @@ class UseAction(Action):
             return self.escape(engine, item)
         heal = item.type.properties.get("heal")
         if heal is None:
-            engine.log(f"You can't find a use for the {item.type.name} right now.")
+            engine.log(carried_note(item) or f"You can't find a use for the {item.type.name} right now.")
             return False
         if player.stats.hp == player.stats.max_hp:
             engine.log("You're not hurt.")

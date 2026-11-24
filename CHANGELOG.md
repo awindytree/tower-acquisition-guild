@@ -5,6 +5,11 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.100.6: What a pouch is for (2026-11-24)
+From the user's playtest: `e` on a materials pouch said "You can't wield or wear a materials pouch.", which left you wondering how to use it.
+- `e` or `u` on a **materials pouch** or a **tackle box** now says it works from your pack, how many kinds it carries without them taking room, and to keep it with you. (They always worked that way; only the message changed.) `actions.carried_note`.
+- Test `test_pouch_note` (86 suites).
+
 ## 0.100.5: The boga stables; the Wayfinder doesn't rest you (2026-11-24)
 The user's design, from the playtest: resting belongs somewhere you go, not in the Wayfinder.
 - **The boga stables by the Towerway gate:** a stable in the free house nearest the west gate, with straw underfoot and three straw beds along the back. Walk into one to sleep in the straw: free, at the plain rate (a Pulse of rest owed for a Pulse slept), and you wake at full HP, but **it only takes you down to a Cycle owed** (user). A bed does the rest. Travel-to lists "the boga stables"; the look command explains the straw. New tiles `s` (straw) and `z` (straw bed), at the end of the tile list. `build_city.py` adds the stables last (only that house changed).
