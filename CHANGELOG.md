@@ -5,6 +5,21 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.100.8: Fixes for 0.100.7 (2026-11-24)
+- **The game wouldn't have started on 0.100.7:**
+  - `data/dialogue/clerk.json` began with stray characters (`63036{`): removed.
+  - `data/writings.json`'s new letter was missing a comma after its text: added.
+- **Rank names read right:** "an Initiate", "an Apprentice" (`ranks.a`; the clerk's `{a_rank}`), and "posted for Journeymen and above" (`ranks.plural`; a rank may give its own `plural` in `data/ranks.json`).
+- **Tidying:** tabs in the two JSON files replaced with spaces; the rank table's columns lined up again; the story example's key hunt is posted for an Initiate (it named the old Recruit); README names the new ranks.
+- Tests: `test_ranks`, `test_story`, `test_panel` follow the new rank names; `test_archive` counts 12 writings (11 in the library's count).
+
+## 0.100.7: Text and placeholders (2026-11-24, the user)
+The user's own edits, tagged v0.100.7 (the version number in `game/version.py` wasn't changed with them).
+- **Ranks renamed (user):** Recruit, Hunter, Seasoned Hunter → **Initiate, Apprentice, Journeyman**; Veteran and Master Hunter as before.
+- **A new writing (user):** "A letter smelling of perfume" (difficulty 1), which teaches the word [Gift Basket].
+- **The clerk** has a third way of congratulating a new rank.
+- **Chapter 1:** two of the clerk's lines about Selda reworded.
+
 ## 0.100.6: What a pouch is for (2026-11-24)
 From the user's playtest: `e` on a materials pouch said "You can't wield or wear a materials pouch.", which left you wondering how to use it.
 - `e` or `u` on a **materials pouch** or a **tackle box** now says it works from your pack, how many kinds it carries without them taking room, and to keep it with you. (They always worked that way; only the message changed.) `actions.carried_note`.

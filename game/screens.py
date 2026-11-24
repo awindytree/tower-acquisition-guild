@@ -459,7 +459,7 @@ class ContractBoardScreen:
                 return None
             closed = None if contract.job else ranks.contract_closed(engine.player, contract)
             if closed:
-                engine.log(f"That contract is posted for {closed}s and above.")
+                engine.log(f"That contract is posted for {ranks.plural(closed)} and above.")
                 return None
             from game import story
             held = story.only(engine, "contracts") if self.region is None else None
@@ -506,7 +506,7 @@ class ContractBoardScreen:
         from game import story
         held = story.only(engine, "contracts") if self.region is None else None
         if closed:
-            tail.append((f"Posted for {closed}s and above", WARN))
+            tail.append((f"Posted for {ranks.plural(closed)} and above", WARN))
         elif held and c.story != held:
             tail += wrapped("The clerk asked you to take the one marked for you first.", w - 4, WARN)
         elif c.seed in self.taken:
@@ -2957,7 +2957,7 @@ class JobBoardScreen:
             if job.story and engine.story_data.bounties.get(job.story, {}).get("description"):
                 extra = wrapped(story.fill(engine, engine.story_data.bounties[job.story]["description"]), w - 4, ACCENT) + extra
             if self.tab == "board" and region.danger[0] > ranks.max_danger(engine.player.rank):
-                extra.append((f"Posted for {ranks.name(ranks.lowest_rank_for_danger(region.danger[0]))}s and above", WARN))
+                extra.append((f"Posted for {ranks.plural(ranks.name(ranks.lowest_rank_for_danger(region.danger[0])))} and above", WARN))
             elif self.tab == "board" and held and job.story != held:
                 extra += wrapped("The clerk asked you to take the one marked for you first.", w - 4, WARN)
             if self.tab == "yours":

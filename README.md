@@ -219,9 +219,9 @@ Writings are in `data/writings.json`; the archive's numbers are at the top of
 
 ## Guild rank
 
-Every Hunter starts a **Recruit**: the Wayfinder takes them only to danger 2,
+Every Hunter starts an **Initiate**: the Wayfinder takes them only to danger 2,
 and the board offers only gentle contracts. Complete hunts and level up, then **sit for the next rank**
-at the guild clerk (for a fee): Hunter, Seasoned Hunter, Veteran, Master
+at the guild clerk (for a fee): Apprentice, Journeyman, Veteran, Master
 Hunter. Each opens more dangerous places and harder contracts, the Guild teaches
 you a few new words, and the higher ones bring
 privileges: cheaper training, better pay for requests, first pick of contracts

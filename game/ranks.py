@@ -29,6 +29,17 @@ def name(index: int) -> str:
     return table()[max(0, min(index, len(table()) - 1))]["name"]
 
 
+def plural(rank_name: str) -> str:
+    """"Veterans", "Journeymen" (a rank's own "plural" in data/ranks.json, else + s; v0.100.8)."""
+    r = next((r for r in table() if r["name"] == rank_name), {})
+    return r.get("plural", rank_name + "s")
+
+
+def a(rank_name: str) -> str:
+    """"a Veteran", "an Initiate" (v0.100.8)."""
+    return ("an " if rank_name[:1].upper() in "AEIOU" else "a ") + rank_name
+
+
 def of(player) -> dict:
     return table()[max(0, min(player.rank, len(table()) - 1))]
 
@@ -125,7 +136,7 @@ def sit(engine) -> str:
 def describe_next(player) -> str:
     nxt = next_rank(player)
     if nxt is None:
-        return f"You're a {of(player)['name']}: the highest rank there is."
+        return f"You're {a(of(player)['name'])}: the highest rank there is."
     reqs = f"{nxt['hunts']} completed hunts and level {nxt['level']}"
     have = f"You have {player.hunts_done} and level {player.stats.level}."
     return f"{nxt['name']} takes {reqs}, and a fee of {nxt['fee']} shards. {have}"

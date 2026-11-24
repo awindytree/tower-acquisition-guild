@@ -153,9 +153,9 @@
       "look": "letter",
       "difficulty": 1,
       "title": "A letter smelling of perfume",
-      "text": "My love, I think I have found the perfect place. Your cousin and I came upon some interesting Wayfinder words in the Academy and decided to do a little scouting. Turns out, [Gift Basket] gave us the nicest hunting ground. We cleared the place out and your cousin returned to their guild work. I left the full address back in that hovel of ours. Come join me as soon as you can and we will build our new life together. I love you!"
+      "text": "My love, I think I have found the perfect place. Your cousin and I came upon some interesting Wayfinder words in the Academy and decided to do a little scouting. Turns out, [Gift Basket] gave us the nicest hunting ground. We cleared the place out and your cousin returned to their guild work. I left the full address back in that hovel of ours. Come join me as soon as you can and we will build our new life together. I love you!",
       "teaches": [
-   	"gift_basket"
+        "gift_basket"
       ]
     }
   }

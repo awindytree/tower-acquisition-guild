@@ -172,7 +172,7 @@
   "contracts": {
     "example_proving_hunt": {
       "words": ["restless", "green", "tusks"],
-      "rank": "Recruit",
+      "rank": "Initiate",
       "depth": 3,
       "title": "The clerk's proving hunt",
       "description": "The clerk wants an old brass device brought back from deep at [Restless][Green][Tusks]. Something large has made its home beside it.",

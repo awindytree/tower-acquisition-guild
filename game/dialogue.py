@@ -256,7 +256,7 @@ def fill(engine, text: str, extra: dict | None = None) -> str:
     nxt = ranks.next_rank(p)
     values.update(given=p.name, name=p.full_name, calling=calling(p), date=engine.date.short,
                   pulse=engine.date.pulse or "a holiday", dues=p.dues_owed, earned=p.earned,
-                  rank=ranks.of(p)["name"], next_rank=nxt["name"] if nxt else "", rank_fee=nxt["fee"] if nxt else 0,
+                  rank=ranks.of(p)["name"], a_rank=ranks.a(ranks.of(p)["name"]), next_rank=nxt["name"] if nxt else "", rank_fee=nxt["fee"] if nxt else 0,
                   rank_needs=ranks.describe_next(p), labour=ranks.labour_pulses(p))
     values.update(extra or {})
     return text.format_map(values)

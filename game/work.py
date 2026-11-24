@@ -368,7 +368,7 @@ def take_job(engine, job: Job) -> tuple[bool, str]:
     from game import ranks
     danger = engine.regions[job.region].danger[0]
     if danger > ranks.max_danger(p.rank):
-        return False, f"That's posted for {ranks.name(ranks.lowest_rank_for_danger(danger))}s and above."
+        return False, f"That's posted for {ranks.plural(ranks.name(ranks.lowest_rank_for_danger(danger)))} and above."
     engine.job_board.remove(job)
     p.jobs.append(job)
     from game import keywords
