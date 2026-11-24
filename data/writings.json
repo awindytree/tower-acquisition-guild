@@ -148,6 +148,15 @@
       ],
       "title": "A cartographer's complaint",
       "text": "A letter never sent, folded small. Its writer mapped the caves north of Bytorsskug for the Academy, and spends most of a page complaining: the damp, the dark, the Academy's slowness to pay. Lower down the hand grows unsteady. One stretch of the caves, they write, felt wrong: the air too still, the dark too thick, light that wouldn't carry. \"Our guide had a name for it from the Wayfinder's words: Broken Promise. I asked her why. She said: because it looks like a way through, and it isn't.\" The letter breaks off there. Handed in to the library by Selda Fencer Hunters. (Chapter 1; the assistant's draft.)"
+    },
+    "perfumed_letter": {
+      "look": "letter",
+      "difficulty": 1,
+      "title": "A letter smelling of perfume",
+      "text": "My love, I think I have found the perfect place. Your cousin and I came upon some interesting Wayfinder words in the Academy and decided to do a little scouting. Turns out, [Gift Basket] gave us the nicest hunting ground. We cleared the place out and your cousin returned to their guild work. I left the full address back in that hovel of ours. Come join me as soon as you can and we will build our new life together. I love you!"
+      "teaches": [
+   	"gift_basket"
+      ]
     }
   }
 }

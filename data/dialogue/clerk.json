@@ -1,4 +1,4 @@
-{
+63036{
   "start": [
     {
       "if": [
@@ -334,7 +334,8 @@
     "rank_congrats": {
       "text": [
         "Well! {rank} {given}. It's on the rolls; I wrote it in myself. Congratulations. The Guild doesn't say it often enough.",
-        "There's the new {rank}. Congratulations, {given}. Don't let it go to your head out there: the miasma doesn't read the rolls."
+        "There's the new {rank}. Congratulations, {given}. Don't let it go to your head out there: the miasma doesn't read the rolls.",
+	"Well, if it isn't our new {rank}, {given}. Congratulations, hunter."
       ],
       "do": [
         "clear:hunter:rank_congrats"
