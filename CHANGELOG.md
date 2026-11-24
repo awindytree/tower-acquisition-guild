@@ -5,6 +5,42 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.99.0: Fishing, stage 5: collections (2026-11-23)
+Stage 5 of `claude/design-fishing.md`. The new code is `game/catches.py`. Every name, number and reward is a placeholder.
+
+**The Angler's Log** (`p`):
+- Every kind of fish, grouped by water, with how many of each you've caught.
+- **Hooked:** you've had one on the line.
+- **Caught:** you've landed one; the log shows how many, your best weight and the quirks you've seen.
+- **Known:** after five; the log shows depth, sides, light, baits, and the Pulse or holiday it keeps.
+- It belongs to the Hunter (saved as `player.fishlog`) and goes with them. Landing a new kind, or coming to know one, is logged.
+
+**Sets:** land every kind of fish in a kind of water, and the Watermen and Anglers' Guild sends a reward, once per Hunter:
+- the city river: 40 shards and a quill float;
+- the river: 80 and gut line;
+- the ponds: 60 and a tackle box;
+- the lakes: 250 and silk line;
+- the miasma's marshes, cave pools and pools: 150 each, with a barbed hook, a running sinker or a geared reel.
+- The pay counts as Guild pay, so no dues are taken from it.
+
+**The record book** (world state):
+- "Weigh my catch for the record book" at the tackleman checks every fish in your pack. A new heaviest of its kind pays by tier: 6, 12, 25, 50, 100 shards (fishing income).
+- "Show me the record book" lists the records and the named fish landed.
+
+**Named fish** (world state):
+- Every lake, the city river and the Brisering's river hold one fish the anglers know by name, such as "Old Setly", "Grandmother Ylfa" or "Jyru Ironjaw".
+- It's one of the biggest kinds that lives there, always the same one for that water.
+- It bites rarely, and always as a wary fish. On the line it weighs 2 to 2.8 times the usual, pulls 1.4 times as hard, and tires half as fast.
+- It can be caught only once, ever. Its catch carries its name, it's worth three times as much, and it goes into the record book.
+- A quarter of the time, the tackleman's "What's biting?" names one still out there.
+
+**The home tank:** a new improvement for the houses in Bytorsskug and Ingenfjel, bought from the property dealer.
+- Tiers hold 3, 6 and 10 fish, for 150, 320 and 600 shards.
+- It's a new tile, `a`, placed after the other furniture so nothing else moves.
+- Walk into it to put fish in or take them out. It's saved with the home.
+
+**Tests:** `test_catches.py` is new; `test_home` expects the tank's spot.
+
 ## 0.98.0: Fishing, stage 4: the miasma (2026-11-23)
 Stage 4 of `claude/design-fishing.md`, as the user agreed: the miasma's fishing with its own feel and challenges. Every fish, number and line is a placeholder.
 

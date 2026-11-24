@@ -52,6 +52,7 @@ SKILLS_KEY = _key("k")      # the skills window (user, v0.59.1)
 HISTORY_KEY = _key("l")   # the message log (user, v0.53.1; was m)
 TRAVEL_KEY = _key("t")
 QUEST_KEY = _key("q")
+LOG_KEY = _key("p")         # the Angler's Log (v0.99.0)
 MINIMAP_KEY = _key("v")   # the minimap in the side panel, on or off (user, v0.53.1; was n)
 MAP_KEY = _key("m")       # the whole map, big, over the map view (user, v0.53.1; was v)
 HELP_KEYS = {_key("SLASH"), _key("F1")}   # ? (shift + /) or F1
@@ -167,6 +168,10 @@ def action_for_event(event: tcod.event.Event, engine: "Engine") -> Action | None
                 engine.screen = TravelScreen(places)
             else:
                 engine.log("You don't know anywhere to travel to from here yet.")
+            return None
+        if event.sym == LOG_KEY:
+            from game.screens import AnglersLogScreen
+            engine.screen = AnglersLogScreen()
             return None
         if event.sym == QUEST_KEY:
             from game.screens import QuestLogScreen

@@ -98,6 +98,8 @@ def weight_text(kg: float) -> str:
 
 
 def label(item) -> str:
+    if item.catch.get("named"):
+        return f"{item.catch['named']} ({item.type.real_name}, {weight_text(item.catch['kg'])})"
     q = item.catch.get("quirk", "")
     qn = data()["quirks"].get(q, {}).get("name", "")
     return f"{qn + ' ' if qn else ''}{item.type.real_name} ({weight_text(item.catch['kg'])})"
@@ -105,7 +107,8 @@ def label(item) -> str:
 
 def value(item) -> int:
     f = species().get(item.type.properties.get("fish", ""), {})
-    return max(1, round(f.get("per_kg", 1) * item.catch.get("kg", 0)))
+    named = 3 if item.catch.get("named") else 1
+    return max(1, round(f.get("per_kg", 1) * item.catch.get("kg", 0) * named))
 
 
 def slots(kg: float) -> int:
@@ -606,6 +609,8 @@ class Session:
     water_band: str = ""            # the water's own depth (band is where the bait sits)
     key: str = ""                   # the water's stock key (v0.97.0)
     miasma: bool = False            # a hunt's water (v0.98.0)
+    named: str = ""                 # the named fish on the line, if it is (v0.99.0, game/catches.py)
+    named_next: bool = False
     size: int = 0
     side: str = "south"
     wname: str = ""
@@ -738,6 +743,7 @@ def step(engine, cmd: str) -> bool:
         s.window -= 1
         if s.window <= 0:
             s.phase = "wait"
+            s.named_next = False
             if rng.random() < 0.5 and not _is_lure(engine, s) and not s.kit.get("keep_bait"):
                 _use_bait(engine, s)
                 note(s, "It's gone, and your bait with it.")
@@ -758,6 +764,11 @@ def step(engine, cmd: str) -> bool:
         stock = None
     else:
         stock = lambda fid: level(engine, s.key, fid, cap(fid, s.kind, s.size)) / cap(fid, s.kind, s.size)
+    from game import catches
+    big = catches.named_bite(engine, s, rng)        # the water's named fish (v0.99.0)
+    if big:
+        s.named_next = True
+        return _bite(engine, s, big, rng)
     cands = candidates(s.kind, s.band, s.light, s.bait_key, s.kit, ctx, stock)
     roll = rng.random()
     total = 0.0
@@ -784,6 +795,8 @@ def _bite(engine, s: Session, fid: str, rng) -> bool:
     from game import fieldskills
     f = species()[fid]
     s.phase, s.fish = "bite", fid
+    if s.named_next:
+        f = dict(f, wary=True)
     s.window = ((1 if f.get("wary") else 2) + (1 if fieldskills.rank(engine, "angling") >= 2 else 0)
                 + s.kit.get("window", 0))
     note(s, data()["tells"]["bite"][f["temper"]])
@@ -796,16 +809,20 @@ def _hook(engine, s: Session, rng) -> bool:
     from game import fieldskills
     f = species()[s.fish]
     if f.get("wary") and fieldskills.rank(engine, "angling") < 2 and not s.kit.get("set") and rng.random() < 0.25:
-        s.phase = "wait"
+        s.phase, s.named_next = "wait", False
         note(s, "You strike, but it's too quick for you.")
         if not _is_lure(engine, s):
             _use_bait(engine, s)
         return True
     item = make(s.fish, rng, s.kind, engine.day)
     s.kg, s.quirk = item.catch["kg"], item.catch["quirk"]
+    if s.named_next:                               # the named fish (v0.99.0): bigger than the rest
+        s.kg = round(f["kg"][0] * rng.uniform(2.0, 2.8), 2)
+    from game import catches
+    catches.hooked(engine.player, s.fish)
     big = s.kit.get("size", 1) - size_class(s.kg)       # a hook too big for its mouth misses it (v0.96.0)
     if big > 0 and not s.kit.get("any_size") and rng.random() < 0.35 * big:
-        s.phase = "wait"
+        s.phase, s.named_next = "wait", False
         note(s, "You strike, but the hook's too big for its mouth. It's gone.")
         if not _is_lure(engine, s):
             _use_bait(engine, s)
@@ -816,6 +833,10 @@ def _hook(engine, s: Session, rng) -> bool:
     from game import ranged
     s.line = 8 + 3 * ranged.distance(s.stand[0], s.stand[1], s.x, s.y)
     s.tension, s.slack, s.move = START_TENSION, 0, ""
+    if s.named_next:
+        s.named_next = False
+        catches.make_named(engine, s, rng)
+        s.kg = max(s.kg, f["kg"][0] * 2.0)
     s.coming = _next_move(s, rng)
     s.phase = "fight"
     if not _is_lure(engine, s):
@@ -942,6 +963,12 @@ def _land(engine, s: Session, rng) -> bool:
             return True
     from game.items import Item
     item = Item(_catalogue_type(s.fish), catch={"kg": s.kg, "quirk": s.quirk, "water": s.kind, "day": engine.day})
+    from game import catches                         # the Angler's Log, sets, the named (v0.99.0)
+    told = catches.landed(engine, s, item)
+    if s.named:
+        told.insert(0, catches.named_landed(engine, s, item))
+    for line in told:
+        engine.log(line)
     s.caught, s.phase = item, "landed"
     fieldskills.practise(engine, "angling", f["tier"] * 2)
     note(s, f"You land {_a(item.label)}!")
@@ -1014,6 +1041,11 @@ def tip(engine, rng=None) -> str:
     """A fish, where it's biting and on what, this Duel (the tackleman's "What's biting?")."""
     from game import sky
     rng = rng or _rng(engine)
+    if rng.random() < 0.25:                    # now and then, word of a named fish (v0.99.0)
+        from game import catches
+        said = catches.rumour(engine, rng)
+        if said:
+            return said
     fid = rng.choice(sorted(k for k, f in species().items() if f["tier"] <= 4))
     f = species()[fid]
     if f.get("miasma"):                      # he's never fished the miasma himself (v0.98.0)

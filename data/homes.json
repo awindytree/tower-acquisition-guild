@@ -8,7 +8,14 @@
       "price": 3000,
       "where": "city",
       "description": "A narrow house a few streets from the guild hall: the Wayfinder and the boards are a short walk away.",
-      "most": {"bed": 1, "chest": 3, "shelves": 3, "forge": 1, "workbench": 1},
+      "most": {
+        "bed": 1,
+        "chest": 3,
+        "shelves": 3,
+        "forge": 1,
+        "workbench": 1,
+        "tank": 3
+      },
       "smithing": "forge",
       "artificy": "workbench"
     },
@@ -19,7 +26,13 @@
       "price": 1500,
       "where": "ingenfjel",
       "description": "A village house in Ingenfjel, south-west of the city, within sight of the stables and the great boga circuit.",
-      "most": {"bed": 1, "chest": 3, "shelves": 3, "workbench": 1},
+      "most": {
+        "bed": 1,
+        "chest": 3,
+        "shelves": 3,
+        "workbench": 1,
+        "tank": 3
+      },
       "smithing": "workbench",
       "artificy": "workbench"
     },
@@ -30,34 +43,94 @@
       "price": 600,
       "where": "stead",
       "description": "A one-room stead by the Towerway, a short walk west of the city's west gate. Room for a bed, a chest and a shelf, and little else.",
-      "most": {"bed": 1, "chest": 1, "shelves": 1}
+      "most": {
+        "bed": 1,
+        "chest": 1,
+        "shelves": 1
+      }
     }
   },
   "improvements": {
     "bed": {
       "name": "Bed",
       "description": "Sleep it off: a Pulse's rest that heals you fully and mends every minor injury. (Serious ones still need the healer.)",
-      "tiers": [{"cost": 60}]
+      "tiers": [
+        {
+          "cost": 60
+        }
+      ]
     },
     "chest": {
       "name": "Chest",
       "description": "Your own chest, apart from the guild stash.",
-      "tiers": [{"cost": 80, "slots": 10}, {"cost": 220, "slots": 20}, {"cost": 450, "slots": 30}]
+      "tiers": [
+        {
+          "cost": 80,
+          "slots": 10
+        },
+        {
+          "cost": 220,
+          "slots": 20
+        },
+        {
+          "cost": 450,
+          "slots": 30
+        }
+      ]
     },
     "shelves": {
       "name": "Trophy shelves",
       "description": "Shelves for any trophy you want to keep, record or not.",
-      "tiers": [{"cost": 100, "slots": 4}, {"cost": 260, "slots": 8}, {"cost": 520, "slots": 12}]
+      "tiers": [
+        {
+          "cost": 100,
+          "slots": 4
+        },
+        {
+          "cost": 260,
+          "slots": 8
+        },
+        {
+          "cost": 520,
+          "slots": 12
+        }
+      ]
     },
     "forge": {
       "name": "Forge",
       "description": "A small forge and anvil: raise a weapon or armour piece to +3 yourself, with materials and no fee. (Past +3, see the smith.)",
-      "tiers": [{"cost": 400}]
+      "tiers": [
+        {
+          "cost": 400
+        }
+      ]
     },
     "workbench": {
       "name": "Workbench",
       "description": "A sturdy bench, lenses and fine tools: repair Common artifacts yourself, no fee, a Pulse's work (you need to know what one is first). In a house with no forge, it raises weapons and armour to +3 too.",
-      "tiers": [{"cost": 300}]
+      "tiers": [
+        {
+          "cost": 300
+        }
+      ]
+    },
+    "tank": {
+      "name": "Fish tank",
+      "description": "A glass tank of water: keep the fish you're proudest of alive, to look at. (Counts fish, not their size.)",
+      "tiers": [
+        {
+          "cost": 150,
+          "slots": 3
+        },
+        {
+          "cost": 320,
+          "slots": 6
+        },
+        {
+          "cost": 600,
+          "slots": 10
+        }
+      ]
     }
   },
   "sell_back": 0.5

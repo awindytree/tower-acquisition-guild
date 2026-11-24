@@ -94,6 +94,7 @@ class Player(Entity):
     income: dict = field(default_factory=dict)   # shards earned over a career, by how (v0.94.0): hunting, fishing
     ledger: list = field(default_factory=list)   # the last shards earned, [[how, n], ...] (game/livings.py, v0.95.0)
     living: str = "hunting"                      # how they make their living now: the middle name follows it
+    fishlog: dict = field(default_factory=dict)  # the Angler's Log: {fish: {n, best, quirks}} (game/catches.py, v0.99.0)
     dues_owed: int = 0   # Guild dues not yet paid
     jobs: list = field(default_factory=list)  # odd jobs taken (game/work.py)
     contract: object = None    # the Guild contract taken (game/postings.py; a hunt.Contract)
@@ -458,6 +459,7 @@ class Player(Entity):
             "income": dict(self.income),
             "ledger": [list(e) for e in self.ledger],
             "living": self.living,
+            "fishlog": {k: dict(v) for k, v in self.fishlog.items()},
             "rest": [round(self.rest_owed, 3), self.weary],
             "fed": self.fed,
             "jobs": work_jobs_to_list(self.jobs),
@@ -501,6 +503,8 @@ class Player(Entity):
         player.income = {k: int(v) for k, v in dict(data.get("income", {})).items()}
         player.ledger = [[str(s), int(n)] for s, n in data.get("ledger", [])]
         player.living = str(data.get("living", "hunting"))
+        player.fishlog = {k: {"n": int(v.get("n", 0)), "best": float(v.get("best", 0)), "quirks": list(v.get("quirks", []))}
+                          for k, v in dict(data.get("fishlog", {})).items()}
         player.jobs = work_jobs_from_list(data.get("jobs", []))
         player.rest_owed, player.weary = data.get("rest", [0.0, 0.0])
         player.fed = data.get("fed", 0)

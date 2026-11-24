@@ -140,10 +140,11 @@ def describe(engine: "Engine", x: int, y: int) -> tuple[str, list[tuple[str, tup
         heading = "Your home" if mine else h["name"][0].upper() + h["name"][1:]
         lines.insert(0, (("Your own place." if mine else f"For sale, for {h['price']} shards: see the property dealer."), TEXT))
     sym_here = gm.tile_at(x, y).symbol
-    if sym_here in "nqjFd" and homes.owned(engine):
+    if sym_here in "nqjFda" and homes.owned(engine):
         lines.insert(0, ({"n": "Your bed: walk into it to sleep off the rest you owe, heal, and mend minor injuries.",
                           "q": "Your chest: walk into it to put things in or take them out.",
                           "j": "Your trophy shelves: walk into them to put a trophy up or take one down.",
+                          "a": "Your fish tank: walk into it to put a fish in or take one out.",
                           "F": "Your forge: walk into it to raise a weapon or armour piece, up to +3.",
                           "d": "Your workbench: walk into it to repair a Common artifact"
                                + (", or raise a weapon or armour piece up to +3." if homes.smithing_key(engine) == "workbench" else ".")}[sym_here], TEXT))

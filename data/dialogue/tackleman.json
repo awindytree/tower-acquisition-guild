@@ -18,6 +18,8 @@
         {"text": "Can you work on my tackle?", "do": ["upgrade_tackle"]},
         {"text": "Can you teach me to fish better?", "do": ["train:angling"]},
         {"text": "What makes a good rig?", "goto": "rig"},
+        {"text": "Weigh my catch for the record book.", "do": ["fish_weigh"]},
+        {"text": "Show me the record book.", "do": ["fish_book"]},
         {"text": "Who are the Watermen and Anglers?", "goto": "guild"},
         {"text": "How do I go about it?", "goto": "how"}
       ]

@@ -1,5 +1,5 @@
 {
-  "_comment": "Fishing (v0.94.0, stage 1 of claude/design-fishing.md). PLACEHOLDERS by the assistant: every fish, number and line; the user has fishing, the Watermen and Anglers' Guild (surname Waters) and its tackleman. waters: city_river (Bytorsskug's river), river (the Brisering's river), lake (Brisering waters of 25+ cells), pond (smaller). depth: shore, shallow, deep (cells from the bank: 1, 2, 3+). light: lit, dark or any (a water's light follows the Duel: south of Myligast is lit in the Light Duel). baits: bait id -> how much it likes it (0-1). temper: calm, runner, thrasher, sulker, diver, biter (see game/fishing.py). kg: [usual, spread]. per_kg: shards a kilo before the tackleman's cut. wary: a shorter bite and a harder strike. Stage 3 (v0.97.0): where (north/south/east/west of Myligast: only those waters), share (only that share of the lakes or ponds hold it, picked per water), pulses (only on those Pulses), holiday (only in the holiday Pulses between the Duels); lake_names (placeholder patterns with Starsong given names); stock. Stage 4 (v0.98.0): the miasma's waters (marsh, cave_pool, miasma_pond; the area's own light; fish up to tier danger + 1; no stock: a hunt is made fresh), miasma: true, drags (can pull you in), temper warped (lurch), guts.",
+  "_comment": "Fishing (v0.94.0, stage 1 of claude/design-fishing.md). PLACEHOLDERS by the assistant: every fish, number and line; the user has fishing, the Watermen and Anglers' Guild (surname Waters) and its tackleman. waters: city_river (Bytorsskug's river), river (the Brisering's river), lake (Brisering waters of 25+ cells), pond (smaller). depth: shore, shallow, deep (cells from the bank: 1, 2, 3+). light: lit, dark or any (a water's light follows the Duel: south of Myligast is lit in the Light Duel). baits: bait id -> how much it likes it (0-1). temper: calm, runner, thrasher, sulker, diver, biter (see game/fishing.py). kg: [usual, spread]. per_kg: shards a kilo before the tackleman's cut. wary: a shorter bite and a harder strike. Stage 3 (v0.97.0): where (north/south/east/west of Myligast: only those waters), share (only that share of the lakes or ponds hold it, picked per water), pulses (only on those Pulses), holiday (only in the holiday Pulses between the Duels); lake_names (placeholder patterns with Starsong given names); stock. Stage 4 (v0.98.0): the miasma's waters (marsh, cave_pool, miasma_pond; the area's own light; fish up to tier danger + 1; no stock: a hunt is made fresh), miasma: true, drags (can pull you in), temper warped (lurch), guts. Stage 5 (v0.99.0): named_patterns (the named fish's names, with a Starsong given name), sets (land every kind in a kind of water: a reward from the Guild, once per Hunter).",
   "waters": {
     "city_river": {
       "name": "the city river",
@@ -1732,6 +1732,51 @@
     },
     "home": {
       "shards": 0.05
+    }
+  },
+  "named_patterns": [
+    "Old {n}",
+    "{n} the Deep",
+    "Grandmother {n}",
+    "Mother {n}",
+    "{n} Ironjaw",
+    "Long {n}"
+  ],
+  "sets": {
+    "city_river": {
+      "name": "the city river",
+      "shards": 40,
+      "gift": "quill_float"
+    },
+    "river": {
+      "name": "the Brisering's river",
+      "shards": 80,
+      "gift": "gut_line"
+    },
+    "pond": {
+      "name": "the Brisering's ponds",
+      "shards": 60,
+      "gift": "tackle_box"
+    },
+    "lake": {
+      "name": "the Brisering's lakes",
+      "shards": 250,
+      "gift": "silk_line"
+    },
+    "marsh": {
+      "name": "the miasma's marshes",
+      "shards": 150,
+      "gift": "barbed_hook"
+    },
+    "cave_pool": {
+      "name": "the miasma's cave pools",
+      "shards": 150,
+      "gift": "running_sinker"
+    },
+    "miasma_pond": {
+      "name": "the miasma's pools",
+      "shards": 150,
+      "gift": "geared_reel"
     }
   }
 }

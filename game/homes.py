@@ -38,7 +38,7 @@ class Shelf(Inventory):
         return True
 
 DATA = Path(__file__).resolve().parent.parent / "data" / "homes.json"
-FURNITURE = {"bed": "n", "chest": "q", "shelves": "j", "forge": "F", "workbench": "d"}
+FURNITURE = {"bed": "n", "chest": "q", "shelves": "j", "forge": "F", "workbench": "d", "tank": "a"}   # (tank: v0.99.0)
 _data: dict | None = None
 
 
@@ -94,7 +94,7 @@ def rooms(gm, door) -> list[tuple[int, int]]:
             if n in seen or not gm.in_bounds(*n):
                 continue
             seen.add(n)
-            if gm.tile_at(*n).symbol in "wnqjFd":         # (floor, or furniture on it)
+            if gm.tile_at(*n).symbol in "wnqjFda":         # (floor, or furniture on it)
                 out.append(n)
                 q.append(n)
     return out
@@ -127,7 +127,7 @@ def spots(gm, hid: str) -> dict:
                     q.append(n)
         return all(c in seen for c in rest)
     chosen, blocked = {}, set()
-    for key in ("bed", "shelves", "chest", "forge", "workbench"):
+    for key in ("bed", "shelves", "chest", "forge", "workbench", "tank"):   # (new ones last: spots stay put)
         if not most(hid, key):
             continue                          # (forge and workbench: only where the home takes one)
         for c in sorted(floor, key=lambda c: (-dist[c], c[1], c[0])):
@@ -186,10 +186,12 @@ def buy(engine, hid: str) -> tuple[bool, str]:
     back = refund(engine)
     p.shards += back - h["price"]
     chest, shelves = (old["chest"].items, old["shelves"].items) if old else ([], [])
+    tank = old.get("tank", Shelf(0)).items if old else []
     engine.home = {"id": hid, "paid": h["price"], "built": {},
-                   "chest": Inventory(0), "shelves": Shelf(0)}
+                   "chest": Inventory(0), "shelves": Shelf(0), "tank": Shelf(0)}
     engine.home["chest"].items = list(chest)          # (boxed up until there's a chest with room)
     engine.home["shelves"].items = list(shelves)
+    engine.home["tank"].items = list(tank)
     furnish_all(engine)
     from game import sound
     sound.play("pay")
@@ -212,8 +214,8 @@ def improve(engine, key: str) -> tuple[bool, str]:
         return False, f"That costs {cost} shards."
     p.shards -= cost
     engine.home["built"][key] = t + 1
-    if key in ("chest", "shelves"):
-        engine.home[key].capacity = slots(key, t + 1)
+    if key in ("chest", "shelves", "tank"):
+        engine.home.setdefault(key, Shelf(0)).capacity = slots(key, t + 1)
     furnish_all(engine)
     from game import sound
     sound.play("pay")
@@ -255,12 +257,20 @@ def open_shelves(engine) -> None:
                                 only=lambda it: it.trophy is not None, only_why="Only trophies go on the shelves.")
 
 
+def open_tank(engine) -> None:
+    """The fish tank (v0.99.0): fish you've kept, alive, to look at. It counts fish, not slots."""
+    from game.screens import StashScreen
+    engine.home.setdefault("tank", Shelf(slots("tank", tier(engine, "tank"))))
+    engine.screen = StashScreen(store=lambda e: e.home["tank"], title="Your fish tank", name="Tank",
+                                only=lambda it: it.catch is not None, only_why="Only fish go in the tank.")
+
+
 def use(engine, x: int, y: int) -> bool:
     """Walking into a piece of your furniture. True if it was one."""
     sym = engine.game_map.tile_at(x, y).symbol
     if sym not in FURNITURE.values() or owned(engine) is None:
         return False
-    {"n": rest, "q": open_chest, "j": open_shelves, "F": smithing, "d": workbench}[sym](engine)
+    {"n": rest, "q": open_chest, "j": open_shelves, "F": smithing, "d": workbench, "a": open_tank}[sym](engine)
     return True
 
 
@@ -345,7 +355,8 @@ def to_save(engine) -> dict | None:
     if not h:
         return None
     return {"id": h["id"], "paid": h["paid"], "built": dict(h["built"]),
-            "chest": h["chest"].to_list(), "shelves": h["shelves"].to_list()}
+            "chest": h["chest"].to_list(), "shelves": h["shelves"].to_list(),
+            "tank": h.get("tank", Shelf(0)).to_list()}
 
 
 def from_save(engine, d: dict | None) -> None:
@@ -355,4 +366,7 @@ def from_save(engine, d: dict | None) -> None:
     chest, shelves = Inventory(slots("chest", d["built"].get("chest", 0))), Shelf(slots("shelves", d["built"].get("shelves", 0)))
     chest.items = Inventory.from_list(d.get("chest", []), engine.catalogue, 999).items
     shelves.items = Inventory.from_list(d.get("shelves", []), engine.catalogue, 999).items
-    engine.home = {"id": d["id"], "paid": d["paid"], "built": dict(d.get("built", {})), "chest": chest, "shelves": shelves}
+    tank = Shelf(slots("tank", d["built"].get("tank", 0)))
+    tank.items = Inventory.from_list(d.get("tank", []), engine.catalogue, 999).items
+    engine.home = {"id": d["id"], "paid": d["paid"], "built": dict(d.get("built", {})), "chest": chest,
+                   "shelves": shelves, "tank": tank}

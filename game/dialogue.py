@@ -203,7 +203,7 @@ def apply(engine, effects) -> str | None:
             from game import works
             engine.log(works.word_lesson(engine))
         elif kind in ("library", "archive", "mentor", "hall", "retire", "sit_rank", "labour", "works",
-                      "trophies", "butcher", "trophy_wall", "homes"):
+                      "trophies", "butcher", "trophy_wall", "homes", "fish_weigh", "fish_book"):
             opens = kind
         elif kind == "treat":
             opens = effect   # "treat:healer"

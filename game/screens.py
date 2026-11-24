@@ -2347,6 +2347,26 @@ class HistoryScreen(ScrollScreen):
         return out or [("No messages yet.", DIM)]
 
 
+class AnglersLogScreen(ScrollScreen):
+    """The Angler's Log (v0.99.0, game/catches.py): every kind of fish by water, what you know of it."""
+
+    title = "Angler's Log"
+
+    def __init__(self) -> None:
+        super().__init__()
+        from game.input_handlers import LOG_KEY
+        self.close_keys = {LOG_KEY}
+
+    def lines(self, engine, width: int):
+        from game import catches
+        colors = {-2: TEXT, -1: ACCENT, 0: DIM, 1: DIM, 2: TEXT, 3: TEXT}
+        out = []
+        for text, lv in catches.log_lines(engine.player):
+            for j, part in enumerate(textwrap.wrap(text, width - 2, subsequent_indent="     ") or [""]):
+                out.append((part, colors.get(lv, TEXT)))
+        return out
+
+
 KEY_REFERENCE = [
     ("Moving", [
         ("Arrows, WASD", "move"),
@@ -2363,6 +2383,7 @@ KEY_REFERENCE = [
         ("f", "aim and shoot a bow or crossbow"),
         ("h", "throw a pot, jar, lure or throwable weapon"),
         ("r", "fish: cast a line into water in reach (rod and bait)"),
+        ("p", "the Angler's Log: every fish, and what you know of it"),
         ("j + direction", "pole-vault two cells (a staff trait)"),
         ("x", "look (Tab: next thing in view)"),
     ]),

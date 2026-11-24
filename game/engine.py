@@ -1229,6 +1229,11 @@ class Engine:
             from game import trophies
             from game.screens import ScrollScreen
             self.screen = ScrollScreen.of_lines("The trophy wall", trophies.wall_lines(self))
+        elif kind in ("fish_weigh", "fish_book"):   # the tackleman's record book (v0.99.0)
+            from game import catches
+            from game.screens import ScrollScreen
+            self.screen = (ScrollScreen.of_lines("Weighed for the book", catches.weigh(self)) if kind == "fish_weigh"
+                           else ScrollScreen.of_lines("The record book", catches.book_lines(self)))
         elif kind == "homes":                  # the property dealer (v0.74.0)
             from game.screens import HomesScreen
             self.screen = HomesScreen(self)

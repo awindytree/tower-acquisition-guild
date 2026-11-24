@@ -39,6 +39,7 @@ python main.py
 | `g` or `,` | Pick up what's here (a corpse only when nothing else is: it goes in your pack as a trophy) |
 | `b` | Butcher the corpse you're standing on, for materials (takes a turn) |
 | `r` | Fish: with a rod and bait, cast into water within reach (see Fishing) |
+| `p` | The Angler's Log: every kind of fish, by water, and what you know of it |
 | Walk into a creature | Attack it |
 | Walk into someone | Talk: `↑↓` or `1`-`9` to choose, Enter, Esc to leave |
 | (shop) | Trade (`←→`/Tab: Buy or Sell, Enter, Esc) |
@@ -740,6 +741,20 @@ to see what it swallowed: shards, now and then a broken Tower Artifact, or a
 message in a bottle that names a Wayfinder word. Two **artifacts** help: a
 humming bobber and a stillwater spool, worn in artifact slots like any
 artifact (so in the miasma, only with a windcatcher). 53 fish in all.
+
+**Collections** (v0.99.0). The **Angler's Log** (`p`) lists every kind of fish
+by water: one you've had on the line is *hooked*, one you've landed is
+*caught*, and after five you *know* it (the log then says where, how deep, in
+what light and on what bait it bites). It's yours: it goes with your Hunter.
+Land every kind in a kind of water (the city river, the river, the ponds, the
+lakes, each of the miasma's waters) and the Watermen and Anglers send a reward
+of shards and tackle, once. The tackleman keeps the Guild's **record book**:
+have him weigh your catch, and a new heaviest of its kind pays. Every lake,
+the city river and the Brisering's river hold one **named fish** that the
+anglers talk about ("Old Setly"): a big kind of fish at twice its size,
+harder to hook and to hold, caught only once in all the world. The tackleman
+sometimes tells you where one is. A home in Bytorsskug or Ingenfjel can have a
+**fish tank** (from the property dealer) for the fish you're proudest of.
 **Bait:** worms (dig them with `g` in soft ground by the water, or buy them),
 grubs, dough, and a spinner lure that isn't used up. Angling teaches itself to
 rank 2; the tackleman trains beyond.
