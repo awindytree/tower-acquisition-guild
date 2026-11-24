@@ -30,7 +30,7 @@
 ;npc=160,40 dealer
 ;npc=68,51 tackleman
 ;npc=98,48 fishmonger
-;npc=63,48 angler
+;npc=59,48 angler
 ;hall=118,41
 ; Service windows: walking into one talks to the person behind it.
 ;window=127,46 clerk
@@ -90,7 +90,7 @@
 ,,,,,,,hwwwh,hwwwwwh,hwwwh,hwwwwwwh,hwwwwwwwwh,,#::,,,:::::::::hh+hhhh,,~~~~~~~~~~~~,,:::hwwwh,,,hwwwwwwwwh,hwwwwh::::#......#bbb#.......#::hwwwwwwwwh,,hwwh,,:::::,,hwwwh,:::#,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 T,,,,,,hh+hh,hhhh+hh,hh+hh,hhhhh+hh,hhhhhhhh+h,,#:::::::::::,,,hwwwwwh,,,::,,~~~~~~~~~II~hhhhh,,,hwwwwwwwwh,hwwwwh::::#......#####......C#::hwwwwwwwwh,,hhhh,,,::::::hhhhh,::###,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,T,,,,T,,,,,,,T,,,,,,,,,,,,
 -----------------------------------------------G::::::::T,,,,,,hwwwwwh,,,::,,,,,,~~~~~II~~~~~~,,,hhhhh+hhhh,hhhh+h::::####################::hhh+hhhhhh,,T,,,,,,,T::::::,,,,::###,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,hhhh+hhhhh,hhhhhh+hh,h+hhhhhhh,hh+hhhhh,#:::::,,,,,,,,,,hhhhhhh,,,,,,,,T:::::::II~~~~~~~~~~~::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::##,,,,T,,,,,,,,,,,,,T,T,,,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,hhhh+hhhhh,hhhhhh+hh,h+hhhhhhh,hh+hhhhh,#:::::,,,,,,,,,,hhhhh+h,,,,,,,,T:::::::II~~~~~~~~~~~::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::##,,,,T,,,,,,,,,,,,,T,T,,,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,
 ,,,,,,,hwwwwwwwwh,hwwwwwwwh,hwwwwwwwh,hwwwwwwh,#:::::::::::::::::::::::::::::::::::::::::::~~~~~~~~~~~~~:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::#,,,,,,,,,T,,,,,,,T,,,,,,,,,,,,,T,,,,,,,,,,,,,,,T,,,,,,,,,,
 T,,,,,,hwwwwwwwwh,hhhhhhhhh,hwwwwwwwh,hwwwwwwh,#:::::::::::::::::::::::::::::::h+hhhhhhh,hhhh,,,~~~~~~~~~~~~,,,,T,,::,::hhhhhh,,hhhhhhh+hh,hh+hh,hhhhh,,hhhhhhhhh,hh+hh::::::#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,T,,T,,,,T,,,,T,,,,T,T,,,
 ,,,,,,,hwwwwwwwwh,,,T,,,,,,Thwwwwwwwh,hwwwwwwh###::,hh+hhhhh,hh+hh,::hhhhhhhh,,hwwwwwwwh,hwwh::hhhhhh~~~~~~~~~~~~,,:::::+wwwwh::hwwwwwwwwh,hwwwh,hwwwh::hwwwwwwwh,hwwwh,,::::G----------------------------------------------------------

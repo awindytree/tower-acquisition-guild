@@ -5,6 +5,12 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.100.3: A street door for the tackle shop (2026-11-24)
+From the user's playtest: Ritla stood on the riverbank where the only way to the tackle shop's door ran, so you couldn't get in to talk to the tackleman.
+- **The tackle shop has two doors:** its river door (he steps out back to cast) and a new one on the street side (user).
+- **The builder checks doorsteps:** `build_city.py`'s `doors_open` makes sure every door and gate can still be reached from the guild hall, outdoors only, with the townsfolk who stand outside in place. Ritla is placed at the nearest spot on the bank that passes, so she moved a few steps west along the bank. Only the new door and her line changed in the city map.
+- `test_anglers` checks both doors and that nobody outside cuts a door off.
+
 ## 0.100.2: Shaded walls, outlined houses (2026-11-23)
 The user found the solid-block walls didn't suit the game any more, and chose from previews.
 - **The city wall, the guild hall, the Academy and built ruins** (`#`) are drawn in dark shade (▓) instead of solid blocks.

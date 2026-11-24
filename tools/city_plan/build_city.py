@@ -684,6 +684,24 @@ tackle_shop = min((h for h in built if all(h is not u for u in used) and len(h[1
 door = tackle_shop[2]
 TACKLEMAN = max(tackle_shop[1], key=lambda c: abs(c[0] - door[0]) + 2 * abs(c[1] - door[1]))
 npc_lines.append(f";npc={TACKLEMAN[0]},{TACKLEMAN[1]} tackleman")
+# A second door (v0.100.3, user): the river door stays (he steps out back to cast), and one opens onto
+# the street on the far side, so the shop can't be shut off by someone standing on the bank.
+def second_door(h):
+    cells_, interior, d0 = h
+    edge = cells_ - interior
+    options = []
+    for x, y in edge:
+        for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
+            out, inn = (x + dx, y + dy), (x - dx, y - dy)
+            along = [(x + dy, y + dx), (x - dy, y - dx)]
+            if (ok(*out) and g[out[1]][out[0]] in ":-" and inn in interior and all(a in edge for a in along)
+                    and (x, y) != d0):
+                options.append((x, y))
+    return max(options, key=lambda c: (abs(c[0] - d0[0]) + 2 * abs(c[1] - d0[1]), c)) if options else None
+back = second_door(tackle_shop)
+assert back is not None, "the tackle shop has no wall onto a street for a second door"
+g[back[1]][back[0]] = "+"
+doors.append(back)
 
 # ---- More of the Watermen and Anglers (v0.100.0): the fishmonger and the contests' angler ----
 # Added last, so nothing else moves. The fishmonger: the next roomy house nearest the river. The angler
@@ -700,7 +718,22 @@ bank = [(x, y) for y in range(1, H - 1) for x in range(1, W - 1) if g[y][x] in "
         and not any((x + dx, y + dy) in doors for dx in (-1, 0, 1) for dy in (-1, 0, 1))
         and any(g[y + dy][x + dx] == "~" for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
         and not any(g[y + dy][x + dx] in "=I" for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))]
-KEEPER = min(bank, key=lambda c: (abs(c[0] - door[0]) + abs(c[1] - door[1]), c))
+def doors_open(blocked):
+    """Can every door and gate still be reached from the start with people standing at `blocked`
+    (v0.100.3: the contests' angler once stood where the only way to the tackle shop's door ran)?"""
+    walk = set(",:-.+=IG")        # outdoors: no way through a house counts
+    q, seen_ = deque([start]), {start}
+    while q:
+        c = q.popleft()
+        for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
+            n = (c[0] + dx, c[1] + dy)
+            if ok(*n) and n not in seen_ and n not in blocked and g[n[1]][n[0]] in walk:
+                seen_.add(n)
+                q.append(n)
+    return all(d in seen_ for d in doors) and all(gc in seen_ for gc in gate_cells)
+outdoor = {c for c in standing if g[c[1]][c[0]] in ":-,"}
+KEEPER = next(c for c in sorted(bank, key=lambda c: (abs(c[0] - door[0]) + abs(c[1] - door[1]), c))
+              if doors_open(outdoor | {c}))
 npc_lines.append(f";npc={KEEPER[0]},{KEEPER[1]} angler")
 
 items = []   # (v0.54.0, user: the example items that littered the guild hall are gone)
