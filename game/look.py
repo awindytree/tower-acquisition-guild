@@ -101,6 +101,9 @@ def describe(engine: "Engine", x: int, y: int) -> tuple[str, list[tuple[str, tup
             lines.append(("A brass plaque naming those who paid for the Guild's works. Walk into it to read it.", TEXT))
         if gm.tile_at(x, y).symbol in "UZKE" and gm.hall:
             lines.append(("Part of the Guild's works. The plaque by the door says who paid for it.", DIM))
+        if gm.tile_at(x, y).symbol == "z":
+            lines.append(("Clean straw in the boga stables. Anyone can sleep here for nothing, and Hunters do. "
+                          "Walk into it to sleep off what rest you owe, all but the last Cycle of it.", TEXT))
         if gm.tile_at(x, y).symbol == "D":
             lines.append(("The trophy wall: the records the trophymaster keeps, mounted. Walk into it to read them.", TEXT))
         if gm.tile_at(x, y).symbol == "C":

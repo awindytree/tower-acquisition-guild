@@ -718,6 +718,43 @@ bank = [(x, y) for y in range(1, H - 1) for x in range(1, W - 1) if g[y][x] in "
         and not any((x + dx, y + dy) in doors for dx in (-1, 0, 1) for dy in (-1, 0, 1))
         and any(g[y + dy][x + dx] == "~" for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
         and not any(g[y + dy][x + dx] in "=I" for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))]
+# ---- The boga stables by the Towerway gate (user, v0.100.5): sleep in the straw ----
+# Added last, so nothing else moves: the free roomy house whose door is nearest the west gate, inside the
+# wall. Its floor becomes straw, with a few straw beds along its back wall.
+used.append(fish_shop)
+west_gate = next((int(l.split("=")[1].split(",")[0]), int(l.split(",")[1].split()[0])) for l in gate_lines
+                 if l.endswith(" west"))
+stables = min((h for h in built if all(h is not u for u in used) and len(h[1]) >= 8 and IN[h[2][1]][h[2][0]]),
+              key=lambda h: (abs(h[2][0] - west_gate[0]) + 2 * abs(h[2][1] - west_gate[1]), h[2]))
+sdoor = stables[2]
+for x, y in stables[1]:
+    g[y][x] = "s"
+inside_door = next((sdoor[0] + dx, sdoor[1] + dy) for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0))
+                   if (sdoor[0] + dx, sdoor[1] + dy) in stables[1])
+def by_wall(c):
+    return sum((c[0] + dx, c[1] + dy) not in stables[1] for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)))
+beds = []
+for c in sorted(stables[1], key=lambda c: (-(abs(c[0] - sdoor[0]) + 2 * abs(c[1] - sdoor[1])), c)):
+    if len(beds) == 3:
+        break
+    if c == inside_door or not by_wall(c):
+        continue
+    g[c[1]][c[0]] = "z"
+    rest_ = set(stables[1]) - set(beds) - {c}
+    seen_s, q_s = {inside_door}, deque([inside_door])          # never shut part of the stable off
+    while q_s:
+        cx, cy = q_s.popleft()
+        for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
+            n_ = (cx + dx, cy + dy)
+            if n_ in rest_ and n_ not in seen_s:
+                seen_s.add(n_); q_s.append(n_)
+    if seen_s != rest_:
+        g[c[1]][c[0]] = "s"
+        continue
+    beds.append(c)
+assert beds, "the stables have no room for a straw bed"
+
+
 def doors_open(blocked):
     """Can every door and gate still be reached from the start with people standing at `blocked`
     (v0.100.3: the contests' angler once stood where the only way to the tackle shop's door ran)?"""

@@ -176,6 +176,11 @@ TILE_TYPES: list[TileType] = [
              glyphs="∙∙·", colors=((176, 140, 92), (160, 126, 82)), bg=(30, 24, 16)),
     TileType("dirt path", "-", walkable=True, transparent=True,
              glyphs="." * 3 + "∙,", colors=((120, 98, 70), (108, 88, 62)), bg=(20, 17, 12)),
+    # The boga stables by the Towerway gate (user, v0.100.5): straw underfoot, and a heap of it to sleep in.
+    TileType("straw", "s", walkable=True, transparent=True,
+             glyphs=",',", colors=((170, 140, 80), (150, 122, 70)), bg=(34, 27, 16)),
+    TileType("straw bed", "z", walkable=False, transparent=True,
+             glyphs="■", colors=((206, 172, 96),), bg=(34, 27, 16)),
 ]
 
 SYMBOL_TO_INDEX: dict[str, int] = {t.symbol: i for i, t in enumerate(TILE_TYPES)}

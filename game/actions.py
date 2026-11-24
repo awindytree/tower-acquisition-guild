@@ -114,6 +114,10 @@ class MoveAction(Action):
                 return False
             if homes.use(engine, nx, ny):                  # your bed, chest or shelves (v0.74.0)
                 return False
+            if tile.symbol == "z":                         # the straw in the boga stables (v0.100.5)
+                from game import rest
+                rest.stable_sleep(engine)
+                return False
             if tile.symbol == "K":                         # a Guild bunk (the dormitory): sleep off what you owe
                 from game import rest
                 if rest.pulses_owed(engine.player):

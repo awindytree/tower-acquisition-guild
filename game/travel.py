@@ -73,6 +73,9 @@ def destinations(engine) -> list[tuple[str, tuple[int, int], bool]]:
                 out.append((m["name"], (x, y), True))
         for (x, y), gate_id in sorted(gm.gates.items(), key=lambda g: g[1]):
             out.append((f"the {engine.gate_info.get(gate_id, {}).get('name', gate_id)}", (x, y), False))
+        straw = [(x, y) for x in range(gm.width) for y in range(gm.height) if gm.tile_at(x, y).symbol == "z"]
+        if straw:                                   # sleep in the straw (v0.100.5)
+            out.append(("the boga stables", min(straw), True))
     else:
         seen = {}
         for x in range(gm.width):

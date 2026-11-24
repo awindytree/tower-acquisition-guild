@@ -5,6 +5,14 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.100.5: The boga stables; the Wayfinder doesn't rest you (2026-11-24)
+The user's design, from the playtest: resting belongs somewhere you go, not in the Wayfinder.
+- **The boga stables by the Towerway gate:** a stable in the free house nearest the west gate, with straw underfoot and three straw beds along the back. Walk into one to sleep in the straw: free, at the plain rate (a Pulse of rest owed for a Pulse slept), and you wake at full HP, but **it only takes you down to a Cycle owed** (user). A bed does the rest. Travel-to lists "the boga stables"; the look command explains the straw. New tiles `s` (straw) and `z` (straw bed), at the end of the tile list. `build_city.py` adds the stables last (only that house changed).
+- **The Wayfinder (user):** owing a Reckon or more, it won't take you through, and says where you can sleep (the stables, and the Guild's bunks and your own bed when you have them). Owing less, it asks: set out anyway (with how weary you'd be), or not yet. It no longer rests you itself (0.100.4's stopgap is gone).
+- The first jobs' "Out of the miasma" tip now points to the stables.
+- `rest.stable_sleep`, `STABLE_FLOOR_CYCLES` 1, `where_to_rest`. The balance bot still rests with `rest_here` for now (stage 7 will look at it).
+- Tests: `test_rest` (the Wayfinder's two answers, the straw down to a Cycle and no further, travel-to), `test_first_jobs` (sleeps in the straw before the bounty, then sets out a little weary).
+
 ## 0.100.4: From the playtest: fishing windows, fight advice, rest at the Wayfinder (2026-11-24)
 From the user's playtest.
 - **The fishing windows no longer hide you.** The cast window covered the Hunter, so you aimed by its text alone. While casting or fishing, the camera now looks at the middle of you and your line, set so both sit in the stretch of map above the window; the window goes at the bottom, or at the top if that would cover either, and the cast window is wider (so shorter). `screens.fish_focus`, `fish_box_y`; `Engine.camera_focus` asks a screen with `focus`.

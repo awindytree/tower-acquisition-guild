@@ -295,8 +295,10 @@ Hunters can die of old age.
 **The rest you owe** (v0.88.0) is shown in the side panel. Sell, sort and train
 first: every Pulse that passes pays it down, and a bed pays it faster (slowest to
 fastest: on your feet, the Guild dormitory's bunks, the stead, the Ingenfjel
-house, the Bytorsskug house). At the Wayfinder, rest off what's left, or **set
-out weary** while you owe less than a Reckon. Weary means less max HP, accuracy,
+house, the Bytorsskug house). With no bed, sleep in the straw of the **boga
+stables** by the Towerway gate (v0.100.5): free, at the plain rate, but only down
+to a Cycle owed. The Wayfinder won't take you through owing a Reckon or more;
+owing less, it asks whether you'll **set out weary**. Weary means less max HP, accuracy,
 evasion and damage, and from half-weary no healing by resting in the field. At
 80% it's a fool's game; at 100% very nearly a death sentence. The rest you
 skipped is still owed when you come home.

@@ -99,6 +99,45 @@ def sleep(engine, rate: float, where: str) -> int:
     return n
 
 
+STABLE_FLOOR_CYCLES = 1        # the straw won't take you below a Cycle owed (user, v0.100.5)
+
+
+def stable_sleep(engine) -> int:
+    """Sleep in the straw of the boga stables by the Towerway gate (user, v0.100.5): free, at the plain
+    rate, and it only takes you down to a Cycle of rest owed. Returns the Pulses slept."""
+    p = engine.player
+    floor = STABLE_FLOOR_CYCLES * engine.calendar.per_cycle
+    if owed(p) <= floor + 1e-9:
+        engine.log("You're as rested as straw will get you. A proper bed would do the rest." if owed(p) > 0
+                   else "You're rested. The straw is for those who aren't.")
+        return 0
+    n = max(1, math.ceil(owed(p) - floor - 1e-9))
+    engine.rest_rate = NATURAL
+    try:
+        engine.next_day(n)
+    finally:
+        engine.rest_rate = NATURAL
+    if engine.passing:
+        return n
+    p.rest_owed = float(floor)
+    p.stats.hp = p.stats.max_hp
+    engine.log(f"You sleep in the straw for {text(n, engine.calendar.per_cycle)}, among the boga. "
+               f"You wake stiff, still owing {text(pulses_owed(p), engine.calendar.per_cycle)} of rest.")
+    return n
+
+
+def where_to_rest(engine) -> str:
+    """Where this Hunter can sleep it off."""
+    from game import homes, works
+    out = ["the straw in the boga stables by the Towerway gate"]
+    if works.active("rest") or any(engine.city.tile_at(x, y).symbol == "K"
+                                   for x in range(engine.city.width) for y in range(engine.city.height)):
+        out.append("the Guild's bunks")
+    if homes.owned(engine) and (engine.home or {}).get("built", {}).get("bed"):
+        out.append("your own bed")
+    return out[0] if len(out) == 1 else ", ".join(out[:-1]) + " or " + out[-1]
+
+
 def rest_here(engine) -> int:
     """Rest off everything owed where you stand (no bed: the slowest)."""
     p = engine.player
@@ -121,8 +160,9 @@ def weary_line(w: float) -> str:
 
 
 def at_wayfinder(engine, go) -> None:
-    """Stepping into the Wayfinder: rest first, or set out weary, or not at all. `go(engine)` opens the
-    word window once that's settled."""
+    """Stepping into the Wayfinder (user, v0.100.5): owing a Reckon or more of rest, it won't take you
+    through; owing less, it asks whether you'll go weary. Resting is done elsewhere (the stables, the
+    Guild's bunks, a bed of your own). `go(engine)` opens the word window."""
     from game.screens import ChoiceScreen
     p = engine.player
     p.weary_next = 0.0
@@ -130,34 +170,25 @@ def at_wayfinder(engine, go) -> None:
     if not n:
         go(engine)
         return
-    w = weariness(p)
-
-    def rest_first(e):
-        e.screen = None
-        rest_here(e)
-        if not e.passing:
-            go(e)
-
+    per = engine.calendar.per_cycle
     if n >= reckon(engine):
-        # Too much owed to set out, but resting here is always open (v0.100.4, user: with no bed and no
-        # dormitory, the Wayfinder refused you and offered no way to rest).
-        def not_now(e):
-            e.screen = None
-            e.log("A bed pays rest off quicker: the Guild's bunks, once it has a dormitory, or a home of your own.")
-        engine.screen = ChoiceScreen(f"Rest owed: {text(n, engine.calendar.per_cycle)}: too much to set out", [
-            (f"Rest it off here first ({n} Pulses)", rest_first),
-            ("Not now", not_now),
-        ])
+        engine.log(f"The Wayfinder won't take you through like this: you owe {text(n, per)} of rest. "
+                   f"Sleep it off first: {where_to_rest(engine)}.")
         return
+    w = weariness(p)
 
     def weary(e):
         e.screen = None
         e.player.weary_next = w
         go(e)
 
-    engine.screen = ChoiceScreen(f"Rest owed: {text(n, engine.calendar.per_cycle)}", [
-        (f"Rest it off here first ({n} Pulses)", rest_first),
+    def not_yet(e):
+        e.screen = None
+        e.log(f"Somewhere to sleep it off: {where_to_rest(e)}.")
+
+    engine.screen = ChoiceScreen(f"Rest owed: {text(n, per)}. Go anyway?", [
         (f"Set out anyway. {weary_line(w)}", weary),
+        ("Not yet: rest first", not_yet),
     ])
 
 

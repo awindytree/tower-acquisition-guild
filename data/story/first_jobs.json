@@ -136,7 +136,7 @@
       "pages": ["This is the deepest area. The broken glass curio lies at its far end."]
     },
 
-    "out_of_miasma": {"on": "home", "if": ["quest:first_jobs:hunt"], "style": "tip", "title": "Out of the miasma", "pages": ["The Wayfinder sends Hunters out, but it can't bring them back. Only the Artificers' masters could even guess why. You've come out at the edge of the Brisering, and Bytorsskug is a few Pulses' walk.\n\nt walks you to a city gate. In town, talk to the guild clerk: a contract isn't done until the clerk hears it.\n\nThe rest you owe goes down as the Pulses pass."]},
+    "out_of_miasma": {"on": "home", "if": ["quest:first_jobs:hunt"], "style": "tip", "title": "Out of the miasma", "pages": ["The Wayfinder sends Hunters out, but it can't bring them back. Only the Artificers' masters could even guess why. You've come out at the edge of the Brisering, and Bytorsskug is a few Pulses' walk.\n\nt walks you to a city gate. In town, talk to the guild clerk: a contract isn't done until the clerk hears it.\n\nThe rest you owe goes down as the Pulses pass. Sleep off the rest of it before you go out again: the straw in the boga stables by the Towerway gate is free (t takes you there). Set out still owing rest and you go weary."]},
     "got_the_lens": {
       "on": "pickup", "if": ["quest:first_jobs:hunt", "event:item=cracked_lens"], "style": "tip", "title": "The glass curio",
       "pages": ["That's it. Now get back to the trail home (≡) in the first area: back through « and across.\n\nt can walk you to places you've found."]
