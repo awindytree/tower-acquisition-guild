@@ -10,10 +10,10 @@ common and fish a staple. The contests, their names, fees and prizes are the ass
   straight after the holidays), always at the city river.
 
 Each is for one kind of fish, picked from those of its tiers that live at that water in that light.
-Weigh in with the waterman (the fish has to be that kind, caught at that water while the contest
+Weigh in with the Guild's angler on the bank, Ritla (townsfolk `angler`; the fish has to be that kind, caught at that water while the contest
 runs; you keep it). The entry fee is paid at your first weigh-in. When the contest is over, the
 heaviest fish wins: the WAG's anglers and the Guild's other Hunters enter too. A prize waits with
-the waterman for the Hunter who won it.
+her for the Hunter who won it.
 
 World state: `engine.angling["contest"]` (the one running, or none), `["contest_log"]` (the last
 few results), `["prize"]` (a prize not yet collected, with whose it is).
@@ -60,6 +60,14 @@ def next_start(engine, kind: str) -> int:
         if starts(cal.date(engine.day + n)) == kind:
             return n
     return limit
+
+
+def keeper(engine, short: bool = False) -> str:
+    """Who keeps the contest book: "Ritla Angler Waters on the riverbank" (or just "Ritla")."""
+    folk = getattr(engine, "townsfolk", {}).get("angler")
+    if folk is None:
+        return "The Guild's angler" if short else "the Guild's angler on the riverbank"
+    return folk.given if short else f"{folk.full_name} on the riverbank"
 
 
 def _when(engine, day: int) -> str:
@@ -112,7 +120,7 @@ def begin(engine, kind: str, rng=None) -> dict | None:
          "key": water, "fish": fid, "fee": s["fee"], "entered": False, "best": 0.0, "who": ""}
     state(engine)["contest"] = c
     engine.log(f"The Watermen and Anglers' Guild's {s['name']} begins: the heaviest "
-               f"{fishing.species()[fid]['name']} from {WATER_NAME[water]} wins. Weigh in with the waterman "
+               f"{fishing.species()[fid]['name']} from {WATER_NAME[water]} wins. Weigh in with {keeper(engine)} "
                f"by the end of {_when(engine, c['end'])}.")
     return c
 
@@ -127,7 +135,7 @@ def counts(c: dict, item) -> bool:
 
 
 def weigh_in(engine) -> list[str]:
-    """The waterman weighs your fish for the contest that's on. Lines to tell."""
+    """The contests' angler weighs your fish for the contest that's on. Lines to tell."""
     c = current(engine)
     p = engine.player
     if c is None:
@@ -143,7 +151,7 @@ def weigh_in(engine) -> list[str]:
             return [f"The entry's {c['fee']} shards, and you haven't got them."]
         p.shards -= c["fee"]
         c["entered"], c["who"], c["best"] = True, p.full_name, 0.0
-        out.append(f"You pay the {c['fee']}-shard entry. The waterman writes your name in the book.")
+        out.append(f"You pay the {c['fee']}-shard entry. {keeper(engine, True)} writes your name in the book.")
     heaviest = max(it.catch["kg"] for it in fish)
     if heaviest > c["best"]:
         was = c["best"]
@@ -204,7 +212,7 @@ def settle(engine) -> dict:
             if item == "tackle":
                 item = random.Random(c["start"]).choice(settings()["tackle"])
             state(engine)["prize"] = {"who": you, "shards": shards, "item": item, "name": c["name"], "place": place}
-            text += " The waterman has your prize."
+            text += f" {keeper(engine, True)} has your prize."
     engine.log(text)
     try:
         from game import rivals
@@ -226,7 +234,7 @@ def collect(engine) -> str:
     from game.items import Item
     pr = prize_for(engine)
     if pr is None:
-        return "The waterman has nothing waiting for you."
+        return f"{keeper(engine, True)} has nothing waiting for you."
     p = engine.player
     p.earn(pr["shards"], "fishing")
     got = [f"{pr['shards']} shards"]
@@ -244,7 +252,7 @@ def collect(engine) -> str:
 
 # ---- Telling ----------------------------------------------------------------------------------------------
 def describe(engine) -> str:
-    """The waterman on the contests: the one on, or when the next ones are."""
+    """The contests' angler on the contests: the one on, or when the next ones are."""
     c = current(engine)
     p = engine.player
     if c is not None:

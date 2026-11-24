@@ -5,6 +5,12 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.100.1: The contests' angler (2026-11-23)
+- **Ritla Waterman Waters is now Ritla Angler Waters** (user). A middle name is how someone makes their living, and she earns hers fishing; running the contests is a duty she takes on. The Guild's watermen will come later as their own people.
+- Townsperson id `waterman` → `angler`, dialogue `waterman.json` → `angler.json`. "What does a waterman do?" is now "Why do you run the contests?"
+- The contests name her ("Weigh in with Ritla Angler Waters on the riverbank..."; "Ritla has your prize.") instead of "the waterman".
+- `test_anglers` checks the name and the wording.
+
 ## 0.100.0: Fishing, stage 6: the anglers (2026-11-23)
 Stage 6 of `claude/design-fishing.md`. The new code is `game/contests.py`. The Watermen and Anglers' Guild and the surname Waters are the user's; every new name, line, number and prize is a placeholder.
 

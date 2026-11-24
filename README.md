@@ -767,8 +767,8 @@ scales**, an eel's **skin**, **bone** from a big one, and now and then a
 Brisering camp: **grilled fish** (the best healing over time), **fish stew**
 (better fed than hunter's stew) and **fish broth** (heals, stops bleeding and
 poison). Nobody eats miasma fish. Three talents for anglers: Patient Angler,
-Quick Strike and Fishwise. A **waterman** on the bank by the tackle shop runs
-the Guild's **contests**: the **Holiday Contest** through the four holiday
+Quick Strike and Fishwise. An **angler** of the Guild, on the bank by the tackle
+shop, runs its **contests**: the **Holiday Contest** through the four holiday
 Pulses after each Duel (at the city river after a Light Duel, the Brisering's
 river after a Dark one), and a **weigh-in** at the city river in the first
 Cycle of each Reckon. Each is for one kind of fish: catch it at that water while

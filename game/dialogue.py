@@ -202,7 +202,7 @@ def apply(engine, effects) -> str | None:
         elif kind == "word_lesson":         # the Wayfinder study's scholar (v0.60.0)
             from game import works
             engine.log(works.word_lesson(engine))
-        elif kind == "contest_collect":     # the waterman (v0.100.0)
+        elif kind == "contest_collect":     # the contests' angler (v0.100.0)
             from game import contests
             engine.log(contests.collect(engine))
         elif kind in ("library", "archive", "mentor", "hall", "retire", "sit_rank", "labour", "works",
@@ -302,7 +302,7 @@ class Talk:
         elif self.speaker.id == "tackleman":
             from game import fishing
             extra = {"fish_tip": fishing.tip(self.engine, self.rng)}
-        elif self.speaker.id == "waterman":
+        elif self.speaker.id == "angler":
             from game import contests
             extra = {"contest": contests.describe(self.engine)}
         self.text = fill(self.engine, text, extra)

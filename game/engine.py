@@ -1236,7 +1236,7 @@ class Engine:
             from game.screens import ScrollScreen
             self.screen = (ScrollScreen.of_lines("Weighed for the book", catches.weigh(self)) if kind == "fish_weigh"
                            else ScrollScreen.of_lines("The record book", catches.book_lines(self)))
-        elif kind in ("contest_weigh", "contest_past"):   # the waterman's contests (v0.100.0)
+        elif kind in ("contest_weigh", "contest_past"):   # the contests (v0.100.0)
             from game import contests
             from game.screens import ScrollScreen
             self.screen = (ScrollScreen.of_lines("Weighed for the contest", contests.weigh_in(self))
