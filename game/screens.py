@@ -861,19 +861,54 @@ class ArtifactScreen:
         console.print(x + 2, y + h - 1, " ←→ slot  ↑↓ word  Enter go  Esc "[: w - 4], fg=DIM, bg=BG)
 
 
+def place_traits(region, engine: "Engine") -> list[str]:
+    """What the words make of a place (v0.100.9, user: the departure card should say): its terrain, its
+    light, and each thing a word changes."""
+    out = []
+    terrain = region.style_text()
+    out.append(f"Terrain: {terrain}" + (", a different one each area" if len(region.all_styles()) > 1 else ""))
+    light = "lit" if region.light == "lit" else "dark: bring light"
+    out.append(f"Light: {light}" + (", and it doesn't carry far" if region.sight < 1 else ""))
+    def beasts(mid):
+        t = engine.monster_types.get(mid)
+        n = t.name if t else mid.replace("_", " ")
+        return n + ("es" if n.endswith(("s", "sh", "ch")) else "s")
+    if region.only:
+        out.append(f"Nothing lives here but {beasts(region.only)}")
+    if region.creatures > 1:
+        out.append("Many more creatures than usual" if region.creatures >= 2 else "More creatures than usual")
+    elif region.creatures < 1:
+        out.append("Fewer creatures than usual")
+    if region.favour and not region.only:
+        out.append(f"Thick with {beasts(region.favour)}")
+    if region.alert:
+        out.append("The creatures are awake and watchful")
+    if region.time > 1:
+        out.append("Heavy going: every step takes " + ("two turns" if region.time == 2 else f"{region.time} turns"))
+    if region.rarity_up > 0:
+        out.append("Richer finds than its danger")
+    if region.rarity_chance > 0:
+        out.append("The prize may be a rarity higher")
+    if region.writings > 1:
+        out.append("Writings turn up more often")
+    for iid, _lo, _hi in region.items:
+        t = engine.catalogue.types.get(iid)
+        many = t.label(2).split(" ", 1)[1] if t else iid
+        out.append(f"{many.capitalize()} lying about")
+    return out
+
+
 def departure_card(contract, engine: "Engine") -> TitleCardScreen:
     cat = engine.catalogue
     region = contract.region
-    return TitleCardScreen(
-        "The hunt begins",
-        [
-            (contract.title(cat), TEXT),
-            ("", TEXT),
-            (f"The Wayfinder carries you to {region.name}", DIM),
-            (f"Danger {danger_pips(contract.danger)}   {contract.depth} areas deep", DIM),
-        ],
-        on_continue=lambda e: e.begin_hunt(contract),
-    )
+    lines = [
+        (contract.title(cat), TEXT),
+        ("", TEXT),
+        (f"The Wayfinder carries you to {region.name}", DIM),
+        (f"Danger {danger_pips(contract.danger)}   {contract.depth} areas deep", DIM),
+    ]
+    lines += [(t, DIM) for t in place_traits(region, engine)]
+    return TitleCardScreen("The hunt begins", lines, on_continue=lambda e: e.begin_hunt(contract))
 
 
 # ---- Menus ------------------------------------------------------------------------
@@ -1725,9 +1760,14 @@ class WorkshopScreen:
 
 
 # ---- The guild stash ----------------------------------------------------------------------
+def gear_worth(item) -> int:
+    from game import gear
+    return gear.value(item) * max(1, item.count)
+
+
 class StashScreen:
     """Your pack on the left, the guild stash on the right. ←→ or Tab picks a side;
-    Enter moves the selected thing (a whole stack) across. Takes no time.
+    Enter moves the selected thing (a whole stack) across; o sorts the side you're on. Takes no time.
     The stash belongs to the guild hall: the next Hunter inherits it."""
 
     def __init__(self, store=None, title: str = "Guild stash", name: str = "Stash", only=None,
@@ -1762,7 +1802,30 @@ class StashScreen:
             self.selected[self.side] = (self.selected[self.side] + 1) % n
         elif event.sym in CONFIRM_KEYS and n:
             self.move(engine)
+        elif event.sym == _key("o") and n > 1:
+            self.sort(engine)
         return None
+
+    SORTS = ("kind", "name", "worth")
+    KIND_ORDER = ("weapon", "armor", "tackle", "artifact", "consumable", "material", "fish", "trophy",
+                  "writing", "treasure", "misc", "key")
+
+    def sort(self, engine) -> None:
+        """o: put the side you're on in order: by kind, then by name, then by worth, each press the next
+        (v0.100.9, user: a sort for a stash of 20-30 things). The order stays."""
+        self.sort_n = (getattr(self, "sort_n", -1) + 1) % len(self.SORTS)
+        mode = self.SORTS[self.sort_n]
+        inv = self.lists(engine)[self.side]
+        kind = {k: i for i, k in enumerate(self.KIND_ORDER)}
+        name = lambda it: it.label.lower()
+        keys = {"kind": lambda it: (kind.get(it.type.kind, len(kind)), name(it)),
+                "name": name,
+                "worth": lambda it: (-gear_worth(it), name(it))}
+        picked = inv.items[min(self.selected[self.side], len(inv.items) - 1)]
+        inv.items.sort(key=keys[mode])
+        self.selected[self.side] = next(i for i, it in enumerate(inv.items) if it is picked)
+        self.notice = f"{'Pack' if self.side == 'pack' else self.name} sorted by {mode}. (o again: by " \
+                      f"{self.SORTS[(self.sort_n + 1) % len(self.SORTS)]})"
 
     def move(self, engine) -> None:
         p = engine.player
@@ -1818,7 +1881,7 @@ class StashScreen:
             console.print(x + 1 + col_w, row, "│", fg=FRAME, bg=BG)
         if self.notice:
             console.print(x + 2, y + h - 3, self.notice[: w - 4], fg=ACCENT, bg=BG)
-        console.print(x + 2, y + h - 2, "↑↓ choose  Enter move across  ←→ side  Esc"[: w - 4], fg=DIM, bg=BG)
+        console.print(x + 2, y + h - 2, "↑↓ choose  Enter move  ←→ side  o sort  Esc"[: w - 4], fg=DIM, bg=BG)
 
 
 # ---- Conversations ------------------------------------------------------------------------
@@ -2419,6 +2482,7 @@ KEY_REFERENCE = [
     ("In the city", [
         ("Gates", "step on one: the Brisering"),
         ("Guild stash", "chest in the stash room"),
+        ("o (in the stash)", "sort: kind, name, worth"),
         ("Notice board", "requests, in the plaza"),
         ("Guild clerk", "at the window: dues, rank, pay"),
         ("Esc, Save game", "save (only in the city)"),

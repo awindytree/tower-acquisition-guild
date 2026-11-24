@@ -105,11 +105,15 @@ STABLE_FLOOR_CYCLES = 1        # the straw won't take you below a Cycle owed (us
 def stable_sleep(engine) -> int:
     """Sleep in the straw of the boga stables by the Towerway gate (user, v0.100.5): free, at the plain
     rate, and it only takes you down to a Cycle of rest owed. Returns the Pulses slept."""
+    from game.screens import TitleCardScreen, TEXT, DIM
     p = engine.player
     floor = STABLE_FLOOR_CYCLES * engine.calendar.per_cycle
     if owed(p) <= floor + 1e-9:
-        engine.log("You're as rested as straw will get you. A proper bed would do the rest." if owed(p) > 0
-                   else "You're rested. The straw is for those who aren't.")
+        line = ("You're as rested as straw will get you. A proper bed would do the rest." if owed(p) > 0
+                else "You're rested. The straw is for those who aren't.")
+        engine.log(line)
+        if engine.screen is None:
+            engine.screen = TitleCardScreen("The boga stables", [(line, TEXT), ("", TEXT), (owed_line(engine) + ".", DIM)])
         return 0
     n = max(1, math.ceil(owed(p) - floor - 1e-9))
     engine.rest_rate = NATURAL
@@ -121,8 +125,18 @@ def stable_sleep(engine) -> int:
         return n
     p.rest_owed = float(floor)
     p.stats.hp = p.stats.max_hp
-    engine.log(f"You sleep in the straw for {text(n, engine.calendar.per_cycle)}, among the boga. "
-               f"You wake stiff, still owing {text(pulses_owed(p), engine.calendar.per_cycle)} of rest.")
+    engine.log(f"You spend {text(n, engine.calendar.per_cycle)} resting up at the boga stables, nights in the "
+               f"straw. You still owe {text(pulses_owed(p), engine.calendar.per_cycle)} of rest.")
+    # (v0.100.9, user: no feedback unless you knew to look at the panel)
+    if engine.screen is None:                 # (something the Pulses brought comes first)
+        engine.screen = TitleCardScreen("Rested at the stables", [
+            (f"You spend {text(n, engine.calendar.per_cycle)} resting up at the boga stables, sleeping in the "
+             "straw among the boga.", TEXT),
+            ("", TEXT),
+            (owed_line(engine) + ".", TEXT),
+            ("Straw won't rest you any further than that; a proper bed would.", DIM),
+            ("You can set out from the Wayfinder a little weary, or sleep the rest off in a bed.", DIM),
+        ])
     return n
 
 

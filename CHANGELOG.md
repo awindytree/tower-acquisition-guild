@@ -5,6 +5,13 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.100.9: From the playtest: the place on the card, the straw, a sorted stash (2026-11-24)
+From the user's playtest.
+- **The departure card names the place's traits:** after the danger and depth, its terrain ("a different one each area" for a land word with several), its light ("dark: bring light"; "it doesn't carry far" where a word dims it), and what each word changes: more or fewer creatures, "Thick with thornback boars", "Nothing lives here but ashmantles", awake and watchful creatures, heavy going, richer finds, a prize that may be a rarity higher, more writings, rations lying about. `screens.place_traits`.
+- **Resting at the stables says what it did:** a card ("Rested at the stables": "You spend 3 Cycles and 4 Pulses resting up at the boga stables...", not weeks of unbroken sleep, user) with how long you rested, the rest you still owe (a Cycle), that straw won't take you further but a bed would, and that you can set out a little weary. Walking into the straw already rested to a Cycle says so on a card too. (Before: only a line in the messages.)
+- **The stash sorts:** `o` puts the side you're on in order: by kind, then by name, then by worth, each press the next. The order stays. Works for a home's chest and trophy shelves too. In the key reference and README.
+- Test `test_playnotes3` (87 suites).
+
 ## 0.100.8: Fixes for 0.100.7 (2026-11-24)
 - **The game wouldn't have started on 0.100.7:**
   - `data/dialogue/clerk.json` began with stray characters (`63036{`): removed.

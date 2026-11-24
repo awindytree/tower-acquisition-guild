@@ -61,7 +61,7 @@ python main.py
 | `l` | Message log (↑↓, `[` `]` or PgUp/PgDn, Home/End) |
 | `?` or F1 | Key reference |
 | F2 | Sound on or off (volumes: Sound, in the title menu or Esc menu) |
-| Walk into the stash chest | Guild stash (guild hall, back right room): `←→` side, Enter moves across |
+| Walk into the stash chest | Guild stash (guild hall, back right room): `←→` side, Enter moves across, `o` sorts by kind, name or worth |
 | Walk into a service window (`▬`) | Talk to whoever works behind it (the guild clerk) |
 
 ## Shops
