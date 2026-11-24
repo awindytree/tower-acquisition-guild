@@ -5,6 +5,13 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.100.4: From the playtest: fishing windows, fight advice, rest at the Wayfinder (2026-11-24)
+From the user's playtest.
+- **The fishing windows no longer hide you.** The cast window covered the Hunter, so you aimed by its text alone. While casting or fishing, the camera now looks at the middle of you and your line, set so both sit in the stretch of map above the window; the window goes at the bottom, or at the top if that would cover either, and the cast window is wider (so shorter). `screens.fish_focus`, `fish_box_y`; `Engine.camera_focus` asks a screen with `focus`.
+- **The fight says which move answers which.** The user found the fight fun but couldn't tell which move to use when. When you can read the fish, the "Next" line now ends with the answer ("It's gathering itself to run. Give it line (g), or the line may go."). When you can't yet, a rule of thumb shows instead: runs, dives and lurches, give line; thrashing, don't reel; sulking or spent, reel; veering, steer the other way. The tackleman explains it too ("And the fight itself?", after "How do I go about it?"). Data: `answer` on each move, `fight_guide` in `fish.json`.
+- **The Wayfinder always lets you rest.** With a Reckon or more of rest owed it refused you and offered nothing, which left a Hunter with no bed and no dormitory stuck. Now it says it's too much to set out and offers to rest it off there (a Pulse at a time, as when less is owed), or not now. Setting out weary still isn't offered past a Reckon.
+- Tests: `test_anglers` (both windows at 85 × 21 and 64 × 20 leave you and your line in view; the fight's advice; the tackleman's node), `test_rest` (the new choice, and resting it off).
+
 ## 0.100.3: A street door for the tackle shop (2026-11-24)
 From the user's playtest: Ritla stood on the riverbank where the only way to the tackle shop's door ran, so you couldn't get in to talk to the tackleman.
 - **The tackle shop has two doors:** its river door (he steps out back to cast) and a new one on the street side (user).

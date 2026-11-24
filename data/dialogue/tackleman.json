@@ -37,6 +37,12 @@
         {"text": "Back.", "goto": "hello"}
       ]
     },
+    "fight": {
+      "text": "Watch what it does, and answer it. It runs, or dives, or does something it shouldn't: give it line, or it'll take the line for you. It thrashes: don't reel into that, the hook tears. It goes heavy and sulks: that's your moment, reel. It turns for the reeds: steer it the other way. And when it's spent, bring it in. Learn a fish well enough and you'll see what it means to do before it does it.",
+      "choices": [
+        {"text": "Back.", "goto": "hello"}
+      ]
+    },
     "rig": {
       "text": "Rod's the backbone: reach, and how much strain it'll take. Line adds its own strength, and the thinner it is the less the wary ones see it. A reel brings it in quicker and eases a run. Hook to suit the mouth: too big and you miss the little ones, too small and the big ones tear free. And no sinker, no deep water. Your bait just hangs there in the shallows. Bring me materials and I'll make any of it better.",
       "choices": [
@@ -46,6 +52,7 @@
     "how": {
       "text": "Rod and bait, and stand by the water. Cast (r), and wait. When the float goes, strike, and not before. Then it's you and the fish: reel when it's tired, give it line when it runs, steer it off the snags. Too much strain and the line goes. Too little and the hook falls out. You'll learn. Worms you can dig yourself, in soft ground by the water.",
       "choices": [
+        {"text": "And the fight itself?", "goto": "fight"},
         {"text": "Back.", "goto": "hello"}
       ]
     }

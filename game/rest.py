@@ -130,10 +130,6 @@ def at_wayfinder(engine, go) -> None:
     if not n:
         go(engine)
         return
-    if n >= reckon(engine):
-        engine.log(f"You're in no state to go out: you still owe {text(n, engine.calendar.per_cycle)} of rest. "
-                   "Sleep it off: a bed is quicker.")
-        return
     w = weariness(p)
 
     def rest_first(e):
@@ -141,6 +137,18 @@ def at_wayfinder(engine, go) -> None:
         rest_here(e)
         if not e.passing:
             go(e)
+
+    if n >= reckon(engine):
+        # Too much owed to set out, but resting here is always open (v0.100.4, user: with no bed and no
+        # dormitory, the Wayfinder refused you and offered no way to rest).
+        def not_now(e):
+            e.screen = None
+            e.log("A bed pays rest off quicker: the Guild's bunks, once it has a dormitory, or a home of your own.")
+        engine.screen = ChoiceScreen(f"Rest owed: {text(n, engine.calendar.per_cycle)}: too much to set out", [
+            (f"Rest it off here first ({n} Pulses)", rest_first),
+            ("Not now", not_now),
+        ])
+        return
 
     def weary(e):
         e.screen = None

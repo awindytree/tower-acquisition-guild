@@ -383,6 +383,8 @@ class Engine:
     def camera_focus(self) -> tuple[int, int]:
         """What the camera follows: the look or aim cursor while one is open, else you."""
         from game.screens import LookScreen
+        if hasattr(self.screen, "focus"):          # fishing keeps you and your line in view (v0.100.4)
+            return self.screen.focus(self)
         if isinstance(self.screen, LookScreen):
             return self.screen.x, self.screen.y
         return self.player.x, self.player.y

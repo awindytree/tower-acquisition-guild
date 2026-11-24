@@ -4189,9 +4189,30 @@ class HomesScreen:
 FISH_FRAME = (90, 150, 190)
 
 
+def fish_focus(engine: "Engine", cells: list, box_h: int) -> tuple[int, int]:
+    """Where the camera looks while fishing (v0.100.4, user: the cast window hid the Hunter): the middle
+    of you and your line, set so both sit in the strip of map above a window of box_h rows."""
+    xs, ys = [c[0] for c in cells], [c[1] for c in cells]
+    view_h = getattr(getattr(engine, "cam", None), "height", 20)
+    free = max(1, view_h - box_h - 1)
+    return (min(xs) + max(xs)) // 2, (min(ys) + max(ys)) // 2 + view_h // 2 - free // 2
+
+
+def fish_box_y(console, engine: "Engine", cells: list, h: int) -> int:
+    """The window's top row: at the bottom unless that would cover you or your line; then at the top;
+    failing both, wherever it covers least."""
+    rows = [sp[1] for sp in (engine.cam.to_screen(*c) for c in cells) if sp]
+    options = [console.height - h - 1, 1]
+    return min(options, key=lambda y: (sum(y <= r < y + h for r in rows), options.index(y)))
+
+
 class CastScreen(LookScreen):
     """Aim a cast: the cursor starts on your last spot, or the deepest water in reach; Tab cycles the
     water you can reach; b changes the bait. Enter or r casts (a turn); Esc puts the rod away."""
+    box_h = 10
+
+    def focus(self, engine: "Engine") -> tuple[int, int]:
+        return fish_focus(engine, [(engine.player.x, engine.player.y), (self.x, self.y)], self.box_h)
 
     def __init__(self, engine: "Engine") -> None:
         super().__init__(engine)
@@ -4256,18 +4277,18 @@ class CastScreen(LookScreen):
             kind = "lure" if bt.properties.get("lure") else "bait"
             more = f" (b: {len(self.baits)} kinds)" if len(self.baits) > 1 else ""
             lines.append((f"{kind.capitalize()}: {bt.label(n)}{more}.", DIM))
-        w = min(area_w - 2, 52)
+        w = min(area_w - 2, 72)
         body = []
         for text, color in lines:
             body += wrapped(text, w - 4, color)
         h = len(body) + 4
-        low = spot is not None and spot[1] > console.height // 2
+        self.box_h = h
         x = (area_w - w) // 2
-        y = 1 if low else console.height - h - 1
+        y = fish_box_y(console, engine, [(p.x, p.y), (self.x, self.y)], h)
         draw_box(console, x, y, w, h, "Cast where?", frame=FISH_FRAME)
         for i, (text, color) in enumerate(body):
             console.print(x + 2, y + 1 + i, text, fg=color, bg=BG)
-        console.print(x + 2, y + h - 2, "Enter/r cast  Tab water  b bait  Esc"[: w - 4], fg=DIM, bg=BG)
+        console.print(x + 2, y + h - 2, ("Enter/r cast  Tab water  b bait  Esc" if w >= 42 else "Enter cast  Tab water  b bait  Esc")[: w - 4], fg=DIM, bg=BG)
 
 
 def _bar(console, x: int, y: int, width: int, share: float, color, empty=(60, 54, 48)) -> None:
@@ -4283,6 +4304,12 @@ class FishScreen:
     Every choice but reeling in or keeping is a turn."""
 
     WAIT_KEYS = {_key("PERIOD"), KeySym.KP_5}
+    box_h = 12
+
+    def focus(self, engine: "Engine") -> tuple[int, int]:
+        p, s = engine.player, engine.fishing
+        cells = [(p.x, p.y)] + ([(s.x, s.y)] if s is not None else [])
+        return fish_focus(engine, cells, self.box_h)
 
     def handle(self, event, engine: "Engine") -> Action | None:
         from game.actions import FishAction
@@ -4341,9 +4368,11 @@ class FishScreen:
             body += [("", None)] * len(rows)
             body.append(("", None))
             if fishing.shows_coming(engine, s):
-                body += wrapped("Next: " + fishing.data()["moves"][s.coming]["coming"], w - 4, ACCENT)
-            else:
+                m = fishing.data()["moves"][s.coming]
+                body += wrapped("Next: " + m["coming"] + " " + m.get("answer", ""), w - 4, ACCENT)
+            else:                                   # (v0.100.4, user: which move when wasn't clear)
                 body.append(("Next: you can't read this one yet.", DIM))
+                body += wrapped(fishing.data().get("fight_guide", ""), w - 4, DIM)
             keys = "r reel  h hold  g give  a/d steer  c cut"
         else:
             title = f"Fishing: {fishing.data()['waters'][s.kind]['short']}, {s.band}"
@@ -4355,8 +4384,9 @@ class FishScreen:
         log = [line for text in s.log[-4:] for line in wrapped(text, w - 4, TEXT)]
         body += [("", None)] + log[-4:]
         h = len(body) + 4
+        self.box_h = h
         x = (area_w - w) // 2
-        y = console.height - h - 1
+        y = fish_box_y(console, engine, [(p.x, p.y), (s.x, s.y)], h)
         draw_box(console, x, y, w, h, title, frame=FISH_FRAME)
         for i, (text, color) in enumerate(body):
             if color is not None:

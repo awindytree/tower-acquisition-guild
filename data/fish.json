@@ -1583,47 +1583,56 @@
     "swim": {
       "pull": 1.0,
       "text": "It swims against you.",
-      "coming": "It's settling into the pull."
+      "coming": "It's settling into the pull.",
+      "answer": "Reel (r) while the strain allows."
     },
     "run": {
       "pull": 1.8,
       "text": "It runs, stripping line!",
-      "coming": "It's gathering itself to run."
+      "coming": "It's gathering itself to run.",
+      "answer": "Give it line (g), or the line may go."
     },
     "thrash": {
       "pull": 1.3,
       "text": "It thrashes at the surface!",
-      "coming": "It's about to thrash."
+      "coming": "It's about to thrash.",
+      "answer": "Don't reel into it: hold (h) or give (g)."
     },
     "sulk": {
       "pull": 0.4,
       "text": "It sulks, a dead weight.",
-      "coming": "It's going still."
+      "coming": "It's going still.",
+      "answer": "Reel (r): it's dead weight, and comes easy."
     },
     "dive": {
       "pull": 1.5,
       "text": "It dives for the bottom!",
-      "coming": "It's turning down."
+      "coming": "It's turning down.",
+      "answer": "Don't reel against it: hold (h) or give (g)."
     },
     "left": {
       "pull": 1.0,
       "text": "It veers left, toward a snag!",
-      "coming": "It's turning left."
+      "coming": "It's turning left.",
+      "answer": "Steer right (d), away from the snag."
     },
     "right": {
       "pull": 1.0,
       "text": "It veers right, toward a snag!",
-      "coming": "It's turning right."
+      "coming": "It's turning right.",
+      "answer": "Steer left (a), away from the snag."
     },
     "spent": {
       "pull": 0.2,
       "text": "It's spent, coming in on its side.",
-      "coming": "It's spent."
+      "coming": "It's spent.",
+      "answer": "Reel it in (r)."
     },
     "lurch": {
       "pull": 2.0,
       "text": "It lurches, and for a moment it's somewhere it can't be!",
-      "coming": "Something's wrong with the way it moves."
+      "coming": "Something's wrong with the way it moves.",
+      "answer": "Give it line (g) and ride it out."
     }
   },
   "tempers": {
@@ -1870,5 +1879,6 @@
       "Bargeman Waters",
       "Angler"
     ]
-  }
+  },
+  "fight_guide": "Runs, dives and lurches: give line. Thrashing: don't reel. Sulking or spent: reel. Veering: steer the other way."
 }
