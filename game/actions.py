@@ -682,6 +682,11 @@ class UseAction(Action):
                 from game import sound
                 sound.play("artifact")
             return used
+        if item.catch is not None:               # gut a fish from the pack (v0.100.0)
+            from game import fishing
+            engine.screen = None
+            engine.log(fishing.gut_item(engine, self.index, engine.rng))
+            return True
         if item.trophy is not None:              # butcher a trophy from the pack, here (v0.61.0)
             from game import trophies
             player.inventory.remove(self.index)

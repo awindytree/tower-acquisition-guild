@@ -685,6 +685,24 @@ door = tackle_shop[2]
 TACKLEMAN = max(tackle_shop[1], key=lambda c: abs(c[0] - door[0]) + 2 * abs(c[1] - door[1]))
 npc_lines.append(f";npc={TACKLEMAN[0]},{TACKLEMAN[1]} tackleman")
 
+# ---- More of the Watermen and Anglers (v0.100.0): the fishmonger and the waterman ----
+# Added last, so nothing else moves. The fishmonger: the next roomy house nearest the river. The waterman,
+# who runs the contests: out on the bank, the open street cell by the water nearest the tackle shop's door.
+used.append(tackle_shop)
+fish_shop = min((h for h in built if all(h is not u for u in used) and len(h[1]) >= 8 and IN[h[2][1]][h[2][0]]),
+                key=lambda h: (to_river(h), h[2]))
+door = fish_shop[2]
+FISHMONGER = max(fish_shop[1], key=lambda c: abs(c[0] - door[0]) + 2 * abs(c[1] - door[1]))
+npc_lines.append(f";npc={FISHMONGER[0]},{FISHMONGER[1]} fishmonger")
+standing = {tuple(map(int, l.split()[0][5:].split(","))) for l in npc_lines}
+door = tackle_shop[2]
+bank = [(x, y) for y in range(1, H - 1) for x in range(1, W - 1) if g[y][x] in "-:" and (x, y) not in standing
+        and not any((x + dx, y + dy) in doors for dx in (-1, 0, 1) for dy in (-1, 0, 1))
+        and any(g[y + dy][x + dx] == "~" for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+        and not any(g[y + dy][x + dx] in "=I" for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))]
+WATERMAN = min(bank, key=lambda c: (abs(c[0] - door[0]) + abs(c[1] - door[1]), c))
+npc_lines.append(f";npc={WATERMAN[0]},{WATERMAN[1]} waterman")
+
 items = []   # (v0.54.0, user: the example items that littered the guild hall are gone)
 header = [
     "; Bytorsskug. Laid out after the city plan (tools/city_plan/), then free to edit by hand.",

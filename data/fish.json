@@ -1732,6 +1732,30 @@
     },
     "home": {
       "shards": 0.05
+    },
+    "parts": {
+      "_comment": "What gutting gives (v0.100.0, stage 6): fillets 1 + kg / fillet_kg (none under fillet_min kg, at most fillet_max; none from a miasma fish), scales 1 + kg / scales_kg (at most scales_max), eel skin from the kinds in skin (and tier 3+ fish at skin_chance), bone from bone_kg (2 from bone_kg2), a pearlstone by tier (always from a named fish). The Fishwise talent adds a fillet and a handful of scales. Drafts.",
+      "fillet_kg": 1.5,
+      "fillet_min": 0.1,
+      "fillet_max": 6,
+      "scales_kg": 2,
+      "scales_max": 4,
+      "skin": [
+        "gutter_eel",
+        "lake_eel",
+        "pond_eel",
+        "eelpout",
+        "mire_lamprey",
+        "hookjaw"
+      ],
+      "skin_chance": 0.3,
+      "bone_kg": 3,
+      "bone_kg2": 15,
+      "pearl": {
+        "3": 0.03,
+        "4": 0.2,
+        "5": 0.5
+      }
     }
   },
   "named_patterns": [
@@ -1778,5 +1802,73 @@
       "shards": 150,
       "gift": "geared_reel"
     }
+  },
+  "contests": {
+    "_comment": "The Watermen and Anglers' Guild's contests (v0.100.0, stage 6; game/contests.py). The grand contest runs through the four holiday Pulses after each Duel; the weigh-in runs through the first Cycle of every Reckon (but the first of a Duel, straight after the holidays). Each is for one kind of fish at one water (water: city = the city river, river = the Brisering's river; the grand one is at the city river after a Light Duel and the Brisering's river after a Dark Duel), picked from the fish of the tiers given that live there in that light. Weigh in with the waterman: only fish of that kind, caught there while the contest runs, count; you keep your fish. fee: paid the first time you weigh in. entrants: anglers from the WAG and the Guild's other Hunters, each landing tries fish of the kind (the heaviest counts). prizes: [shards, item] by place (tackle: one piece from the tackle list; id*n: n of it). All drafts.",
+    "small": {
+      "name": "the Reckon's weigh-in",
+      "pulses": 9,
+      "fee": 5,
+      "water": "city",
+      "tiers": [
+        1,
+        2
+      ],
+      "entrants": 3,
+      "tries": 2,
+      "prizes": [
+        [
+          30,
+          "grubs*10"
+        ],
+        [
+          10,
+          ""
+        ]
+      ]
+    },
+    "grand": {
+      "name": "the Holiday Contest",
+      "pulses": 4,
+      "fee": 20,
+      "water": {
+        "Light Duel": "city",
+        "Dark Duel": "river"
+      },
+      "tiers": [
+        2,
+        3
+      ],
+      "entrants": 6,
+      "tries": 3,
+      "prizes": [
+        [
+          200,
+          "tackle"
+        ],
+        [
+          60,
+          "spinner"
+        ],
+        [
+          20,
+          ""
+        ]
+      ]
+    },
+    "tackle": [
+      "brass_reel",
+      "gut_line",
+      "quill_float",
+      "barbed_hook",
+      "ash_rod"
+    ],
+    "anglers": [
+      "Angler Waters",
+      "Waterman Waters",
+      "Angler Waters",
+      "Bargeman Waters",
+      "Angler"
+    ]
   }
 }

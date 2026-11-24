@@ -202,8 +202,12 @@ def apply(engine, effects) -> str | None:
         elif kind == "word_lesson":         # the Wayfinder study's scholar (v0.60.0)
             from game import works
             engine.log(works.word_lesson(engine))
+        elif kind == "contest_collect":     # the waterman (v0.100.0)
+            from game import contests
+            engine.log(contests.collect(engine))
         elif kind in ("library", "archive", "mentor", "hall", "retire", "sit_rank", "labour", "works",
-                      "trophies", "butcher", "trophy_wall", "homes", "fish_weigh", "fish_book"):
+                      "trophies", "butcher", "trophy_wall", "homes", "fish_weigh", "fish_book",
+                      "contest_weigh", "contest_past"):
             opens = kind
         elif kind == "treat":
             opens = effect   # "treat:healer"
@@ -298,6 +302,9 @@ class Talk:
         elif self.speaker.id == "tackleman":
             from game import fishing
             extra = {"fish_tip": fishing.tip(self.engine, self.rng)}
+        elif self.speaker.id == "waterman":
+            from game import contests
+            extra = {"contest": contests.describe(self.engine)}
         self.text = fill(self.engine, text, extra)
         if node.get("rumor"):          # small talk that may pass on a word (game/rumors.py)
             from game import rumors
@@ -324,6 +331,8 @@ class Talk:
                     offer = f"Here's the {self.engine.catalogue[r.want].real_name} you wanted."
                 elif r.kind == "material":
                     offer = f"Here's the {thing} you wanted."
+                elif r.kind == "fish":
+                    offer = f"Here's a {self.engine.catalogue[r.want].real_name} for you."
                 else:
                     offer = f"I have a broken {self.engine.catalogue.rarities[r.want].name} artifact for you."
                 out.append({"text": f"{offer} ({r.reward} shards)", "request": r.id})

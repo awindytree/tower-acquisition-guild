@@ -256,5 +256,20 @@
     ],
     "buys": ["fish", "tackle"],
     "sell_rate": 0.5
+  },
+  "fishmonger": {
+    "name": "The Fishmonger",
+    "keeper": "the fishmonger",
+    "greeting": "",
+    "_comment": "The Watermen and Anglers' Guild's fishmonger (v0.100.0). She buys whole fish at a better rate than the tackleman (fish go to the table, not back on sale) and sells what the city eats, and fish scales for tackle. Stock, prices and rates are placeholders.",
+    "stock": [
+      {"id": "grilled_fish", "max": 6, "restock": 9, "price": 12},
+      {"id": "fish_stew", "max": 3, "restock": 27, "price": 24},
+      {"id": "fish_broth", "max": 3, "restock": 27, "price": 20},
+      {"id": "fish_fillet", "max": 8, "restock": 9, "price": 4},
+      {"id": "fish_scales", "max": 6, "restock": 27, "price": 4, "bundle": 2}
+    ],
+    "buys": ["fish"],
+    "sell_rate": 0.7
   }
 }

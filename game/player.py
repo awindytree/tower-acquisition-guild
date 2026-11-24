@@ -189,13 +189,14 @@ class Player(Entity):
         from game import livings
         livings.note(self, source, amount)
 
-    def guild_pay(self, amount: int) -> None:
-        """Paid by the Guild (bounties, scouting, field notes): no dues are taken from it."""
+    def guild_pay(self, amount: int, source: str = "hunting") -> None:
+        """Paid by the Guild (bounties, scouting, field notes), or a set's reward from the Watermen and
+        Anglers (source "fishing", v0.100.0): no dues are taken from it."""
         self.shards += amount
         self.earned_free += amount
-        self.income["hunting"] = self.income.get("hunting", 0) + amount
+        self.income[source] = self.income.get(source, 0) + amount
         from game import livings
-        livings.note(self, "hunting", amount)
+        livings.note(self, source, amount)
 
     # ---- Artifact slots: separate from the bag ------------------------------------
     @staticmethod

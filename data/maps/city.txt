@@ -29,6 +29,8 @@
 ;npc=135,35 carter
 ;npc=160,40 dealer
 ;npc=68,51 tackleman
+;npc=98,48 fishmonger
+;npc=63,48 waterman
 ;hall=118,41
 ; Service windows: walking into one talks to the person behind it.
 ;window=127,46 clerk

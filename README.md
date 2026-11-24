@@ -755,6 +755,26 @@ anglers talk about ("Old Setly"): a big kind of fish at twice its size,
 harder to hook and to hold, caught only once in all the world. The tackleman
 sometimes tells you where one is. A home in Bytorsskug or Ingenfjel can have a
 **fish tank** (from the property dealer) for the fish you're proudest of.
+**The anglers** (v0.100.0). More of the Watermen and Anglers' Guild: the
+**fishmonger** (the next house to the river) buys whole fish for more than the
+tackleman, sells fish dishes, fillets and scales, and always has a notice up on
+the plaza board for some fish. Other townsfolk post **"fresh catch wanted"**
+requests too, some for a fish of at least its usual weight. **Gut** a fish
+(`g` as you land it, or `u` on one in your pack) for **fillets**, **fish
+scales**, an eel's **skin**, **bone** from a big one, and now and then a
+**pearlstone**. Scales, skin and pearlstone are a new material family,
+**scale**, that the tackleman works into floats and line. Cook fillets at a
+Brisering camp: **grilled fish** (the best healing over time), **fish stew**
+(better fed than hunter's stew) and **fish broth** (heals, stops bleeding and
+poison). Nobody eats miasma fish. Three talents for anglers: Patient Angler,
+Quick Strike and Fishwise. A **waterman** on the bank by the tackle shop runs
+the Guild's **contests**: the **Holiday Contest** through the four holiday
+Pulses after each Duel (at the city river after a Light Duel, the Brisering's
+river after a Dark one), and a **weigh-in** at the city river in the first
+Cycle of each Reckon. Each is for one kind of fish: catch it at that water while
+it's on and have her weigh it (you keep it; the entry fee is paid at your first
+weigh-in). When it's over, the heaviest wins, against the Guild's anglers and
+your fellow Hunters; she keeps your prize until you come for it.
 **Bait:** worms (dig them with `g` in soft ground by the water, or buy them),
 grubs, dough, and a spinner lure that isn't used up. Angling teaches itself to
 rank 2; the tackleman trains beyond.
@@ -777,7 +797,7 @@ The cast window sums up your rig. The tackleman raises tackle a tier at a time
 like the smith does weapons (materials and a fee), and every fifth tier brings
 a trait from its own pool. A **tackle box** carries six kinds of bait and lure
 without taking room in your pack.
-The fish, the numbers and the tackleman's lines are placeholders
+The fish, the numbers and the anglers' lines are placeholders
 (`data/fish.json`; design: `claude/design-fishing.md`).
 
 ## Combat

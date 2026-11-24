@@ -247,6 +247,8 @@ class Engine:
                 self.assess_dues()   # the first Pulse of each Judgment
             from game import crafting, injuries, work
             work.refresh(self)
+            from game import contests             # the WAG's fishing contests (v0.100.0)
+            contests.refresh(self)
             crafting.deliver_orphans(self)
             for message in injuries.mend(self.player, self.day):
                 self.log(message)
@@ -1234,6 +1236,11 @@ class Engine:
             from game.screens import ScrollScreen
             self.screen = (ScrollScreen.of_lines("Weighed for the book", catches.weigh(self)) if kind == "fish_weigh"
                            else ScrollScreen.of_lines("The record book", catches.book_lines(self)))
+        elif kind in ("contest_weigh", "contest_past"):   # the waterman's contests (v0.100.0)
+            from game import contests
+            from game.screens import ScrollScreen
+            self.screen = (ScrollScreen.of_lines("Weighed for the contest", contests.weigh_in(self))
+                           if kind == "contest_weigh" else ScrollScreen.of_lines("The contest book", contests.past_lines(self)))
         elif kind == "homes":                  # the property dealer (v0.74.0)
             from game.screens import HomesScreen
             self.screen = HomesScreen(self)

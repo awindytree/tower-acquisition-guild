@@ -151,7 +151,8 @@ def can_cook(engine, rid: str) -> bool:
     return all(p.inventory.count_of(i) >= n for i, n in recipes()[rid]["needs"].items())
 
 
-SHORT = {"wild_berries": "berries", "healing_herbs": "herbs", "earthy_mushrooms": "mushrooms", "ration": "ration"}
+SHORT = {"wild_berries": "berries", "healing_herbs": "herbs", "earthy_mushrooms": "mushrooms", "ration": "ration",
+         "fish_fillet": "fillets"}
 
 
 def needs_text(engine, rid: str) -> str:

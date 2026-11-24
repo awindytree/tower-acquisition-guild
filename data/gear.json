@@ -1,11 +1,12 @@
 {
-  "_comment": "Gear tiers (v0.75.0; design: claude/design-equipment.md). families: the five material families, each in three tiers (common, uncommon, rare), by item id. types: every weapon type and armour slot, with the two families it's made from (first, second); weapons are matched by their skill (or by firing arrows: a bow), armour by its slot. Windcatchers have no tier. ALL NUMBERS ARE DRAFTS.",
+  "_comment": "Gear tiers (v0.75.0; design: claude/design-equipment.md). families: the six material families (scale: v0.100.0, from gutted fish; it goes into line and floats), each in three tiers (common, uncommon, rare), by item id. types: every weapon type and armour slot, with the two families it's made from (first, second); weapons are matched by their skill (or by firing arrows: a bow), armour by its slot. Windcatchers have no tier. ALL NUMBERS ARE DRAFTS.",
   "families": {
     "hide": ["rough_hide", "thick_hide", "brute_hide"],
     "bone": ["bone", "tusk_antler", "wyrm_fang"],
     "chitin": ["chitin_plate", "crawler_carapace", "horror_plate"],
     "metal": ["iron_scrap", "black_iron", "sentinel_stone"],
-    "fibre": ["sinew", "vinewood", "wyrm_sinew"]
+    "fibre": ["sinew", "vinewood", "wyrm_sinew"],
+    "scale": ["fish_scales", "eel_skin", "pearlstone"]
   },
   "types": {
     "knife": {"name": "Dagger/Knife", "families": ["metal", "bone"], "skill": "knives"},
@@ -24,8 +25,8 @@
     "legs": {"name": "Legs", "families": ["hide", "chitin"]},
     "rod": {"name": "Rod", "families": ["fibre", "bone"], "tackle": true},
     "reel": {"name": "Reel", "families": ["metal", "bone"], "tackle": true},
-    "line": {"name": "Line", "families": ["fibre", "hide"], "tackle": true},
+    "line": {"name": "Line", "families": ["fibre", "scale"], "tackle": true},
     "hook": {"name": "Hook", "families": ["metal", "bone"], "tackle": true},
-    "float": {"name": "Float or sinker", "families": ["fibre", "chitin"], "tackle": true}
+    "float": {"name": "Float or sinker", "families": ["scale", "fibre"], "tackle": true}
   }
 }

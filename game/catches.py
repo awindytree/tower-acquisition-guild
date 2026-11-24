@@ -81,7 +81,7 @@ def check_sets(engine) -> list[str]:
         if flag in p.flags or any(log(p).get(f, {}).get("n", 0) == 0 for f in members(kind)):
             continue
         p.flags.add(flag)
-        p.guild_pay(st.get("shards", 0))
+        p.guild_pay(st.get("shards", 0), "fishing")
         gift = st.get("gift")
         text = f"Every kind of fish in {st['name']}! The Watermen and Anglers send {st.get('shards', 0)} shards"
         if gift:

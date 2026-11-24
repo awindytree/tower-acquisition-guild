@@ -14,7 +14,8 @@ applies. The keys:
   material_chance (%), material_extra, rest (% shorter), brisering_steps (% more), drain (% slower),
   extra_uses, identify (rarity tiers), shards_found (%), bounty_pay (%), request_pay (%),
   dues (points off the share), practice_all / practice_weapon / practice_field (%), xp (%),
-  tech_rest (turns).
+  tech_rest (turns); fishing (v0.100.0): fish_bite (%), fish_window (turns), fish_gut (more from
+  gutting), and any other fish_* key a tackle trait uses (game/fishing.py: tackle_total).
 """
 from __future__ import annotations
 

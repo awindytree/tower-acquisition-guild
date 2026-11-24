@@ -1,0 +1,34 @@
+{
+  "_comment": "The fishmonger of the Watermen and Anglers' Guild (v0.100.0). The Guild, its surname (Waters), and fish as a staple in Bytorsskug are the user's; every line here is a PLACEHOLDER by the assistant. Her requests (fish only) are on the plaza notice board, and handed over by talking to her.",
+  "start": [
+    {"node": "hello"}
+  ],
+  "nodes": {
+    "hello": {
+      "text": {
+        "variants": [
+          "Fresh off the river, {calling}. Well, fresh enough.",
+          "Selling or buying? I do both, and I do both better than the tackleman.",
+          "Half of Bytorsskug eats from this counter. The other half lies about it."
+        ]
+      },
+      "choices": [
+        {"text": "What have you got?", "do": ["shop:fishmonger"]},
+        {"text": "What do I do with a fish once it's caught?", "goto": "gutting"},
+        {"text": "Does everyone here eat fish?", "goto": "staple"}
+      ]
+    },
+    "gutting": {
+      "text": "Sell it whole, to me, and I'll give you more for it than he will. Or gut it yourself, right there on the bank or out of your pack. You'll get fillets, scales, a skin off an eel, bone off a big one. Old ones grow a pearlstone now and then. Fillets you cook at a camp out on the Brisering: grilled, stewed, or boiled down with herbs. Scales the tackleman works into floats and line.",
+      "choices": [
+        {"text": "Back.", "goto": "hello"}
+      ]
+    },
+    "staple": {
+      "text": "Near enough. Nothing much grows in the light we get, and what does, the Brisering keeps. The river doesn't mind the dark. Fish, and whatever the caravans bring in, and that's supper.",
+      "choices": [
+        {"text": "Back.", "goto": "hello"}
+      ]
+    }
+  }
+}

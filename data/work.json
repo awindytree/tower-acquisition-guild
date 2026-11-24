@@ -1,5 +1,5 @@
 {
-  "_comment": "Bounties and scouting (the bounty board in the guild hall; also through the clerk) and requests (plaza notice board). See game/work.py. All numbers are PLACEHOLDERS. board_every: Pulses between new boards and new requests (81 = a Reckon: about one hunt and its rest). jobs_on_board: postings on the bounty board. Each is at a place (three keywords) of a danger picked by danger_weights (rank decides which a Hunter may take): kill (a bounty on one marked creature, the toughest kind the place's deepest area allows; reward = kill_base + kill_per_tier x tier + per_danger x danger), find (a bounty on a particular broken artifact, waiting in the place's deepest area; reward = its rarity's broken price x find_reward + per_danger x danger; hand it to the clerk), or scout (reach an area of the place; reward = scout_base + scout_per_area x area + per_danger x danger). kill_chance and find_chance: how often each kind is posted; the rest are scouting. The Guild pays them and takes no dues from that pay. Requests: requesters are townsfolk ids; request_rarities weights which rarities are asked for; specific_chance = how often they want one named kind (it must be identified to hand over) rather than any of a rarity; reward = the working value x specific_reward, or the broken price x rarity_reward; each stands request_days Pulses. Material requests: material_chance = how often a request asks for materials instead of an artifact; material_counts = how many of each material can be asked for [least, most]; reward = the material's value x count x material_reward. Errands (v0.47.0; user: townsfolk requests that send the Hunter to a place; hearing of one, on the notice board or from the person, teaches its words): errand_chance = how often a request is one; errand_dangers = the dangers picked from; the artifact waits in the place's deepest area, and pays its rarity's broken price x errand_reward + per_danger x danger (no identifying needed). bounty_pay (balance pass 3, user, v0.62.0): every bounty and scouting reward is multiplied by it (0.6: cut by 40%).",
+  "_comment": "Bounties and scouting (the bounty board in the guild hall; also through the clerk) and requests (plaza notice board). See game/work.py. All numbers are PLACEHOLDERS. board_every: Pulses between new boards and new requests (81 = a Reckon: about one hunt and its rest). jobs_on_board: postings on the bounty board. Each is at a place (three keywords) of a danger picked by danger_weights (rank decides which a Hunter may take): kill (a bounty on one marked creature, the toughest kind the place's deepest area allows; reward = kill_base + kill_per_tier x tier + per_danger x danger), find (a bounty on a particular broken artifact, waiting in the place's deepest area; reward = its rarity's broken price x find_reward + per_danger x danger; hand it to the clerk), or scout (reach an area of the place; reward = scout_base + scout_per_area x area + per_danger x danger). kill_chance and find_chance: how often each kind is posted; the rest are scouting. The Guild pays them and takes no dues from that pay. Requests: requesters are townsfolk ids; request_rarities weights which rarities are asked for; specific_chance = how often they want one named kind (it must be identified to hand over) rather than any of a rarity; reward = the working value x specific_reward, or the broken price x rarity_reward; each stands request_days Pulses. Material requests: material_chance = how often a request asks for materials instead of an artifact; material_counts = how many of each material can be asked for [least, most]; reward = the material's value x count x material_reward. Errands (v0.47.0; user: townsfolk requests that send the Hunter to a place; hearing of one, on the notice board or from the person, teaches its words): errand_chance = how often a request is one; errand_dangers = the dangers picked from; the artifact waits in the place's deepest area, and pays its rarity's broken price x errand_reward + per_danger x danger (no identifying needed). bounty_pay (balance pass 3, user, v0.62.0): every bounty and scouting reward is multiplied by it (0.6: cut by 40%). Fish (v0.100.0, fishing stage 6): \"Fresh catch wanted\". fish_only: townsfolk who only ever ask for fish (the fishmonger); fish_requesters may ask for one, at fish_chance. The fish is a kind up to fish_max_tier from the city or the Brisering (not one kept to some Pulses or the holidays); at fish_heavy_chance it must weigh at least its usual weight. Reward = its worth at that weight x fish_reward + 4 x tier, at least fish_least. Hand it over by talking to whoever asked; it counts as fishing income.",
   "board_every": 81,
   "jobs_on_board": 4,
   "danger_weights": {
@@ -26,7 +26,8 @@
     "carter",
     "supplier",
     "artificer",
-    "smith"
+    "smith",
+    "fishmonger"
   ],
   "request_rarities": {
     "common": 5,
@@ -63,6 +64,10 @@
     "sentinel_stone": [
       1,
       2
+    ],
+    "fish_scales": [
+      4,
+      8
     ]
   },
   "errand_chance": 0.3,
@@ -72,5 +77,20 @@
     2,
     3
   ],
-  "errand_reward": 4
+  "errand_reward": 4,
+  "fish_only": [
+    "fishmonger"
+  ],
+  "fish_requesters": [
+    "porter",
+    "washer",
+    "carter",
+    "supplier",
+    "fishmonger"
+  ],
+  "fish_chance": 0.25,
+  "fish_max_tier": 3,
+  "fish_heavy_chance": 0.4,
+  "fish_reward": 3,
+  "fish_least": 12
 }

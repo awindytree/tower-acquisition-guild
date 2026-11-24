@@ -88,7 +88,8 @@ def register(catalogue) -> None:
             continue
         catalogue.types[tid] = ItemType(
             id=tid, real_name=f["name"], glyph=f.get("glyph", data()["glyph"]), color=tuple(f["color"]),
-            kind="fish", real_description=f["description"] + " The tackleman buys fish by weight.",
+            kind="fish", real_description=f["description"] + " The tackleman and the fishmonger buy fish by weight; "
+                             "gut it (u) for fillets and scales.",
             value=0, properties={"fish": fid, "tier": f["tier"]})
 
 
@@ -300,6 +301,9 @@ def tackle_total(player, key: str) -> float:
         pool = gear.pool_of(item)
         for tid in item.traits:
             total += pool.get(tid, {}).get("effects", {}).get(key, 0)
+    from game import talents                          # fishing talents use the same keys (v0.100.0)
+    p = talents.pool()
+    total += sum(p[tid]["effects"].get(key, 0) for tid in (getattr(player, "talents", None) or ()) if tid in p)
     return total
 
 
@@ -962,7 +966,8 @@ def _land(engine, s: Session, rng) -> bool:
             end(engine, "You haul the hookjaw up to the bank, and it tears free of the hook and comes for you!")
             return True
     from game.items import Item
-    item = Item(_catalogue_type(s.fish), catch={"kg": s.kg, "quirk": s.quirk, "water": s.kind, "day": engine.day})
+    item = Item(_catalogue_type(s.fish), catch={"kg": s.kg, "quirk": s.quirk, "water": s.kind, "day": engine.day,
+                                                "key": s.key})
     from game import catches                         # the Angler's Log, sets, the named (v0.99.0)
     told = catches.landed(engine, s, item)
     if s.named:
@@ -1138,39 +1143,92 @@ def _eel_comes(engine, s: Session) -> bool:
     return True
 
 
+MIASMA_WATERS = ("marsh", "cave_pool", "miasma_pond")
+
+
 def gut(engine, s: Session, item, rng) -> str:
-    """Gut a fish where you stand: what was inside it. (Its meat and scales are for a later stage.)"""
+    """Gut a fish as you land it: what was inside it, its fillets and its scales."""
+    return gut_fish(engine, item, rng, s.miasma)
+
+
+def gut_item(engine, index: int, rng=None) -> str:
+    """Gut a fish from your pack (u on it, v0.100.0)."""
+    p = engine.player
+    item = p.inventory.items[index]
+    p.inventory.remove(index, 1)
+    return gut_fish(engine, item, rng or _rng(engine), item.catch.get("water", "") in MIASMA_WATERS)
+
+
+def parts(item, rng, miasma: bool, extra: int = 0) -> dict:
+    """What a gutted fish gives (v0.100.0, stage 6): {item id: count}. Fillets (none from a miasma fish:
+    nobody eats those), scales, an eel's skin, bone from a big one, now and then a pearlstone."""
+    g = data()["guts"].get("parts", {})
+    f = species()[item.type.properties["fish"]]
+    kg = item.catch.get("kg", 0)
+    out = {}
+    if not miasma and kg >= g.get("fillet_min", 0.1):
+        out["fish_fillet"] = min(g.get("fillet_max", 6), 1 + int(kg // g.get("fillet_kg", 1.5))) + extra
+    out["fish_scales"] = min(g.get("scales_max", 4), 1 + int(kg // g.get("scales_kg", 2))) + extra
+    fid = item.type.properties["fish"]
+    if fid in g.get("skin", ()) or (f["tier"] >= 3 and rng.random() < g.get("skin_chance", 0.3)):
+        out["eel_skin"] = 1
+    if kg >= g.get("bone_kg", 3):
+        out["bone"] = 2 if kg >= g.get("bone_kg2", 15) else 1
+    pearl = 1.0 if item.catch.get("named") else g.get("pearl", {}).get(str(f["tier"]), 0)
+    if rng.random() < pearl:
+        out["pearlstone"] = 1
+    return out
+
+
+def gut_fish(engine, item, rng, miasma: bool) -> str:
+    """Gut a fish where you stand: anything it swallowed (v0.98.0), then its fillets, scales and
+    the rest (v0.100.0)."""
     from game.items import Item
-    g = data()["guts"]["miasma" if s.miasma else "home"]
+    g = data()["guts"]["miasma" if miasma else "home"]
     p = engine.player
     name = item.type.name
-    found = []
+    found, told = [], ""
     roll = rng.random()
-    if s.miasma and roll < g.get("bottle", 0):
+    if miasma and roll < g.get("bottle", 0):
         from game import keywords
         kw = engine.regions.keywords
         unknown = sorted(w for w in kw.all_ids(ordinary=True) if w not in engine.words)
         if unknown:
             word = kw.word(rng.choice(unknown))
             keywords.learn(engine, [word.id], say=False)
-            return (f"You gut the {name}. Inside: a stoppered bottle with a scrap of paper in it, "
-                    f"in a hand you don't know. It names a place. You learn the word {word.shown}.")
+            told = (" Inside: a stoppered bottle with a scrap of paper in it, in a hand you don't know. "
+                    f"It names a place. You learn the word {word.shown}.")
     roll -= g.get("bottle", 0)
-    if s.miasma and roll < g.get("artifact", 0) and getattr(engine, "hunt", None) is not None:
+    if not told and miasma and roll < g.get("artifact", 0) and getattr(engine, "hunt", None) is not None:
         from game.hunt import pick_artifact
         region = engine.hunt.contract.region
         aid = pick_artifact(region, danger(engine), engine.catalogue, rng)
         art = Item(engine.catalogue[aid])
         _give(engine, art)
-        return f"You gut the {name}. Something hard in its belly: {art.type.name}, swallowed whole."
+        told = f" Something hard in its belly: {art.type.name}, swallowed whole."
     roll -= g.get("artifact", 0)
-    if roll < g.get("shards", 0):
-        n = rng.randint(5, 20) * danger(engine) if s.miasma else rng.randint(1, 6)
+    if not told and 0 <= roll < g.get("shards", 0):
+        n = rng.randint(5, 20) * max(1, danger(engine)) if miasma else rng.randint(1, 6)
         p.earn(n, "fishing")
-        found.append(f"{n} shard{'s' if n != 1 else ''} it had swallowed")
+        told = f" Inside: {n} shard{'s' if n != 1 else ''} it had swallowed."
+    extra = int(tackle_total(p, "fish_gut"))
+    got = parts(item, rng, miasma, extra)
+    cat = engine.catalogue
+    for iid, n in got.items():
+        if n > 0:
+            _give(engine, Item(cat[iid], n))
+            found.append(cat[iid].label(n) if n > 1 else "a handful of fish scales" if iid == "fish_scales"
+                         else _a(cat[iid].name))
     from game import sound
     sound.play("butcher")
-    return f"You gut the {name}." + (" Inside: " + ", ".join(found) + "." if found else " Nothing inside but fish.")
+    tail = (" You take " + _join(found) + ".") if found else ""
+    if miasma and "fish_fillet" not in got:
+        tail += " The flesh is grey and wrong: nobody eats miasma fish."
+    return f"You gut the {name}." + told + tail
+
+
+def _join(parts: list) -> str:
+    return parts[0] if len(parts) == 1 else ", ".join(parts[:-1]) + " and " + parts[-1]
 
 
 def _give(engine, item) -> None:

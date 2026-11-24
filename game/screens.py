@@ -406,7 +406,8 @@ def item_worth(item, engine: "Engine") -> str:
         water = fishing.data()["waters"].get(c.get("water", ""), {}).get("name", "")
         return (f"{fishing.weight_text(c['kg'])}, {item.slots} slot{'s' if item.slots > 1 else ''}."
                 + (f" {q}" if q else "") + (f" From {water}." if water else "")
-                + f" Worth {fishing.value(item)} shards; the tackleman pays half that.")
+                + f" Worth {fishing.value(item)} shards; the fishmonger pays 70% of that, the tackleman half."
+                + " u: gut it.")
     if item.trophy is not None:                 # (v0.61.0)
         from game import trophies
         rec = trophies.state(engine)["records"].get(t.properties["monster"])
@@ -3029,6 +3030,9 @@ class RequestBoardScreen:
                 extra += wrapped("They want that kind exactly: you'll need to have identified it.", w - 4, DIM)
             if r.kind == "errand":
                 extra += wrapped(f"Choose {r.where} at the Wayfinder; it lies somewhere in the deepest area.", w - 4, DIM)
+            if r.kind == "fish" and work.can_hand_over(engine, r) is None:
+                extra += wrapped("Fresh from the water: any you've landed will do. Ask the tackleman what's biting.",
+                                 w - 4, DIM)
             if r.kind == "material":
                 have_n = engine.player.inventory.count_of(r.want)
                 extra += wrapped(f"Creatures leave these. You have {have_n}.", w - 4,

@@ -103,15 +103,21 @@ class Request:
     id: int
     folk_id: str
     kind: str            # "item" (a specific kind), "rarity" (any broken artifact of a rarity), "material",
-                         # or "errand" (a particular artifact lying at a place: v0.47.0)
+                         # "errand" (a particular artifact lying at a place: v0.47.0), or "fish" (a fish of a
+                         # kind, at least kg heavy: v0.100.0)
     want: str            # item id, or rarity id
     reward: int
     expires: int         # the last day it stands
     count: int = 1       # how many (materials)
     place: str = ""      # errand: the place (three keywords) where it lies
     where: str = ""      # errand: the place as shown, [..][..][..]
+    kg: float = 0.0      # fish: the least it may weigh
 
     def thing(self, catalogue) -> str:
+        if self.kind == "fish":
+            from game import fishing
+            heavy = f" of at least {fishing.weight_text(self.kg)}" if self.kg else ""
+            return f"a fresh {catalogue[self.want].real_name}{heavy}"
         if self.kind == "errand":
             return f"the {catalogue[self.want].real_name} lying at {self.where}"
         if self.kind == "item":
@@ -122,6 +128,9 @@ class Request:
 
     def matches(self, item) -> bool:
         t = item.type
+        if self.kind == "fish":            # any of that kind, heavy enough (not a named fish: that's for the book)
+            return (t.id == self.want and item.catch is not None and item.catch.get("kg", 0) >= self.kg
+                    and not item.catch.get("named"))
         if self.kind == "errand":          # they know what they sent you for: no identifying needed
             return t.id == self.want
         if self.kind in ("item", "material"):
@@ -226,6 +235,13 @@ def make_requests(engine, rng: random.Random, count: int) -> list[Request]:
                 wanted.add(("errand", want))
                 out.append(Request(engine.next_work_id, folk, "errand", want, reward, expires, 1, place.id, place.name))
                 continue
+        if folk in s.get("fish_only", ()) or (rng.random() < s.get("fish_chance", 0)
+                                              and folk in s.get("fish_requesters", s["requesters"])):
+            req = fish_request(engine, rng, folk, expires, wanted)
+            if req is not None:
+                wanted.add(("fish", req.want))
+                out.append(req)
+                continue
         counts = {m: c for m, c in s.get("material_counts", {}).items()
                   if m in cat.types and ("material", m) not in wanted}
         if counts and rng.random() < s.get("material_chance", 0):
@@ -249,6 +265,26 @@ def make_requests(engine, rng: random.Random, count: int) -> list[Request]:
             wanted.add(("rarity", rarity))
             out.append(Request(engine.next_work_id, folk, "rarity", rarity, reward, expires))
     return out
+
+
+def fish_request(engine, rng, folk: str, expires: int, wanted: set):
+    """Fresh catch wanted (v0.100.0): a fish of a kind from the city or the Brisering (not the miasma, not
+    one only found at some Pulses or in the holidays), now and then one of at least its usual weight.
+    Pay: its worth at that weight x fish_reward, at least fish_least."""
+    from game import fishing
+    s = engine.work
+    home = ("city_river", "river", "lake", "pond")
+    kinds = sorted(fid for fid, f in fishing.species().items()
+                   if f["tier"] <= s.get("fish_max_tier", 3) and any(w in home for w in f["waters"])
+                   and not f.get("pulses") and not f.get("holiday") and ("fish", fishing.type_id(fid)) not in wanted)
+    if not kinds:
+        return None
+    fid = rng.choice(kinds)
+    f = fishing.species()[fid]
+    kg = round(f["kg"][0], 1) if rng.random() < s.get("fish_heavy_chance", 0.4) and f["kg"][0] >= 0.3 else 0.0
+    worth = f.get("per_kg", 1) * max(kg, f["kg"][0])
+    reward = max(s.get("fish_least", 12), round(worth * s.get("fish_reward", 3) + 4 * f["tier"]))
+    return Request(engine.next_work_id, folk, "fish", fishing.type_id(fid), reward, expires, 1, kg=kg)
 
 
 def refresh(engine) -> None:
@@ -404,7 +440,7 @@ def hand_over(engine, request: Request) -> str:
     from game import talents                      # (Well Liked)
     bonus = round(request.reward * (ranks.privilege(engine.player, "request_bonus", 0)
                                     + talents.total(engine.player, "request_pay") / 100))
-    engine.player.earn(request.reward + bonus)
+    engine.player.earn(request.reward + bonus, "fishing" if request.kind == "fish" else "hunting")
     engine.requests.remove(request)
     if request.kind == "material":
         name = f"{request.count} {name}"

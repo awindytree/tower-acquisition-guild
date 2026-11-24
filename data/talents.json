@@ -364,6 +364,27 @@
       "effects": {
         "drain": 15
       }
+    },
+    "patient_angler": {
+      "name": "Patient Angler",
+      "description": "Fish bite 15% more often for you.",
+      "effects": {
+        "fish_bite": 15
+      }
+    },
+    "quick_strike": {
+      "name": "Quick Strike",
+      "description": "Fishing: one more turn to strike when a fish bites.",
+      "effects": {
+        "fish_window": 1
+      }
+    },
+    "fishwise": {
+      "name": "Fishwise",
+      "description": "Gutting a fish gives a fillet and a handful of scales more.",
+      "effects": {
+        "fish_gut": 1
+      }
     }
   }
 }

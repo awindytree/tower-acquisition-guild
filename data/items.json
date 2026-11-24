@@ -665,5 +665,40 @@
     "name": "stillwater spool", "kind": "artifact", "rarity": "rare", "working": true,
     "description": "The spool, true again. Fished with, the line goes slack and still whenever a fish pulls hardest, then takes up the strain again.",
     "value": 280, "properties": {"fish_drag": 25, "fish_capacity": 10, "effect": "Fishing: +25% drag and +10 line"}
+  },
+  "fish_scales": {
+    "name": "fish scales", "glyph": "≈", "color": [190, 210, 220], "kind": "material",
+    "description": "A handful of scales scraped from a gutted fish, dried and kept. The tackleman works them into floats and line.",
+    "plural": "fish scales", "value": 2, "stackable": true
+  },
+  "eel_skin": {
+    "name": "eel skin", "glyph": "≈", "color": [120, 140, 110], "kind": "material",
+    "description": "A whole skin from an eel or a big fish, cured supple. It wraps a line and won't fray.",
+    "value": 9, "stackable": true
+  },
+  "pearlstone": {
+    "name": "pearlstone", "glyph": "°", "color": [235, 225, 240], "kind": "material",
+    "description": "A smooth, pale stone the size of a pea, grown in the gut of an old fish. It catches what little light there is.",
+    "value": 30, "stackable": true
+  },
+  "fish_fillet": {
+    "name": "fish fillet", "glyph": "%", "color": [230, 170, 150], "kind": "misc",
+    "description": "A fresh fillet from a fish you gutted. Cook it at a Brisering camp.",
+    "value": 2, "stackable": true, "properties": {"ingredient": true}
+  },
+  "grilled_fish": {
+    "name": "grilled fish", "plural": "grilled fish", "glyph": "¥", "color": [220, 160, 100], "kind": "consumable",
+    "description": "A fillet grilled over a camp fire. It keeps you going a long while: it heals more over time than anything else you can carry.",
+    "value": 8, "stackable": true, "properties": {"heal_per_turn": 2, "heal_turns": 15}
+  },
+  "fish_stew": {
+    "name": "pot of fish stew", "plural": "pots of fish stew", "glyph": "¥", "color": [200, 170, 120], "kind": "consumable",
+    "description": "Fish, mushrooms and a ration, stewed the way they do it in Bytorsskug. Eat it before you set out: you start your next hunt well fed, more so than on hunter's stew.",
+    "value": 16, "stackable": true, "properties": {"fed": 30}
+  },
+  "fish_broth": {
+    "name": "flask of fish broth", "plural": "flasks of fish broth", "glyph": "♥", "color": [170, 200, 190], "kind": "consumable",
+    "description": "Fish bones and healing herbs boiled down. It heals well, and stops bleeding and poison.",
+    "value": 14, "stackable": true, "properties": {"heal": 12, "cures": true}
   }
 }

@@ -1,0 +1,43 @@
+{
+  "_comment": "A waterman of the Watermen and Anglers' Guild (v0.100.0), who keeps the book for the Guild's fishing contests (game/contests.py). The Guild and its surname, Waters, are the user's; every line here is a PLACEHOLDER by the assistant. {contest}: the contest on now, or when the next ones are.",
+  "start": [
+    {"node": "hello"}
+  ],
+  "nodes": {
+    "hello": {
+      "text": {
+        "variants": [
+          "Mind the edge, {calling}. The bank's soft here.",
+          "You've the look of someone with a fish to weigh.",
+          "Another Hunter on the bank. The river's always glad of the company."
+        ]
+      },
+      "choices": [
+        {"text": "Is there a contest on?", "goto": "contest"},
+        {"text": "Weigh my fish for the contest.", "do": ["contest_weigh"]},
+        {"text": "I've come for my prize.", "do": ["contest_collect"]},
+        {"text": "Who's won lately?", "do": ["contest_past"]},
+        {"text": "What does a waterman do?", "goto": "watermen"}
+      ]
+    },
+    "contest": {
+      "text": "{contest}",
+      "choices": [
+        {"text": "How does it work?", "goto": "rules"},
+        {"text": "Back.", "goto": "hello"}
+      ]
+    },
+    "rules": {
+      "text": "One kind of fish, one water. Catch it there while the contest's on, bring it here and I'll weigh it. You keep the fish, I keep the number. When it's over, the heaviest wins. Half the Guild's anglers will be out, and some of your Hunters too. There's the Holiday Contest in the four Pulses after every Duel, and a weigh-in at the start of most Reckons for the city river.",
+      "choices": [
+        {"text": "Back.", "goto": "hello"}
+      ]
+    },
+    "watermen": {
+      "text": "Keep the river clear under the bridges. Pull out what falls in, and whoever. Ferry what needs ferrying. And the Guild's contests are mine to run, so if you want your name in the book, it's me you see.",
+      "choices": [
+        {"text": "Back.", "goto": "hello"}
+      ]
+    }
+  }
+}

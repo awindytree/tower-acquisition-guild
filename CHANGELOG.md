@@ -5,6 +5,52 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.100.0: Fishing, stage 6: the anglers (2026-11-23)
+Stage 6 of `claude/design-fishing.md`. The new code is `game/contests.py`. The Watermen and Anglers' Guild and the surname Waters are the user's; every new name, line, number and prize is a placeholder.
+
+**More of the Watermen and Anglers:**
+- **Saso Fishmonger Waters**, in the next house to the river. She buys whole fish at 70% of their worth (the tackleman pays half) and sells grilled fish, fish stew, fish broth, fillets and fish scales. Her notices on the plaza board are always for fish.
+- **Ritla Waterman Waters**, on the bank by the tackle shop. She runs the contests.
+- Both are placed by `tools/city_plan/build_city.py`, after everything else, so nothing else in the city moves.
+
+**Gutting** (`g` as you land a fish, or now `u` on one in your pack) gives:
+- **fillets:** 1 + 1 per 1.5 kg, at most 6, none under 100 g, and none from a miasma fish ("nobody eats miasma fish");
+- **fish scales:** 1 + 1 per 2 kg, at most 4;
+- **eel skin** from the eels, the eelpout, the mire lamprey and the hookjaw (and 30% of tier 3+ fish);
+- **bone** from 3 kg (2 from 15 kg);
+- **a pearlstone** at 3%/20%/50% for tier 3/4/5, and always from a named fish.
+- What it may have swallowed is as before.
+
+**The scale family:** fish scales, eel skin and pearlstone are a sixth material family. Line is now fibre and scale (was fibre and hide); floats and sinkers are scale and fibre (were fibre and chitin). Creatures don't drop them; gutting and the fishmonger are where they come from.
+
+**Fish dishes**, cooked at a Brisering camp:
+- **grilled fish** (1 fillet): 2 HP a turn for 15 turns, the best healing over time;
+- **fish stew** (2 fillets, a mushroom, a ration): well fed for your next hunt at 30% (hunter's stew is 20%);
+- **fish broth** (a fillet, healing herbs): heals 12, stops bleeding and poison.
+
+**Three talents** join the pool (53 now): **Patient Angler** (fish bite 15% more often), **Quick Strike** (a turn longer to strike) and **Fishwise** (a fillet and a handful of scales more from gutting). Fishing talents use the same `fish_*` keys as tackle traits.
+
+**Fresh catch wanted:** requests for fish on the plaza notice board.
+- The fishmonger only ever asks for fish; the porter, the washer, the carter and the supplier sometimes do (25%).
+- It's a kind up to tier 3 from the city or the Brisering, not one kept to some Pulses or the holidays. 40% of the time it must weigh at least its usual weight.
+- Pay is its worth × 3 + 4 per tier, at least 12 shards. A named fish won't do. The pay counts as fishing income.
+- Fish scales can now be asked for as materials too.
+
+**The contests** (world state):
+- **The Holiday Contest** runs through the four holiday Pulses after each Duel: at the city river after a Light Duel, at the Brisering's river after a Dark Duel. It's for a tier 2-3 fish; entry 20 shards; prizes 200 shards and a piece of tackle, 60 and a spinner, 20.
+- **The Reckon's weigh-in** runs through the first Cycle of every Reckon (but the Duel's first, straight after the holidays), at the city river. It's for a tier 1-2 fish; entry 5; prizes 30 shards and 10 grubs, then 10.
+- The fish is picked from those of the right tiers that live at that water in that light.
+- Have the waterman weigh it: only that kind, caught at that water while the contest is on, counts. You keep the fish, and the fee is paid at your first weigh-in.
+- When it's over, the heaviest wins. Against you: anglers of the WAG and some of the Guild's other Hunters (3 for a weigh-in, 6 for the Holiday Contest), each landing a few of that fish.
+- A prize waits with the waterman for the Hunter who won it, and it's fishing income. A rival who wins talks about it. "Who's won lately?" shows the last eight contests.
+
+**Small things:**
+- Caught fish remember their water's key, for the contests.
+- A set's reward from the WAG now counts as fishing income, not hunting (still no dues).
+- A fish's description says the fishmonger buys it and that `u` guts it.
+
+**Tests:** `test_anglers` (new); `test_gear` (six families; the scale bills); `test_talents` (53); `test_dialogue` (16 townsfolk); `test_miasma_fishing` (what gutting says); `test_shop` (finds the shop's choice, since a request may come first).
+
 ## 0.99.0: Fishing, stage 5: collections (2026-11-23)
 Stage 5 of `claude/design-fishing.md`. The new code is `game/catches.py`. Every name, number and reward is a placeholder.
 

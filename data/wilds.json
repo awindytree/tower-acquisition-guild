@@ -1,5 +1,5 @@
 {
- "_comment": "Living off the Brisering (design-return-journey.md stage 4, part 1): foraging spots, camps and cooking. All the assistant's drafts (user: foraging spots and camp sites on the Brisering; a staging area before hunts). forage: kinds of spot, where they grow (Brisering tile symbols), how many in all, what they give [item, least, most], and how long they take to grow back (Pulses). camps: one every spacing_km along each road, off to one side. recipes: cooked at a camp: what goes in, what comes out.",
+ "_comment": "Living off the Brisering (design-return-journey.md stage 4, part 1): foraging spots, camps and cooking. All the assistant's drafts (user: foraging spots and camp sites on the Brisering; a staging area before hunts). forage: kinds of spot, where they grow (Brisering tile symbols), how many in all, what they give [item, least, most], and how long they take to grow back (Pulses). camps: one every spacing_km along each road, off to one side. recipes: cooked at a camp: what goes in, what comes out. Fish dishes (v0.100.0): fillets come from gutting a fish (g as you land it, or u on one in your pack).",
  "forage": {
   "regrow": 27,
   "kinds": {
@@ -16,6 +16,9 @@
  "recipes": {
   "hunters_stew": {"name": "hunter's stew", "needs": {"wild_berries": 1, "earthy_mushrooms": 2, "ration": 1}},
   "herb_broth": {"name": "herb broth", "needs": {"healing_herbs": 2}},
-  "trail_cakes": {"name": "trail cakes", "needs": {"wild_berries": 3}}
+  "trail_cakes": {"name": "trail cakes", "needs": {"wild_berries": 3}},
+  "grilled_fish": {"name": "grilled fish", "needs": {"fish_fillet": 1}},
+  "fish_stew": {"name": "fish stew", "needs": {"fish_fillet": 2, "earthy_mushrooms": 1, "ration": 1}},
+  "fish_broth": {"name": "fish broth", "needs": {"fish_fillet": 1, "healing_herbs": 1}}
  }
 }
