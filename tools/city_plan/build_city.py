@@ -731,28 +731,38 @@ for x, y in stables[1]:
     g[y][x] = "s"
 inside_door = next((sdoor[0] + dx, sdoor[1] + dy) for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0))
                    if (sdoor[0] + dx, sdoor[1] + dy) in stables[1])
-def by_wall(c):
-    return sum((c[0] + dx, c[1] + dy) not in stables[1] for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)))
-beds = []
-for c in sorted(stables[1], key=lambda c: (-(abs(c[0] - sdoor[0]) + 2 * abs(c[1] - sdoor[1])), c)):
-    if len(beds) == 3:
-        break
-    if c == inside_door or not by_wall(c):
-        continue
-    g[c[1]][c[0]] = "z"
-    rest_ = set(stables[1]) - set(beds) - {c}
-    seen_s, q_s = {inside_door}, deque([inside_door])          # never shut part of the stable off
-    while q_s:
-        cx, cy = q_s.popleft()
-        for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
-            n_ = (cx + dx, cy + dy)
-            if n_ in rest_ and n_ not in seen_s:
-                seen_s.add(n_); q_s.append(n_)
-    if seen_s != rest_:
-        g[c[1]][c[0]] = "s"
-        continue
-    beds.append(c)
+def place_beds(house, symbol, floor, n, keep=()):
+    """Up to n beds against a wall, farthest from the door first, never on the cell inside the door or a
+    kept cell, and never shutting part of the floor off."""
+    cells_, door_ = set(house[1]), house[2]
+    inside = next((door_[0] + dx, door_[1] + dy) for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0))
+                  if (door_[0] + dx, door_[1] + dy) in cells_)
+    placed = []
+    for c in sorted(cells_, key=lambda c: (-(abs(c[0] - door_[0]) + 2 * abs(c[1] - door_[1])), c)):
+        if len(placed) == n:
+            break
+        if c == inside or c in keep or not any((c[0] + dx, c[1] + dy) not in cells_
+                                               for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0))):
+            continue
+        left = cells_ - set(placed) - {c}
+        seen_b, q_b = {inside}, deque([inside])
+        while q_b:
+            cx, cy = q_b.popleft()
+            for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
+                n_ = (cx + dx, cy + dy)
+                if n_ in left and n_ not in seen_b:
+                    seen_b.add(n_); q_b.append(n_)
+        if seen_b != left:
+            continue
+        g[c[1]][c[0]] = symbol
+        placed.append(c)
+    return placed
+beds = place_beds(stables, "z", "s", 3)
 assert beds, "the stables have no room for a straw bed"
+
+# ---- Cots in the healer's house (v0.100.10, user: "The healer should have a bed or two") ----
+cots = place_beds(healing, "Z", None, 2, keep={healer})
+assert cots, "the healer's house has no room for a cot"
 
 
 def doors_open(blocked):

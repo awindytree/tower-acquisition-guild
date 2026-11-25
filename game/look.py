@@ -99,8 +99,11 @@ def describe(engine: "Engine", x: int, y: int) -> tuple[str, list[tuple[str, tup
                           "Walk into it to read them.", TEXT))
         if gm.tile_at(x, y).symbol == "L":
             lines.append(("A brass plaque naming those who paid for the Guild's works. Walk into it to read it.", TEXT))
-        if gm.tile_at(x, y).symbol in "UZKE" and gm.hall:
+        in_hall = bool(gm.hall) and gm.hall[0] <= x < gm.hall[0] + 20 and gm.hall[1] - 4 <= y < gm.hall[1] + 11
+        if gm.tile_at(x, y).symbol in "UZKE" and in_hall:
             lines.append(("Part of the Guild's works. The plaque by the door says who paid for it.", DIM))
+        elif gm.tile_at(x, y).symbol == "Z":           # the healer's cots (v0.100.10)
+            lines.append(("One of the healer's cots, kept for the badly hurt.", DIM))
         if gm.tile_at(x, y).symbol == "z":
             lines.append(("Clean straw in the boga stables. Anyone can sleep here for nothing, and Hunters do. "
                           "Walk into it to sleep off what rest you owe, all but the last Cycle of it.", TEXT))

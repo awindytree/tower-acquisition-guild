@@ -114,12 +114,25 @@ def hand_in(engine) -> str:
     found = [i for i in p.inventory.items if i.type.writing]
     if not found:
         return "You have no writings to hand in."
-    total = 0
+    total, copies = 0, []
     for item in found:
-        total += payment(engine, item.type)
-        engine.library.append(item.type.id)
+        if item.type.id in engine.library:      # a copy she has: she takes it, but doesn't pay (v0.100.10, user)
+            copies.append(item.type.name)
+        else:
+            total += payment(engine, item.type)
+            engine.library.append(item.type.id)
         p.inventory.items.remove(item)
-    p.earn(total)
-    n = len(found)
-    return (f"You hand over {n} writing{'s' if n != 1 else ''} for the library, and are paid {total} shards. "
-            "Any Hunter can read them there now.")
+    if total:
+        p.earn(total)
+    n = len(found) - len(copies)
+    out = []
+    if n:
+        out.append(f"You hand over {n} writing{'s' if n != 1 else ''} for the library, and are paid {total} shards. "
+                   "Any Hunter can read them there now.")
+    if len(copies) == 1:
+        out.append(f"The library already has a copy of the {copies[0]}: she takes it off your hands, "
+                   "but pays nothing for it.")
+    elif copies:
+        out.append(f"The library already has copies of {len(copies)} of them: she takes those off your hands, "
+                   "but pays nothing for them.")
+    return " ".join(out)

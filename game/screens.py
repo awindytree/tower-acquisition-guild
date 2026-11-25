@@ -3864,6 +3864,26 @@ class MapScreen:
         console.print(x + w - 2 - len(close), y + h - 2, close, fg=DIM, bg=BG)
 
 
+def contract_now(engine: "Engine", c) -> str:
+    """What to do next for the Hunter's contract (v0.100.10, user: the log said the same before and after
+    the find was in hand)."""
+    from game import recovery
+    what = f"{recovery.owner(c.recover['name'])} pack" if c.recover else f"the {engine.catalogue[c.artifact_id].name}"
+    have = any(it.type.id == c.artifact_id for it in engine.player.all_items())
+    on_it = engine.hunt is not None and engine.hunt.contract is c or (
+        engine.hunt is not None and engine.hunt.contract.region.id == c.region.id and not engine.hunt.contract.free)
+    if have and on_it:
+        return f"you have {what}. Get back to the trail home (≡, in the first area) to come out of the miasma."
+    if have:
+        return (f"you have {what}. Take it to the guild clerk in Bytorsskug to complete the contract."
+                if engine.hunt is None else f"you have {what}. Take it to the guild clerk in Bytorsskug.")
+    if on_it:
+        return f"find {what} in the deepest area (area {c.depth}), then get back to the trail home."
+    area = f"area {c.recover['area']}" if c.recover else "the deepest area"
+    return (f"set out from the Wayfinder in the plaza with these words, find {what} in {area}, and bring it "
+            "back to the trail home.")
+
+
 class QuestLogScreen:
     """The quest log (q): quests under way and finished, each with its story so far. ←→ or Tab
     switches; ↑↓ picks a quest."""
@@ -3914,8 +3934,7 @@ class QuestLogScreen:
             c = what
             out += wrapped(postings.describe(engine, c), w, TEXT)
             out += wrapped(f"Words: {c.region.name}   Danger {hunt.danger_pips(c.danger)}   {c.depth} areas", w, DIM)
-            out += wrapped("Now: set out from the Wayfinder in the plaza with these words, find it in the "
-                           "deepest area, and bring it back to the trail home.", w, ACCENT)
+            out += wrapped("Now: " + contract_now(engine, c), w, ACCENT)
             return out
         if kind == "job":
             j = what

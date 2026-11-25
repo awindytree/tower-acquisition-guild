@@ -5,6 +5,18 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.100.10: From the playtest: the quest log keeps up, the healer's cots, no pay for copies (2026-11-24)
+From the user's playtest.
+- **The quest log's "Now" follows the contract** (it said "set out, find it, bring it back" from start to finish):
+  - before: set out from the Wayfinder with these words, find it (or the lost Hunter's pack) in the deepest area, bring it back to the trail home;
+  - on the hunt without it: find it in area N, then get back to the trail home;
+  - on the hunt with it: get back to the trail home (≡, in the first area) to come out of the miasma;
+  - out with it: take it to the guild clerk in Bytorsskug to complete the contract.
+  `screens.contract_now`.
+- **The healer has two cots** in her house (user), against the far walls, never in her way or blocking the room. The look command: "One of the healer's cots, kept for the badly hurt." `build_city.py`'s bed placing is now one function (`place_beds`) for the stables' straw and the cots; only those two cells changed in the city map.
+- **The librarian takes copies but doesn't pay for them** (user): a writing the library already has is taken off your hands for nothing, and isn't shelved twice; the others are paid as before.
+- `test_playnotes3` covers all three.
+
 ## 0.100.9: From the playtest: the place on the card, the straw, a sorted stash (2026-11-24)
 From the user's playtest.
 - **The departure card names the place's traits:** after the danger and depth, its terrain ("a different one each area" for a land word with several), its light ("dark: bring light"; "it doesn't carry far" where a word dims it), and what each word changes: more or fewer creatures, "Thick with thornback boars", "Nothing lives here but ashmantles", awake and watchful creatures, heavy going, richer finds, a prize that may be a rarity higher, more writings, rations lying about. `screens.place_traits`.
