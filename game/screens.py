@@ -2464,6 +2464,7 @@ KEY_REFERENCE = [
         ("l", "message log"),
         ("? or F1", "this key reference"),
         ("F2", "sound on or off"),
+        ("F11, Alt+Enter", "fullscreen"),
         ("Esc", "menu: save, load, quit"),
     ]),
     ("Aiming (after f)", [

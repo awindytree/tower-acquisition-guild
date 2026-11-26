@@ -51,7 +51,7 @@ from game.saves import SaveSystem
 from game.shops import load_shops
 from game.artifacts import load_workshops
 from game.skills import load_skills
-from game import font, sound
+from game import font, sound, window
 from game.version import VERSION
 from game.screens import TitleScreen
 
@@ -105,6 +105,9 @@ def main() -> None:
         # Sound (v0.63.0): after the window opens (SDL is up). If it can't start, the game is silent;
         # the Sound window (title menu or Esc) says why. Volumes live in saves/settings.json.
         sound.init(SAVES / "settings.json")
+        # F11 or Alt+Enter switches fullscreen (v0.100.11); the last choice is kept in saves/window.json.
+        if window.load(SAVES / "window.json"):
+            window.set_fullscreen(context, True)
         engine.animate_walks = True       # watch auto-explore and travel-to a step at a time
         last = time.monotonic()
         while True:
@@ -121,6 +124,9 @@ def main() -> None:
                 # Auto-explore or travel-to under way (v0.65.0): a step every WALK_STEP_DELAY;
                 # any key stops it (and is used up doing so).
                 events = list(tcod.event.wait(timeout=engine.WALK_STEP_DELAY))
+                if any(window.is_toggle(ev) for ev in events):
+                    window.toggle(context)        # (switching fullscreen doesn't stop the walk)
+                    events = [ev for ev in events if not window.is_toggle(ev)]
                 if any(isinstance(ev, tcod.event.KeyDown) for ev in events):
                     engine.stop_walk()
                     events = [ev for ev in events if not isinstance(ev, tcod.event.KeyDown)]
@@ -136,6 +142,9 @@ def main() -> None:
                 events = tcod.event.wait()
                 last = time.monotonic()
             for event in events:
+                if window.is_toggle(event):
+                    window.toggle(context)
+                    continue
                 engine.handle_action(action_for_event(event, engine))
 
 

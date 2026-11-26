@@ -5,6 +5,12 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.100.11: Fullscreen (2026-11-26)
+- **F11 or Alt+Enter switches fullscreen** (user). It uses the screen's own resolution ("desktop" fullscreen), so nothing flickers or changes mode, and the game fills the screen at the largest whole-number zoom that fits, as when you resize the window. It works anywhere, in any window, and doesn't stop a walk under way; Alt+Enter never counts as Enter in a menu.
+- The choice is remembered: the next start opens fullscreen if you left it that way (`saves/window.json`, ignored by git with the rest of `saves/`).
+- `game/window.py`; key reference and README.
+- Test `test_fullscreen` (88 suites; the real tcod isn't in the assistant's workspace, so it runs against stand-ins shaped like tcod's, as `test_sound` does).
+
 ## 0.100.10: From the playtest: the quest log keeps up, the healer's cots, no pay for copies (2026-11-24)
 From the user's playtest.
 - **The quest log's "Now" follows the contract** (it said "set out, find it, bring it back" from start to finish):
