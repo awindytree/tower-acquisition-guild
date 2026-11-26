@@ -27,12 +27,19 @@ def is_toggle(event) -> bool:
 
 
 def _desktop_flag():
+    """The flag for fullscreen at the desktop's own resolution. SDL2 (tcod before 19) calls it
+    FULLSCREEN_DESKTOP; SDL3 (tcod 19) has only FULLSCREEN, which already works that way (v0.100.12: the
+    user's crash). True if neither is there: the window's own setter takes a plain yes too."""
     try:
         import tcod.sdl.video
-        return tcod.sdl.video.WindowFlags.FULLSCREEN_DESKTOP
+        flags = tcod.sdl.video.WindowFlags
     except (ImportError, AttributeError):
-        import tcod.context
-        return tcod.context.SDL_WINDOW_FULLSCREEN_DESKTOP
+        return True
+    for name in ("FULLSCREEN_DESKTOP", "FULLSCREEN"):
+        flag = getattr(flags, name, None)
+        if flag is not None:
+            return flag
+    return True
 
 
 def is_fullscreen(context) -> bool:
@@ -45,7 +52,10 @@ def set_fullscreen(context, on: bool) -> bool:
     window = getattr(context, "sdl_window", None)
     if window is None:
         return False
-    window.fullscreen = _desktop_flag() if on else 0
+    try:
+        window.fullscreen = _desktop_flag() if on else False
+    except (TypeError, ValueError):
+        window.fullscreen = bool(on)
     save(on)
     return True
 

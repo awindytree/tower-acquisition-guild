@@ -5,6 +5,11 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.100.12: Fullscreen on tcod 19 (2026-11-26)
+- **Fixed the crash on F11 / Alt+Enter** (the user's crash.log: `WindowFlags` has no `FULLSCREEN_DESKTOP`). tcod 19 is built on SDL3, which dropped that flag: its plain `FULLSCREEN` already fills the screen at the desktop's resolution. `window._desktop_flag` now uses `FULLSCREEN_DESKTOP` where it exists (older tcod), else `FULLSCREEN`, else a plain yes.
+- **A window mode never stops the game:** if switching fails anyway, the reason goes in the messages instead of a crash (`main.switch_fullscreen`).
+- `test_fullscreen` also runs as SDL3 (only `FULLSCREEN`) and with no flags at all.
+
 ## 0.100.11: Fullscreen (2026-11-26)
 - **F11 or Alt+Enter switches fullscreen** (user). It uses the screen's own resolution ("desktop" fullscreen), so nothing flickers or changes mode, and the game fills the screen at the largest whole-number zoom that fits, as when you resize the window. It works anywhere, in any window, and doesn't stop a walk under way; Alt+Enter never counts as Enter in a menu.
 - The choice is remembered: the next start opens fullscreen if you left it that way (`saves/window.json`, ignored by git with the rest of `saves/`).

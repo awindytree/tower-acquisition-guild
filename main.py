@@ -81,6 +81,15 @@ def make_console(context: tcod.context.Context) -> tcod.console.Console:
     return context.new_console(MIN_COLUMNS, MIN_ROWS, magnification=zoom, order="F")
 
 
+def switch_fullscreen(context, engine, on=None) -> None:
+    """F11 / Alt+Enter (v0.100.11). If the window won't switch, say why in the messages rather than stop
+    the game (v0.100.12: the user's crash on tcod 19)."""
+    try:
+        window.toggle(context) if on is None else window.set_fullscreen(context, on)
+    except Exception as e:                # noqa: BLE001 - a window mode is never worth a crash
+        engine.log(f"Fullscreen didn't work here ({type(e).__name__}: {e}).")
+
+
 def main() -> None:
     # One sheet: CP437, then the letters it lacks (þ, Þ: game/font.py), in one charmap.
     tileset = tcod.tileset.load_tilesheet(FONT, 16, font.rows(), font.charmap(tcod.tileset.CHARMAP_CP437))
@@ -107,7 +116,7 @@ def main() -> None:
         sound.init(SAVES / "settings.json")
         # F11 or Alt+Enter switches fullscreen (v0.100.11); the last choice is kept in saves/window.json.
         if window.load(SAVES / "window.json"):
-            window.set_fullscreen(context, True)
+            switch_fullscreen(context, engine, True)
         engine.animate_walks = True       # watch auto-explore and travel-to a step at a time
         last = time.monotonic()
         while True:
@@ -125,7 +134,7 @@ def main() -> None:
                 # any key stops it (and is used up doing so).
                 events = list(tcod.event.wait(timeout=engine.WALK_STEP_DELAY))
                 if any(window.is_toggle(ev) for ev in events):
-                    window.toggle(context)        # (switching fullscreen doesn't stop the walk)
+                    switch_fullscreen(context, engine)   # (switching fullscreen doesn't stop the walk)
                     events = [ev for ev in events if not window.is_toggle(ev)]
                 if any(isinstance(ev, tcod.event.KeyDown) for ev in events):
                     engine.stop_walk()
@@ -143,7 +152,7 @@ def main() -> None:
                 last = time.monotonic()
             for event in events:
                 if window.is_toggle(event):
-                    window.toggle(context)
+                    switch_fullscreen(context, engine)
                     continue
                 engine.handle_action(action_for_event(event, engine))
 
