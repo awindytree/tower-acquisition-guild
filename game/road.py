@@ -108,7 +108,9 @@ def chance(engine) -> float:
     if journey.km(gm, p.x, p.y, (float(b[:, 0].mean()), float(b[:, 1].mean()))) < ch["quiet_km"]:
         return 0.0
     base = ch["road"] if on_road(engine) else ch["off_road"]
-    return base * min(ch["lure_cap"], 1 + worth(engine) / ch["lure"])
+    from game import talents                    # (an artifact that keeps people off: v0.101.0)
+    quiet = max(0.0, 1 - talents.total(p, "road_quiet") / 100)
+    return base * min(ch["lure_cap"], 1 + worth(engine) / ch["lure"]) * quiet
 
 
 def maybe(engine) -> None:

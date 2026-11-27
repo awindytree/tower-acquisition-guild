@@ -130,7 +130,9 @@ def gather(engine) -> bool:
         engine.log(f"The {k['name']} has been picked over. It'll grow back.")
         return False
     item_id, lo, hi = k["gives"]
-    n = engine.rng.randint(lo, hi) + (1 if fieldskills.rank(p, "harvesting") >= 3 else 0)
+    from game import talents
+    n = (engine.rng.randint(lo, hi) + (1 if fieldskills.rank(p, "harvesting") >= 3 else 0)
+         + talents.total(p, "forage"))                # (an artifact: v0.101.0)
     item = Item(engine.catalogue[item_id], n)
     if not p.inventory.add(item):
         engine.log("Your pack is full.")

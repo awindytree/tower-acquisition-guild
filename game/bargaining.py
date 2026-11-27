@@ -23,14 +23,22 @@ def pay(player, price: int) -> int:
     """What you pay for something listed at `price`."""
     if price <= 0:
         return price
-    return max(1, math.ceil(price * (1 - STEP * (rank(player) - 1)) - 1e-9))
+    return max(1, math.ceil(price * (1 - STEP * (rank(player) - 1) - _art(player)) - 1e-9))
 
 
 def paid(player, price: int) -> int:
     """What you're paid for something worth `price` to them."""
     if price <= 0:
         return price
-    return int(price * (1 + STEP * (rank(player) - 1)) + 1e-9)
+    return int(price * (1 + STEP * (rank(player) - 1) + _art(player)) + 1e-9)
+
+
+def _art(player) -> float:
+    """An artifact's "bargain" (% better prices both ways; v0.101.0)."""
+    if player is None or not hasattr(player, "artifact_slots"):
+        return 0.0
+    from game import artifacts
+    return artifacts.bonus_total(player, "bargain") / 100
 
 
 def practise(engine) -> None:

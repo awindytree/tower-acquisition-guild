@@ -231,6 +231,7 @@ def drain(player, amount: int) -> list[str]:
     w.charge = max(0, before - whole)
     low = int(w.capacity * LOW_FRACTION)
     if w.charge == 0:
+        player.gear_changed()                   # (their bonuses go with them: v0.101.0)
         return [f"Your {w.type.name} falls silent. Your artifacts go still."]
     if before > low >= w.charge:
         return [f"Your {w.type.name}'s hum is fading. It's running low on Jodebris."]
@@ -256,6 +257,14 @@ def carried(player) -> list[ItemType]:
 def light_bonus(player) -> int:
     """Extra sight and torchlight in dark places. Only the strongest light counts."""
     return max((t.properties.get("light", 0) for t in carried(player)), default=0)
+
+
+def bonus_total(player, key: str) -> int:
+    """A talent key from working artifacts carried: their "bonus" {key: n} (v0.101.0), read through
+    talents.total, so an artifact can do anything a talent or a trait does."""
+    if not hasattr(player, "artifact_slots"):
+        return 0
+    return sum(t.properties.get("bonus", {}).get(key, 0) for t in carried(player))
 
 
 def bonus(player, stat: str) -> int:
@@ -294,7 +303,14 @@ def use(engine, item) -> bool:
     if uses_left(player, t) <= 0:
         engine.log(f"The {t.name} is spent. It will recover before your next hunt.")
         return False
-    if effect == "heal":
+    cost = t.properties.get("hp_cost", 0)          # a use that takes blood (v0.101.0)
+    if cost and player.stats.hp <= cost:
+        engine.log(f"The {t.name} wants {cost} of your blood, and you haven't got it to give.")
+        return False
+    if effect in USES:
+        if not USES[effect](engine, t):
+            return False
+    elif effect == "heal":
         if player.stats.hp >= player.stats.max_hp:
             engine.log("You're not hurt.")
             return False
@@ -314,6 +330,9 @@ def use(engine, item) -> bool:
     else:
         engine.log(f"Nothing happens. (Unknown effect {effect!r}.)")
         return False
+    if cost:
+        player.stats.hp -= cost
+        engine.log(f"It takes its price: {cost} HP.")
     player.artifact_uses[t.id] = player.artifact_uses.get(t.id, 0) + 1
     from game import attunement
     attunement.practise(engine)                    # (v0.57.0)
@@ -321,6 +340,287 @@ def use(engine, item) -> bool:
     if left == 0:
         engine.log(f"The {t.name} falls still. It's spent for this hunt.")
     return True
+
+
+# ---- More uses (v0.101.0: the user's "we really need more artifacts"; every effect a draft) -----------
+# Each returns True if it happened (a use spent, a turn taken), False if it couldn't (nothing spent).
+def _monsters(engine, radius=None, seen=True):
+    p, gm = engine.player, engine.game_map
+    out = []
+    for m in gm.monsters:
+        if getattr(m, "burrowed", False) or m.hp <= 0:
+            continue
+        if seen and not engine.visible[m.x, m.y]:
+            continue
+        if radius is not None and (m.x - p.x) ** 2 + ((m.y - p.y) * 2) ** 2 > radius ** 2:
+            continue
+        out.append(m)
+    return out
+
+
+def _on_hunt(engine, t) -> bool:
+    if engine.hunt is None:
+        engine.log(f"The {t.name} does nothing here: it's made for the miasma.")
+        return False
+    return True
+
+
+def _blink(engine, t) -> bool:
+    """Step through the Jodebris to a spot you can see, as far from the creatures as it allows."""
+    if not _on_hunt(engine, t):
+        return False
+    p, gm = engine.player, engine.game_map
+    near = [m for m in _monsters(engine) if not m.type.ghost]
+    if not near:
+        engine.log(f"The {t.name} tugs at you, then lets go: there's nothing here to get away from.")
+        return False
+    reach = t.properties.get("reach", 6)
+    taken = {(m.x, m.y) for m in gm.monsters} | {(n.x, n.y) for n in gm.npcs}
+    best, score = None, -1.0
+    for x in range(p.x - reach, p.x + reach + 1):
+        for y in range(p.y - reach // 2 - 1, p.y + reach // 2 + 2):
+            if not gm.in_bounds(x, y) or not engine.visible[x, y] or not gm.is_walkable(x, y) or (x, y) in taken:
+                continue
+            if (x - p.x) ** 2 + ((y - p.y) * 2) ** 2 > reach ** 2 or gm.tile_at(x, y).symbol in "<>HG":
+                continue
+            d = min((m.x - x) ** 2 + ((m.y - y) * 2) ** 2 for m in near)
+            if d > score:
+                best, score = (x, y), d
+    if best is None or best == (p.x, p.y):
+        engine.log(f"The {t.name} finds nowhere better to put you.")
+        return False
+    p.x, p.y = best
+    engine.log(f"The {t.name} folds the air, and you're elsewhere.")
+    return True
+
+
+def _flash(engine, t) -> bool:
+    if not _on_hunt(engine, t):
+        return False
+    hit = _monsters(engine, t.properties.get("radius", 6))
+    if not hit:
+        engine.log(f"The {t.name} flares, white, at nothing.")
+        return True
+    turns = t.properties.get("turns", 2)
+    for m in hit:
+        m.staggered = max(m.staggered, turns)
+        m.awake = True
+    engine.log(f"The {t.name} flares white. {_count(hit)} reel{'s' if len(hit) == 1 else ''}, blinded.")
+    return True
+
+
+def _ward(engine, t) -> bool:
+    p = engine.player
+    p.ward, p.ward_turns = t.properties.get("ward", 3), t.properties.get("turns", 20)
+    engine.log(f"The {t.name} hums, and the air around you stiffens. (Armour +{p.ward} for {p.ward_turns} turns)")
+    return True
+
+
+def _cure(engine, t) -> bool:
+    p = engine.player
+    running = [i for i in getattr(p, "injuries", []) if getattr(i, "dot_left", 0) > 0]
+    venom = getattr(p, "venom", 0) > 0
+    if not running and not venom:
+        engine.log("You're not bleeding or poisoned.")
+        return False
+    for i in running:
+        i.dot_left = 0
+    p.venom = 0
+    engine.log(f"The {t.name} goes cold in your hand, and the bleeding and the poison stop.")
+    return True
+
+
+DIRS = ((0, "east"), (45, "north-east"), (90, "north"), (135, "north-west"), (180, "west"), (225, "south-west"),
+        (270, "south"), (315, "south-east"), (360, "east"))
+
+
+def _dir(dx, dy) -> str:
+    import math
+    a = math.degrees(math.atan2(-dy * 2, dx)) % 360
+    return min(DIRS, key=lambda d: abs(d[0] - a))[1]
+
+
+def _sense(engine, t) -> bool:
+    if not _on_hunt(engine, t):
+        return False
+    p = engine.player
+    all_ = [m for m in _monsters(engine, seen=False) if not m.type.ghost]
+    if not all_:
+        engine.log(f"The {t.name} listens. Nothing else lives in this area.")
+        return True
+    ways = {}
+    for m in all_:
+        ways.setdefault(_dir(m.x - p.x, m.y - p.y), []).append(m)
+    parts = [f"{len(v)} to the {k}" for k, v in sorted(ways.items(), key=lambda kv: -len(kv[1]))]
+    awake = sum(1 for m in all_ if m.awake)
+    engine.log(f"The {t.name} listens: {len(all_)} creature{'s' if len(all_) != 1 else ''} in this area, "
+               + ", ".join(parts) + (f". {awake} of them hunting you." if awake else ". None of them knows you're here."))
+    return True
+
+
+def _seek(engine, t) -> bool:
+    if not _on_hunt(engine, t):
+        return False
+    p, gm, c = engine.player, engine.game_map, engine.hunt.contract
+    want = c.artifact_id
+    if want and any(it.type.id == want for it in p.all_items()):
+        engine.log(f"The {t.name} points at your own pack.")
+        return True
+    here = [f for f in gm.items if f.item.type.id == want] if want else []
+    if here:
+        f = here[0]
+        steps = abs(f.x - p.x) + abs(f.y - p.y)
+        engine.log(f"The {t.name} swings and settles: what you came for lies {_dir(f.x - p.x, f.y - p.y)}, "
+                   f"about {steps} steps away.")
+    elif want:
+        engine.log(f"The {t.name} points down: what you came for lies deeper than this.")
+    else:
+        engine.log(f"The {t.name} spins and finds nothing it's been asked to find.")
+    return True
+
+
+def _home(engine, t) -> bool:
+    if not _on_hunt(engine, t):
+        return False
+    engine.screen = None
+    engine.log(f"The {t.name} pulls you back along the way you came, to the trail home.")
+    engine.travel(0, arrive_at="entry")
+    engine.reach_trail_home()
+    return True
+
+
+def _calm(engine, t) -> bool:
+    if not _on_hunt(engine, t):
+        return False
+    hit = [m for m in _monsters(engine, t.properties.get("radius", 8)) if m.awake and not m.bounty]
+    if not hit:
+        engine.log(f"The {t.name} sings low. Nothing near is hunting you.")
+        return True
+    for m in hit:
+        m.awake = False
+    engine.log(f"The {t.name} sings low, and {_count(hit)} forget{'s' if len(hit) == 1 else ''} you're here.")
+    return True
+
+
+def _smoke(engine, t) -> bool:
+    if not _on_hunt(engine, t):
+        return False
+    from game import throwing
+    throwing.make_smoke(engine.game_map, (engine.player.x, engine.player.y))
+    engine.log(f"The {t.name} breathes out a grey cloud all around you.")
+    return True
+
+
+def _burst(engine, t) -> bool:
+    if not _on_hunt(engine, t):
+        return False
+    import random as _r
+    p = engine.player
+    hit = [m for m in engine.game_map.monsters if abs(m.x - p.x) + abs(m.y - p.y) == 1
+           and not m.type.ghost and not getattr(m, "burrowed", False)]
+    if not hit:
+        engine.log(f"The {t.name} wants something beside you to strike.")
+        return False
+    lo, hi = t.properties.get("damage", [4, 8])
+    for m in hit:
+        n = engine.rng.randint(lo, hi) if hasattr(engine.rng, "randint") else _r.randint(lo, hi)
+        m.hp -= n
+        m.awake = True
+        engine.log(f"The {t.name} bursts against the {m.type.name}: {n} damage.")
+        if m.hp <= 0:
+            engine.slay(m)
+    return True
+
+
+def _recharge(engine, t) -> bool:
+    w = engine.player.windcatcher
+    if w is None:
+        engine.log(f"The {t.name} has nothing to pour itself into: equip a windcatcher.")
+        return False
+    if w.jodebris >= w.capacity:
+        engine.log(f"Your {w.type.name} is already full.")
+        return False
+    add = int(w.capacity * t.properties.get("share", 0.25))
+    w.charge = min(w.capacity, w.jodebris + add)
+    engine.player.gear_changed()
+    engine.log(f"The {t.name} empties itself into your {w.type.name}. It's {charge_words(w)}.")
+    return True
+
+
+def _unrest(engine, t) -> bool:
+    """Off a hunt: rest owed taken off at once (it counts its uses between hunts)."""
+    if engine.hunt is not None:
+        engine.log(f"The {t.name} won't settle out here.")
+        return False
+    from game import rest
+    p = engine.player
+    if not rest.owed(p):
+        engine.log("You owe no rest.")
+        return False
+    n = t.properties.get("pulses", 9)
+    p.rest_owed = max(0.0, rest.owed(p) - n)
+    engine.log(f"You hold the {t.name} and breathe with it, and it's as if you'd slept {rest.text(n, engine.calendar.per_cycle)}. "
+               f"{rest.owed_line(engine)}.")
+    return True
+
+
+def _count(ms) -> str:
+    if len(ms) == 1:
+        return f"The {ms[0].type.name}"
+    return f"{len(ms)} creatures"
+
+
+USES = {"blink": _blink, "flash": _flash, "ward": _ward, "cure": _cure, "sense": _sense, "seek": _seek,
+        "home": _home, "calm": _calm, "smoke": _smoke, "burst": _burst, "recharge": _recharge, "unrest": _unrest}
+
+USE_TEXT = {
+    "heal": lambda p: f"heal {p.get('heal', 0)}",
+    "reveal": lambda p: "map the area",
+    "blink": lambda p: f"step away from what's hunting you (up to {p.get('reach', 6)} cells)",
+    "flash": lambda p: f"blind what's near for {p.get('turns', 2)} turns",
+    "ward": lambda p: f"armour +{p.get('ward', 3)} for {p.get('turns', 20)} turns",
+    "cure": lambda p: "stop bleeding and poison",
+    "sense": lambda p: "count the area's creatures and where they are",
+    "seek": lambda p: "point to what you came for",
+    "home": lambda p: "back to the trail home, as a rope does",
+    "calm": lambda p: "make what's hunting you nearby forget you",
+    "smoke": lambda p: "a cloud of smoke around you",
+    "burst": lambda p: f"{p.get('damage', [4, 8])[0]}-{p.get('damage', [4, 8])[1]} damage to everything beside you",
+    "recharge": lambda p: f"refill your windcatcher by {round(p.get('share', 0.25) * 100)}%",
+    "unrest": lambda p: f"{p.get('pulses', 9)} Pulses of rest owed gone (off a hunt)",
+}
+
+BONUS_TEXT = {
+    "crit": "{:d}% chance of a telling blow", "sight": "Sight {:+d}", "carry": "Carrying room {:+d}",
+    "max_hp": "Max HP {:+d}", "heal_rate": "Heal {:+d} turns sooner", "injury_chance": "{:d}% fewer injuries",
+    "daze_resist": "Dazed {:+d} turns less", "wound": "Bleeding and poison {:d}% shorter",
+    "notice": "Creatures {:d}% less likely to notice you", "sneak_damage": "Unseen blows {:+d} damage",
+    "material_chance": "{:d}% more materials", "material_extra": "{:+d} more of each material",
+    "shards_found": "{:d}% more shards found", "xp": "{:d}% more experience", "practice_all": "Skills learned {:d}% faster",
+    "draught": "Draughts heal {:+d} more", "ration": "Rations heal {:+d}% more", "track": "Tracks last {:+d} turns longer",
+    "ranged_damage": "Shots {:+d} damage", "range": "Range {:+d}", "damage": "Melee damage {:+d}",
+    "faints": "{:+d} faint allowed", "drain": "Jodebris drains {:d}% slower", "extra_uses": "Artifacts {:+d} use a hunt",
+    "identify": "Identify {:+d} rarity higher", "bounty_pay": "Bounties pay {:d}% more", "request_pay": "Requests pay {:d}% more",
+    "low_hp_damage": "Below half HP, {:+d} damage", "solo_accuracy": "Against one creature alone, accuracy {:+d}",
+    "second_wind": "Once a hunt, at 0 HP, stand back up", "brisering_steps": "Brisering travel {:d}% quicker",
+    "rest_rate": "Rest off a hunt {:d}% quicker", "bargain": "Prices {:d}% better, buying and selling",
+    "road_quiet": "{:d}% fewer meetings on the Brisering", "forage": "{:+d} more from each foraging spot",
+    "accuracy": "Accuracy {:+d}", "evasion": "Evasion {:+d}", "armor": "Armour {:+d}", "heal_on_kill": "Heal {:+d} on a kill",
+    "attr:physicality": "Physicality {:+d}", "attr:celerity": "Celerity {:+d}", "attr:fortitude": "Fortitude {:+d}",
+    "attr:acumen": "Acumen {:+d}", "attr:tenacity": "Tenacity {:+d}",
+}
+
+
+def bonus_words(key: str, n: int) -> str:
+    """"Max HP +5", "Creatures 20% less likely to notice you"; a trade-off reads as one ("Sight -2")."""
+    if key == "notice" and n < 0:
+        return f"Creatures {-n}% more likely to notice you"
+    if key == "drain" and n < 0:
+        return f"Jodebris drains {-n}% faster"
+    if key == "injury_chance" and n < 0:
+        return f"{-n}% more injuries"
+    fmt = BONUS_TEXT.get(key, key.replace("_", " ") + " {:+d}")
+    return fmt.format(n) if "{" in fmt else fmt
 
 
 def effect_text(t: ItemType) -> str:
@@ -335,17 +635,21 @@ def effect_text(t: ItemType) -> str:
     for stat, label in (("armor", "Armour"), ("accuracy", "Accuracy"), ("evasion", "Evasion")):
         if stat in p:
             parts.append(f"{label} +{p[stat]}")
+    for key, n in p.get("bonus", {}).items():    # (v0.101.0)
+        parts.append(bonus_words(key, n))
     if p.get("effect"):                          # anything else it does, in words (v0.98.0: fishing artifacts)
         parts.append(p["effect"])
     lasting = bool(parts)
-    if p.get("use") == "heal":
-        parts.append(f"Use: heal {p.get('heal', 0)}, {p.get('uses_per_hunt', 1)}/hunt")
-    elif p.get("use") == "reveal":
-        parts.append(f"Use: map the area, {p.get('uses_per_hunt', 1)}/hunt")
+    if p.get("use") in USE_TEXT:
+        each = (" between hunts" if p.get("uses_per_hunt", 1) > 1 else ", once between hunts") if p["use"] == "unrest" else "/hunt"
+        n = "" if p["use"] == "unrest" and p.get("uses_per_hunt", 1) == 1 else f", {p.get('uses_per_hunt', 1)}"
+        parts.append(f"Use: {USE_TEXT[p['use']](p)}{n}{each}" + (f", costing {p['hp_cost']} HP" if p.get("hp_cost") else ""))
     text = ". ".join(parts) + "." if parts else ""
-    if p.get("use"):
-        text += " Its uses carry their own Jodebris" + (": no windcatcher needed for them." if not lasting
-                                                       else "; its lasting effects need a windcatcher in the miasma.")
+    if p.get("use") == "unrest" and not lasting:
+        pass                                     # (off a hunt: no Jodebris to speak of)
+    elif p.get("use"):
+        text += (" Its uses carry their own Jodebris: no windcatcher needed for them." if not lasting
+                 else " Its uses need no windcatcher; the rest needs one in the miasma.")
     elif lasting:
         text += " Needs a windcatcher in the miasma."
     return text

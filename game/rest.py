@@ -71,6 +71,8 @@ def passed(engine, pulses: int, rate: float = NATURAL) -> None:
     if engine.hunt is not None or p is None:
         return
     if owed(p):
+        from game import talents                # (an artifact can quicken rest: v0.101.0)
+        rate *= 1 + talents.total(p, "rest_rate") / 100
         p.rest_owed = max(0.0, owed(p) - pulses * rate)
     if p.stats.hp < p.stats.max_hp:
         p.stats.hp = min(p.stats.max_hp, p.stats.hp + max(1, int(p.stats.max_hp * HEAL_PER_PULSE)) * pulses)

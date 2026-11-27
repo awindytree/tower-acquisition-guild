@@ -4,5 +4,9 @@
   "brass": {"name": "broken brass device", "description": "Old metalwork, bent and seized. It's a Tower Artifact, but you can't tell what it was."},
   "bell":  {"name": "broken ringing thing", "description": "Metal that should ring and doesn't. It's a Tower Artifact, but you can't tell what it was."},
   "stone": {"name": "broken stone token", "description": "Carved stone, worn and split. It's a Tower Artifact, but you can't tell what it was."},
-  "coil":  {"name": "broken twisted coil", "description": "A coiled piece of metal, warm to the touch. It's a Tower Artifact, but you can't tell what it was."}
+  "coil":  {"name": "broken twisted coil", "description": "A coiled piece of metal, warm to the touch. It's a Tower Artifact, but you can't tell what it was."},
+  "bone": {"name": "broken bone charm", "description": "Carved bone, cracked and yellowed. It's a Tower Artifact, but you can't tell what it was."},
+  "crystal": {"name": "broken crystal shard", "description": "Clouded crystal, chipped and dull. It's a Tower Artifact, but you can't tell what it was."},
+  "cage": {"name": "broken little cage", "description": "Bent bars around nothing. It's a Tower Artifact, but you can't tell what it was."},
+  "wheel": {"name": "broken metal wheel", "description": "A wheel or a cog that won't turn. It's a Tower Artifact, but you can't tell what it was."}
 }

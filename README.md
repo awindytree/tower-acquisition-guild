@@ -530,6 +530,21 @@ slots, so they don't take bag room. Equipped artifacts give
 more light in dark places, armour, accuracy or evasion, or can be used (heal,
 or map the area you're in). Used ones recover before each hunt.
 
+**Since v0.101.0 there are 63 kinds** (50 new, all placeholders). A lasting
+effect can now be anything a talent or a gear trait does (sight, telling blows,
+max HP, carrying room, healing sooner, more materials or shards or experience,
+artifacts with more uses...), and some work off a hunt too: better prices,
+quicker rest, quicker travel and fewer meetings on the Brisering, more from
+foraging, fish biting more. **Some cost you:** a dial that ticks so loud
+creatures notice you, coils that eat Jodebris, a cup that drinks your blood.
+**New uses:** step away from what's hunting you, a white flash that blinds,
+a ward of armour, stop bleeding and poison, hear what's in the area, point to
+what you came for, back to the trail home, make what's hunting you forget you,
+a cloud of smoke, a burst against everything beside you, refill your
+windcatcher, and (off a hunt) shed rest you owe. One ward costs blood to use.
+Four new looks for broken ones join the coil: bone charms, crystal shards,
+little cages and metal wheels.
+
 **The guild stash** is a chest in the guild hall's middle back room. Walk into
 it to move things between your pack and the stash (60 slots; a stack is one
 slot). It belongs to the hall, not to you: when a Hunter dies, the next one

@@ -5,6 +5,18 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.101.0: Fifty more artifacts (2026-11-26)
+The user, from recent playtests: "we really need more artifacts, man." They chose about 50, every kind of effect, all drafted by the assistant as placeholders.
+- **50 new artifacts** (63 kinds now, besides windcatchers): 12 Common, 12 Uncommon, 10 Rare, 8 Very Rare, 6 Legendary and 2 Uniques (the Undimming, the Turning). Each has a broken form with its own look and a working one. Names, looks, effects and prices are drafts.
+- **Four new looks** for broken artifacts, joining the user's twisted coil (now used): bone charms, crystal shards, little cages, metal wheels.
+- **Lasting bonuses:** a working artifact's `bonus` {key: n} feeds `talents.total`, so it can do anything a talent or a gear trait does (`artifacts.bonus_total`). Equipping or taking one off, the power coming or going (entering the miasma, a windcatcher running dry) refreshes max HP and carrying room.
+- **New keys, read for artifacts:** `rest_rate` (rest off a hunt), `bargain` (prices both ways), `road_quiet` (meetings on the Brisering's roads), `forage` (more from a foraging spot).
+- **Trade-offs:** negative keys work (`notice` -25: creatures notice you more; `drain` -50: Jodebris drains faster; `max_hp` -10).
+- **New uses** (`artifacts.USES`): blink (to the visible spot farthest from what's hunting you), flash (stagger what's near), ward (armour for some turns: `Player.ward`), cure (bleeding and poison), sense (count the area's creatures and their directions), seek (where the prize lies, or that it's deeper), home (to the trail home, as a rope), calm (make awake creatures nearby forget you), smoke, burst (damage beside you), recharge (refill a windcatcher by a share), unrest (off a hunt: rest owed taken off at once). `hp_cost` makes a use cost HP.
+- **Effect text** says all of it in words (`bonus_words`, `USE_TEXT`), and shorter: "Its uses need no windcatcher; the rest needs one in the miasma."
+- **Fixed in passing:** a marked swimmer (a kill bounty's eel) could be put on dry land when every water cell in the deepest area was taken; it now takes one of those creatures' places.
+- Tests: `test_artifacts2` (89 suites); `test_artifacts` counts 67 broken artifacts; four descriptions shortened to fit the smallest window.
+
 ## 0.100.14: A shorter travel-to list in the city (2026-11-26)
 - **The guild hall is one entry** (user): "the Tower Acquisition Guild". The stash, the clerk, the trainer, the boards, the Hunters at home and anyone else inside the hall (or the Cartographer's Study) aren't listed on their own any more.
 - **No near-duplicates:** a place within 3 steps of one already listed isn't listed again. Places come first (the Guild, your home, the Wayfinder, statues, gates, the stables), so someone standing by a place is reached by going there.

@@ -118,6 +118,8 @@ class Player(Entity):
     coil_used: bool = False          # Quick coil (this area)
     kick_used: bool = False          # Kicking (this area)
     bracing: int = 0                 # Bracing: armour against a creature that's just charged
+    ward: int = 0                    # an artifact's ward: armour for ward_turns more turns (v0.101.0; not saved)
+    ward_turns: int = 0
     in_light: bool = False           # Brimmed: in a lit place
     venom: int = 0                   # a Venomous creature's poison: turns left (v0.83.0)
     stepped_now: bool = False        # this action was a step (Braced: did you step the turn before?)
@@ -216,6 +218,7 @@ class Player(Entity):
             slot = self.artifact_slots.index(None)
         old = self.artifact_slots[slot]
         self.artifact_slots[slot] = self.inventory.remove(index)
+        self.gear_changed()                          # (artifact bonuses: max HP, carrying; v0.101.0)
         if old is not None:
             self.inventory.add(old)                  # (the new one's place in the bag is free)
             return True, f"You swap the {old.type.name} for the {item.type.name}."
@@ -229,6 +232,7 @@ class Player(Entity):
         if not self.inventory.add(item):
             return False, f"You have no room in your pack for the {item.type.name}."
         self.artifact_slots[slot] = None
+        self.gear_changed()
         return True, f"You take off the {item.type.name}."
 
     @property
@@ -319,6 +323,11 @@ class Player(Entity):
             self.meal_turns -= 1
             if not self.stats.is_dead:
                 self.stats.heal(self.meal_heal)
+        if self.ward_turns > 0:                       # an artifact's ward (v0.101.0)
+            self.ward_turns -= 1
+            if self.ward_turns == 0:
+                self.ward = 0
+                messages.append("The ward around you fades.")
         if self.torch_turns > 0:
             self.torch_turns -= 1
             if self.torch_turns == 0:
@@ -388,7 +397,8 @@ class Player(Entity):
         from game import talents
         return (gear.armour_total(self) + artifacts.bonus(self, "armor") + talents.total(self, "armor")
                 + (0 if self.stepped_now else talents.total(self, "still_armour"))         # Braced (legs)
-                + self.bracing)                                                                # Bracing
+                + self.bracing                                                                 # Bracing
+                + (self.ward if self.ward_turns > 0 else 0))                                   # a ward (v0.101.0)
 
     @property
     def is_dead(self) -> bool:

@@ -1330,6 +1330,7 @@ class Engine:
         p_ = self.player
         p_.area_kills, p_.coil_used, p_.kick_used, p_.streak = 0, False, False, 0   # (once-an-area traits)
         p_.vault_used = False                                                       # (Pole-vault, v0.86.0)
+        p_.gear_changed()             # (artifacts' bonuses come and go with their power: v0.101.0)
         if not self.player.in_miasma:
             from game.artifacts import refill
             refill(self.player)  # back in the Brisering: windcatchers fill up

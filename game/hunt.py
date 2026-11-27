@@ -280,6 +280,13 @@ class Hunt:
                     if self.monster_types[want].swims:           # a swimmer waits in the water
                         wet = sorted((x, y) for y, row in enumerate(rows) for x, ch in enumerate(row) if ch == "~"
                                      and not any((m.x, m.y) == (x, y) for m in game_map.monsters))
+                        if not wet:    # every water cell taken: the marked one takes another's place (v0.101.0)
+                            held = sorted((m.x, m.y) for m in game_map.monsters if not m.bounty
+                                          and rows[m.y][m.x] == "~")
+                            if held:
+                                spot = rng.choice(held)
+                                game_map.monsters = [m for m in game_map.monsters if (m.x, m.y) != spot]
+                                wet = [spot]
                         if wet:
                             bx, by = rng.choice(wet)
                     m = Monster.spawn(self.monster_types[want], bx, by)

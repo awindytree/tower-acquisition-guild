@@ -700,5 +700,505 @@
     "name": "flask of fish broth", "plural": "flasks of fish broth", "glyph": "♥", "color": [170, 200, 190], "kind": "consumable",
     "description": "Fish bones and healing herbs boiled down. It heals well, and stops bleeding and poison.",
     "value": 14, "stackable": true, "properties": {"heal": 12, "cures": true}
+  },
+  "tarnished_thimble": {
+    "name": "tarnished thimble", "kind": "artifact", "rarity": "common", "appearance": "brass",
+    "description": "A thimble of dark brass, pinched flat on one side.",
+    "value": 60, "repairs_to": "thimble_of_plenty"
+  },
+  "thimble_of_plenty": {
+    "name": "thimble of plenty", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "The thimble, round again. Whatever you gather, it seems to find a little more.",
+    "value": 60, "properties": {"bonus": {"forage": 1}}
+  },
+  "chipped_whistle": {
+    "name": "chipped whistle", "kind": "artifact", "rarity": "common", "appearance": "bone",
+    "description": "A small bone whistle with a split mouthpiece. It makes no sound at all.",
+    "value": 70, "repairs_to": "hush_whistle"
+  },
+  "hush_whistle": {
+    "name": "hush whistle", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "It still makes no sound you can hear. People on the roads seem to hear something, and keep away.",
+    "value": 70, "properties": {"bonus": {"road_quiet": 30}}
+  },
+  "bent_needle": {
+    "name": "bent compass needle", "kind": "artifact", "rarity": "common", "appearance": "brass",
+    "description": "A long brass needle, bent double, that won't lie still in the hand.",
+    "value": 75, "repairs_to": "homing_needle"
+  },
+  "homing_needle": {
+    "name": "homing needle", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "Straightened, it swings to whatever you came out here for.",
+    "value": 75, "properties": {"use": "seek", "uses_per_hunt": 2}
+  },
+  "cracked_beads": {
+    "name": "cracked bead string", "kind": "artifact", "rarity": "common", "appearance": "stone",
+    "description": "A loop of stone beads, half of them split.",
+    "value": 65, "repairs_to": "counting_beads"
+  },
+  "counting_beads": {
+    "name": "counting beads", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "Mended, they click under your thumb as you haggle. Traders find you harder to cheat.",
+    "value": 65, "properties": {"bonus": {"bargain": 5}}
+  },
+  "dented_glim": {
+    "name": "dented hand-lamp", "kind": "artifact", "rarity": "common", "appearance": "brass",
+    "description": "A palm-sized lamp with no wick and a dent in its side.",
+    "value": 70, "repairs_to": "miners_glim"
+  },
+  "miners_glim": {
+    "name": "miner's glim", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "It glows without a flame, low and steady, and shows the marks things leave behind.",
+    "value": 70, "properties": {"light": 3, "bonus": {"track": 10}}
+  },
+  "snapped_reed": {
+    "name": "snapped tuning reed", "kind": "artifact", "rarity": "common", "appearance": "bell",
+    "description": "A thin reed of metal, snapped near the root.",
+    "value": 60, "repairs_to": "warning_reed"
+  },
+  "warning_reed": {
+    "name": "warning reed", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "Whole again, it buzzes against your collarbone when something bellows, and steadies you.",
+    "value": 60, "properties": {"bonus": {"daze_resist": 2}}
+  },
+  "clouded_bead": {
+    "name": "clouded bead", "kind": "artifact", "rarity": "common", "appearance": "glass",
+    "description": "A marble of milky glass with a crack curled through it.",
+    "value": 80, "repairs_to": "sleepers_bead"
+  },
+  "sleepers_bead": {
+    "name": "sleeper's bead", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "Clear now, with something slow turning inside it.",
+    "value": 80, "properties": {"use": "unrest", "pulses": 9, "uses_per_hunt": 1}
+  },
+  "split_charm_bone": {
+    "name": "split charm-bone", "kind": "artifact", "rarity": "common", "appearance": "bone",
+    "description": "A knuckle-bone carved with a face, split down the middle.",
+    "value": 70, "repairs_to": "luck_bone"
+  },
+  "luck_bone": {
+    "name": "luck bone", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "Whole, the face smiles. Loose shards seem to turn up where you look.",
+    "value": 70, "properties": {"bonus": {"shards_found": 15}}
+  },
+  "cracked_spindle": {
+    "name": "cracked spindle", "kind": "artifact", "rarity": "common", "appearance": "coil",
+    "description": "A spindle of wound metal, cracked, still faintly warm.",
+    "value": 75, "repairs_to": "warm_coil"
+  },
+  "warm_coil": {
+    "name": "warm coil", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "It's warm against the skin, and small hurts close a little sooner.",
+    "value": 75, "properties": {"bonus": {"heal_rate": 2}}
+  },
+  "warped_ring": {
+    "name": "warped ring", "kind": "artifact", "rarity": "common", "appearance": "coil",
+    "description": "A ring of twisted wire, pulled out of true.",
+    "value": 70, "repairs_to": "menders_ring"
+  },
+  "menders_ring": {
+    "name": "mender's ring", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "True again, it tightens when you bleed, and the bleeding doesn't last.",
+    "value": 70, "properties": {"bonus": {"wound": 25}}
+  },
+  "broken_pocket_cage": {
+    "name": "broken pocket-cage", "kind": "artifact", "rarity": "common", "appearance": "cage",
+    "description": "A cage no bigger than a fist, its bars sprung.",
+    "value": 80, "repairs_to": "cricket_cage"
+  },
+  "cricket_cage": {
+    "name": "cricket cage", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "Something chirps inside it that isn't there. Your footsteps get lost in the sound.",
+    "value": 80, "properties": {"bonus": {"notice": 10}}
+  },
+  "scratched_chip": {
+    "name": "scratched crystal chip", "kind": "artifact", "rarity": "common", "appearance": "crystal",
+    "description": "A flake of crystal, scratched to cloudiness.",
+    "value": 85, "repairs_to": "spark_chip"
+  },
+  "spark_chip": {
+    "name": "spark chip", "kind": "artifact", "rarity": "common", "working": true,
+    "description": "Polished, it holds a little light. Squeezed, it lets it all go at once.",
+    "value": 85, "properties": {"use": "flash", "radius": 4, "turns": 1, "uses_per_hunt": 1}
+  },
+  "stopped_heart_clock": {
+    "name": "stopped heart-clock", "kind": "artifact", "rarity": "uncommon", "appearance": "brass",
+    "description": "A brass clock the size of a heart. Its hands won't move.",
+    "value": 160, "repairs_to": "quickening_clock"
+  },
+  "quickening_clock": {
+    "name": "quickening clock", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "It ticks fast, and you seem to learn as fast as it ticks.",
+    "value": 160, "properties": {"bonus": {"practice_all": 10}}
+  },
+  "split_horn": {
+    "name": "split horn", "kind": "artifact", "rarity": "uncommon", "appearance": "bone",
+    "description": "A short curled horn with a crack along its length.",
+    "value": 150, "repairs_to": "flayers_horn"
+  },
+  "flayers_horn": {
+    "name": "flayer's horn", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "Mended, its edge finds the parts worth keeping on anything you bring down.",
+    "value": 150, "properties": {"bonus": {"material_chance": 15}}
+  },
+  "clouded_vial": {
+    "name": "clouded vial", "kind": "artifact", "rarity": "uncommon", "appearance": "glass",
+    "description": "A stoppered vial, empty, its glass gone milky.",
+    "value": 170, "repairs_to": "antivenom_vial"
+  },
+  "antivenom_vial": {
+    "name": "antivenom vial", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "Clear again, and cold. Pressed to a wound, it stops the bleeding and draws the poison.",
+    "value": 170, "properties": {"use": "cure", "uses_per_hunt": 2}
+  },
+  "bent_key": {
+    "name": "bent key", "kind": "artifact", "rarity": "uncommon", "appearance": "brass",
+    "description": "A heavy key, bent at the shank, for no lock you've seen.",
+    "value": 180, "repairs_to": "ward_key"
+  },
+  "ward_key": {
+    "name": "ward key", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "Turned in the air, it locks something around you for a while.",
+    "value": 180, "properties": {"use": "ward", "ward": 3, "turns": 20, "uses_per_hunt": 1}
+  },
+  "cracked_mirror_shard": {
+    "name": "cracked mirror-shard", "kind": "artifact", "rarity": "uncommon", "appearance": "glass",
+    "description": "A sliver of mirror, crazed with cracks.",
+    "value": 190, "repairs_to": "shimmer_shard"
+  },
+  "shimmer_shard": {
+    "name": "shimmer shard", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "Whole, it bends the light around you a little, so you're hard to see and harder to hit.",
+    "value": 190, "properties": {"bonus": {"evasion": 1, "notice": 10}}
+  },
+  "rusted_spur": {
+    "name": "rusted spur", "kind": "artifact", "rarity": "uncommon", "appearance": "coil",
+    "description": "A rider's spur, its rowel rusted solid.",
+    "value": 140, "repairs_to": "road_spur"
+  },
+  "road_spur": {
+    "name": "road spur", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "Its rowel spins at a touch. Out on the Brisering, the miles go by quicker.",
+    "value": 140, "properties": {"bonus": {"brisering_steps": 15}}
+  },
+  "broken_birdcage": {
+    "name": "broken birdcage", "kind": "artifact", "rarity": "uncommon", "appearance": "cage",
+    "description": "A tiny birdcage with its door torn off.",
+    "value": 170, "repairs_to": "listening_cage"
+  },
+  "listening_cage": {
+    "name": "listening cage", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "Something in it listens for you, and tells you what's out there and where.",
+    "value": 170, "properties": {"use": "sense", "uses_per_hunt": 2}
+  },
+  "crumbled_seal": {
+    "name": "crumbled seal", "kind": "artifact", "rarity": "uncommon", "appearance": "stone",
+    "description": "A stone seal for pressing wax, its face crumbled away.",
+    "value": 160, "repairs_to": "merchants_seal"
+  },
+  "merchants_seal": {
+    "name": "merchant's seal", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "Its face restored, it makes every bargain you strike a little more yours.",
+    "value": 160, "properties": {"bonus": {"bargain": 10}}
+  },
+  "chipped_crystal_eye": {
+    "name": "chipped crystal eye", "kind": "artifact", "rarity": "uncommon", "appearance": "crystal",
+    "description": "A crystal ball the size of an eye, chipped at the pupil.",
+    "value": 200, "repairs_to": "keen_eye"
+  },
+  "keen_eye": {
+    "name": "keen eye", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "It sees a little further than you do, and shows you where to strike.",
+    "value": 200, "properties": {"bonus": {"sight": 2, "crit": 3}}
+  },
+  "snapped_spoke": {
+    "name": "snapped wheel-spoke", "kind": "artifact", "rarity": "uncommon", "appearance": "wheel",
+    "description": "One spoke of a small wheel, snapped at both ends.",
+    "value": 180, "repairs_to": "turning_wheel"
+  },
+  "turning_wheel": {
+    "name": "turning wheel", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "Whole, the little wheel turns on its own. Everything you do teaches you a little more.",
+    "value": 180, "properties": {"bonus": {"xp": 10}}
+  },
+  "split_drum_skin": {
+    "name": "split drum-skin", "kind": "artifact", "rarity": "uncommon", "appearance": "bell",
+    "description": "A hand drum whose skin has split.",
+    "value": 190, "repairs_to": "hush_drum"
+  },
+  "hush_drum": {
+    "name": "hush drum", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "Its beat is slow and low, and what's hunting you nearby loses interest.",
+    "value": 190, "properties": {"use": "calm", "radius": 6, "uses_per_hunt": 1}
+  },
+  "drowned_chime": {
+    "name": "drowned chime", "kind": "artifact", "rarity": "uncommon", "appearance": "bell",
+    "description": "A chime green with water-rot. It sounds like it's underwater.",
+    "value": 130, "repairs_to": "fishers_chime"
+  },
+  "fishers_chime": {
+    "name": "fisher's chime", "kind": "artifact", "rarity": "uncommon", "working": true,
+    "description": "It still sounds underwater. The fish seem to like it.",
+    "value": 130, "properties": {"fish_bite": 20, "effect": "Fishing: fish bite 20% more often"}
+  },
+  "cracked_sandglass": {
+    "name": "cracked sandglass", "kind": "artifact", "rarity": "rare", "appearance": "glass",
+    "description": "An hourglass with a cracked bulb and no sand.",
+    "value": 300, "repairs_to": "slow_sandglass"
+  },
+  "slow_sandglass": {
+    "name": "slow sandglass", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "Its sand runs slow. Off a hunt, rest comes half again as fast.",
+    "value": 300, "properties": {"bonus": {"rest_rate": 50}}
+  },
+  "knot_of_wire": {
+    "name": "knot of wire", "kind": "artifact", "rarity": "rare", "appearance": "coil",
+    "description": "A tangled knot of copper-coloured wire, burned black in places.",
+    "value": 340, "repairs_to": "spark_coil"
+  },
+  "spark_coil": {
+    "name": "spark coil", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "Untangled, it hums. Touch it to something beside you and it bursts.",
+    "value": 340, "properties": {"use": "burst", "damage": [5, 10], "uses_per_hunt": 2}
+  },
+  "hollow_bone_flute": {
+    "name": "hollow bone flute", "kind": "artifact", "rarity": "rare", "appearance": "bone",
+    "description": "A flute of hollow bone with its holes cracked through.",
+    "value": 360, "repairs_to": "returning_flute"
+  },
+  "returning_flute": {
+    "name": "returning flute", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "Play it, and the way you came carries you back to the trail home.",
+    "value": 360, "properties": {"use": "home", "uses_per_hunt": 1}
+  },
+  "seized_pocket_gear": {
+    "name": "seized pocket-gear", "kind": "artifact", "rarity": "rare", "appearance": "wheel",
+    "description": "A cog with its teeth rusted together.",
+    "value": 380, "repairs_to": "tinkers_gear"
+  },
+  "tinkers_gear": {
+    "name": "tinker's gear", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "It turns your other artifacts a little further: each has one more use a hunt.",
+    "value": 380, "properties": {"bonus": {"extra_uses": 1}}
+  },
+  "cracked_lodestone": {
+    "name": "cracked lodestone", "kind": "artifact", "rarity": "rare", "appearance": "stone",
+    "description": "A dark stone that should pull at iron and doesn't.",
+    "value": 320, "repairs_to": "lodestone_heart"
+  },
+  "lodestone_heart": {
+    "name": "lodestone heart", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "It pulls again, at your own blood. You hold together better.",
+    "value": 320, "properties": {"bonus": {"max_hp": 8}}
+  },
+  "dimmed_crystal": {
+    "name": "dimmed crystal", "kind": "artifact", "rarity": "rare", "appearance": "crystal",
+    "description": "A crystal gone grey and dull all through.",
+    "value": 300, "repairs_to": "smoke_crystal"
+  },
+  "smoke_crystal": {
+    "name": "smoke crystal", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "Grey still, but alive. Crushed in the hand, it breathes out a cloud and reforms.",
+    "value": 300, "properties": {"use": "smoke", "uses_per_hunt": 2}
+  },
+  "bent_dial": {
+    "name": "bent dial", "kind": "artifact", "rarity": "rare", "appearance": "brass",
+    "description": "A brass dial with a bent hand and no numbers.",
+    "value": 360, "repairs_to": "hunters_dial"
+  },
+  "hunters_dial": {
+    "name": "hunter's dial", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "It ticks loudly, always. Your blows land truer and harder, and everything hears you coming.",
+    "value": 360, "properties": {"bonus": {"crit": 5, "damage": 1, "notice": -15}}
+  },
+  "broken_iron_cage": {
+    "name": "broken iron cage", "kind": "artifact", "rarity": "rare", "appearance": "cage",
+    "description": "A cage of black iron the size of a lantern, empty, its bars bent outward.",
+    "value": 420, "repairs_to": "breath_cage"
+  },
+  "breath_cage": {
+    "name": "breath cage", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "Something is kept in it now: a breath. Once a hunt, when you fall, it gives it back.",
+    "value": 420, "properties": {"bonus": {"second_wind": 1}}
+  },
+  "split_glass_bead": {
+    "name": "split glass bead", "kind": "artifact", "rarity": "rare", "appearance": "glass",
+    "description": "Two halves of a glass bead that won't fit back together.",
+    "value": 400, "repairs_to": "blink_bead"
+  },
+  "blink_bead": {
+    "name": "blink bead", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "Whole, it folds the air. You step through it, away from what's hunting you.",
+    "value": 400, "properties": {"use": "blink", "reach": 6, "uses_per_hunt": 1}
+  },
+  "ruined_net_weight": {
+    "name": "ruined net-weight", "kind": "artifact", "rarity": "rare", "appearance": "stone",
+    "description": "A stone weight for a net, split around its hole.",
+    "value": 260, "repairs_to": "deepwater_weight"
+  },
+  "deepwater_weight": {
+    "name": "deepwater weight", "kind": "artifact", "rarity": "rare", "working": true,
+    "description": "It sinks like nothing else. A line rigged with it holds and gives like a better one.",
+    "value": 260, "properties": {"fish_capacity": 15, "fish_drag": 15, "effect": "Fishing: +15 line and +15% drag"}
+  },
+  "shattered_sun_disc": {
+    "name": "shattered sun-disc", "kind": "artifact", "rarity": "very_rare", "appearance": "glass",
+    "description": "Pieces of a gold-glass disc that once caught the light.",
+    "value": 900, "repairs_to": "sun_disc"
+  },
+  "sun_disc": {
+    "name": "sun-disc", "kind": "artifact", "rarity": "very_rare", "working": true,
+    "description": "It holds more light than this world has ever had.",
+    "value": 900, "properties": {"light": 10, "bonus": {"sight": 2}}
+  },
+  "broken_blood_cup": {
+    "name": "broken blood-cup", "kind": "artifact", "rarity": "very_rare", "appearance": "stone",
+    "description": "A shallow stone cup, broken, stained dark inside.",
+    "value": 800, "repairs_to": "thirsting_cup"
+  },
+  "thirsting_cup": {
+    "name": "thirsting cup", "kind": "artifact", "rarity": "very_rare", "working": true,
+    "description": "Whole, it drinks from what you kill and gives it to you. It drinks from you too.",
+    "value": 800, "properties": {"bonus": {"heal_on_kill": 3, "max_hp": -5}}
+  },
+  "snapped_weathervane": {
+    "name": "snapped weathervane", "kind": "artifact", "rarity": "very_rare", "appearance": "wheel",
+    "description": "A small weathervane with its arrow snapped off.",
+    "value": 850, "repairs_to": "windmill"
+  },
+  "windmill": {
+    "name": "windmill", "kind": "artifact", "rarity": "very_rare", "working": true,
+    "description": "It turns in winds you can't feel, and pours what it catches into your windcatcher.",
+    "value": 850, "properties": {"use": "recharge", "share": 0.3, "uses_per_hunt": 1}
+  },
+  "ruined_glass_cage": {
+    "name": "ruined glass cage", "kind": "artifact", "rarity": "very_rare", "appearance": "cage",
+    "description": "A cage of glass bars, most of them broken.",
+    "value": 780, "repairs_to": "hollow_lantern"
+  },
+  "hollow_lantern": {
+    "name": "hollow lantern", "kind": "artifact", "rarity": "very_rare", "working": true,
+    "description": "Mended, it holds more than it should. So does your pack, somehow.",
+    "value": 780, "properties": {"bonus": {"carry": 3}}
+  },
+  "split_twin_coils": {
+    "name": "split twin coils", "kind": "artifact", "rarity": "very_rare", "appearance": "coil",
+    "description": "Two coils that were once wound together, pulled apart.",
+    "value": 820, "repairs_to": "hungry_coils"
+  },
+  "hungry_coils": {
+    "name": "hungry coils", "kind": "artifact", "rarity": "very_rare", "working": true,
+    "description": "Wound together again, they make you strike harder and surer, and they eat Jodebris.",
+    "value": 820, "properties": {"bonus": {"damage": 2, "accuracy": 1, "drain": -50}}
+  },
+  "cracked_seer_stone": {
+    "name": "cracked seer-stone", "kind": "artifact", "rarity": "very_rare", "appearance": "crystal",
+    "description": "A palm-stone of crystal with a crack across its face.",
+    "value": 880, "repairs_to": "seer_stone"
+  },
+  "seer_stone": {
+    "name": "seer-stone", "kind": "artifact", "rarity": "very_rare", "working": true,
+    "description": "It shows you what things were, and where you are.",
+    "value": 880, "properties": {"bonus": {"identify": 1}, "use": "reveal", "uses_per_hunt": 1}
+  },
+  "fractured_warbell": {
+    "name": "fractured warbell", "kind": "artifact", "rarity": "very_rare", "appearance": "bell",
+    "description": "A big bell, fractured, too heavy for its size.",
+    "value": 760, "repairs_to": "warbell"
+  },
+  "warbell": {
+    "name": "warbell", "kind": "artifact", "rarity": "very_rare", "working": true,
+    "description": "Rung, it blinds everything near you with sound for a few turns.",
+    "value": 760, "properties": {"use": "flash", "radius": 8, "turns": 3, "uses_per_hunt": 1}
+  },
+  "broken_pilgrims_head": {
+    "name": "broken pilgrim's staff-head", "kind": "artifact", "rarity": "very_rare", "appearance": "brass",
+    "description": "The brass head of a walking staff, cracked.",
+    "value": 700, "repairs_to": "pilgrims_head"
+  },
+  "pilgrims_head": {
+    "name": "pilgrim's staff-head", "kind": "artifact", "rarity": "very_rare", "working": true,
+    "description": "It knows the roads. You walk them faster, meet fewer people, and rest well at the end.",
+    "value": 700, "properties": {"bonus": {"brisering_steps": 25, "road_quiet": 40, "rest_rate": 25}}
+  },
+  "crown_of_wire": {
+    "name": "shattered crown of wire", "kind": "artifact", "rarity": "legendary", "appearance": "coil",
+    "description": "A circlet of twisted wire, broken in three places.",
+    "value": 2200, "repairs_to": "burning_crown"
+  },
+  "burning_crown": {
+    "name": "burning crown", "kind": "artifact", "rarity": "legendary", "working": true,
+    "description": "Worn, it burns, and so do you.",
+    "value": 2200, "properties": {"bonus": {"damage": 3, "crit": 10, "max_hp": -10, "notice": -25}}
+  },
+  "ruined_orrery_heart": {
+    "name": "ruined orrery-heart", "kind": "artifact", "rarity": "legendary", "appearance": "wheel",
+    "description": "The heart of some great clockwork, its gears fused.",
+    "value": 2000, "repairs_to": "long_clock"
+  },
+  "long_clock": {
+    "name": "the long clock", "kind": "artifact", "rarity": "legendary", "working": true,
+    "description": "It turns slowly, and every artifact you carry finds more in itself. A little more Jodebris, too.",
+    "value": 2000, "properties": {"bonus": {"extra_uses": 2, "drain": -25}}
+  },
+  "black_glass_eye": {
+    "name": "black glass eye", "kind": "artifact", "rarity": "legendary", "appearance": "crystal",
+    "description": "An eye of black crystal, cracked across the pupil.",
+    "value": 2300, "repairs_to": "open_eye"
+  },
+  "open_eye": {
+    "name": "the open eye", "kind": "artifact", "rarity": "legendary", "working": true,
+    "description": "It sees in the dark and sees you first, and shows you where to put the knife.",
+    "value": 2300, "properties": {"light": 6, "bonus": {"sight": 4, "sneak_damage": 3}}
+  },
+  "throne_piece": {
+    "name": "broken bone throne-piece", "kind": "artifact", "rarity": "legendary", "appearance": "bone",
+    "description": "A carved arm of bone from something like a throne.",
+    "value": 1800, "repairs_to": "marrow_ward"
+  },
+  "marrow_ward": {
+    "name": "marrow ward", "kind": "artifact", "rarity": "legendary", "working": true,
+    "description": "It wards you hard, for a price in blood.",
+    "value": 1800, "properties": {"use": "ward", "ward": 6, "turns": 30, "uses_per_hunt": 2, "hp_cost": 5}
+  },
+  "great_cracked_bell": {
+    "name": "great cracked bell", "kind": "artifact", "rarity": "legendary", "appearance": "bell",
+    "description": "A bell as long as your forearm, cracked to the crown.",
+    "value": 1900, "repairs_to": "quiet_bell"
+  },
+  "quiet_bell": {
+    "name": "the quiet bell", "kind": "artifact", "rarity": "legendary", "working": true,
+    "description": "It rings so low you feel it more than hear it, and what's hunting you forgets.",
+    "value": 1900, "properties": {"use": "calm", "radius": 12, "uses_per_hunt": 2}
+  },
+  "ruined_pilgrims_cage": {
+    "name": "ruined pilgrim's cage", "kind": "artifact", "rarity": "legendary", "appearance": "cage",
+    "description": "A cage someone carried a long way, broken open.",
+    "value": 2400, "repairs_to": "second_breath"
+  },
+  "second_breath": {
+    "name": "second breath", "kind": "artifact", "rarity": "legendary", "working": true,
+    "description": "It keeps a breath, and lets you fall once more than you should.",
+    "value": 2400, "properties": {"bonus": {"faints": 1, "second_wind": 1}}
+  },
+  "split_lantern": {
+    "name": "the split lantern", "kind": "artifact", "rarity": "unique", "appearance": "glass",
+    "description": "A lantern of old glass split from top to foot. It's heavier than glass.",
+    "value": 5200, "repairs_to": "undimming"
+  },
+  "undimming": {
+    "name": "the Undimming", "kind": "artifact", "rarity": "unique", "working": true,
+    "description": "It burns with no fuel and no flame, brighter than anything you've seen. It drinks Jodebris to do it.",
+    "value": 5200, "properties": {"light": 12, "bonus": {"sight": 3, "drain": -50}}
+  },
+  "stopped_wheel": {
+    "name": "the stopped wheel", "kind": "artifact", "rarity": "unique", "appearance": "wheel",
+    "description": "A wheel of dark metal with no axle, stopped mid-turn.",
+    "value": 5600, "repairs_to": "the_turning"
+  },
+  "the_turning": {
+    "name": "the Turning", "kind": "artifact", "rarity": "unique", "working": true,
+    "description": "It turns again, and so does all you learn.",
+    "value": 5600, "properties": {"bonus": {"xp": 25}, "use": "unrest", "pulses": 27, "uses_per_hunt": 1}
   }
 }
