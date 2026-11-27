@@ -11,6 +11,6 @@
   "mind_max": 3,
   "old_age_from": [3, 6],
   "old_age_chance": 0.04,
-  "rest_pulses": 72,
+  "rest_pulses": 63,
   "rest_per_injury": 18
 }
