@@ -5,6 +5,18 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.100.14: A shorter travel-to list in the city (2026-11-26)
+- **The guild hall is one entry** (user): "the Tower Acquisition Guild". The stash, the clerk, the trainer, the boards, the Hunters at home and anyone else inside the hall (or the Cartographer's Study) aren't listed on their own any more.
+- **No near-duplicates:** a place within 3 steps of one already listed isn't listed again. Places come first (the Guild, your home, the Wayfinder, statues, gates, the stables), so someone standing by a place is reached by going there.
+- About 30 places became 19 (`travel.pruned`, `in_guild_hall`). The Brisering's and a hunt's lists are unchanged.
+- **Tests** follow your shorter rest from 0.100.13 (63 Pulses: aging, calendar, journey, rest, stock), and `test_dues_travel` checks the trimmed list.
+
+## 0.100.13: The user's tweaks (2026-11-26, the user)
+The user's own edits, tagged v0.100.13 (the number in `game/version.py` wasn't changed with them).
+- **The rest after a hunt is 63 Pulses** (7 Cycles; was 72).
+- **A new artifact appearance:** "broken twisted coil", warm to the touch (`data/appearances.json`; no artifact uses it yet).
+- **Chapter 1's closing line** is now just "Selda is home."
+
 ## 0.100.12: Fullscreen on tcod 19 (2026-11-26)
 - **Fixed the crash on F11 / Alt+Enter** (the user's crash.log: `WindowFlags` has no `FULLSCREEN_DESKTOP`). tcod 19 is built on SDL3, which dropped that flag: its plain `FULLSCREEN` already fills the screen at the desktop's resolution. `window._desktop_flag` now uses `FULLSCREEN_DESKTOP` where it exists (older tcod), else `FULLSCREEN`, else a plain yes.
 - **A window mode never stops the game:** if switching fails anyway, the reason goes in the messages instead of a crash (`main.switch_fullscreen`).

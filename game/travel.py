@@ -47,7 +47,7 @@ def destinations(engine) -> list[tuple[str, tuple[int, int], bool]]:
                 named[name] = (x, y)
         out += [(name, spot, True) for name, spot in named.items()]
     elif engine.hunt is None:
-        out.append(("the guild hall", engine.city_start, False))
+        out.append(("the Tower Acquisition Guild", engine.city_start, False))
         if home_door:
             out.append(("your home", home_door, False))
         for x in range(gm.width):
@@ -76,6 +76,7 @@ def destinations(engine) -> list[tuple[str, tuple[int, int], bool]]:
         straw = [(x, y) for x in range(gm.width) for y in range(gm.height) if gm.tile_at(x, y).symbol == "z"]
         if straw:                                   # sleep in the straw (v0.100.5)
             out.append(("the boga stables", min(straw), True))
+        out = pruned(engine, gm, out)
     else:
         seen = {}
         for x in range(gm.width):
@@ -91,6 +92,35 @@ def destinations(engine) -> list[tuple[str, tuple[int, int], bool]]:
             if target and f.item.type.id == target and gm.explored[f.x, f.y]:
                 out.append((f"the {f.item.type.name}", (f.x, f.y), False))
     return [d for d in out if d[1] != (p.x, p.y)]
+
+
+NEAR = 3     # (v0.100.14) a place this close to one already listed isn't listed again
+
+
+def in_guild_hall(gm, cell) -> bool:
+    """Inside the guild hall, or the Cartographer's Study on its corner."""
+    if not getattr(gm, "hall", None):
+        return False
+    hx, hy = gm.hall
+    return hx <= cell[0] < hx + 20 and hy - 3 <= cell[1] < hy + 11
+
+
+def pruned(engine, gm, out: list) -> list:
+    """The city's list, trimmed (v0.100.14, user: about 30 places, many a few cells apart). Everything in the
+    guild hall (the stash, the clerk, the trainer, the boards, the Hunters at home...) is the one entry, the
+    Tower Acquisition Guild; a place within NEAR steps of one already listed isn't listed again."""
+    people = {n.name for n in gm.npcs}
+    kept = []
+    # places first (the Guild, home, the Wayfinder, statues, gates, the stables), then people: a person
+    # standing by a place is found by going to the place
+    for d in sorted(out, key=lambda d: d[0] in people):
+        name, cell = d[0], d[1]
+        if name != "the Tower Acquisition Guild" and in_guild_hall(gm, cell):
+            continue
+        if d[2] and any(abs(cell[0] - k[1][0]) + abs(cell[1] - k[1][1]) <= NEAR for k in kept):
+            continue
+        kept.append(d)
+    return [d for d in out if d in kept]
 
 
 OFF_ROAD = 1.5      # (v0.90.0) open country is slower than the roads: each step counts 1.5 toward a Pulse
