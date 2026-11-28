@@ -353,9 +353,14 @@ lit or dark), and the Wayfinder hums when you're near it.
   can't start, the game plays on silently and the Sound window says why.
 - **To change a sound,** put a WAV file in `data/sounds/` and point the event at
   it in `data/sounds.json`. The placeholders are made from code by
-  `tools/sound/make_sounds.py` (run it from the project root to remake them).
-- **Music** (none yet): put WAV files in `data/music/` and name them under
-  `"music"` in `data/sounds.json`, by place (`city`, `hall`, `brisering`…).
+  `tools/sound/make_sounds.py` (run it from the project root to remake them);
+  the music by `tools/sound/make_music.py`.
+- **Music:** Bytorsskug has a piece of its own (v0.102.0, the assistant's
+  attempt: `tools/sound/make_music.py` makes it from code): about a minute and
+  a half in D Dorian, looping without a seam, through the streets, the buildings
+  and the guild hall as one piece that carries on as you go in and out. Nowhere
+  else has music yet. To change it, put WAV files in `data/music/` and name them
+  under `"music"` in `data/sounds.json`, by place (`city`, `hall`, `brisering`…).
 
 ## Corpses, trophies, the trophymaster and the butcher
 
@@ -1083,7 +1088,7 @@ data/
   trophies.json       creatures' weights and sizes, quirks, record pay, the trophymaster's lines
   sounds.json         which sound plays for what, footsteps, ambience and music by place
   sounds/             the sound effects and ambience loops (WAV; tools/sound/make_sounds.py)
-  music/              the user's music (none yet)
+  music/              music: Bytorsskug's (the assistant's attempt, v0.102.0)
   injuries.json       lasting injuries (what they do, how they heal)
   writings.json       writings found on hunts (texts are placeholders)
   aging.json          ages, rest between hunts, aging, old age

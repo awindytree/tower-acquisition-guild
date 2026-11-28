@@ -5,6 +5,19 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.102.0: Music for Bytorsskug (2026-11-28)
+The user asked the assistant to try music for Bytorsskug. A placeholder for the user to judge by ear (the assistant can't hear it).
+- **"Bytorsskug"** (`data/music/bytorsskug.wav`): 96 seconds in D Dorian at 60 beats a minute, 24 bars, looping without a seam (every tail, reverb included, wraps round into the start).
+  - Bars 1-4: a low drone on D and A (the Tower, always there) and a pad, and a plucked figure that starts sparse.
+  - Bars 5-12: a bowed melody with a Nordic lilt over the plucked figure and a soft heartbeat drum.
+  - Bars 13-16: glass chimes (shards were windcatcher glass), quieter.
+  - Bars 17-22: the melody again, higher, with a cello underneath.
+  - Bars 23-24: back to the drone, into the start again.
+- Stereo, 16-bit, 22,050 Hz, about 8.5 MB. Mixed to sit just above the city's ambience (RMS 0.10); the Music volume in the Sound window sets it.
+- **It plays in the city's streets, in any building and in the guild hall** as one piece that carries on as you go in and out (`data/sounds.json` "music": city, interior, hall). Not on the Brisering, on hunts, or in Ingenfjel and the stead (`sound.update`).
+- **`tools/sound/make_music.py`** makes it from code with fixed seeds (numpy only; it borrows make_sounds' building blocks): a bowed string (harmonics, delayed vibrato, bow noise), a cello, a detuned pad, a vectorised plucked string, a frame drum, bells, constant-power panning and a circular reverb.
+- `test_sound` follows it (stereo music, carried into the hall, stopped on the Brisering).
+
 ## 0.101.0: Fifty more artifacts (2026-11-26)
 The user, from recent playtests: "we really need more artifacts, man." They chose about 50, every kind of effect, all drafted by the assistant as placeholders.
 - **50 new artifacts** (63 kinds now, besides windcatchers): 12 Common, 12 Uncommon, 10 Rare, 8 Very Rare, 6 Legendary and 2 Uniques (the Undimming, the Turning). Each has a broken form with its own look and a working one. Names, looks, effects and prices are drafts.

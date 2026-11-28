@@ -323,6 +323,8 @@ def update(engine) -> None:
     hum = emitter_volume(engine) if key not in ("title",) else 0.0
     _set_loop("emitter", "loop_wayfinder" if hum > 0.01 else None, "ambience", hum)
     tune = table().get("music", {}).get(key)
+    if key in ("city", "interior", "hall") and engine.game_map is not getattr(engine, "city", None):
+        tune = None                  # (Ingenfjel and the stead aren't Bytorsskug: v0.102.0)
     _set_loop("music", tune, "music", 1.0, MUSIC)
 
 
