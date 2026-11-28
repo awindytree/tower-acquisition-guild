@@ -133,11 +133,30 @@ def _fail(exc: Exception) -> None:
     _status = f"Sound stopped ({type(exc).__name__}: {exc}). The game is silent."
 
 
+def _read_ogg(path: Path):
+    """An OGG file as float32 (frames, channels), or None if it can't be read here: no file, or no
+    soundfile library (v0.103.0: music is OGG, to keep it small)."""
+    if not path.exists():
+        return None
+    try:
+        import soundfile
+    except ImportError:
+        return None
+    x, rate = soundfile.read(str(path), dtype="float32", always_2d=True)
+    return x, rate
+
+
 def _load(name: str, folder: Path = SOUNDS):
-    """A WAV file as the sound device wants it (cached)."""
+    """A sound as the sound device wants it (cached): name.ogg if there is one and it can be read,
+    else name.wav."""
     if name in _cache:
         return _cache[name]
     import numpy as np
+    ogg = _read_ogg(folder / f"{name}.ogg")
+    if ogg is not None:
+        snd = _device.convert(ogg[0], ogg[1])
+        _cache[name] = snd
+        return snd
     with wave.open(str(folder / f"{name}.wav"), "rb") as w:
         rate, chans, width = w.getframerate(), w.getnchannels(), w.getsampwidth()
         raw = w.readframes(w.getnframes())
@@ -336,14 +355,53 @@ CARD_SOUNDS = {"The hunt begins": "wayfinder", "Knocked out": "faint", "Fallen":
                "Out of the miasma": "hunt_return", "Lost on the Brisering": "death"}     # (v0.89.0)
 
 
+STING_CARDS = {"The hunt begins": "begin", "Bounty done": "complete", "Out of the miasma": "out",
+               "Back in Bytorsskug": "out", "Knocked out": "faint", "Fallen": "fallen",
+               "Passed away": "fallen", "Lost on the Brisering": "fallen"}                  # (v0.103.0)
+
+
+def sting_for(heading: str) -> str | None:
+    """The bit of music a big card gets (data/sounds.json "stingers"), if any: the hunt beginning and
+    ending, falling, a new rank, a chapter."""
+    if heading in STING_CARDS:
+        return STING_CARDS[heading]
+    if "complete" in heading.lower():
+        return "complete"
+    if heading.startswith(("Chapter ", "Paralogue ")):
+        return "chapter"
+    from . import ranks
+    if any(r["name"] == heading for r in ranks.table()):
+        return "rank"
+    return None
+
+
+def sting(kind: str) -> None:
+    """A stinger: on the music volume, over whatever is playing."""
+    played.append(f"sting:{kind}")
+    del played[:-50]
+    name = table().get("stingers", {}).get(kind)
+    v = _vol("music")
+    if _mixer is None or not name or v <= 0:
+        return
+    try:
+        _mixer.play(_load(name), volume=v)
+    except FileNotFoundError:
+        pass
+    except Exception as exc:
+        _fail(exc)
+
+
 def on_screen(screen) -> None:
-    """A window has opened: its sound (a title card's is the moment's own)."""
+    """A window has opened: its sound (a title card's is the moment's own, and a big one's music)."""
     name = type(screen).__name__
     if name in QUIET_SCREENS:
         return
     if name == "TitleCardScreen":
         heading = getattr(screen, "heading", "")
         play(CARD_SOUNDS.get(heading) or ("hunt_complete" if "complete" in heading.lower() else "ui_popup"))
+        kind = sting_for(heading)
+        if kind:
+            sting(kind)
     elif name == "SceneScreen":
         play("ui_popup")
     elif name == "TalentScreen":

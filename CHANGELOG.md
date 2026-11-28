@@ -5,6 +5,20 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.103.0: More music (2026-11-28)
+The user liked Bytorsskug's piece and asked for more: the title screen, the Brisering, hunts in the miasma, and the big moments, as OGG. All of it is the assistant's, placeholders for the user's ear.
+- **The Tower's Shadow** (`the_tower`, title screen and opening crawl): 89 seconds in D minor at 54 beats a minute. Bytorsskug's falling figure (A G F E) becomes the game's motif: a drone and voices, then the motif low in the horns, the fiddle answering high over a harp, everything together, and back down. A deep bell tolls at each section.
+- **The Brisering** (`the_brisering`): 115 seconds in D Dorian at 50 beats a minute. Open fifths, a slow harp, the wind swelling and falling in both ears, and a flute that wanders in for the second half. Quieter than the city's.
+- **Four pieces for the miasma**, quiet (half the city's loudness) and with no beat to hold on to, so the land's own soundscape stays the main thing. Things come in at seeded, uneven times:
+  - *the wilds* (`miasma_wilds`; forests, plains, grassland, lit or dark): a low D against E-flat, plucks, a chime that bends out of tune;
+  - *the deep* (`miasma_deep`; caves): very low drones, bowed glass beating against itself, drips, a cello now and then;
+  - *stone* (`miasma_stone`; ruins, mountains): a low bell tolling at odd times, humming voices, minor seconds;
+  - *the mire* (`miasma_mire`; marsh): murky drones, slow sliding pitches, bubbles.
+- **Stingers** for the big cards (`data/sounds/st_*.ogg`, `data/sounds.json` "stingers"), played on the Music volume over the card's own sound: the hunt begins (an uneasy rising chord), a hunt or bounty done (the motif resolved to the major), out of the miasma or back in Bytorsskug (a breath of relief), knocked out (everything slides away), fallen, passed away or lost on the Brisering (a toll and the motif falling all the way), a new rank (the motif rising), a chapter or paralogue (the Tower's toll and the motif once). `sound.sting_for`, `sound.sting`.
+- **OGG:** the game reads `name.ogg` before `name.wav` (through `soundfile`, now in `requirements.txt`; `Play.bat` installs it). Bytorsskug's piece is now `bytorsskug.ogg` (770 KB instead of 8.5 MB).
+- **`tools/sound/pieces.py`**: the new pieces and instruments (voices on "ah" shaped by formants, a flute with breath, low horns, bowed glass, wind, sliding tones). `make_music.py` writes OGG through ffmpeg and renders everything.
+- `test_sound` follows it (each piece and stinger is there as OGG, the Brisering's own piece, stingers by heading and on the Music volume).
+
 ## 0.102.0: Music for Bytorsskug (2026-11-28)
 The user asked the assistant to try music for Bytorsskug. A placeholder for the user to judge by ear (the assistant can't hear it).
 - **"Bytorsskug"** (`data/music/bytorsskug.wav`): 96 seconds in D Dorian at 60 beats a minute, 24 bars, looping without a seam (every tail, reverb included, wraps round into the start).

@@ -11,12 +11,19 @@ plucked ostinato (the city going about its business), a bowed melody with a Nord
 Scandinavian-rooted names), glass chimes (shards were windcatcher glass) in the middle, and a cello
 under the second half. Moody and warm: a lit city in a very dark world.
 
-Stereo, 16-bit, 22,050 Hz (the game converts it for the sound card). Every part is built from fixed
-seeds, so running this again gives the same file. Needs only numpy (and make_sounds' building blocks).
+Stereo, 22,050 Hz. Every part is built from fixed seeds, so running this again gives the same file.
+Needs numpy (and make_sounds' building blocks); with ffmpeg on the PATH it writes OGG Vorbis (v0.103.0:
+about 1.5 MB a piece instead of 8.5 as WAV), else WAV.
+
+v0.103.0 (the user liked Bytorsskug and asked for more): the title theme, the Brisering, four pieces for
+the miasma (by kind of land), and stingers for the big cards (in data/sounds/). All the assistant's.
 """
 from __future__ import annotations
 
+import shutil
+import subprocess
 import sys
+import tempfile
 import wave
 from pathlib import Path
 
@@ -229,27 +236,52 @@ def bytorsskug() -> np.ndarray:
         add(drum(1.5, rng), b * BAR, 0.18, 0)
         add(drum(1.5, rng), b * BAR + 2.5 * BEAT, 0.09, 0)
 
-    L = wrap_reverb(L, 3.2, 0.32, 3500, "music/verb/L")
-    R = wrap_reverb(R, 3.2, 0.32, 3500, "music/verb/R")
+    return finish(L, R, LEVEL)
+
+
+def finish(L, R, level: float, verb: float = 3.2, wet: float = 0.32, bright: float = 3500, seed: str = "music/verb"):
+    """Circular reverb (so the loop rings round), a soft limit, and the loudness it should sit at."""
+    L = wrap_reverb(L, verb, wet, bright, seed + "/L")
+    R = wrap_reverb(R, verb, wet, bright, seed + "/R")
     out = np.stack([L, R], axis=1)
     out = np.tanh(out / 0.9) * 0.9
-    out *= LEVEL / (np.sqrt(np.mean(out ** 2)) + 1e-12)      # by loudness, to sit with the ambience
+    out *= level / (np.sqrt(np.mean(out ** 2)) + 1e-12)      # by loudness, to sit with the ambience
     return out * min(1.0, 0.95 / (np.abs(out).max() + 1e-9))
 
 
-def write(name: str, x: np.ndarray) -> None:
-    OUT.mkdir(parents=True, exist_ok=True)
+def write(name: str, x: np.ndarray, folder: Path = OUT) -> Path:
+    """OGG Vorbis through ffmpeg when it's there (quality 5, about 160 kbps), else WAV. Stereo."""
+    folder.mkdir(parents=True, exist_ok=True)
+    if x.ndim == 1:
+        x = np.stack([x, x], axis=1)
     data = (np.clip(x, -1, 1) * 32767).astype("<i2")
-    with wave.open(str(OUT / f"{name}.wav"), "wb") as w:
+    tmp = Path(tempfile.mkdtemp()) / f"{name}.wav"
+    with wave.open(str(tmp), "wb") as w:
         w.setnchannels(2)
         w.setsampwidth(2)
         w.setframerate(RATE)
         w.writeframes(data.tobytes())
+    ff = shutil.which("ffmpeg")
+    if ff:
+        dest = folder / f"{name}.ogg"
+        subprocess.run([ff, "-y", "-loglevel", "error", "-i", str(tmp), "-c:a", "libvorbis", "-q:a", "5", str(dest)],
+                       check=True)
+        old = folder / f"{name}.wav"
+        if old.exists():
+            old.unlink()
+        return dest
+    dest = folder / f"{name}.wav"
+    shutil.move(str(tmp), dest)
+    return dest
 
 
 MUSIC = {"bytorsskug": bytorsskug}
 
 if __name__ == "__main__":
-    for name in sys.argv[1:] or MUSIC:
-        write(name, MUSIC[name]())
-        print("wrote", name)
+    import make_music as mm          # (this file as a module, so pieces.py adds to the same table)
+    import pieces
+    for name in sys.argv[1:] or list(mm.MUSIC) + list(pieces.STINGERS):
+        if name in mm.MUSIC:
+            print("wrote", mm.write(name, mm.MUSIC[name]()))
+        else:
+            print("wrote", mm.write(name, pieces.STINGERS[name](), pieces.SOUNDS_OUT))

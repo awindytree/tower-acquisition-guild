@@ -349,18 +349,29 @@ lit or dark), and the Wayfinder hums when you're near it.
 - **Sound** in the title menu or the Esc menu: volumes for everything, effects,
   ambience and music; mute; a test sound; and a line saying whether sound is
   working. **F2** mutes. Settings live in `saves/settings.json`.
-- It uses python-tcod's own audio, so there's nothing extra to install. If it
-  can't start, the game plays on silently and the Sound window says why.
-- **To change a sound,** put a WAV file in `data/sounds/` and point the event at
-  it in `data/sounds.json`. The placeholders are made from code by
-  `tools/sound/make_sounds.py` (run it from the project root to remake them);
-  the music by `tools/sound/make_music.py`.
-- **Music:** Bytorsskug has a piece of its own (v0.102.0, the assistant's
-  attempt: `tools/sound/make_music.py` makes it from code): about a minute and
-  a half in D Dorian, looping without a seam, through the streets, the buildings
-  and the guild hall as one piece that carries on as you go in and out. Nowhere
-  else has music yet. To change it, put WAV files in `data/music/` and name them
-  under `"music"` in `data/sounds.json`, by place (`city`, `hall`, `brisering`…).
+- It uses python-tcod's own audio, plus `soundfile` to read OGG files
+  (`Play.bat` installs it). If sound can't start, the game plays on silently and
+  the Sound window says why.
+- **To change a sound,** put an OGG or WAV file in `data/sounds/` and point the
+  event at it in `data/sounds.json` (an `.ogg` wins over a `.wav` of the same
+  name). The placeholders are made from code by `tools/sound/make_sounds.py`
+  (run it from the project root to remake them); the music by
+  `tools/sound/make_music.py` (which needs ffmpeg for OGG).
+- **Music** (the assistant's attempts, made from code, every piece looping
+  without a seam):
+  - *The Tower's Shadow* on the title screen and the opening crawl (v0.103.0);
+  - *Bytorsskug* through the streets, the buildings and the guild hall, one
+    piece that carries on as you go in and out (v0.102.0);
+  - *The Brisering* on the open land (v0.103.0);
+  - four quiet pieces for hunts in the miasma, under the land's soundscape
+    (v0.103.0): the wilds (forests, plains, grassland), the deep (caves), stone
+    (ruins, mountains) and the mire (marsh).
+- **Stingers** (v0.103.0): short pieces on the big cards, on the Music volume:
+  the hunt beginning, a hunt or bounty done, out of the miasma or home, knocked
+  out, fallen, a new rank, a chapter.
+- To change the music, put files in `data/music/` and name them under `"music"`
+  in `data/sounds.json`, by place (`title`, `city`, `brisering`, `caves`…);
+  stingers are under `"stingers"`.
 
 ## Corpses, trophies, the trophymaster and the butcher
 
@@ -1088,7 +1099,7 @@ data/
   trophies.json       creatures' weights and sizes, quirks, record pay, the trophymaster's lines
   sounds.json         which sound plays for what, footsteps, ambience and music by place
   sounds/             the sound effects and ambience loops (WAV; tools/sound/make_sounds.py)
-  music/              music: Bytorsskug's (the assistant's attempt, v0.102.0)
+  music/              music: the assistant's attempts (v0.102.0, v0.103.0)
   injuries.json       lasting injuries (what they do, how they heal)
   writings.json       writings found on hunts (texts are placeholders)
   aging.json          ages, rest between hunts, aging, old age
