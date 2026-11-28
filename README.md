@@ -348,7 +348,7 @@ lit or dark), and the Wayfinder hums when you're near it.
 
 - **Sound** in the title menu or the Esc menu: volumes for everything, effects,
   ambience and music; mute; a test sound; and a line saying whether sound is
-  working. **F2** mutes. Settings live in `saves/settings.json`.
+  working. **F2** mutes. Settings live in `saves/settings.json`; if sound runs into trouble, `saves/sound.log` says why.
 - It uses python-tcod's own audio, plus `soundfile` to read OGG files
   (`Play.bat` installs it). If sound can't start, the game plays on silently and
   the Sound window says why.

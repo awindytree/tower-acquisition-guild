@@ -5,6 +5,14 @@ lives in `game/version.py` and shows in the corner of the side panel.
 
 Versions 0.1 to 0.9 were numbered after the fact, one per milestone.
 
+## 0.103.1: The title music stops (2026-11-28)
+The user: the title music never stopped once the game began, and it seemed to drown out footsteps.
+- **A loop on its way out is now turned down by the game itself** over the crossfade and stopped dead at the end (no volume, nothing queued, nothing to loop it), under the channel's own lock. Before, the game relied on tcod's `fadeout` alone, and any error in it was swallowed, so a loop could play on for good.
+- **If sound gives up, nothing is left playing.** Before, an error mid-game dropped the mixer but left the loops already on the audio thread going, and every sound after it (footsteps included) was silent. That fits what the user heard.
+- **A file that can't be read is skipped,** not the end of all sound.
+- **`saves/sound.log`** records any sound failure with its traceback, so the cause can be found if this happens again.
+- `test_sound` follows it (a failing fadeout, a file that won't load, sound giving up).
+
 ## 0.103.0: More music (2026-11-28)
 The user liked Bytorsskug's piece and asked for more: the title screen, the Brisering, hunts in the miasma, and the big moments, as OGG. All of it is the assistant's, placeholders for the user's ear.
 - **The Tower's Shadow** (`the_tower`, title screen and opening crawl): 89 seconds in D minor at 54 beats a minute. Bytorsskug's falling figure (A G F E) becomes the game's motif: a drone and voices, then the motif low in the horns, the fiddle answering high over a harp, everything together, and back down. A deep bell tolls at each section.

@@ -44,6 +44,8 @@ _cache: dict = {}
 _status = "Sound hasn't started."
 _settings_path: Path | None = None
 _loops: dict = {}               # "ambience" / "emitter" / "music" -> [name, channel, base volume]
+_fading: list = []              # [channel, volume it started at, when] for loops on their way out (v0.103.1)
+_bad: dict = {}                 # name -> why it couldn't be loaded (skipped from then on; v0.103.1)
 _rng = random.Random()
 _last: dict = {}                # event -> time it last played (some are rate-limited)
 
@@ -126,9 +128,45 @@ def active() -> bool:
     return _mixer is not None
 
 
+def _log(exc: Exception, what: str) -> None:
+    """Note a sound failure in saves/sound.log (v0.103.1), so the reason can be found afterwards."""
+    if _settings_path is None:
+        return
+    try:
+        import time
+        import traceback
+        with open(_settings_path.parent / "sound.log", "a", encoding="utf-8") as f:
+            f.write(f"--- {time.strftime('%Y-%m-%d %H:%M:%S')} {what}\n")
+            f.write("".join(traceback.format_exception(type(exc), exc, exc.__traceback__)))
+    except Exception:
+        pass
+
+
+def _silence(ch) -> None:
+    """Stop a channel dead, whatever tcod's fadeout did: no volume, no callback to loop it, nothing
+    queued. Done under the channel's own lock, so the audio thread never sees it half-done."""
+    try:
+        with _channel_lock(ch):
+            ch.on_end_callback = None
+            ch.volume = 0.0
+            if ch.sound_queue:
+                ch.sound_queue.clear()
+    except Exception:
+        pass
+
+
 def _fail(exc: Exception) -> None:
-    """Something went wrong mid-game: stop trying, stay silent, keep the reason."""
+    """Something went wrong mid-game: stop trying, stay silent, keep the reason. (v0.103.1, user: the
+    title music played on into the game and footsteps went quiet: when sound gave up, the loops
+    already playing on the audio thread were left going. Everything is silenced first now.)"""
     global _mixer, _status
+    _log(exc, "sound stopped")
+    for cur in list(_loops.values()):
+        _silence(cur[1])
+    for ch, *_ in _fading:
+        _silence(ch)
+    _loops.clear()
+    _fading.clear()
     _mixer = None
     _status = f"Sound stopped ({type(exc).__name__}: {exc}). The game is silent."
 
@@ -191,8 +229,11 @@ def play(event: str, volume: float = 1.0, gap: float = 0.0) -> None:
     v = _vol("effects") * event_volume(event) * volume
     if not files or v <= 0:
         return
+    snd = _try_load(_rng.choice(files))
+    if snd is None:
+        return
     try:
-        _mixer.play(_load(_rng.choice(files)), volume=v)
+        _mixer.play(snd, volume=v)
     except Exception as exc:
         _fail(exc)
 
@@ -228,13 +269,29 @@ def _set_loop(slot: str, name: str | None, kind: str, base: float = 1.0, folder:
         _loops.pop(slot, None)
     if name is None or _mixer is None:
         return
+    snd = _try_load(name, folder)
+    if snd is None:
+        return
     try:
-        ch = _mixer.play(_load(name, folder), volume=_vol(kind) * base, loops=-1)
+        ch = _mixer.play(snd, volume=_vol(kind) * base, loops=-1)
         _loops[slot] = [name, ch, base]
-    except FileNotFoundError:
-        pass
     except Exception as exc:
         _fail(exc)
+
+
+def _try_load(name: str, folder: Path = SOUNDS):
+    """_load, but a file that can't be read is skipped (and noted in saves/sound.log) rather than
+    silencing the whole game (v0.103.1)."""
+    if name in _bad:
+        return None
+    try:
+        return _load(name, folder)
+    except FileNotFoundError:
+        _bad[name] = "missing"
+    except Exception as exc:
+        _bad[name] = f"{type(exc).__name__}: {exc}"
+        _log(exc, f"couldn't load {name}")
+    return None
 
 
 def _channel_lock(ch):
@@ -256,8 +313,30 @@ def _retire(ch) -> None:
         with _channel_lock(ch):
             ch.on_end_callback = None
             ch.fadeout(FADE)
-    except Exception:
-        pass
+    except Exception as exc:
+        _log(exc, "fadeout")
+    # (v0.103.1) and whatever fadeout did, the game turns it down itself and silences it when done
+    import time
+    _fading.append([ch, float(getattr(ch, "volume", 1.0) or 0.0), time.monotonic()])
+
+
+def _fade_out_retired() -> None:
+    """Each frame: loops on their way out get quieter, and are stopped dead at the end of the fade."""
+    if not _fading:
+        return
+    import time
+    now = time.monotonic()
+    for item in list(_fading):
+        ch, start, t0 = item
+        left = 1 - (now - t0) / FADE
+        if left <= 0:
+            _silence(ch)
+            _fading.remove(item)
+        else:
+            try:
+                ch.volume = start * left
+            except Exception:
+                pass
 
 
 
@@ -334,6 +413,7 @@ def emitter_volume(engine) -> float:
 
 def update(engine) -> None:
     """Each frame: the right ambience, the Wayfinder's hum, the place's music."""
+    _fade_out_retired()
     if _mixer is None:
         return
     key = place_key(engine)
@@ -383,10 +463,11 @@ def sting(kind: str) -> None:
     v = _vol("music")
     if _mixer is None or not name or v <= 0:
         return
+    snd = _try_load(name)
+    if snd is None:
+        return
     try:
-        _mixer.play(_load(name), volume=v)
-    except FileNotFoundError:
-        pass
+        _mixer.play(snd, volume=v)
     except Exception as exc:
         _fail(exc)
 
